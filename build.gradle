@@ -1,0 +1,67 @@
+apply plugin: 'java'
+apply from: file('gradle/idea.gradle')
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+ext.antlr = [
+        grammarpackage: "com.tazadum.glsl.language",
+        antlrSource: 'src/main/antlr',
+        destinationDir: "src/generated-sources/java"
+]
+
+repositories {
+    jcenter()
+}
+
+configurations {
+    antlr4 {
+        description = "ANTLR4"
+    }
+}
+
+dependencies {
+    compile 'org.slf4j:slf4j-api:1.7.21'
+    compile 'org.antlr:antlr4-runtime:4.+'
+
+    antlr4 'org.antlr:antlr4:4.+'
+
+    testCompile 'junit:junit:4.12'
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.14'
+}
+
+tasks.withType(Test) {
+    systemProperties = System.getProperties()
+    testLogging.showStandardStreams = true
+}
+
+task antlrOutputDir << {
+    mkdir(antlr.destinationDir)
+}
+
+task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec) {
+    description = 'Generates Java sources from ANTLR4 grammars.'
+
+    inputs.dir file(antlr.antlrSource)
+    outputs.dir file(antlr.destinationDir)
+
+    def grammars = fileTree(antlr.antlrSource).include('**/*.g4')
+
+    main = 'org.antlr.v4.Tool'
+    classpath = configurations.antlr4
+    def pkg = antlr.grammarpackage.replaceAll("\\.", "/")
+    args = ["-o", "${antlr.destinationDir}/${pkg}"/*, "-atn"*/, "-package", antlr.grammarpackage, grammars.files].flatten()
+
+}
+
+compileJava {
+    dependsOn generateGrammarSource
+    source antlr.destinationDir
+}
+
+clean {
+    delete antlr.destinationDir
+}

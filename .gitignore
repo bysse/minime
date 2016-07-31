@@ -1,0 +1,13 @@
+# IDE and build
+.idea
+.gradle
+build
+
+# generic
+.*
+*~
+*.class
+*.jar
+
+# generated
+src/generated-sources
