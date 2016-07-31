@@ -1,5 +1,9 @@
 package com.tazadum.glsl.ast;
 
+/**
+ * @author erikb
+ * @since 2016-07-31
+ */
 public class LeafNode implements Node {
     private ParentNode parentNode;
 
@@ -22,6 +26,11 @@ public class LeafNode implements Node {
     @Override
     public ParentNode getParentNode() {
         return parentNode;
+    }
+
+    @Override
+    public void setParentNode(ParentNode parentNode) {
+        this.parentNode = parentNode;
     }
 
     @Override

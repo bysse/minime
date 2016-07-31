@@ -3,6 +3,10 @@ package com.tazadum.glsl.ast;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author erikb
+ * @since 2016-07-31
+ */
 public class ParentNode implements Node {
     private ParentNode parentNode;
     private List<Node> childNodes;
@@ -30,6 +34,11 @@ public class ParentNode implements Node {
     }
 
     @Override
+    public void setParentNode(ParentNode parentNode) {
+        this.parentNode = parentNode;
+    }
+
+    @Override
     public ParentNode clone(ParentNode newParent) {
         ParentNode clone = new ParentNode(newParent);
         for (Node child : childNodes) {
@@ -47,10 +56,10 @@ public class ParentNode implements Node {
     }
 
     public ParentNode addChild(Node node) {
-        if (!equals(node.getParentNode())) {
-            throw new IllegalArgumentException("The node doesn't have the correct parent set.");
+        if (node == null) {
+            throw new IllegalArgumentException("Node is null.");
         }
-
+        node.setParentNode(this);
         childNodes.add(node);
         return this;
     }
