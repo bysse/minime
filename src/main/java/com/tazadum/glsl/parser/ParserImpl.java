@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.ast.Shader;
+import com.tazadum.glsl.ast.Context;
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -13,7 +13,7 @@ import org.antlr.v4.runtime.tree.ParseTreeWalker;
  */
 public class ParserImpl implements Parser {
     @Override
-    public Shader parse(String source) {
+    public Context parse(String source) {
         ANTLRInputStream inputStream = new ANTLRInputStream(source);
         GLSLLexer lexer = new GLSLLexer(inputStream);
         CommonTokenStream tokenStream = new CommonTokenStream(lexer);
@@ -23,7 +23,7 @@ public class ParserImpl implements Parser {
 
         ParserListener listener = createListener();
         ParseTreeWalker.DEFAULT.walk(listener, translationUnit);
-        return listener.getShader();
+        return listener.getContext();
     }
 
     private ParserListener createListener() {

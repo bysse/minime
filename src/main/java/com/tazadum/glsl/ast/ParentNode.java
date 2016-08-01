@@ -81,7 +81,7 @@ public class ParentNode implements Node {
     int getChildId(Node node) {
         int id = getId();
 
-        for (Node childNode : childNodes) {
+        for (Node childNode : getChildren()) {
             id += 1;
             if (node.equals(childNode)) {
                 return id;

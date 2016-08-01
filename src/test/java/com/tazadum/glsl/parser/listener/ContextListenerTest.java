@@ -1,16 +1,17 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.Shader;
+import com.tazadum.glsl.ast.Context;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.parser.TestUtils;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Test;
 
 /**
  * @author erikb
  * @since 2016-07-31
  */
-public class StructureListenerTest {
+public class ContextListenerTest {
     @Test
     public void showTokens() {
         CommonTokenStream stream = TestUtils.tokenStream("float variable;");
@@ -21,7 +22,7 @@ public class StructureListenerTest {
     public void showRuleInvocations() {
         CommonTokenStream stream = TestUtils.tokenStream("float variable;");
         GLSLParser parser = TestUtils.parser(stream);
-        TestUtils.walk(parser.translation_unit(), new PrintingListener(null, true, true));
+        ParseTreeWalker.DEFAULT.walk(new PrintingListener(null, true, true), parser.translation_unit());
     }
 
     @Test
@@ -29,8 +30,8 @@ public class StructureListenerTest {
         CommonTokenStream stream = TestUtils.tokenStream("float variable;");
         GLSLParser parser = TestUtils.parser(stream);
 
-        StructureListener listener = new StructureListener(null);
-        TestUtils.walk(parser.translation_unit(), new PrintingListener(listener, true, true));
-        Shader shader = listener.getShader();
+        ContextListener listener = new ContextListener(null);
+        listener.walk(parser.translation_unit());
+        Context context = listener.getResult();
     }
 }

@@ -13,6 +13,13 @@ public class TypeException extends ParserException {
         return new TypeException(String.format("Invalid field '%s' for type '%s'", field, type));
     }
 
+    public static TypeException missingType() {
+        return new TypeException("Missing type definition");
+    }
+
+    public static TypeException unknownType(String type) {
+        return new TypeException(String.format("Unknown type '%s'", type));
+    }
 
     public TypeException(String message) {
         super(message);

@@ -2,15 +2,16 @@ package com.tazadum.glsl.parser.listener;
 
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.type.FullySpecifiedType;
 
 /**
  * @author erikb
  * @since 2016-07-31
  */
-public class TypeListener extends GLSLBaseListener {
+public class TypeListener extends WalkableListener implements HasResult<FullySpecifiedType> {
     private final ParserContext parserContext;
 
-    private BuiltInType type = null;
+    private GLSLType type = null;
     private TypeQualifier qualifier = null;
     private PrecisionQualifier precision = null;
 
@@ -18,12 +19,14 @@ public class TypeListener extends GLSLBaseListener {
         this.parserContext = parserContext;
     }
 
-    @Override
-    public void enterFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
+    public void resetState() {
+        type = null;
+        qualifier = null;
+        precision = null;
     }
 
-    @Override
-    public void exitFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
+    public FullySpecifiedType getResult() {
+        return new FullySpecifiedType(qualifier, precision, type);
     }
 
     @Override
@@ -34,14 +37,6 @@ public class TypeListener extends GLSLBaseListener {
     @Override
     public void enterPrecision_qualifier(GLSLParser.Precision_qualifierContext ctx) {
         precision = HasToken.match(ctx, PrecisionQualifier.values());
-    }
-
-    @Override
-    public void enterType_specifier(GLSLParser.Type_specifierContext ctx) {
-    }
-
-    @Override
-    public void exitType_specifier(GLSLParser.Type_specifierContext ctx) {
     }
 
     @Override
@@ -61,11 +56,21 @@ public class TypeListener extends GLSLBaseListener {
             return;
         }
 
-        // TODO: resolve the type from the TypeRegistry
+        // resolve the type from the TypeRegistry
+        final String typeName = ctx.IDENTIFIER().getText();
+        final FullySpecifiedType fst = parserContext.getTypeRegistry().resolve(typeName);
+
+        // TODO: verify type information
+
+        type = fst.getType();
+
+        super.exitType_specifier_no_prec(ctx);
     }
 
     @Override
     public void enterStruct_specifier(GLSLParser.Struct_specifierContext ctx) {
         // TODO: parse the custom struct type
+
+        // register type :         parserContext.getTypeRegistry().declare(fsType);
     }
 }
