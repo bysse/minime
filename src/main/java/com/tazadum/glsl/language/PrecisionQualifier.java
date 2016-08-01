@@ -12,7 +12,7 @@ public enum PrecisionQualifier implements HasToken {
     }
 
     @Override
-    public String getToken() {
+    public String token() {
         return token;
     }
 }

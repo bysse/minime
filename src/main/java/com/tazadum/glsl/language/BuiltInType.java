@@ -1,10 +1,12 @@
 package com.tazadum.glsl.language;
 
+import com.tazadum.glsl.exception.TypeException;
+
 /**
  * @author erikb
  * @since 2016-07-31
  */
-public enum BuiltInType implements HasToken {
+public enum BuiltInType implements GLSLType, HasToken {
     VOID("void"),
     FLOAT("float"),
     INT("int"),
@@ -22,7 +24,7 @@ public enum BuiltInType implements HasToken {
     MAT3("mat3"),
     MAT4("mat4"),
     SAMPLER2D("sampler2D"),
-    SAMPLERCUBE("samplerCube");
+    SAMPLER_CUBE("samplerCube");
 
     private String token;
 
@@ -31,7 +33,75 @@ public enum BuiltInType implements HasToken {
     }
 
     @Override
-    public String getToken() {
+    public String token() {
         return token;
+    }
+
+    @Override
+    public GLSLType fieldType(String field) {
+        switch (this) {
+            case VOID:
+            case FLOAT:
+            case INT:
+            case BOOL:
+            case MAT2:
+            case MAT3:
+            case MAT4:
+            case SAMPLER2D:
+            case SAMPLER_CUBE:
+                throw TypeException.noFields(name());
+        }
+
+        // verify all characters in the component specification
+        for (int i=0;i<field.length();i++) {
+            if (!isComponent(field.charAt(i))) {
+                throw TypeException.noSuchField(name(), field);
+            }
+        }
+
+        switch (this) {
+            case VEC2:
+            case VEC3:
+            case VEC4:
+                return swizzle(field, FLOAT, VEC2, VEC3, VEC4);
+            case IVEC2:
+            case IVEC3:
+            case IVEC4:
+                return swizzle(field, INT, IVEC2, IVEC3, IVEC4);
+            case BVEC2:
+            case BVEC3:
+            case BVEC4:
+                return swizzle(field, BOOL, BVEC2, BVEC3, BVEC4);
+        }
+
+        throw TypeException.unknownError("Unhandled type " + name());
+    }
+
+    private BuiltInType swizzle(String field, BuiltInType... types) {
+        final int length = field.length();
+        if (length > types.length) {
+            throw TypeException.noSuchField(name(), field);
+        }
+        return types[length - 1];
+    }
+
+    private boolean isComponent(char ch) {
+        switch (ch) {
+            case 'r': // rgba
+            case 'g':
+            case 'b':
+            case 'a':
+            case 's': // stpq
+            case 't':
+            case 'p':
+            case 'q':
+            case 'x': // xyzw
+            case 'y':
+            case 'z':
+            case 'w':
+                return true;
+            default:
+                return false;
+        }
     }
 }

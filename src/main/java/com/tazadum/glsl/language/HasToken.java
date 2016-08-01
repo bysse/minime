@@ -7,12 +7,12 @@ import org.antlr.v4.runtime.tree.ParseTree;
  * @since 2016-07-31
  */
 public interface HasToken {
-    String getToken();
+    String token();
 
     static <T extends HasToken> T match(ParseTree context, T[] values) {
         final String contextName = context.getText();
         for (T value : values) {
-            if (contextName.equals(value.getToken())) {
+            if (contextName.equals(value.token())) {
                 return value;
             }
         }

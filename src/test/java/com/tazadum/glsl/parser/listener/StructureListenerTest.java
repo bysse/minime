@@ -29,7 +29,7 @@ public class StructureListenerTest {
         CommonTokenStream stream = TestUtils.tokenStream("float variable;");
         GLSLParser parser = TestUtils.parser(stream);
 
-        StructureListener listener = new StructureListener();
+        StructureListener listener = new StructureListener(null);
         TestUtils.walk(parser.translation_unit(), new PrintingListener(listener, true, true));
         Shader shader = listener.getShader();
     }
