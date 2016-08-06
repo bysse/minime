@@ -3,6 +3,7 @@ package com.tazadum.glsl.parser.type;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.GLSLType;
+import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -10,7 +11,7 @@ import java.util.concurrent.ConcurrentMap;
 
 public class TypeRegistryImpl implements TypeRegistry {
     private ConcurrentMap<String, FullySpecifiedType> typeMap;
-    private ConcurrentMap<GLSLType, Usage> usageMap;
+    private ConcurrentMap<GLSLType, Usage<GLSLType>> usageMap;
 
     public TypeRegistryImpl() {
         this.typeMap = new ConcurrentHashMap<>();
@@ -23,8 +24,8 @@ public class TypeRegistryImpl implements TypeRegistry {
     }
 
     @Override
-    public void usage(GLSLType type, Node node) {
-        usageMap.computeIfAbsent(type, t -> new Usage()).add(node);
+    public void usage(GLSLContext context, GLSLType type, Node node) {
+        usageMap.computeIfAbsent(type, Usage::new).add(context, node);
     }
 
     @Override
@@ -34,5 +35,10 @@ public class TypeRegistryImpl implements TypeRegistry {
             throw TypeException.unknownType(name);
         }
         return fst;
+    }
+
+    @Override
+    public Usage<GLSLType> usagesOf(FullySpecifiedType fst) {
+        return usageMap.get(fst.getType());
     }
 }

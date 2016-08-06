@@ -3,13 +3,13 @@ package com.tazadum.glsl.ast;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 
 public class VariableDeclarationListNode extends ParentNode {
-    private FullySpecifiedType type;
+    private FullySpecifiedType fst;
 
-    public void setType(FullySpecifiedType type) {
-        this.type = type;
+    public void setFullySpecifiedType(FullySpecifiedType fst) {
+        this.fst = fst;
     }
 
-    public FullySpecifiedType getType() {
-        return type;
+    public FullySpecifiedType getFullySpecifiedType() {
+        return fst;
     }
 }

@@ -46,7 +46,7 @@ public class VariableDeclarationNode extends FixedChildParentNode {
         return nodes;
     }
 
-    public FullySpecifiedType getType() {
+    public FullySpecifiedType getFullySpecifiedType() {
         return type;
     }
 }

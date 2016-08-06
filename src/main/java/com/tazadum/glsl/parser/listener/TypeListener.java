@@ -51,6 +51,8 @@ public class TypeListener extends WalkableListener implements HasResult<FullySpe
 
     @Override
     public void exitType_specifier_no_prec(GLSLParser.Type_specifier_no_precContext ctx) {
+        walkChildren(ctx);
+
         if (type != null) {
             // the type has already been determined
             return;
@@ -63,8 +65,6 @@ public class TypeListener extends WalkableListener implements HasResult<FullySpe
         // TODO: verify type information
 
         type = fst.getType();
-
-        super.exitType_specifier_no_prec(ctx);
     }
 
     @Override

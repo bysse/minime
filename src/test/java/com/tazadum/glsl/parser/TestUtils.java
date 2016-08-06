@@ -2,6 +2,8 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.parser.type.TypeRegistryImpl;
+import com.tazadum.glsl.parser.variable.VariableRegistryImpl;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
@@ -28,5 +30,9 @@ public class TestUtils {
 
     public static GLSLParser parser(CommonTokenStream tokenStream) {
        return new GLSLParser(tokenStream);
+    }
+
+    public static ParserContext parserContext() {
+        return new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl());
     }
 }

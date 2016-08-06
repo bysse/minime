@@ -55,6 +55,10 @@ public class ParentNode implements Node {
         return childNodes;
     }
 
+    public <T extends Node> Iterable<T> getChildren(Class<T> nodeType) {
+        return (Iterable<T>) childNodes;
+    }
+
     public ParentNode addChild(Node node) {
         if (node == null) {
             throw new IllegalArgumentException("Node is null.");

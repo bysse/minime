@@ -3,7 +3,7 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.parser.type.TypeRegistry;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 
-public class ParserContextImpl implements ParserContext {
+public class ParserContextImpl extends ContextAwareImpl implements ParserContext {
     private final TypeRegistry typeRegistry;
     private final VariableRegistry variableRegistry;
 

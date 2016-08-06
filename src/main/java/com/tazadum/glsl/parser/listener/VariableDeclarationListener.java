@@ -44,7 +44,7 @@ public class VariableDeclarationListener extends WalkableListener implements Has
     }
 
     @Override
-    public void enterFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
+    public void exitFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
         TypeListener listener = new TypeListener(parserContext);
         listener.walk(ctx);
         fst = listener.getResult();
@@ -52,6 +52,8 @@ public class VariableDeclarationListener extends WalkableListener implements Has
 
     @Override
     public void exitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
+        walkChildren(ctx);
+
         if (ctx.INVARIANT() != null) {
             throw ParserException.notSupported("invariant");
         }
@@ -62,15 +64,15 @@ public class VariableDeclarationListener extends WalkableListener implements Has
         }
 
         instantiate(ctx.IDENTIFIER().getText());
-
-        super.exitSingle_declaration(ctx);
     }
 
     @Override
     public void exitInit_declarator_list(GLSLParser.Init_declarator_listContext ctx) {
-        instantiate(ctx.IDENTIFIER().getText());
+        walkChildren(ctx);
 
-        super.exitInit_declarator_list(ctx);
+        if (ctx.init_declarator_list() != null) {
+            instantiate(ctx.IDENTIFIER().getText());
+        }
     }
 
     @Override
@@ -91,13 +93,13 @@ public class VariableDeclarationListener extends WalkableListener implements Has
         final VariableDeclarationNode variableNode = new VariableDeclarationNode(fst, identifier, arraySpecifier, initializer);
 
         // register the declaration and usage of the type to enable easy look up during optimization
-        parserContext.getVariableRegistry().declare(variableNode);
-        parserContext.getTypeRegistry().usage(fst.getType(), variableNode);
+        parserContext.getVariableRegistry().declare(parserContext.currentContext(), variableNode);
+        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fst.getType(), variableNode);
 
         if (listNode == null) {
             listNode = new VariableDeclarationListNode();
         }
-        listNode.setType(fst);
+        listNode.setFullySpecifiedType(fst);
         listNode.addChild(variableNode);
     }
 }
