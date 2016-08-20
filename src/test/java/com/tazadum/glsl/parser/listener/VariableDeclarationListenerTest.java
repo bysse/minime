@@ -10,6 +10,7 @@ import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
+import com.tazadum.glsl.parser.variable.ResolutionResult;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Before;
@@ -19,11 +20,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 public class VariableDeclarationListenerTest {
-    private ParserContext context;
+    private ParserContext parserContext;
 
     @Before
     public void setUp() {
-        this.context = TestUtils.parserContext();
+        this.parserContext = TestUtils.parserContext();
     }
 
     @Test
@@ -48,16 +49,22 @@ public class VariableDeclarationListenerTest {
         assertEquals(fst, child.getFullySpecifiedType());
 
         // test variable registration
-        VariableRegistry variableRegistry = context.getVariableRegistry();
-        VariableDeclarationNode variable = variableRegistry.resolve("variable");
-        assertNotNull(variable);
+        VariableRegistry variableRegistry = parserContext.getVariableRegistry();
+        ResolutionResult result = variableRegistry.resolve(parserContext.currentContext(), "variable");
+        assertNotNull(result);
 
-        Usage<VariableDeclarationNode> variableUsage = variableRegistry.usagesOf(variable);
-        assertNotNull(variableUsage);
-        assertEquals(1, variableUsage.getUsageNodes().size());
+        // test declaration
+        VariableDeclarationNode declaration = result.getDeclaration();
+        assertNotNull(declaration);
+        assertEquals(child, declaration);
+
+        // TODO: test usage
+        //Usage<VariableDeclarationNode> variableUsage = result.getUsage();
+        //assertNotNull(variableUsage);
+        //assertEquals(1, variableUsage.getUsageNodes().size());
 
         // test type usage
-        Usage<GLSLType> usage = context.getTypeRegistry().usagesOf(fst);
+        Usage<GLSLType> usage = parserContext.getTypeRegistry().usagesOf(fst);
         assertNotNull(usage);
         assertEquals(1, usage.getUsageNodes().size());
     }
@@ -67,7 +74,7 @@ public class VariableDeclarationListenerTest {
         System.out.println("Parsing '" + code + "'");
         CommonTokenStream stream = TestUtils.tokenStream(code);
         GLSLParser parser = TestUtils.parser(stream);
-        VariableDeclarationListener listener = new VariableDeclarationListener(context);
+        VariableDeclarationListener listener = new VariableDeclarationListener(parserContext);
 
         listener.walk(parser.init_declarator_list());
 

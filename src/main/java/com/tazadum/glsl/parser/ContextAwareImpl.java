@@ -5,21 +5,30 @@ import java.util.Set;
 import java.util.Stack;
 
 public class ContextAwareImpl implements ContextAware {
+    private final GLSLContext globalContext;
+
     private Stack<GLSLContext> stack = new Stack<>();
     private Set<GLSLContext> contexts = new HashSet<>();
 
-    @Override
-    public GLSLContext enterContext(GLSLContext context) {
-        contexts.add(context);
+    public ContextAwareImpl() {
+        this.globalContext = enterContext();
+    }
 
-        GLSLContext previous = stack.peek();
-        if (previous != null) {
-            context.setParent(previous);
+    @Override
+    public GLSLContext enterContext() {
+        GLSLContext context = new GLSLContextImpl();
+
+        if (!stack.isEmpty()) {
+            GLSLContext previous = stack.peek();
+            if (previous != null) {
+                context.setParent(previous);
+            }
         }
 
-
         stack.add(context);
-        return previous;
+        contexts.add(context);
+
+        return context;
     }
 
     @Override
@@ -30,5 +39,10 @@ public class ContextAwareImpl implements ContextAware {
     @Override
     public GLSLContext currentContext() {
         return stack.peek();
+    }
+
+    @Override
+    public GLSLContext globalContext() {
+        return  globalContext;
     }
 }

@@ -11,6 +11,4 @@ public interface ParserContext extends ContextAware {
     TypeRegistry getTypeRegistry();
 
     VariableRegistry getVariableRegistry();
-
-
 }

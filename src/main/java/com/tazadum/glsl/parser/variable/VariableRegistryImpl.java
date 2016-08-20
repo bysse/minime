@@ -29,8 +29,8 @@ public class VariableRegistryImpl implements VariableRegistry {
             return resolve(context.getParent(), identifier);
         }
 
-        // TODO: construct the result
+        // TODO: add usage to the result
 
-        return null;
+        return new ResolutionResultImpl(context, declarationNode);
     }
 }

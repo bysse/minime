@@ -29,6 +29,18 @@ public class ContextListener extends WalkableListener implements HasResult<Conte
     }
 
     @Override
+    public void enterFunction_definition(GLSLParser.Function_definitionContext ctx) {
+        parserContext.enterContext();
+        super.enterFunction_definition(ctx);
+    }
+
+    @Override
+    public void exitFunction_definition(GLSLParser.Function_definitionContext ctx) {
+        super.exitFunction_definition(ctx);
+        parserContext.exitContext();
+    }
+
+    @Override
     public void exitVariableDeclaration(GLSLParser.VariableDeclarationContext ctx) {
         VariableDeclarationListener listener = new VariableDeclarationListener(parserContext);
         listener.walk(ctx.init_declarator_list());
