@@ -7,10 +7,12 @@ import com.tazadum.glsl.parser.Usage;
 public class ResolutionResultImpl implements ResolutionResult {
     private GLSLContext context;
     private VariableDeclarationNode declarationNode;
+    private Usage<VariableDeclarationNode> variableUsage;
 
-    public ResolutionResultImpl(GLSLContext context, VariableDeclarationNode declarationNode) {
+    public ResolutionResultImpl(GLSLContext context, VariableDeclarationNode declarationNode, Usage<VariableDeclarationNode> variableUsage) {
         this.context = context;
         this.declarationNode = declarationNode;
+        this.variableUsage = variableUsage;
     }
 
     @Override
@@ -25,6 +27,6 @@ public class ResolutionResultImpl implements ResolutionResult {
 
     @Override
     public Usage<VariableDeclarationNode> getUsage() {
-        return null;
+        return variableUsage;
     }
 }

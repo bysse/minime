@@ -7,7 +7,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 public class NumericTest {
-
     @Test
     public void testFraction() {
         assertFalse(Numeric.create("0.").hasFraction());
@@ -27,7 +26,6 @@ public class NumericTest {
         assertEquals(0, Numeric.create("2.0").getDecimals());
         assertEquals(0, Numeric.create("2.00").getDecimals());
 
-
         assertEquals(1, Numeric.create(".1").getDecimals());
         assertEquals(1, Numeric.create(".10").getDecimals());
 
@@ -35,5 +33,4 @@ public class NumericTest {
         assertEquals(3, Numeric.create("0.102").getDecimals());
         assertEquals(3, Numeric.create("0.1020").getDecimals());
     }
-
 }
