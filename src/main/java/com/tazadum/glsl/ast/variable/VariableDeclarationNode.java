@@ -1,5 +1,9 @@
-package com.tazadum.glsl.ast;
+package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.Context;
+import com.tazadum.glsl.ast.FixedChildParentNode;
+import com.tazadum.glsl.ast.Identifier;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 
 public class VariableDeclarationNode extends FixedChildParentNode {
@@ -8,11 +12,11 @@ public class VariableDeclarationNode extends FixedChildParentNode {
     private final Context initializer;
     private final Node[] nodes;
 
-    private String identifier;
+    private Identifier identifier;
 
     public VariableDeclarationNode(FullySpecifiedType fst, String identifier, Context arraySpecifier, Context initializer) {
         this.type = fst;
-        this.identifier = identifier;
+        this.identifier = new Identifier(identifier);
         this.arraySpecifier = arraySpecifier;
         this.initializer = initializer;
 
@@ -30,11 +34,7 @@ public class VariableDeclarationNode extends FixedChildParentNode {
         return arraySpecifier;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
-    }
-
-    public String getIdentifier() {
+    public Identifier getIdentifier() {
         return identifier;
     }
 

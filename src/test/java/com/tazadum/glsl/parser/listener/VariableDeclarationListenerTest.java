@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.VariableDeclarationListNode;
-import com.tazadum.glsl.ast.VariableDeclarationNode;
+import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
+import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.language.GLSLType;

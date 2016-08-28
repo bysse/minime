@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser;
 
+import com.tazadum.glsl.parser.function.FunctionRegistry;
 import com.tazadum.glsl.parser.type.TypeRegistry;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 
@@ -20,5 +21,10 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
     @Override
     public VariableRegistry getVariableRegistry() {
         return variableRegistry;
+    }
+
+    @Override
+    public FunctionRegistry getFunctionRegistry() {
+        return null;
     }
 }

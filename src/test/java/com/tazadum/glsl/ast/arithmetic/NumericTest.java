@@ -1,4 +1,4 @@
-package com.tazadum.glsl.arithmetic;
+package com.tazadum.glsl.ast.arithmetic;
 
 import org.junit.Test;
 

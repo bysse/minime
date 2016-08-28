@@ -1,9 +1,13 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.arithmetic.FloatLeafNode;
-import com.tazadum.glsl.arithmetic.IntLeafNode;
-import com.tazadum.glsl.arithmetic.Numeric;
-import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.ast.BooleanLeafNode;
+import com.tazadum.glsl.ast.Context;
+import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.ast.ParenthesisNode;
+import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
+import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
+import com.tazadum.glsl.ast.arithmetic.Numeric;
+import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
@@ -85,5 +89,11 @@ public class ContextListener extends WalkableListener implements HasResult<Conte
         node = new VariableNode(result.getDeclaration());
 
         variableRegistry.usage(currentContext, variableName, node);
+    }
+
+    @Override
+    public void exitFunction_call(GLSLParser.Function_callContext ctx) {
+        final String identifier = ctx.function_call_header().function_identifier().getText();
+
     }
 }

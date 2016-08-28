@@ -1,4 +1,6 @@
-package com.tazadum.glsl.ast;
+package com.tazadum.glsl.ast.variable;
+
+import com.tazadum.glsl.ast.LeafNode;
 
 public class VariableNode extends LeafNode {
     private VariableDeclarationNode declarationNode;

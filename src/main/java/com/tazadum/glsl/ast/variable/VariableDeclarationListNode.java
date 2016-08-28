@@ -1,5 +1,6 @@
-package com.tazadum.glsl.ast;
+package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 
 public class VariableDeclarationListNode extends ParentNode {

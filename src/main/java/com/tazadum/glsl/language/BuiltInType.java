@@ -77,6 +77,16 @@ public enum BuiltInType implements GLSLType, HasToken {
         throw TypeException.unknownError("Unhandled type " + name());
     }
 
+    public boolean isAssignableBy(GLSLType type) {
+        switch (this) {
+            case FLOAT:
+            case INT:
+                return FLOAT == type || INT == type;
+
+        }
+        return this == type;
+    }
+
     private BuiltInType swizzle(String field, BuiltInType... types) {
         final int length = field.length();
         if (length > types.length) {
