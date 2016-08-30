@@ -92,9 +92,9 @@ public class ParentNode implements Node {
             }
 
             if (childNode instanceof ParentNode) {
-                int childId = ((ParentNode)childNode).getChildId(node);
+                int childId = ((ParentNode) childNode).getChildId(node);
                 if (childId == NO_NODE_ID) {
-                    id += ((ParentNode)childNode).getChildCount();
+                    id += ((ParentNode) childNode).getChildCount();
                 } else {
                     return childId;
                 }

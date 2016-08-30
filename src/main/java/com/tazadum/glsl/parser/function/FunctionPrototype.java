@@ -6,7 +6,7 @@ import java.util.List;
 
 public class FunctionPrototype {
     private GLSLType returnType;
-    private GLSLType [] parameterTypes;
+    private GLSLType[] parameterTypes;
 
     public FunctionPrototype(GLSLType returnType, List<GLSLType> parameterTypes) {
         this.returnType = returnType;
@@ -18,7 +18,7 @@ public class FunctionPrototype {
         this.parameterTypes = parameterTypes;
     }
 
-    public GLSLType [] getParameterTypes() {
+    public GLSLType[] getParameterTypes() {
         return parameterTypes;
     }
 

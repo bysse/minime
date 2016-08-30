@@ -53,7 +53,7 @@ public enum BuiltInType implements GLSLType, HasToken {
         }
 
         // verify all characters in the component specification
-        for (int i=0;i<field.length();i++) {
+        for (int i = 0; i < field.length(); i++) {
             if (!isComponent(field.charAt(i))) {
                 throw TypeException.noSuchField(name(), field);
             }

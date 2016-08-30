@@ -29,7 +29,7 @@ public class TestUtils {
     }
 
     public static GLSLParser parser(CommonTokenStream tokenStream) {
-       return new GLSLParser(tokenStream);
+        return new GLSLParser(tokenStream);
     }
 
     public static ParserContext parserContext() {

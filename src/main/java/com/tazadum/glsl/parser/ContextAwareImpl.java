@@ -43,6 +43,6 @@ public class ContextAwareImpl implements ContextAware {
 
     @Override
     public GLSLContext globalContext() {
-        return  globalContext;
+        return globalContext;
     }
 }

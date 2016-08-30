@@ -18,12 +18,12 @@ public class ParentNodeTest {
         Node e = new LeafNode(child);
 
         root.addChild(a)
-                .addChild(b)
-                .addChild(child)
-                .addChild(c);
+            .addChild(b)
+            .addChild(child)
+            .addChild(c);
 
         child.addChild(d)
-                .addChild(e);
+            .addChild(e);
 
         assertEquals(1, root.getId());
         assertEquals(2, a.getId());

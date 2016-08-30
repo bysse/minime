@@ -6,7 +6,7 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 ext.antlr = [
         grammarpackage: "com.tazadum.glsl.language",
-        antlrSource: 'src/main/antlr',
+        antlrSource   : 'src/main/antlr',
         destinationDir: "src/generated-sources/java"
 ]
 
