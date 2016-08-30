@@ -2,17 +2,16 @@ package com.tazadum.glsl.parser.function;
 
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDeclarationNode;
-import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
 
 public interface FunctionRegistry {
     void declare(FunctionDeclarationNode node);
 
-    void usage(GLSLContext context, FunctionCallNode node);
+    void usage(GLSLContext context, String identifier, FunctionCallNode node);
 
-    FunctionDeclarationNode resolve(String name);
+    FunctionDeclarationNode resolve(String identifier);
 
-    Usage<GLSLType> usagesOf(FunctionDeclarationNode node);
+    Usage<FunctionDeclarationNode> usagesOf(FunctionDeclarationNode node);
 
 }

@@ -94,6 +94,5 @@ public class ContextListener extends WalkableListener implements HasResult<Conte
     @Override
     public void exitFunction_call(GLSLParser.Function_callContext ctx) {
         final String identifier = ctx.function_call_header().function_identifier().getText();
-
     }
 }
