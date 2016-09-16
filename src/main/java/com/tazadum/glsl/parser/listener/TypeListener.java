@@ -47,6 +47,8 @@ public class TypeListener extends WalkableListener implements HasResult<FullySpe
             // we found a built in type
             type = builtInType;
         }
+
+        // TODO: handle custom types
     }
 
     @Override

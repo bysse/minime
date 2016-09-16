@@ -2,6 +2,7 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.parser.function.FunctionRegistryImpl;
 import com.tazadum.glsl.parser.type.TypeRegistryImpl;
 import com.tazadum.glsl.parser.variable.VariableRegistryImpl;
 import org.antlr.v4.runtime.ANTLRInputStream;
@@ -33,6 +34,6 @@ public class TestUtils {
     }
 
     public static ParserContext parserContext() {
-        return new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl());
+        return new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
     }
 }

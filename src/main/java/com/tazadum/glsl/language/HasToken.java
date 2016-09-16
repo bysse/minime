@@ -10,6 +10,9 @@ public interface HasToken {
     String token();
 
     static <T extends HasToken> T match(ParseTree context, T[] values) {
+        if (context == null) {
+            return null;
+        }
         final String contextName = context.getText();
         for (T value : values) {
             if (contextName.equals(value.token())) {

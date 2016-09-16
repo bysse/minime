@@ -7,10 +7,12 @@ import com.tazadum.glsl.parser.variable.VariableRegistry;
 public class ParserContextImpl extends ContextAwareImpl implements ParserContext {
     private final TypeRegistry typeRegistry;
     private final VariableRegistry variableRegistry;
+    private final FunctionRegistry functionRegistry;
 
-    public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry) {
+    public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry) {
         this.typeRegistry = typeRegistry;
         this.variableRegistry = variableRegistry;
+        this.functionRegistry = functionRegistry;
     }
 
     @Override
@@ -25,6 +27,6 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
 
     @Override
     public FunctionRegistry getFunctionRegistry() {
-        return null;
+        return functionRegistry;
     }
 }

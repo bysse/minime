@@ -27,4 +27,8 @@ public class Identifier {
     public String toString() {
         return original;
     }
+
+    public boolean isEmpty() {
+        return original == null || original.length() == 0;
+    }
 }
