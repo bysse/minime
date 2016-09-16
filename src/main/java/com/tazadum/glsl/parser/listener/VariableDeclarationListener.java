@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.Context;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.exception.ParserException;
@@ -8,6 +8,7 @@ import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.log.Log;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
+import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,8 +23,8 @@ public class VariableDeclarationListener extends WalkableListener implements Has
     private final ParserContext parserContext;
 
     private FullySpecifiedType fst;
-    private Context arraySpecifier;
-    private Context initializer;
+    private Node arraySpecifier;
+    private Node initializer;
 
     private VariableDeclarationListNode listNode;
 
@@ -77,16 +78,14 @@ public class VariableDeclarationListener extends WalkableListener implements Has
 
     @Override
     public void exitArray_specifier(GLSLParser.Array_specifierContext ctx) {
-        ContextListener listener = new ContextListener(parserContext);
-        listener.walk(ctx);
-        arraySpecifier = listener.getResult();
+        ContextVisitor visitor = new ContextVisitor(parserContext);
+        arraySpecifier = ctx.accept(visitor);
     }
 
     @Override
     public void exitInitializer(GLSLParser.InitializerContext ctx) {
-        ContextListener listener = new ContextListener(parserContext);
-        listener.walk(ctx);
-        initializer = listener.getResult();
+        ContextVisitor visitor = new ContextVisitor(parserContext);
+        initializer = ctx.accept(visitor);
     }
 
     private void instantiate(String identifier) {

@@ -4,6 +4,10 @@ public class Identifier {
     private String original;
     private String replacement;
 
+    public static Identifier get(String original) {
+        return new Identifier(original);
+    }
+
     public Identifier(String original) {
         this.original = original;
     }

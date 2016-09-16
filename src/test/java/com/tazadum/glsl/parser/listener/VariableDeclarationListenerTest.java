@@ -43,7 +43,8 @@ public class VariableDeclarationListenerTest {
 
         // test the variable declaration
         VariableDeclarationNode child = node.getChildren(VariableDeclarationNode.class).iterator().next();
-        assertEquals("variable", child.getIdentifier());
+        assertNotNull(child.getIdentifier());
+        assertEquals("variable", child.getIdentifier().original());
         assertEquals(null, child.getArraySpecifier());
         assertEquals(null, child.getInitializer());
         assertEquals(fst, child.getFullySpecifiedType());

@@ -1,9 +1,10 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.Context;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
+import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
 import org.junit.Before;
@@ -13,7 +14,7 @@ import org.junit.Test;
  * @author erikb
  * @since 2016-07-31
  */
-public class ContextListenerTest {
+public class ContextVisitorTest {
     private ParserContext parserContext;
 
     @Before
@@ -40,8 +41,7 @@ public class ContextListenerTest {
         CommonTokenStream stream = TestUtils.tokenStream("float variable;");
         GLSLParser parser = TestUtils.parser(stream);
 
-        ContextListener listener = new ContextListener(parserContext);
-        listener.walk(parser.translation_unit());
-        Context context = listener.getResult();
+        ContextVisitor visitor = new ContextVisitor(parserContext);
+        Node node = parser.translation_unit().accept(visitor);
     }
 }

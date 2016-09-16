@@ -22,7 +22,7 @@ public class VariableRegistryContext {
 
     public VariableDeclarationNode resolve(String identifier) {
         for (VariableDeclarationNode node : variables) {
-            if (identifier.equals(node.getIdentifier())) {
+            if (identifier.equals(node.getIdentifier().original())) {
                 return node;
             }
         }
