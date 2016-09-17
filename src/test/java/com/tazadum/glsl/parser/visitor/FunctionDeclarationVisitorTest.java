@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser.visitor;
 
 import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.function.FunctionDeclarationNode;
+import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLParser;
@@ -19,7 +19,7 @@ public class FunctionDeclarationVisitorTest {
 
     @Test
     public void test_void_void() {
-        FunctionDeclarationNode node;
+        FunctionPrototypeNode node;
 
         node = parse("void main()");
         assertEquals("main", node.getIdentifier().original());
@@ -34,7 +34,7 @@ public class FunctionDeclarationVisitorTest {
 
     @Test
     public void test_type_void() {
-        FunctionDeclarationNode node;
+        FunctionPrototypeNode node;
 
         node = parse("vec3 main()");
         assertEquals("main", node.getIdentifier().original());
@@ -49,7 +49,7 @@ public class FunctionDeclarationVisitorTest {
 
     @Test
     public void test_void_type() {
-        FunctionDeclarationNode node;
+        FunctionPrototypeNode node;
         ParameterDeclarationNode parameter;
 
         node = parse("void main(float a)");
@@ -74,7 +74,7 @@ public class FunctionDeclarationVisitorTest {
 
     @Test
     public void test_void_types() {
-        FunctionDeclarationNode node;
+        FunctionPrototypeNode node;
 
         node = parse("void main(float a, float b)");
         assertEquals("main", node.getIdentifier().original());
@@ -82,7 +82,7 @@ public class FunctionDeclarationVisitorTest {
         assertEquals(2, node.getChildCount());
     }
 
-    private FunctionDeclarationNode parse(String code) {
+    private FunctionPrototypeNode parse(String code) {
         System.out.println("Parsing '" + code + "'");
 
         final CommonTokenStream tokenStream = TestUtils.tokenStream(code);
@@ -93,11 +93,11 @@ public class FunctionDeclarationVisitorTest {
         final FunctionDeclarationVisitor visitor = new FunctionDeclarationVisitor(parserContext);
         final Node node = glslParser.function_declarator().accept(visitor);
 
-        if (node instanceof FunctionDeclarationNode) {
-            return (FunctionDeclarationNode) node;
+        if (node instanceof FunctionPrototypeNode) {
+            return (FunctionPrototypeNode) node;
         }
 
-        fail("Visitor did not return an instance of " + FunctionDeclarationNode.class.getSimpleName());
+        fail("Visitor did not return an instance of " + FunctionPrototypeNode.class.getSimpleName());
         return null;
     }
 }

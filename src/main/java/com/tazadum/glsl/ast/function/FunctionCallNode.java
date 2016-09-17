@@ -5,7 +5,7 @@ import com.tazadum.glsl.ast.ParentNode;
 
 public class FunctionCallNode extends ParentNode {
     private Identifier identifier;
-    private FunctionDeclarationNode declarationNode;
+    private FunctionPrototypeNode declarationNode;
 
     public FunctionCallNode(String functionName) {
         this.identifier = new Identifier(functionName);
@@ -15,11 +15,11 @@ public class FunctionCallNode extends ParentNode {
         return identifier;
     }
 
-    public void setDeclarationNode(FunctionDeclarationNode declarationNode) {
+    public void setDeclarationNode(FunctionPrototypeNode declarationNode) {
         this.declarationNode = declarationNode;
     }
 
-    public FunctionDeclarationNode getDeclarationNode() {
+    public FunctionPrototypeNode getDeclarationNode() {
         return declarationNode;
     }
 

@@ -3,13 +3,19 @@ package com.tazadum.glsl.parser.visitor;
 import com.tazadum.glsl.ast.BooleanLeafNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParenthesisNode;
+import com.tazadum.glsl.ast.StatementListNode;
 import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
 import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.ast.arithmetic.Numeric;
+import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
+import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.language.AssignmentOperator;
 import com.tazadum.glsl.language.GLSLBaseVisitor;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.listener.VariableDeclarationListener;
@@ -30,25 +36,22 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     public Node visitFunction_definition(GLSLParser.Function_definitionContext ctx) {
         parserContext.enterContext();
 
+        // parse the function declaration
+        FunctionDeclarationVisitor declarationVisitor = new FunctionDeclarationVisitor(parserContext);
+        FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(declarationVisitor);
 
-        ctx.function_prototype();
-
-        // TODO: parse the definition
-
-        ContextVisitor contextVisitor = new ContextVisitor(parserContext);
+        StatementListNode statementList = null;
 
         GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
         if (statements != null) {
-            Node functionBody = statements.accept(contextVisitor);
-
-            // TODO: add functionBody to the definition
+            statementList = (StatementListNode) statements.accept(this);
         }
+
+        final FunctionDefinitionNode functionDefinition = new FunctionDefinitionNode(functionPrototype, statementList);
 
         parserContext.exitContext();
 
-        // TODO: return the function definition
-
-        return null;
+        return functionDefinition;
     }
 
     @Override
@@ -76,6 +79,33 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         return listener.getResult();
     }
 
+    @Override
+    public Node visitCompound_statement_no_new_scope(GLSLParser.Compound_statement_no_new_scopeContext ctx) {
+        StatementListNode statementList = new StatementListNode();
+
+        if (ctx.statement_list() != null) {
+            // go through all of the statements
+            for (GLSLParser.Statement_no_new_scopeContext statementScope : ctx.statement_list().statement_no_new_scope()) {
+                final Node node = statementScope.accept(this);
+                statementList.addChild(node);
+            }
+        }
+
+        return statementList;
+    }
+
+    @Override
+    public Node visitAssignment_expression(GLSLParser.Assignment_expressionContext ctx) {
+        if (ctx.conditional_expression() != null) {
+            return ctx.conditional_expression().accept(this);
+        }
+
+        final Node lparam = ctx.unary_expression().accept(this);
+        final AssignmentOperator operator = HasToken.match(ctx.assignment_operator(), AssignmentOperator.values());
+        final Node rparam = ctx.assignment_expression().accept(this);
+
+        return new AssignmentNode(lparam, operator, rparam);
+    }
 
     @Override
     public Node visitPrimary_expression(GLSLParser.Primary_expressionContext ctx) {
@@ -108,4 +138,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         return node;
     }
+
+    
 }

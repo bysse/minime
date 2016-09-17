@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser.visitor;
 
 import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.function.FunctionDeclarationNode;
+import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLBaseVisitor;
@@ -32,14 +32,14 @@ public class FunctionDeclarationVisitor extends GLSLBaseVisitor<Node> {
         typeListener.walk(functionHeader.fully_specified_type());
         final FullySpecifiedType returnType = typeListener.getResult();
 
-        final FunctionDeclarationNode functionDeclaration = new FunctionDeclarationNode(functionName, returnType);
+        final FunctionPrototypeNode functionDeclaration = new FunctionPrototypeNode(functionName, returnType);
 
         // parse the parameters
         for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
             final ParameterDeclarationNode parameter = (ParameterDeclarationNode) parameterCtx.accept(this);
 
             if (parameter.getIdentifier().isEmpty() && BuiltInType.VOID == parameter.getFullySpecifiedType().getType()) {
-                // don't add void as a parameter
+                // don't add void as a parameter node
                 continue;
             }
 

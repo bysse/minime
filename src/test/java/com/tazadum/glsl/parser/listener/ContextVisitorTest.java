@@ -6,7 +6,7 @@ import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,26 +22,27 @@ public class ContextVisitorTest {
         this.parserContext = TestUtils.parserContext();
     }
 
-
     @Test
-    public void showTokens() {
-        CommonTokenStream stream = TestUtils.tokenStream("float variable;");
-        System.out.println(TestUtils.getTokens(stream));
+    public void test_simple() {
+        Node node = parse(
+            "uniform vec4 color;" +
+                "void main() {" +
+                "gl_FragColor = color;" +
+                "}");
     }
 
-    @Test
-    public void showRuleInvocations() {
-        CommonTokenStream stream = TestUtils.tokenStream("float variable;");
-        GLSLParser parser = TestUtils.parser(stream);
-        ParseTreeWalker.DEFAULT.walk(new PrintingListener(null, true, true), parser.translation_unit());
-    }
+    private Node parse(String source) {
+        try {
+            final CommonTokenStream stream = TestUtils.tokenStream(source);
+            final GLSLParser parser = TestUtils.parser(stream);
+            final ContextVisitor visitor = new ContextVisitor(parserContext);
+            return parser.translation_unit().accept(visitor);
+        } catch (Exception e) {
+            for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {
+                System.out.println(token);
+            }
 
-    @Test
-    public void testVariableDeclaration() {
-        CommonTokenStream stream = TestUtils.tokenStream("float variable;");
-        GLSLParser parser = TestUtils.parser(stream);
-
-        ContextVisitor visitor = new ContextVisitor(parserContext);
-        Node node = parser.translation_unit().accept(visitor);
+            throw e;
+        }
     }
 }

@@ -57,14 +57,18 @@ public class VariableRegistryImpl implements VariableRegistry {
 
     private VariableRegistryContext resolveContext(GLSLContext context, String identifier) {
         final VariableRegistryContext variableContext = declarationMap.get(context);
-        if (variableContext == null) {
+        if (variableContext != null) {
+            final VariableDeclarationNode declarationNode = variableContext.resolve(identifier);
+            if (declarationNode != null) {
+                return variableContext;
+            }
+        }
+
+        final GLSLContext parentContext = context.getParent();
+        if (parentContext == null) {
             return null;
         }
 
-        final VariableDeclarationNode declarationNode = variableContext.resolve(identifier);
-        if (declarationNode != null) {
-            return variableContext;
-        }
-        return resolveContext(context.getParent(), identifier);
+        return resolveContext(parentContext, identifier);
     }
 }
