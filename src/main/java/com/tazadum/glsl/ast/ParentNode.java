@@ -51,6 +51,10 @@ public class ParentNode implements Node {
         return childNodes.size();
     }
 
+    public Node getChild(int index) {
+        return childNodes.get(index);
+    }
+
     public Iterable<Node> getChildren() {
         return childNodes;
     }
