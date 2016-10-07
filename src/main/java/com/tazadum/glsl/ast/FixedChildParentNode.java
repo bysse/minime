@@ -22,7 +22,7 @@ public class FixedChildParentNode extends ParentNode {
 
     @Override
     public ParentNode setChild(int index, Node node) {
-        if (index <= 0 || index >= nodes.length) {
+        if (index < 0 || index >= nodes.length) {
             throw new IllegalArgumentException("Index is outside of range");
         }
 

@@ -34,7 +34,7 @@ public class ParentNodeTest {
         assertEquals(7, c.getId());
 
         Node f = new LeafNode(root);
-        root.addChild(f, 0);
+        root.setChild(0, f);
 
         assertEquals(8, c.getId());
     }

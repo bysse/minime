@@ -42,18 +42,21 @@ public class ContextVisitorTest {
     }
 
     @Test
-    public void test_simple_2() {
+    public void test_unary_arithmetic() {
         StatementListNode node = parse(StatementListNode.class,
-            "uniform vec4 color;" +
                 "void main() {" +
-                "  color.x += .1f;" +
-                "  gl_FragColor = color;" +
+                        "float v = 2.0f;" +
+                        "float r = -v;" +
+                        "float g = r++ * r--;"+
+                        "float b = ++g - g--;"+
+                        "gl_FragColor = vec3(r, g, b);" +
                 "}");
 
         assertEquals(2, node.getChildCount());
         assertEquals(VariableDeclarationListNode.class, node.getChild(0).getClass());
         assertEquals(FunctionDefinitionNode.class, node.getChild(1).getClass());
     }
+
 
     private <T extends Node> T parse(Class<T> type, String source) {
         try {

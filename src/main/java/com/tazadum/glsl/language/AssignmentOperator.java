@@ -10,7 +10,7 @@ public enum AssignmentOperator implements HasToken {
 
     private String token;
 
-    private AssignmentOperator(String token) {
+    AssignmentOperator(String token) {
         this.token = token;
     }
 

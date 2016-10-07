@@ -10,14 +10,14 @@ import com.tazadum.glsl.util.CloneUtils;
 /**
  * Created by Erik on 2016-10-07.
  */
-public class PostfixOperationNode extends FixedChildParentNode implements MutatingOperation {
+public class PrefixOperationNode extends FixedChildParentNode implements MutatingOperation {
     private UnaryOperator operator;
 
-    public PostfixOperationNode(UnaryOperator operator) {
+    public PrefixOperationNode(UnaryOperator operator) {
         this(null, operator);
     }
 
-    public PostfixOperationNode(ParentNode parentNode, UnaryOperator operator) {
+    public PrefixOperationNode(ParentNode parentNode, UnaryOperator operator) {
         super(1, parentNode);
         this.operator = operator;
     }
@@ -31,7 +31,7 @@ public class PostfixOperationNode extends FixedChildParentNode implements Mutati
     }
 
     @Override
-    public PostfixOperationNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new PostfixOperationNode(newParent, operator));
+    public PrefixOperationNode clone(ParentNode newParent) {
+        return CloneUtils.cloneChildren(this, new PrefixOperationNode(newParent, operator));
     }
 }

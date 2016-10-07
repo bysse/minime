@@ -1,6 +1,7 @@
 package com.tazadum.glsl.ast.variable;
 
 import com.tazadum.glsl.ast.FixedChildParentNode;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.util.CloneUtils;
 
@@ -26,5 +27,9 @@ public class FieldSelectionNode extends FixedChildParentNode {
     @Override
     public FieldSelectionNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new FieldSelectionNode(newParent, selection));
+    }
+
+    public void setExpression(Node expression) {
+        setChild(0, expression);
     }
 }

@@ -7,7 +7,7 @@ public enum PrecisionQualifier implements HasToken {
 
     private String token;
 
-    private PrecisionQualifier(String token) {
+    PrecisionQualifier(String token) {
         this.token = token;
     }
 
