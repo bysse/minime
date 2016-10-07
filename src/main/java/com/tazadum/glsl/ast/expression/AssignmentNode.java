@@ -2,17 +2,22 @@ package com.tazadum.glsl.ast.expression;
 
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.AssignmentOperator;
+import com.tazadum.glsl.util.CloneUtils;
 
 public class AssignmentNode extends FixedChildParentNode {
-    private final Node lparam;
     private final AssignmentOperator operator;
-    private final Node rparam;
 
     public AssignmentNode(Node lparam, AssignmentOperator operator, Node rparam) {
-        this.lparam = lparam;
+        this(null, lparam, operator, rparam);
+    }
+
+    public AssignmentNode(ParentNode parent, Node lparam, AssignmentOperator operator, Node rparam) {
+        super(2, parent);
         this.operator = operator;
-        this.rparam = rparam;
+        setChild(0, lparam);
+        setChild(1, rparam);
     }
 
     public AssignmentOperator getOperator() {
@@ -20,7 +25,9 @@ public class AssignmentNode extends FixedChildParentNode {
     }
 
     @Override
-    protected Node[] getChildNodes() {
-        return new Node[] { lparam, rparam };
+    public ParentNode clone(ParentNode newParent) {
+        final Node lparam = CloneUtils.clone(getChild(0));
+        final Node rparam = CloneUtils.clone(getChild(1));
+        return new AssignmentNode(newParent, lparam, operator, rparam);
     }
 }

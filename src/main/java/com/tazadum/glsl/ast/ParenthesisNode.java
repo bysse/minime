@@ -1,18 +1,25 @@
 package com.tazadum.glsl.ast;
 
+import com.tazadum.glsl.util.CloneUtils;
+
 public class ParenthesisNode extends FixedChildParentNode {
-    private Node[] nodes;
-
     public ParenthesisNode(Node node) {
-        this.nodes = new Node[]{node};
+        super(1);
+        setChild(0, node);
     }
 
-    @Override
-    protected Node[] getChildNodes() {
-        return nodes;
+    private ParenthesisNode(ParentNode parentNode, Node node) {
+        super(1, parentNode);
+        setChild(0, node);
     }
+
 
     public Node getExpression() {
         return nodes[0];
+    }
+
+    @Override
+    public ParentNode clone(ParentNode newParent) {
+        return new ParenthesisNode(newParent, CloneUtils.clone(getChild(0)));
     }
 }

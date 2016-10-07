@@ -35,6 +35,6 @@ public class LeafNode implements Node {
 
     @Override
     public LeafNode clone(ParentNode newParent) {
-        return new LeafNode(newParent);
+        throw new UnsupportedOperationException("Extending classes should override LeafNode::clone");
     }
 }

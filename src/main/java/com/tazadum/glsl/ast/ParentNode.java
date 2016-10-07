@@ -1,5 +1,7 @@
 package com.tazadum.glsl.ast;
 
+import com.tazadum.glsl.util.CloneUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,11 +42,7 @@ public class ParentNode implements Node {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        ParentNode clone = new ParentNode(newParent);
-        for (Node child : childNodes) {
-            clone.addChild(child.clone(clone));
-        }
-        return clone;
+        return CloneUtils.cloneChildren(this, new ParentNode());
     }
 
     public int getChildCount() {
@@ -53,6 +51,10 @@ public class ParentNode implements Node {
 
     public Node getChild(int index) {
         return childNodes.get(index);
+    }
+
+    public <T extends Node> T getChild(int index, Class<T> type) {
+        return (T) childNodes.get(index);
     }
 
     public Iterable<Node> getChildren() {
@@ -72,7 +74,7 @@ public class ParentNode implements Node {
         return this;
     }
 
-    public ParentNode addChild(Node node, int index) {
+    public ParentNode setChild(int index, Node node) {
         if (!equals(node.getParentNode())) {
             throw new IllegalArgumentException("The node doesn't have the correct parent set.");
         }

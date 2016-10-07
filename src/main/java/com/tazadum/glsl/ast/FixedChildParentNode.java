@@ -3,8 +3,17 @@ package com.tazadum.glsl.ast;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class FixedChildParentNode extends ParentNode {
-    abstract protected Node[] getChildNodes();
+public class FixedChildParentNode extends ParentNode {
+    protected final Node[] nodes;
+
+    public FixedChildParentNode(int children) {
+        this(children, null);
+    }
+
+    public FixedChildParentNode(int children, ParentNode parentNode) {
+        super(parentNode);
+        this.nodes = new Node[children];
+    }
 
     @Override
     public ParentNode addChild(Node node) {
@@ -12,8 +21,13 @@ public abstract class FixedChildParentNode extends ParentNode {
     }
 
     @Override
-    public ParentNode addChild(Node node, int index) {
-        throw new UnsupportedOperationException("addChild is not supported");
+    public ParentNode setChild(int index, Node node) {
+        if (index <= 0 || index >= nodes.length) {
+            throw new IllegalArgumentException("Index is outside of range");
+        }
+
+        nodes[index] = node;
+        return this;
     }
 
     @Override
@@ -24,7 +38,7 @@ public abstract class FixedChildParentNode extends ParentNode {
     @Override
     public int getChildCount() {
         int count = 0;
-        for (Node node : getChildNodes()) {
+        for (Node node : nodes) {
             if (node != null) {
                 count++;
             }
@@ -35,13 +49,12 @@ public abstract class FixedChildParentNode extends ParentNode {
     @Override
     public Iterable<Node> getChildren() {
         List<Node> list = new ArrayList<>();
-        for (Node node : getChildNodes()) {
+        for (Node node : nodes) {
             if (node != null) {
                 list.add(node);
             }
         }
         return list;
-
     }
 
     @Override

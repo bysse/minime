@@ -3,30 +3,30 @@ package com.tazadum.glsl.ast.variable;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
+import com.tazadum.glsl.util.CloneUtils;
 
 public class VariableDeclarationNode extends FixedChildParentNode {
-    private final FullySpecifiedType type;
-    private final Node arraySpecifier;
-    private final Node initializer;
-    private final Node[] nodes;
+    protected final FullySpecifiedType type;
+    protected final Node arraySpecifier;
+    protected final Node initializer;
 
-    private Identifier identifier;
+    protected Identifier identifier;
 
     public VariableDeclarationNode(FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
-        this.type = fst;
-        this.identifier = new Identifier(identifier);
-        this.arraySpecifier = arraySpecifier;
-        this.initializer = initializer;
-
-        this.nodes = new Node[] {
-            arraySpecifier, initializer
-        };
+        this(null, fst, new Identifier(identifier), arraySpecifier, initializer);
     }
 
-    @Override
-    protected Node[] getChildNodes() {
-        return nodes;
+    protected VariableDeclarationNode(ParentNode newParent, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
+        super(2, newParent);
+
+        this.type = fst;
+        this.identifier = identifier;
+        this.arraySpecifier = arraySpecifier;
+        this.initializer = initializer;
+        setChild(0, arraySpecifier);
+        setChild(1, initializer);
     }
 
     public Node getArraySpecifier() {
@@ -41,11 +41,12 @@ public class VariableDeclarationNode extends FixedChildParentNode {
         return initializer;
     }
 
-    public Node[] getNodes() {
-        return nodes;
-    }
-
     public FullySpecifiedType getFullySpecifiedType() {
         return type;
+    }
+
+    @Override
+    public ParentNode clone(ParentNode newParent) {
+        return new VariableDeclarationNode(newParent, type, identifier, CloneUtils.clone(arraySpecifier), CloneUtils.clone(initializer));
     }
 }

@@ -96,9 +96,8 @@ public class VariableDeclarationListener extends WalkableListener implements Has
         parserContext.getTypeRegistry().usage(parserContext.currentContext(), fst.getType(), variableNode);
 
         if (listNode == null) {
-            listNode = new VariableDeclarationListNode();
+            listNode = new VariableDeclarationListNode(fst);
         }
-        listNode.setFullySpecifiedType(fst);
         listNode.addChild(variableNode);
     }
 }

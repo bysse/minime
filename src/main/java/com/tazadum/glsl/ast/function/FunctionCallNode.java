@@ -2,6 +2,7 @@ package com.tazadum.glsl.ast.function;
 
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.util.CloneUtils;
 
 public class FunctionCallNode extends ParentNode {
     private Identifier identifier;
@@ -9,6 +10,11 @@ public class FunctionCallNode extends ParentNode {
 
     public FunctionCallNode(String functionName) {
         this.identifier = new Identifier(functionName);
+    }
+
+    public FunctionCallNode(ParentNode parentNode, Identifier identifier) {
+        super(parentNode);
+        this.identifier = identifier;
     }
 
     public Identifier getIdentifier() {
@@ -26,5 +32,13 @@ public class FunctionCallNode extends ParentNode {
     @Override
     public String toString() {
         return identifier.toString();
+    }
+
+    @Override
+    public ParentNode clone(ParentNode newParent) {
+        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(newParent, identifier));
+        // TODO: we need to resolve the declaration again
+        clone.setDeclarationNode(declarationNode);
+        return clone;
     }
 }
