@@ -1,4 +1,4 @@
-package com.tazadum.glsl.parser.visitor;
+package com.tazadum.glsl.parser.listener;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
@@ -8,13 +8,14 @@ import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
+import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class FunctionDeclarationVisitorTest {
+public class FunctionContextVisitorTest {
     private ParserContext parserContext;
 
     @Test
@@ -90,7 +91,7 @@ public class FunctionDeclarationVisitorTest {
 
         parserContext = TestUtils.parserContext();
 
-        final FunctionDeclarationVisitor visitor = new FunctionDeclarationVisitor(parserContext);
+        final ContextVisitor visitor = new ContextVisitor(parserContext);
         final Node node = glslParser.function_declarator().accept(visitor);
 
         if (node instanceof FunctionPrototypeNode) {

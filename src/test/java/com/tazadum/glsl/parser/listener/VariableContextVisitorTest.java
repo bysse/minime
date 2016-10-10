@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.listener;
 
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
@@ -12,14 +13,14 @@ import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.ResolutionResult;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
+import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
-public class VariableDeclarationListenerTest {
+public class VariableContextVisitorTest {
     private ParserContext parserContext;
 
     @Before
@@ -75,11 +76,16 @@ public class VariableDeclarationListenerTest {
         System.out.println("Parsing '" + code + "'");
         CommonTokenStream stream = TestUtils.tokenStream(code);
         GLSLParser parser = TestUtils.parser(stream);
-        VariableDeclarationListener listener = new VariableDeclarationListener(parserContext);
+        ContextVisitor visitor = new ContextVisitor(parserContext);
 
-        listener.walk(parser.init_declarator_list());
+        final Node node = parser.init_declarator_list().accept(visitor);
 
-        return listener.getResult();
+        if (node instanceof VariableDeclarationListNode) {
+            return (VariableDeclarationListNode) node;
+        }
+
+        fail("Visitor did not return an instance of " + VariableDeclarationListNode.class.getSimpleName());
+        return null;
     }
 
 }

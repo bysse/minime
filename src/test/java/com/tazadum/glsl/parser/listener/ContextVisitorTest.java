@@ -52,11 +52,9 @@ public class ContextVisitorTest {
                         "gl_FragColor = vec3(r, g, b);" +
                 "}");
 
-        assertEquals(2, node.getChildCount());
-        assertEquals(VariableDeclarationListNode.class, node.getChild(0).getClass());
-        assertEquals(FunctionDefinitionNode.class, node.getChild(1).getClass());
+        assertEquals(1, node.getChildCount());
+        assertEquals(FunctionDefinitionNode.class, node.getChild(0).getClass());
     }
-
 
     private <T extends Node> T parse(Class<T> type, String source) {
         try {

@@ -10,14 +10,11 @@ import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.ArrayIndexNode;
-import com.tazadum.glsl.ast.variable.FieldSelectionNode;
-import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.ast.variable.*;
+import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.listener.VariableDeclarationListener;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeHelper;
 import com.tazadum.glsl.parser.variable.ResolutionResult;
@@ -37,14 +34,15 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitAdditiveExpression(GLSLParser.AdditiveExpressionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final NumericOperationNode node = new NumericOperationNode(NumericOperator.ADD);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
     }
 
     @Override
     public Node visitArray_specifier(GLSLParser.Array_specifierContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return ctx.constant_expression().accept(this);
     }
 
     @Override
@@ -87,8 +85,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitDivisionExpression(GLSLParser.DivisionExpressionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final NumericOperationNode node = new NumericOperationNode(NumericOperator.DIV);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
     }
 
     @Override
@@ -128,13 +128,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
-        throw new UnsupportedOperationException("Can't visit FullySpecifiedType. Please use TypeHelper::parseFullySpecifiedType");
+        throw ParserException.notSupported("Can't visit FullySpecifiedType. Please use TypeHelper::parseFullySpecifiedType");
     }
 
     @Override
     public Node visitFunction_call_header(GLSLParser.Function_call_headerContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("This should be handled by function_call");
     }
 
     @Override
@@ -167,39 +166,63 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_header(GLSLParser.Function_headerContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Should be handled in function_declarator");
     }
 
     @Override
     public Node visitFunction_identifier(GLSLParser.Function_identifierContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("This should be handled by function_call");
     }
 
     @Override
     public Node visitFunction_prototype(GLSLParser.Function_prototypeContext ctx) {
-        // Done
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return ctx.function_declarator().accept(this);
     }
 
     @Override
     public Node visitFunctionDeclaration(GLSLParser.FunctionDeclarationContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return ctx.function_prototype().accept(this);
     }
 
     @Override
     public Node visitInit_declarator_list(GLSLParser.Init_declarator_listContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        if (ctx.single_declaration() != null) {
+            final VariableDeclarationNode variableNode = (VariableDeclarationNode) ctx.single_declaration().accept(this);
+
+            // always return a list node
+            final VariableDeclarationListNode listNode = new VariableDeclarationListNode(variableNode.getFullySpecifiedType());
+            listNode.addChild(variableNode);
+            return listNode;
+        }
+
+        final VariableDeclarationListNode listNode = (VariableDeclarationListNode) ctx.init_declarator_list().accept(this);
+
+        final FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
+        final String identifier = ctx.IDENTIFIER().getText();
+
+        Node arraySpecifier = null;
+        Node initializer = null;
+
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = ctx.array_specifier().accept(this);
+        }
+        if (ctx.initializer() != null) {
+            initializer = ctx.initializer().accept(this);
+        }
+
+        final VariableDeclarationNode node = new VariableDeclarationNode(fullySpecifiedType, identifier, arraySpecifier, initializer);
+        listNode.addChild(node);
+
+        // register the declaration and usage of the type to enable easy look up during optimization
+        parserContext.getVariableRegistry().declare(parserContext.currentContext(), node);
+        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
+
+        return listNode;
     }
 
     @Override
     public Node visitInitializer(GLSLParser.InitializerContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return ctx.assignment_expression().accept(this);
     }
 
     @Override
@@ -246,8 +269,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitMultiplicationExpression(GLSLParser.MultiplicationExpressionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final NumericOperationNode node = new NumericOperationNode(NumericOperator.MUL);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
     }
 
     @Override
@@ -275,8 +300,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitParameter_qualifier(GLSLParser.Parameter_qualifierContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Not supported");
     }
 
     @Override
@@ -320,13 +344,19 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitPrecision_qualifier(GLSLParser.Precision_qualifierContext ctx) {
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Not implemented");
     }
 
     @Override
     public Node visitPrecisionDeclaration(GLSLParser.PrecisionDeclarationContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        PrecisionQualifier qualifier = HasToken.match(ctx.precision_qualifier(), PrecisionQualifier.values());
+        BuiltInType builtInType = HasToken.match(ctx.type_specifier_no_prec(), BuiltInType.values());
+
+        if (builtInType == null) {
+            throw ParserException.notSupported("Precision for custom types are not supported");
+        }
+
+        return new PrecisionDeclarationNode(qualifier, builtInType);
     }
 
     @Override
@@ -342,56 +372,91 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        if (ctx.INVARIANT() != null) {
+            throw ParserException.notSupported("invariant");
+        }
+
+        if (ctx.IDENTIFIER() == null) {
+            // early type declaration
+            throw ParserException.notSupported("early type declaration");
+        }
+
+        final String identifier = ctx.IDENTIFIER().getText();
+        final FullySpecifiedType fullySpecifiedType = TypeHelper.parseFullySpecifiedType(ctx.fully_specified_type());
+
+        Node arraySpecifier = null;
+        Node initializer = null;
+
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = ctx.array_specifier().accept(this);
+        }
+        if (ctx.initializer() != null) {
+            initializer = ctx.initializer().accept(this);
+        }
+
+        final VariableDeclarationNode node = new VariableDeclarationNode(fullySpecifiedType, identifier, arraySpecifier, initializer);
+
+        // register the declaration and usage of the type to enable easy look up during optimization
+        parserContext.getVariableRegistry().declare(parserContext.currentContext(), node);
+        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
+
+        return node;
     }
 
     @Override
     public Node visitStatement_list(GLSLParser.Statement_listContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final StatementListNode listNode = new StatementListNode();
+        for (GLSLParser.Statement_no_new_scopeContext statementCtx : ctx.statement_no_new_scope()) {
+            listNode.addChild(statementCtx.accept(this));
+        }
+        return listNode;
     }
 
     @Override
     public Node visitStatement_with_scope(GLSLParser.Statement_with_scopeContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        parserContext.enterContext();
+        try {
+            if (ctx.simple_statement() != null) {
+                return ctx.simple_statement().accept(this);
+            }
+
+            return ctx.compound_statement_no_new_scope().accept(this);
+        } finally {
+            parserContext.exitContext();
+        }
     }
 
     @Override
     public Node visitStruct_declaration(GLSLParser.Struct_declarationContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_declaration_list(GLSLParser.Struct_declaration_listContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_declarator(GLSLParser.Struct_declaratorContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_declarator_list(GLSLParser.Struct_declarator_listContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_specifier(GLSLParser.Struct_specifierContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitSubtractionExpression(GLSLParser.SubtractionExpressionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final NumericOperationNode node = new NumericOperationNode(NumericOperator.SUB);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
     }
 
     @Override
@@ -471,27 +536,27 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitFunction_definition(GLSLParser.Function_definitionContext ctx) {
         parserContext.enterContext();
+        try {
+            // parse the function declaration
+            final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
 
-        // parse the function declaration
-        FunctionDeclarationVisitor declarationVisitor = new FunctionDeclarationVisitor(parserContext);
-        FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(declarationVisitor);
+            StatementListNode statementList = null;
 
-        StatementListNode statementList = null;
+            GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
+            if (statements != null) {
+                statementList = (StatementListNode) statements.accept(this);
+            }
 
-        GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
-        if (statements != null) {
-            statementList = (StatementListNode) statements.accept(this);
+            return new FunctionDefinitionNode(functionPrototype, statementList);
+        } finally {
+            parserContext.exitContext();
         }
 
-        final FunctionDefinitionNode functionDefinition = new FunctionDefinitionNode(functionPrototype, statementList);
-
-        parserContext.exitContext();
-
-        return functionDefinition;
     }
 
     @Override
     public Node visitFunction_call(GLSLParser.Function_callContext ctx) {
+        // TODO: handle constructor_identifier and builtin function separately from user functions?
         final String functionName = ctx.function_call_header().function_identifier().getText();
         final FunctionCallNode functionCallNode = new FunctionCallNode(functionName);
 
@@ -510,9 +575,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitVariableDeclaration(GLSLParser.VariableDeclarationContext ctx) {
-        VariableDeclarationListener listener = new VariableDeclarationListener(parserContext);
-        listener.walk(ctx.init_declarator_list());
-        return listener.getResult();
+        return ctx.init_declarator_list().accept(this);
     }
 
     @Override
@@ -543,8 +606,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitCompound_statement_with_scope(GLSLParser.Compound_statement_with_scopeContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        if (ctx.statement_list() == null) {
+            return new StatementListNode();
+        }
+        return ctx.statement_list().accept(this);
     }
 
     @Override
@@ -554,8 +619,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitDeclaration_statement(GLSLParser.Declaration_statementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return ctx.declaration().accept(this);
     }
 
     @Override

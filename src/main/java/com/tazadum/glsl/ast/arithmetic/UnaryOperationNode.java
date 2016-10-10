@@ -1,7 +1,6 @@
 package com.tazadum.glsl.ast.arithmetic;
 
 import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.MutatingOperation;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.UnaryOperator;
