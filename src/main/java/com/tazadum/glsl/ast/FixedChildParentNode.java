@@ -47,6 +47,14 @@ public class FixedChildParentNode extends ParentNode {
     }
 
     @Override
+    public Node getChild(int index) {
+        if (index < 0 || index >= nodes.length) {
+            throw new IllegalArgumentException("Index is outside of range");
+        }
+        return nodes[index];
+    }
+
+    @Override
     public Iterable<Node> getChildren() {
         List<Node> list = new ArrayList<>();
         for (Node node : nodes) {

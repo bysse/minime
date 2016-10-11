@@ -34,8 +34,17 @@ public class NumericOperationNode extends FixedChildParentNode implements Mutati
         setChild(1, expression);
     }
 
+    public Node getLeft() {
+        return getChild(0);
+    }
+
+    public Node getRight() {
+        return getChild(1);
+    }
+
     @Override
     public NumericOperationNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new NumericOperationNode(newParent, operator));
     }
+
 }

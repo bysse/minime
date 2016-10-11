@@ -5,8 +5,9 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParenthesisNode;
 import com.tazadum.glsl.ast.StatementListNode;
 import com.tazadum.glsl.ast.arithmetic.*;
-import com.tazadum.glsl.ast.conditional.TernaryConditionNode;
+import com.tazadum.glsl.ast.conditional.*;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
+import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
@@ -47,14 +48,19 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitAssignment_operator(GLSLParser.Assignment_operatorContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("AssignmentOperator are handled by HasToken::match");
     }
 
     @Override
     public Node visitCondition(GLSLParser.ConditionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        if (ctx.expression() != null) {
+            return ctx.expression().accept(this);
+        }
+
+        final FullySpecifiedType fullySpecifiedType = TypeHelper.parseFullySpecifiedType(ctx.fully_specified_type());
+        final String identifier = ctx.IDENTIFIER().getText();
+        final Node initializer = ctx.initializer().accept(this);
+        return new VariableDeclarationNode(fullySpecifiedType, identifier, null, initializer);
     }
 
     @Override
@@ -67,20 +73,18 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         final Node thenNode = ctx.expression().accept(this);
         final Node elseNode = ctx.assignment_expression().accept(this);
-
         return new TernaryConditionNode(condition, thenNode, elseNode);
     }
 
     @Override
     public Node visitConstant_expression(GLSLParser.Constant_expressionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final Node expression = ctx.conditional_expression().accept(this);
+        return new ConstantExpressionNode(expression);
     }
 
     @Override
     public Node visitConstructor_identifier(GLSLParser.Constructor_identifierContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("constructor_identifier is handled in function_call");
     }
 
     @Override
@@ -104,8 +108,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitField_selection(GLSLParser.Field_selectionContext ctx) {
-        // TODO: implement
-        throw new IllegalStateException("Should be handled in postfix_expression");
+        throw ParserException.notSupported("field_selection is handled in postfix_expression");
     }
 
     @Override
@@ -227,14 +230,26 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitInteger_expression(GLSLParser.Integer_expressionContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return ctx.expression().accept(this);
     }
 
     @Override
     public Node visitJump_statement(GLSLParser.Jump_statementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        if (ctx.CONTINUE() != null) {
+            return new ContinueLeafNode();
+        }
+        if (ctx.BREAK() != null) {
+            return new BreakLeafNode();
+        }
+        if (ctx.DISCARD() != null) {
+            return new DiscardLeafNode();
+        }
+
+        final ReturnNode returnNode = new ReturnNode();
+        if (ctx.expression() != null) {
+            returnNode.setExpression(ctx.expression().accept(this));
+        }
+        return returnNode;
     }
 
     @Override
@@ -512,8 +527,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitUnary_operator(GLSLParser.Unary_operatorContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("UnaryOperator should be parsed with HasToken::match");
     }
 
     @Override
@@ -523,8 +537,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitVariable_identifier(GLSLParser.Variable_identifierContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("Variable identifiers are handled in visitPrimary_expression");
     }
 
     @Override
@@ -633,12 +646,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitExpression(GLSLParser.ExpressionContext ctx) {
-        List<GLSLParser.Assignment_expressionContext> expressions = ctx.assignment_expression();
+        final List<GLSLParser.Assignment_expressionContext> expressions = ctx.assignment_expression();
         if (expressions.size() == 1) {
             return expressions.get(0).accept(this);
         }
 
-        StatementListNode listNode = new StatementListNode();
+        final StatementListNode listNode = new StatementListNode();
         for (GLSLParser.Assignment_expressionContext expression : expressions) {
             listNode.addChild(expression.accept(this));
         }
@@ -647,8 +660,15 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitSelection_statement(GLSLParser.Selection_statementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final Node expression = ctx.expression().accept(this);
+        final Node thenNode = ctx.statement_with_scope(0).accept(this);
+
+        Node elseNode = null;
+        if (ctx.getChildCount() > 2) {
+            elseNode = ctx.statement_with_scope(1).accept(this);
+        }
+
+        return new ConditionNode(expression, thenNode, elseNode);
     }
 
     @Override
