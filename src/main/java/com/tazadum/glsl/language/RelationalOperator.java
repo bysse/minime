@@ -1,12 +1,12 @@
 package com.tazadum.glsl.language;
 
 public enum RelationalOperator implements HasToken {
-    LEFT_ANGLE("<"),
-    RIGHT_ANGLE(">"),
-    LE("<="),
-    GE_OP(">="),
-    EQ_OP("=="),
-    NE_OP("!="),
+    LessThan("<"),
+    GreaterThan(">"),
+    LessThanOrEqual("<="),
+    GreaterThanOrEqual(">="),
+    Equal("=="),
+    NotEqual("!="),
     ;
 
     private String token;

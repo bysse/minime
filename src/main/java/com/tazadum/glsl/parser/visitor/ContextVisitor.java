@@ -11,6 +11,11 @@ import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.ast.iteration.DoWhileNode;
+import com.tazadum.glsl.ast.iteration.ForIterationNode;
+import com.tazadum.glsl.ast.iteration.WhileNode;
+import com.tazadum.glsl.ast.logical.LogicalOperationNode;
+import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.language.*;
@@ -97,8 +102,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitDoIterationStatement(GLSLParser.DoIterationStatementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final DoWhileNode node = new DoWhileNode();
+        node.setStatement(ctx.statement_with_scope().accept(this));
+        node.setCondition(ctx.expression().accept(this));
+        return node;
     }
 
     @Override
@@ -113,20 +120,29 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFor_init_statement(GLSLParser.For_init_statementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        if (ctx.expression_statement() != null) {
+            return ctx.expression_statement().accept(this);
+        }
+        return ctx.declaration_statement().accept(this);
     }
 
     @Override
     public Node visitFor_rest_statement(GLSLParser.For_rest_statementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        throw ParserException.notSupported("for_rest_statement is handled in ForIterationStatement");
     }
 
     @Override
     public Node visitForIterationStatement(GLSLParser.ForIterationStatementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final ForIterationNode node = new ForIterationNode();
+        node.setInitialization(ctx.for_init_statement().accept(this));
+
+        GLSLParser.For_rest_statementContext forRestStatement = ctx.for_rest_statement();
+        if (forRestStatement != null) {
+            node.setCondition(forRestStatement.condition().accept(this));
+            node.setExpression(forRestStatement.expression().accept(this));
+        }
+
+        return node;
     }
 
     @Override
@@ -254,32 +270,43 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitLogicalAnd(GLSLParser.LogicalAndContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final LogicalOperationNode node = new LogicalOperationNode(LogicalOperator.AND);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
     }
 
     @Override
     public Node visitLogicalEquality(GLSLParser.LogicalEqualityContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final RelationalOperationNode node = new RelationalOperationNode(RelationalOperator.Equal);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
     }
 
     @Override
     public Node visitLogicalInEquality(GLSLParser.LogicalInEqualityContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final RelationalOperationNode node = new RelationalOperationNode(RelationalOperator.NotEqual);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
     }
 
     @Override
     public Node visitLogicalOr(GLSLParser.LogicalOrContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final LogicalOperationNode node = new LogicalOperationNode(LogicalOperator.OR);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
+
     }
 
     @Override
     public Node visitLogicalXor(GLSLParser.LogicalXorContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final LogicalOperationNode node = new LogicalOperationNode(LogicalOperator.XOR);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
     }
 
     @Override
@@ -381,8 +408,24 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitRelational(GLSLParser.RelationalContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        RelationalOperator operator = null;
+        if (ctx.LEFT_ANGLE() != null) {
+            operator = RelationalOperator.LessThan;
+        }
+        if (ctx.RIGHT_ANGLE() != null) {
+            operator = RelationalOperator.GreaterThan;
+        }
+        if (ctx.LE_OP() != null) {
+            operator = RelationalOperator.LessThanOrEqual;
+        }
+        if (ctx.GE_OP() != null) {
+            operator = RelationalOperator.GreaterThanOrEqual;
+        }
+
+        final RelationalOperationNode node = new RelationalOperationNode(RelationalOperator.Equal);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
     }
 
     @Override
@@ -542,8 +585,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitWhileIterationStatement(GLSLParser.WhileIterationStatementContext ctx) {
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        final WhileNode node = new WhileNode();
+        node.setCondition(ctx.condition().accept(this));
+        node.setStatement(ctx.statement_no_new_scope().accept(this));
+        return node;
     }
 
     @Override

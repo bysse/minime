@@ -1,9 +1,9 @@
 package com.tazadum.glsl.language;
 
 public enum LogicalOperator implements HasToken {
-    AND_OP("&&"),
-    XOR_OP("^^"),
-    OR_OP("||"),
+    AND("&&"),
+    XOR("^^"),
+    OR("||"),
     ;
 
     private String token;

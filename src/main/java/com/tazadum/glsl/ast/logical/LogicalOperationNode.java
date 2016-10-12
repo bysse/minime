@@ -1,27 +1,27 @@
-package com.tazadum.glsl.ast.arithmetic;
+package com.tazadum.glsl.ast.logical;
 
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
-import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.language.LogicalOperator;
 import com.tazadum.glsl.util.CloneUtils;
 
 /**
  * Created by Erik on 2016-10-10.
  */
-public class NumericOperationNode extends FixedChildParentNode {
-    private NumericOperator operator;
+public class LogicalOperationNode extends FixedChildParentNode {
+    private LogicalOperator operator;
 
-    public NumericOperationNode(NumericOperator operator) {
+    public LogicalOperationNode(LogicalOperator operator) {
         this(null, operator);
     }
 
-    public NumericOperationNode(ParentNode parentNode, NumericOperator operator) {
+    public LogicalOperationNode(ParentNode parentNode, LogicalOperator operator) {
         super(2, parentNode);
         this.operator = operator;
     }
 
-    public NumericOperator getOperator() {
+    public LogicalOperator getOperator() {
         return operator;
     }
 
@@ -42,7 +42,8 @@ public class NumericOperationNode extends FixedChildParentNode {
     }
 
     @Override
-    public NumericOperationNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new NumericOperationNode(newParent, operator));
+    public LogicalOperationNode clone(ParentNode newParent) {
+        return CloneUtils.cloneChildren(this, new LogicalOperationNode(newParent, operator));
     }
+
 }
