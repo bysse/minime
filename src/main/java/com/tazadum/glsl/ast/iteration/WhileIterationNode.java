@@ -1,16 +1,17 @@
 package com.tazadum.glsl.ast.iteration;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class WhileNode extends FixedChildParentNode {
-    public WhileNode() {
+public class WhileIterationNode extends FixedChildParentNode {
+    public WhileIterationNode() {
         this(null);
     }
 
-    public WhileNode(ParentNode parentNode) {
+    public WhileIterationNode(ParentNode parentNode) {
         super(2, parentNode);
     }
 
@@ -32,6 +33,11 @@ public class WhileNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new WhileNode(newParent));
+        return CloneUtils.cloneChildren(this, new WhileIterationNode(newParent));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitWhileIteration(this);
     }
 }

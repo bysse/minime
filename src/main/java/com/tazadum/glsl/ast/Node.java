@@ -15,6 +15,8 @@ public interface Node extends Comparable<Node> {
 
     Node clone(ParentNode newParent);
 
+    <T> T accept(ASTVisitor<T> visitor);
+
     default int compareTo(Node o) {
         return o.getId() - getId();
     }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.conditional;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -20,11 +21,28 @@ public class TernaryConditionNode extends FixedChildParentNode {
         setChild(2, elseNode);
     }
 
+    public Node getCondition() {
+        return getChild(0);
+    }
+
+    public Node getThen() {
+        return getChild(1);
+    }
+
+    public Node getElse() {
+        return getChild(2);
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
         Node condition = CloneUtils.clone(getChild(0));
         Node thenNode = CloneUtils.clone(getChild(1));
         Node elseNode = CloneUtils.clone(getChild(2));
         return new TernaryConditionNode(newParent, condition, thenNode, elseNode);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitTernaryCondition(this);
     }
 }

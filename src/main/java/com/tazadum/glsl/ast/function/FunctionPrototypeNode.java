@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.function;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
@@ -31,5 +32,10 @@ public class FunctionPrototypeNode extends ParentNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new FunctionPrototypeNode(newParent, identifier, returnType));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitFunctionPrototype(this);
     }
 }

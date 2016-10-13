@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.iteration;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -33,5 +34,10 @@ public class DoWhileNode extends FixedChildParentNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new DoWhileNode(newParent));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitDoWhileIteration(this);
     }
 }

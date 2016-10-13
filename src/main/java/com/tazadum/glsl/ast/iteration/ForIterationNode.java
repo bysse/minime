@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.iteration;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -41,5 +42,10 @@ public class ForIterationNode extends FixedChildParentNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new ForIterationNode(newParent));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitForIteration(this);
     }
 }

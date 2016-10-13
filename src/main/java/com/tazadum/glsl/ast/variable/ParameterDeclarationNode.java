@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -18,5 +19,10 @@ public class ParameterDeclarationNode extends VariableDeclarationNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         return new ParameterDeclarationNode(newParent, type, identifier, CloneUtils.clone(arraySpecifier), CloneUtils.clone(initializer));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitParameterDeclaration(this);
     }
 }

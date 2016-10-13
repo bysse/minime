@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.arithmetic;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -29,8 +30,17 @@ public class UnaryOperationNode extends FixedChildParentNode {
         setChild(0, expression);
     }
 
+    public Node getExpression() {
+        return getChild(0);
+    }
+
     @Override
     public UnaryOperationNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new UnaryOperationNode(newParent, operator));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitUnaryOperation(this);
     }
 }

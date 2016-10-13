@@ -37,4 +37,9 @@ public class LeafNode implements Node {
     public LeafNode clone(ParentNode newParent) {
         throw new UnsupportedOperationException("Extending classes should override LeafNode::clone");
     }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        throw new UnsupportedOperationException("Extending classes should override LeafNode::accept");
+    }
 }

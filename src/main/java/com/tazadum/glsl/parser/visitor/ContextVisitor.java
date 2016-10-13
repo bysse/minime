@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser.visitor;
 
-import com.tazadum.glsl.ast.BooleanLeafNode;
+import com.tazadum.glsl.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParenthesisNode;
 import com.tazadum.glsl.ast.StatementListNode;
@@ -13,7 +13,7 @@ import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.iteration.DoWhileNode;
 import com.tazadum.glsl.ast.iteration.ForIterationNode;
-import com.tazadum.glsl.ast.iteration.WhileNode;
+import com.tazadum.glsl.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
@@ -585,7 +585,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitWhileIterationStatement(GLSLParser.WhileIterationStatementContext ctx) {
-        final WhileNode node = new WhileNode();
+        final WhileIterationNode node = new WhileIterationNode();
         node.setCondition(ctx.condition().accept(this));
         node.setStatement(ctx.statement_no_new_scope().accept(this));
         return node;

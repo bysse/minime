@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.function;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.util.CloneUtils;
@@ -40,5 +41,10 @@ public class FunctionCallNode extends ParentNode {
         // TODO: we need to resolve the declaration again
         clone.setDeclarationNode(declarationNode);
         return clone;
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitFunctionCall(this);
     }
 }

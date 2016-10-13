@@ -1,9 +1,6 @@
 package com.tazadum.glsl.ast.expression;
 
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.MutatingOperation;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.language.AssignmentOperator;
 import com.tazadum.glsl.util.CloneUtils;
 
@@ -21,14 +18,27 @@ public class AssignmentNode extends FixedChildParentNode implements MutatingOper
         setChild(1, rparam);
     }
 
+    public Node getLeft() {
+        return getChild(0);
+    }
+
+    public Node getRight() {
+        return getChild(1);
+    }
+
     public AssignmentOperator getOperator() {
         return operator;
     }
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final Node lparam = CloneUtils.clone(getChild(0));
-        final Node rparam = CloneUtils.clone(getChild(1));
+        final Node lparam = CloneUtils.clone(getLeft());
+        final Node rparam = CloneUtils.clone(getRight());
         return new AssignmentNode(newParent, lparam, operator, rparam);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitAssignment(this);
     }
 }

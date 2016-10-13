@@ -22,4 +22,9 @@ public class ParenthesisNode extends FixedChildParentNode {
     public ParentNode clone(ParentNode newParent) {
         return new ParenthesisNode(newParent, CloneUtils.clone(getChild(0)));
     }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitParenthesis(this);
+    }
 }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.function;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.ast.StatementListNode;
@@ -22,5 +23,10 @@ public class FunctionDefinitionNode extends FixedChildParentNode {
         final FunctionPrototypeNode prototype = CloneUtils.clone(getChild(0, FunctionPrototypeNode.class));
         final StatementListNode statementList = CloneUtils.clone(getChild(1, StatementListNode.class));
         return new FunctionDefinitionNode(newParent, prototype, statementList);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitFunctionDefinition(this);
     }
 }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
 
@@ -22,5 +23,10 @@ public class VariableNode extends LeafNode {
     public LeafNode clone(ParentNode newParent) {
         // TODO: we might need to resolve the declarationNode
         return new VariableNode(declarationNode);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitVariable(this);
     }
 }

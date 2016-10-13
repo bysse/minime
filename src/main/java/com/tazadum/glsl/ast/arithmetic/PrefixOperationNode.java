@@ -1,9 +1,6 @@
 package com.tazadum.glsl.ast.arithmetic;
 
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.MutatingOperation;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.language.UnaryOperator;
 import com.tazadum.glsl.util.CloneUtils;
 
@@ -30,8 +27,17 @@ public class PrefixOperationNode extends FixedChildParentNode implements Mutatin
         setChild(0, expression);
     }
 
+    public Node getExpression() {
+        return getChild(0);
+    }
+
     @Override
     public PrefixOperationNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new PrefixOperationNode(newParent, operator));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitPrefixOperation(this);
     }
 }

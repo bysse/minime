@@ -1,4 +1,4 @@
-package com.tazadum.glsl.ast.arithmetic;
+package com.tazadum.glsl.language;
 
 public class Numeric implements Comparable<Numeric> {
     private double value;

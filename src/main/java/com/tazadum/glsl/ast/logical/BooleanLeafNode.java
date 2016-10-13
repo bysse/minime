@@ -1,4 +1,8 @@
-package com.tazadum.glsl.ast;
+package com.tazadum.glsl.ast.logical;
+
+import com.tazadum.glsl.ast.ASTVisitor;
+import com.tazadum.glsl.ast.LeafNode;
+import com.tazadum.glsl.ast.ParentNode;
 
 public class BooleanLeafNode extends LeafNode {
     private final boolean value;
@@ -19,5 +23,10 @@ public class BooleanLeafNode extends LeafNode {
     @Override
     public LeafNode clone(ParentNode newParent) {
         return new BooleanLeafNode(newParent, value);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitBoolean(this);
     }
 }

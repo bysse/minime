@@ -10,4 +10,9 @@ public class StatementListNode extends ParentNode {
     public StatementListNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new StatementListNode());
     }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitStatementList(this);
+    }
 }

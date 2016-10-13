@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -24,5 +25,10 @@ public class ArrayIndexNode extends FixedChildParentNode {
         Node expression = CloneUtils.clone(getChild(0));
         Node index = CloneUtils.clone(getChild(1));
         return new ArrayIndexNode(newParent, expression, index);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitArrayIndex(this);
     }
 }

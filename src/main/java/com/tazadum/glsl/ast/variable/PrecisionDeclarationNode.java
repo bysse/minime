@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.BuiltInType;
@@ -19,8 +20,21 @@ public class PrecisionDeclarationNode extends LeafNode {
         this.builtInType = builtInType;
     }
 
+    public PrecisionQualifier getQualifier() {
+        return qualifier;
+    }
+
+    public BuiltInType getBuiltInType() {
+        return builtInType;
+    }
+
     @Override
     public PrecisionDeclarationNode clone(ParentNode newParent) {
         return new PrecisionDeclarationNode(newParent, qualifier, builtInType);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitPrecision(this);
     }
 }

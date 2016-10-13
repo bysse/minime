@@ -1,7 +1,9 @@
 package com.tazadum.glsl.ast.arithmetic;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.Numeric;
 
 public class FloatLeafNode extends LeafNode {
     private final Numeric value;
@@ -22,5 +24,10 @@ public class FloatLeafNode extends LeafNode {
     @Override
     public LeafNode clone(ParentNode newParent) {
         return new FloatLeafNode(newParent, value);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitFloat(this);
     }
 }

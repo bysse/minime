@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
@@ -24,12 +25,17 @@ public class FieldSelectionNode extends FixedChildParentNode {
         return selection;
     }
 
+    public void setExpression(Node expression) {
+        setChild(0, expression);
+    }
+
     @Override
     public FieldSelectionNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new FieldSelectionNode(newParent, selection));
     }
 
-    public void setExpression(Node expression) {
-        setChild(0, expression);
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitFieldSelection(this);
     }
 }

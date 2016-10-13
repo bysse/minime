@@ -45,6 +45,11 @@ public class ParentNode implements Node {
         return CloneUtils.cloneChildren(this, new ParentNode());
     }
 
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        throw new UnsupportedOperationException("Extending classes should override ParentNode::accept");
+    }
+
     public int getChildCount() {
         return childNodes.size();
     }

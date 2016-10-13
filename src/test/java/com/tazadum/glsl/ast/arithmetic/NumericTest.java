@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.arithmetic;
 
+import com.tazadum.glsl.language.Numeric;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

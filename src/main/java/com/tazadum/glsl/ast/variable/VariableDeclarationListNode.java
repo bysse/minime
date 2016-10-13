@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast.variable;
 
+import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
@@ -27,5 +28,10 @@ public class VariableDeclarationListNode extends ParentNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(fst));
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitVariableDeclarationList(this);
     }
 }
