@@ -26,7 +26,7 @@ public class OutputTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> shaders() {
-        return TestUtils.loadShaders("test_shaders");
+        return TestUtils.loadShaders("preformatted");
     }
 
     @Before
