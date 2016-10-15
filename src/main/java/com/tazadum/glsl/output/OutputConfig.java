@@ -10,7 +10,7 @@ public class OutputConfig {
 
     public OutputConfig() {
         setNewlines(true);
-        setIndentation(3);
+        setIndentation(4);
         setIdentifiers(IdentifierOutput.Original);
     }
 

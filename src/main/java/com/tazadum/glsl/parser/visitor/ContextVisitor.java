@@ -11,7 +11,7 @@ import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.iteration.DoWhileNode;
+import com.tazadum.glsl.ast.iteration.DoWhileIterationNode;
 import com.tazadum.glsl.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.ast.logical.LogicalOperationNode;
@@ -102,7 +102,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitDoIterationStatement(GLSLParser.DoIterationStatementContext ctx) {
-        final DoWhileNode node = new DoWhileNode();
+        final DoWhileIterationNode node = new DoWhileIterationNode();
         node.setStatement(ctx.statement_with_scope().accept(this));
         node.setCondition(ctx.expression().accept(this));
         return node;
@@ -140,6 +140,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         if (forRestStatement != null) {
             node.setCondition(forRestStatement.condition().accept(this));
             node.setExpression(forRestStatement.expression().accept(this));
+        }
+
+        if (ctx.statement_no_new_scope() != null) {
+            parserContext.enterContext();
+            node.setStatement(ctx.statement_no_new_scope().accept(this));
+            parserContext.exitContext();
         }
 
         return node;
@@ -337,7 +343,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             arraySpecifier = ctx.array_specifier().accept(visitor);
         }
 
-        return new ParameterDeclarationNode(type, parameterName, arraySpecifier);
+        final ParameterDeclarationNode parameterDeclaration = new ParameterDeclarationNode(type, parameterName, arraySpecifier);
+
+        final GLSLContext context = parserContext.currentContext();
+        parserContext.getVariableRegistry().declare(context, parameterDeclaration);
+
+        return parameterDeclaration;
     }
 
     @Override
@@ -709,7 +720,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final Node thenNode = ctx.statement_with_scope(0).accept(this);
 
         Node elseNode = null;
-        if (ctx.getChildCount() > 2) {
+        if (ctx.statement_with_scope(1) != null) {
             elseNode = ctx.statement_with_scope(1).accept(this);
         }
 

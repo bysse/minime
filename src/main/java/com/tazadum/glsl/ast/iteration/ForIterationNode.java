@@ -1,18 +1,15 @@
 package com.tazadum.glsl.ast.iteration;
 
-import com.tazadum.glsl.ast.ASTVisitor;
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class ForIterationNode extends FixedChildParentNode {
+public class ForIterationNode extends FixedChildParentNode implements IterationNode {
     public ForIterationNode() {
         this(null);
     }
 
     public ForIterationNode(ParentNode parentNode) {
-        super(3, parentNode);
+        super(4, parentNode);
     }
 
     public void setInitialization(Node initialization) {
@@ -39,6 +36,14 @@ public class ForIterationNode extends FixedChildParentNode {
         setChild(2, expression);
     }
 
+    public Node getStatement() {
+        return getChild(3);
+    }
+
+    public void setStatement(Node statements) {
+        setChild(3, statements);
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new ForIterationNode(newParent));
@@ -48,4 +53,5 @@ public class ForIterationNode extends FixedChildParentNode {
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitForIteration(this);
     }
+
 }

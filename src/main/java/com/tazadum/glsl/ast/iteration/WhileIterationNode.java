@@ -1,12 +1,9 @@
 package com.tazadum.glsl.ast.iteration;
 
-import com.tazadum.glsl.ast.ASTVisitor;
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class WhileIterationNode extends FixedChildParentNode {
+public class WhileIterationNode extends FixedChildParentNode implements IterationNode {
     public WhileIterationNode() {
         this(null);
     }

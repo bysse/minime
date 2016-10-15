@@ -1,17 +1,14 @@
 package com.tazadum.glsl.ast.iteration;
 
-import com.tazadum.glsl.ast.ASTVisitor;
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class DoWhileNode extends FixedChildParentNode {
-    public DoWhileNode() {
+public class DoWhileIterationNode extends FixedChildParentNode implements IterationNode {
+    public DoWhileIterationNode() {
         this(null);
     }
 
-    public DoWhileNode(ParentNode parentNode) {
+    public DoWhileIterationNode(ParentNode parentNode) {
         super(2, parentNode);
     }
 
@@ -33,7 +30,7 @@ public class DoWhileNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new DoWhileNode(newParent));
+        return CloneUtils.cloneChildren(this, new DoWhileIterationNode(newParent));
     }
 
     @Override

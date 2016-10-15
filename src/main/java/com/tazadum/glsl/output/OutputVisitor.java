@@ -8,7 +8,7 @@ import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.iteration.DoWhileNode;
+import com.tazadum.glsl.ast.iteration.DoWhileIterationNode;
 import com.tazadum.glsl.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.ast.logical.BooleanLeafNode;
@@ -45,7 +45,7 @@ public class OutputVisitor implements ASTVisitor<String> {
             builder.append(indentation()).append(child.accept(this));
 
             // some statements do not require a semicolon
-            if (!(child instanceof FunctionDefinitionNode)) {
+            if (!noSemiColon(child)) {
                 builder.append(';');
             }
             builder.append(newLine());
@@ -152,11 +152,25 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitForIteration(ForIterationNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+        builder.append("for(");
+        if (node.getInitialization() != null) {
+            builder.append(node.getInitialization().accept(this)).append(';');
+        }
+        if (node.getCondition() != null) {
+            builder.append(node.getCondition().accept(this)).append(';');
+        }
+        if (node.getExpression() != null) {
+            builder.append(node.getExpression().accept(this));
+        }
+        builder.append(')');
+
+        outputBlock(builder, node.getStatement());
+        return builder.toString();
     }
 
     @Override
-    public String visitDoWhileIteration(DoWhileNode node) {
+    public String visitDoWhileIteration(DoWhileIterationNode node) {
         return visitChildren(node);
     }
 
@@ -229,9 +243,9 @@ public class OutputVisitor implements ASTVisitor<String> {
     @Override
     public String visitReturn(ReturnNode node) {
         if (node.getExpression() == null) {
-            return "return;";
+            return "return";
         }
-        return "return " + node.accept(this) + ";";
+        return "return " + node.getExpression().accept(this);
     }
 
     @Override
@@ -246,7 +260,20 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitCondition(ConditionNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append("if(");
+        builder.append(node.getCondition().accept(this));
+        builder.append(')');
+
+        outputBlock(builder, node.getThen());
+
+        if (node.getElse() != null) {
+            builder.append("else");
+            outputBlock(builder, node.getElse());
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -319,6 +346,12 @@ public class OutputVisitor implements ASTVisitor<String> {
         }
     }
 
+    private boolean noSemiColon(Node node) {
+        return node instanceof FunctionDefinitionNode ||
+                node instanceof IterationNode ||
+                node instanceof ConditionNode;
+    }
+
     private String indentation() {
         return indentation;
     }
@@ -357,6 +390,25 @@ public class OutputVisitor implements ASTVisitor<String> {
         }
         builder.append(type.getType().token());
         return builder.toString();
+    }
+
+    private void outputBlock(StringBuilder builder, Node node) {
+        if (node == null) {
+            return;
+        }
+        if (node instanceof StatementListNode) {
+            builder.append('{').append(newLine());
+
+            enterScope();
+            builder.append(node.accept(this));
+            exitScope();
+
+            builder.append(indentation()).append('}');
+        } else {
+            enterScope();
+            builder.append(node.accept(this));
+            exitScope();
+        }
     }
 
     private void outputChildCSV(StringBuilder builder, ParentNode node) {

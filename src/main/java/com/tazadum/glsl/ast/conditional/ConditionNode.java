@@ -21,11 +21,23 @@ public class ConditionNode extends FixedChildParentNode {
         setChild(2, elseNode);
     }
 
+    public Node getCondition() {
+        return getChild(0);
+    }
+
+    public Node getThen() {
+        return getChild(1);
+    }
+
+    public Node getElse() {
+        return getChild(2);
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
-        Node condition = CloneUtils.clone(getChild(0));
-        Node thenNode = CloneUtils.clone(getChild(1));
-        Node elseNode = CloneUtils.clone(getChild(2));
+        Node condition = CloneUtils.clone(getCondition());
+        Node thenNode = CloneUtils.clone(getThen());
+        Node elseNode = CloneUtils.clone(getElse());
         return new ConditionNode(newParent, condition, thenNode, elseNode);
     }
 

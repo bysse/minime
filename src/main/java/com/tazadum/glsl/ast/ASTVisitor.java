@@ -7,7 +7,7 @@ import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.iteration.DoWhileNode;
+import com.tazadum.glsl.ast.iteration.DoWhileIterationNode;
 import com.tazadum.glsl.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.ast.logical.BooleanLeafNode;
@@ -47,7 +47,7 @@ public interface ASTVisitor<T> {
 
     T visitForIteration(ForIterationNode node);
 
-    T visitDoWhileIteration(DoWhileNode node);
+    T visitDoWhileIteration(DoWhileIterationNode node);
 
     T visitFunctionPrototype(FunctionPrototypeNode node);
 

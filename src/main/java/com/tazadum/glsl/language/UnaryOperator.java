@@ -6,6 +6,9 @@ package com.tazadum.glsl.language;
 public enum UnaryOperator implements HasToken {
     INCREASE("++"),
     DECREASE("--"),
+    MINUS("-"),
+    BANG("!"),
+    PLUS("+")
     ;
 
     private String token;
