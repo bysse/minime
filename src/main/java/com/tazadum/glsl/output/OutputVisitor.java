@@ -18,14 +18,18 @@ import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.language.Numeric;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 
+import java.util.Locale;
+
 /**
  * Created by Erik on 2016-10-13.
  */
 public class OutputVisitor implements ASTVisitor<String> {
     private final OutputConfig config;
+    private String indentation;
 
     public OutputVisitor(OutputConfig config) {
         this.config = config;
+        this.indentation = "";
     }
 
     @Override
@@ -35,12 +39,23 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitStatementList(StatementListNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < node.getChildCount(); i++) {
+            final Node child = node.getChild(i);
+            builder.append(indentation()).append(child.accept(this));
+
+            // some statements do not require a semicolon
+            if (!(child instanceof FunctionDefinitionNode)) {
+                builder.append(';');
+            }
+            builder.append(newLine());
+        }
+        return builder.toString();
     }
 
     @Override
     public String visitParenthesis(ParenthesisNode node) {
-        return visitChildren(node);
+        return "(" + visitChildren(node) + ")";
     }
 
     @Override
@@ -50,12 +65,36 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitVariableDeclaration(VariableDeclarationNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+
+        // Don't output type, it should come from the VariableDeclarationList
+        builder.append(identifier(node.getIdentifier()));
+
+        if (node.getArraySpecifier() != null) {
+            builder.append('[').append(node.getArraySpecifier().accept(this)).append(']');
+        }
+
+        if (node.getInitializer() != null) {
+            builder.append('=').append(node.getInitializer().accept(this));
+        }
+        return builder.toString();
     }
 
     @Override
     public String visitVariableDeclarationList(VariableDeclarationListNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append(outputType(node.getFullySpecifiedType()));
+        builder.append(identifierSpacing());
+
+        for (int i = 0; i < node.getChildCount(); i++) {
+            if (i > 0) {
+                builder.append(',');
+            }
+            builder.append(node.getChild(i).accept(this));
+        }
+
+        return builder.toString();
     }
 
     @Override
@@ -65,12 +104,26 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitParameterDeclaration(ParameterDeclarationNode node) {
-        return "(" + visitChildren(node) + ")";
+        final StringBuilder builder = new StringBuilder();
+
+        // type
+        builder.append(outputType(node.getFullySpecifiedType()));
+        builder.append(identifierSpacing());
+        builder.append(identifier(node.getIdentifier()));
+
+        if (node.getArraySpecifier() != null) {
+            builder.append('[').append(node.getArraySpecifier().accept(this)).append(']');
+        }
+
+        if (node.getInitializer() != null) {
+            builder.append('=').append(node.getInitializer().accept(this));
+        }
+        return builder.toString();
     }
 
     @Override
     public String visitFieldSelection(FieldSelectionNode node) {
-        return visitChildren(node);
+        return node.getExpression().accept(this) + "." + node.getSelection();
     }
 
     @Override
@@ -109,17 +162,48 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitFunctionPrototype(FunctionPrototypeNode node) {
-        return outputType(node.getReturnType()) + identifierSpacing() + identifier(node.getIdentifier());
+        final StringBuilder builder = new StringBuilder();
+
+        builder.append(outputType(node.getReturnType()));
+        builder.append(identifierSpacing());
+        builder.append(identifier(node.getIdentifier()));
+
+        // output the function arguments
+        builder.append('(');
+        if (node.getChildCount() > 0) {
+            outputChildCSV(builder, node);
+        }
+        builder.append(')');
+
+        return builder.toString();
     }
 
     @Override
     public String visitFunctionDefinition(FunctionDefinitionNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+        builder.append(node.getFunctionPrototype().accept(this));
+        builder.append('{').append(newLine());
+
+        enterScope();
+        builder.append(node.getStatements().accept(this));
+        exitScope();
+
+        builder.append('}');
+        return builder.toString();
     }
 
     @Override
     public String visitFunctionCall(FunctionCallNode node) {
-        return visitChildren(node);
+        if (node.getChildCount() == 0) {
+            return identifier(node.getIdentifier()) + "()";
+        }
+
+        final StringBuilder builder = new StringBuilder();
+        builder.append(identifier(node.getIdentifier()));
+        builder.append('(');
+        outputChildCSV(builder, node);
+        builder.append(')');
+        return builder.toString();
     }
 
     @Override
@@ -203,13 +287,46 @@ public class OutputVisitor implements ASTVisitor<String> {
     }
 
     private String formatInt(Numeric numeric) {
-        return String.format("%d", (int)numeric.getValue());
+        return String.format("%d", (int) numeric.getValue());
+    }
+
+    private String formatNumeric(Numeric numeric) {
+        if (numeric.hasFraction()) {
+            String format = String.format("%%.0%df", numeric.getDecimals());
+            return String.format(Locale.US, format, numeric.getValue());
+        }
+        return String.format(Locale.US, "%d.", (int)numeric.getValue());
     }
 
     private String formatFloat(Numeric numeric) {
-        // TODO: make better
-        return String.format("%f", numeric.getValue());
+        String output = formatNumeric(numeric);
+        if (output.startsWith("0") && output.length() > 2) {
+            return output.substring(1);
+        }
+        return output;
     }
+
+    private void enterScope() {
+        for (int i = 0; i < config.getIndentation(); i++) {
+            indentation += " ";
+        }
+    }
+
+    private void exitScope() {
+        int n = config.getIndentation();
+        if (n > 0) {
+            indentation = indentation.substring(0, indentation.length() - n);
+        }
+    }
+
+    private String indentation() {
+        return indentation;
+    }
+
+    private String newLine() {
+        return config.isNewlines() ? "\n" : "";
+    }
+
 
     private String identifierSpacing() {
         if (config.getIdentifiers() == IdentifierOutput.None) {
@@ -240,6 +357,15 @@ public class OutputVisitor implements ASTVisitor<String> {
         }
         builder.append(type.getType().token());
         return builder.toString();
+    }
+
+    private void outputChildCSV(StringBuilder builder, ParentNode node) {
+        for (int i = 0; i < node.getChildCount(); i++) {
+            if (i > 0) {
+                builder.append(',');
+            }
+            builder.append(node.getChild(i).accept(this));
+        }
     }
 
     private <T extends ParentNode> String visitChildren(T node) {

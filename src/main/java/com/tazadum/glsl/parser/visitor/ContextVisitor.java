@@ -162,7 +162,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         // parse the return type
         final FullySpecifiedType returnType = TypeHelper.parseFullySpecifiedType(functionHeader.fully_specified_type());
-        final FunctionPrototypeNode functionDeclaration = new FunctionPrototypeNode(functionName, returnType);
+        final FunctionPrototypeNode functionPrototype = new FunctionPrototypeNode(functionName, returnType);
 
         // parse the parameters
         for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
@@ -173,13 +173,13 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
                 continue;
             }
 
-            functionDeclaration.addChild(parameter);
+            functionPrototype.addChild(parameter);
         }
 
         // register the function
-        parserContext.getFunctionRegistry().declare(functionDeclaration);
+        parserContext.getFunctionRegistry().declare(functionPrototype);
 
-        return functionDeclaration;
+        return functionPrototype;
     }
 
 
@@ -422,7 +422,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             operator = RelationalOperator.GreaterThanOrEqual;
         }
 
-        final RelationalOperationNode node = new RelationalOperationNode(RelationalOperator.Equal);
+        final RelationalOperationNode node = new RelationalOperationNode(operator);
         node.setLeft(ctx.logical_expression(0).accept(this));
         node.setRight(ctx.logical_expression(1).accept(this));
         return node;

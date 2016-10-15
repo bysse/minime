@@ -59,7 +59,7 @@ public class ParentNode implements Node {
     }
 
     public <T extends Node> T getChild(int index, Class<T> type) {
-        return (T) childNodes.get(index);
+        return (T) getChild(index);
     }
 
     public Iterable<Node> getChildren() {

@@ -5,33 +5,41 @@ import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
+
+import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by Erik on 2016-10-13.
- */
+@RunWith(Parameterized.class)
 public class OutputTest {
+    private final String shaderSource;
+
     private ParserContext parserContext;
     private Output output;
     private OutputConfig config;
+
+    public OutputTest(String name, String shaderSource) {
+        this.shaderSource = shaderSource;
+    }
+
+    @Parameterized.Parameters(name = "{index}: {0}")
+    public static Collection<Object[]> shaders() {
+        return TestUtils.loadShaders("test_shaders");
+    }
 
     @Before
     public void setup() {
         parserContext = TestUtils.parserContext();
         output = new Output();
-
         config = new OutputConfig();
     }
 
     @Test
-    public void testSimple() {
-        testOutput("uniform vec3 color;\n" +
-                        "void main() {\n" +
-                        "gl_FragColor = vec4(color, 1);\n" +
-                        "}\n");
+    public void testShaderOutput() {
+        testOutput(shaderSource);
     }
-
 
     private void testOutput(String shader) {
         final Node node = TestUtils.parse(parserContext, Node.class, shader);

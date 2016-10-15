@@ -11,7 +11,12 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -54,6 +59,29 @@ public class TestUtils {
                 System.out.println(token);
             }
             throw e;
+        }
+    }
+
+    public static List<Object[]> loadShaders(String directory) {
+        final List<Object[]> shaders = new LinkedList<>();
+        final File shaderDir = Paths.get("src/test/resources", directory).toFile();
+        for (File shader : shaderDir.listFiles()) {
+            final String content = loadFile(shader);
+            shaders.add(new Object[]{shader.getName(), content});
+        }
+        return shaders;
+    }
+
+    public static String loadFile(File file) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            StringBuilder content = new StringBuilder();
+            while ((line = reader.readLine()) != null) {
+                content.append(line).append('\n');
+            }
+            return content.toString();
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 }

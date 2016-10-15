@@ -18,10 +18,18 @@ public class FunctionDefinitionNode extends FixedChildParentNode {
         setChild(1, statementList);
     }
 
+    public FunctionPrototypeNode getFunctionPrototype() {
+        return getChild(0, FunctionPrototypeNode.class);
+    }
+
+    public StatementListNode getStatements() {
+        return getChild(1, StatementListNode.class);
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final FunctionPrototypeNode prototype = CloneUtils.clone(getChild(0, FunctionPrototypeNode.class));
-        final StatementListNode statementList = CloneUtils.clone(getChild(1, StatementListNode.class));
+        final FunctionPrototypeNode prototype = CloneUtils.clone(getFunctionPrototype());
+        final StatementListNode statementList = CloneUtils.clone(getStatements());
         return new FunctionDefinitionNode(newParent, prototype, statementList);
     }
 

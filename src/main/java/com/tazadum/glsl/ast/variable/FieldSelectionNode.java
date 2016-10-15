@@ -25,6 +25,10 @@ public class FieldSelectionNode extends FixedChildParentNode {
         return selection;
     }
 
+    public Node getExpression() {
+        return getChild(0);
+    }
+
     public void setExpression(Node expression) {
         setChild(0, expression);
     }
