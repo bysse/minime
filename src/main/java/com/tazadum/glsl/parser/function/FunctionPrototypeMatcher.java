@@ -2,6 +2,8 @@ package com.tazadum.glsl.parser.function;
 
 import com.tazadum.glsl.language.GLSLType;
 
+import java.util.Arrays;
+
 public class FunctionPrototypeMatcher {
     public static final GLSLType ANY = null;
 
@@ -34,5 +36,10 @@ public class FunctionPrototypeMatcher {
         }
 
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return Arrays.toString(parameterTypes) + "->" + returnType;
     }
 }

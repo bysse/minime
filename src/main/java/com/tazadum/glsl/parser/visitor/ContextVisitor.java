@@ -1,6 +1,5 @@
 package com.tazadum.glsl.parser.visitor;
 
-import com.tazadum.glsl.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParenthesisNode;
 import com.tazadum.glsl.ast.StatementListNode;
@@ -14,6 +13,7 @@ import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.iteration.DoWhileIterationNode;
 import com.tazadum.glsl.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.ast.iteration.WhileIterationNode;
+import com.tazadum.glsl.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
@@ -21,6 +21,7 @@ import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeHelper;
 import com.tazadum.glsl.parser.variable.ResolutionResult;
@@ -143,7 +144,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         if (ctx.statement_no_new_scope() != null) {
-            parserContext.enterContext();
+            parserContext.enterContext(node);
             node.setStatement(ctx.statement_no_new_scope().accept(this));
             parserContext.exitContext();
         }
@@ -171,6 +172,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final FunctionPrototypeNode functionPrototype = new FunctionPrototypeNode(functionName, returnType);
 
         // parse the parameters
+        final List<GLSLType> parameterTypes = new ArrayList<>();
         for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
             final ParameterDeclarationNode parameter = (ParameterDeclarationNode) parameterCtx.accept(this);
 
@@ -179,15 +181,18 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
                 continue;
             }
 
+            parameterTypes.add(parameter.getFullySpecifiedType().getType());
             functionPrototype.addChild(parameter);
         }
+
+        final FunctionPrototype prototype = new FunctionPrototype(returnType.getType(), parameterTypes);
+        functionPrototype.setPrototype(prototype);
 
         // register the function
         parserContext.getFunctionRegistry().declare(functionPrototype);
 
         return functionPrototype;
     }
-
 
     @Override
     public Node visitFunction_header(GLSLParser.Function_headerContext ctx) {
@@ -483,16 +488,11 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitStatement_with_scope(GLSLParser.Statement_with_scopeContext ctx) {
-        parserContext.enterContext();
-        try {
-            if (ctx.simple_statement() != null) {
-                return ctx.simple_statement().accept(this);
-            }
-
-            return ctx.compound_statement_no_new_scope().accept(this);
-        } finally {
-            parserContext.exitContext();
+        if (ctx.simple_statement() != null) {
+            return ctx.simple_statement().accept(this);
         }
+
+        return ctx.compound_statement_no_new_scope().accept(this);
     }
 
     @Override
@@ -604,10 +604,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_definition(GLSLParser.Function_definitionContext ctx) {
-        parserContext.enterContext();
         try {
             // parse the function declaration
             final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
+            parserContext.enterContext(functionPrototype);
 
             StatementListNode statementList = null;
 
@@ -620,7 +620,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         } finally {
             parserContext.exitContext();
         }
-
     }
 
     @Override

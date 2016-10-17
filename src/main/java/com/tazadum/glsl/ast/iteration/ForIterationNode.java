@@ -1,9 +1,12 @@
 package com.tazadum.glsl.ast.iteration;
 
 import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class ForIterationNode extends FixedChildParentNode implements IterationNode {
+public class ForIterationNode extends FixedChildParentNode implements IterationNode, GLSLContext {
+    private GLSLContext parentContext;
+
     public ForIterationNode() {
         this(null);
     }
@@ -54,4 +57,13 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
         return visitor.visitForIteration(this);
     }
 
+    @Override
+    public GLSLContext getParent() {
+        return parentContext;
+    }
+
+    @Override
+    public void setParent(GLSLContext parentContext) {
+        this.parentContext = parentContext;
+    }
 }

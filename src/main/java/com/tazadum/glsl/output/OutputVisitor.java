@@ -128,7 +128,7 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitArrayIndex(ArrayIndexNode node) {
-        return visitChildren(node);
+        return node.getExpression().accept(this) + '[' + node.getIndex().accept(this) + ']';
     }
 
     @Override

@@ -20,10 +20,18 @@ public class ArrayIndexNode extends FixedChildParentNode {
         setChild(1, index);
     }
 
+    public Node getExpression() {
+        return getChild(0);
+    }
+
+    public Node getIndex() {
+        return getChild(1);
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
-        Node expression = CloneUtils.clone(getChild(0));
-        Node index = CloneUtils.clone(getChild(1));
+        Node expression = CloneUtils.clone(getExpression());
+        Node index = CloneUtils.clone(getIndex());
         return new ArrayIndexNode(newParent, expression, index);
     }
 

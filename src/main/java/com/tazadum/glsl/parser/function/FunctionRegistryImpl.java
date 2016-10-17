@@ -1,16 +1,17 @@
 package com.tazadum.glsl.parser.function;
 
+import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.exception.ParserException;
-import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class FunctionRegistryImpl implements FunctionRegistry {
-    private ConcurrentMap<String, FunctionPrototypeNode> functionMap;
+    private ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap;
     private ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap;
 
     public FunctionRegistryImpl() {
@@ -20,22 +21,29 @@ public class FunctionRegistryImpl implements FunctionRegistry {
 
     @Override
     public void declare(FunctionPrototypeNode node) {
-        functionMap.put(node.getIdentifier().original(), node);
+        functionMap.computeIfAbsent(node.getIdentifier().original(), (identifier) -> new ArrayList<>()).add(node);
     }
 
     @Override
-    public void usage(GLSLContext context, String identifier, FunctionCallNode node) {
-        final FunctionPrototypeNode declarationNode = functionMap.get(identifier);
-        if (declarationNode == null) {
-            throw new ParserException("Unresolved identifier " + identifier);
+    public void usage(FunctionPrototypeNode prototypeNode, FunctionCallNode node) {
+        final Usage<FunctionPrototypeNode> usage = usageMap.computeIfAbsent(prototypeNode, Usage::new);
+        usage.add(prototypeNode, node);
+    }
+
+    @Override
+    public FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher) {
+        final List<FunctionPrototypeNode> prototypeNodes = functionMap.get(identifier.original());
+        if (prototypeNodes == null || prototypeNodes.isEmpty()) {
+            return null;
         }
 
-        usageMap.computeIfAbsent(declarationNode, Usage::new).add(context, node);
-    }
+        for (FunctionPrototypeNode prototypeNode : prototypeNodes) {
+            if (prototypeMatcher.matches(prototypeNode.getPrototype())) {
+                return prototypeNode;
+            }
+        }
 
-    @Override
-    public FunctionPrototypeNode resolve(String identifier) {
-        return functionMap.get(identifier);
+        return null;
     }
 
     @Override

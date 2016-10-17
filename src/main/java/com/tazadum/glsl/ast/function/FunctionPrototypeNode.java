@@ -3,12 +3,16 @@ package com.tazadum.glsl.ast.function;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class FunctionPrototypeNode extends ParentNode {
+public class FunctionPrototypeNode extends ParentNode implements GLSLContext {
     private Identifier identifier;
     private FullySpecifiedType returnType;
+    private FunctionPrototype prototype;
+    private GLSLContext parentContext;
 
     public FunctionPrototypeNode(String functionName, FullySpecifiedType returnType) {
         this.identifier = new Identifier(functionName);
@@ -29,6 +33,14 @@ public class FunctionPrototypeNode extends ParentNode {
         return returnType;
     }
 
+    public FunctionPrototype getPrototype() {
+        return prototype;
+    }
+
+    public void setPrototype(FunctionPrototype prototype) {
+        this.prototype = prototype;
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
         return CloneUtils.cloneChildren(this, new FunctionPrototypeNode(newParent, identifier, returnType));
@@ -37,5 +49,15 @@ public class FunctionPrototypeNode extends ParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitFunctionPrototype(this);
+    }
+
+    @Override
+    public GLSLContext getParent() {
+        return parentContext;
+    }
+
+    @Override
+    public void setParent(GLSLContext parentContext) {
+        this.parentContext = parentContext;
     }
 }

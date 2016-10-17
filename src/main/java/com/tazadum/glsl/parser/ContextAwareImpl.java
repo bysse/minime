@@ -11,13 +11,11 @@ public class ContextAwareImpl implements ContextAware {
     private Set<GLSLContext> contexts = new HashSet<>();
 
     public ContextAwareImpl() {
-        this.globalContext = enterContext();
+        this.globalContext = enterContext(new GLSLContextImpl());
     }
 
     @Override
-    public GLSLContext enterContext() {
-        GLSLContext context = new GLSLContextImpl();
-
+    public GLSLContext enterContext(GLSLContext context) {
         if (!stack.isEmpty()) {
             GLSLContext previous = stack.peek();
             if (previous != null) {
