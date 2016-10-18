@@ -65,10 +65,8 @@ public class FullySpecifiedType {
 
     @Override
     public String toString() {
-        return "{" +
-            "qualifier=" + qualifier +
-            ", precision=" + precision +
-            ", type=" + type +
-            '}';
+        return (qualifier == null ? "" : qualifier.token() + " ") +
+                (precision == null ? "" : precision.token() + " ") +
+                type.token();
     }
 }

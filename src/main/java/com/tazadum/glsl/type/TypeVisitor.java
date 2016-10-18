@@ -19,6 +19,7 @@ import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLType;
+import com.tazadum.glsl.language.TypeCategory;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 
@@ -150,6 +151,7 @@ public class TypeVisitor implements ASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitDoWhileIteration(DoWhileIterationNode node) {
+        visitChildren(node);
         return null;
     }
 
@@ -162,6 +164,7 @@ public class TypeVisitor implements ASTVisitor<GLSLType> {
     @Override
     public GLSLType visitFunctionDefinition(FunctionDefinitionNode node) {
         // function definitions has no type
+        visitChildren(node);
         return null;
     }
 
@@ -250,26 +253,68 @@ public class TypeVisitor implements ASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitUnaryOperation(UnaryOperationNode node) {
-        // TODO: implement
-        return null;
+        final GLSLType type = node.getExpression().accept(this);
+        map.put(node, type);
+        return type;
     }
 
     @Override
     public GLSLType visitPrefixOperation(PrefixOperationNode node) {
-        // TODO: implement
-        return null;
+        final GLSLType type = node.getExpression().accept(this);
+        map.put(node, type);
+        return type;
     }
 
     @Override
     public GLSLType visitPostfixOperation(PostfixOperationNode node) {
-        // TODO: implement
-        return null;
+        final GLSLType type = node.getExpression().accept(this);
+        map.put(node, type);
+        return type;
     }
 
     @Override
     public GLSLType visitNumericOperation(NumericOperationNode node) {
-        // TODO: implement
-        return null;
+        final BuiltInType left = (BuiltInType)node.getLeft().accept(this);
+        final BuiltInType right = (BuiltInType)node.getRight().accept(this);
+
+        if (left.category() == TypeCategory.Special || right.category() == TypeCategory.Special) {
+            throw TypeException.types(left, right, " are not compatible together in an arithmetic operation!");
+        }
+
+        switch (left.category()) {
+            case Scalar:
+                switch (right.category()) {
+                    case Scalar:
+                        return right;
+                    case Vector:
+                        return right;
+                    case Matrix:
+                        return right;
+                }
+                break;
+            case Vector:
+                switch (right.category()) {
+                    case Scalar:
+                        return left;
+                    case Vector:
+                        return left;
+                    case Matrix:
+                        return left;
+                }
+                break;
+            case Matrix:
+                switch (right.category()) {
+                    case Scalar:
+                        return left;
+                    case Vector:
+                        return right;
+                    case Matrix:
+                        if (left != right) throw TypeException.types(left, right, " are not compatible!");
+                        return left;
+                }
+                break;
+        }
+        throw TypeException.types(left, right, " are not compatible together in arithmetic operations!");
     }
 
     @Override

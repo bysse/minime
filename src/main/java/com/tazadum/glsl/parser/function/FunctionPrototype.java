@@ -49,9 +49,6 @@ public class FunctionPrototype {
 
     @Override
     public String toString() {
-        return "FunctionPrototype{" +
-            "parameterTypes=" + parameterTypes +
-            ", returnType=" + returnType +
-            '}';
+        return Arrays.toString(parameterTypes) + "->" + returnType;
     }
 }

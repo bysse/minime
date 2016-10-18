@@ -7,34 +7,40 @@ import com.tazadum.glsl.exception.TypeException;
  * @since 2016-07-31
  */
 public enum BuiltInType implements GLSLType, HasToken {
-    VOID("void"),
-    FLOAT("float"),
-    INT("int"),
-    BOOL("bool"),
-    VEC2("vec2"),
-    VEC3("vec3"),
-    VEC4("vec4"),
-    BVEC2("bvec2"),
-    BVEC3("bvec3"),
-    BVEC4("bvec4"),
-    IVEC2("ivec2"),
-    IVEC3("ivec3"),
-    IVEC4("ivec4"),
-    MAT2("mat2"),
-    MAT3("mat3"),
-    MAT4("mat4"),
-    SAMPLER2D("sampler2D"),
-    SAMPLER_CUBE("samplerCube");
+    VOID("void", TypeCategory.Special),
+    FLOAT("float", TypeCategory.Scalar),
+    INT("int", TypeCategory.Scalar),
+    BOOL("bool", TypeCategory.Special),
+    VEC2("vec2", TypeCategory.Vector),
+    VEC3("vec3", TypeCategory.Vector),
+    VEC4("vec4", TypeCategory.Vector),
+    BVEC2("bvec2", TypeCategory.Vector),
+    BVEC3("bvec3", TypeCategory.Vector),
+    BVEC4("bvec4", TypeCategory.Vector),
+    IVEC2("ivec2", TypeCategory.Vector),
+    IVEC3("ivec3", TypeCategory.Vector),
+    IVEC4("ivec4", TypeCategory.Vector),
+    MAT2("mat2", TypeCategory.Matrix),
+    MAT3("mat3", TypeCategory.Matrix),
+    MAT4("mat4", TypeCategory.Matrix),
+    SAMPLER2D("sampler2D", TypeCategory.Special),
+    SAMPLER_CUBE("samplerCube", TypeCategory.Special);
 
     private String token;
+    private TypeCategory category;
 
-    BuiltInType(String token) {
+    BuiltInType(String token, TypeCategory category) {
         this.token = token;
+        this.category = category;
     }
 
     @Override
     public String token() {
         return token;
+    }
+
+    public TypeCategory category() {
+        return category;
     }
 
     @Override

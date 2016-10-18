@@ -1,6 +1,6 @@
 package com.tazadum.glsl.ast;
 
-public class Identifier {
+public class Identifier implements Comparable<Identifier> {
     private String original;
     private String replacement;
 
@@ -30,5 +30,10 @@ public class Identifier {
 
     public boolean isEmpty() {
         return original == null || original.length() == 0;
+    }
+
+    @Override
+    public int compareTo(Identifier o) {
+        return original.compareTo(o.original);
     }
 }

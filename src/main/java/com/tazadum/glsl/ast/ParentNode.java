@@ -83,7 +83,7 @@ public class ParentNode implements Node {
         if (!equals(node.getParentNode())) {
             throw new IllegalArgumentException("The node doesn't have the correct parent set.");
         }
-
+        node.setParentNode(this);
         childNodes.add(index, node);
         return this;
     }

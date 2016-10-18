@@ -1,5 +1,6 @@
 package com.tazadum.glsl.exception;
 
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 
 public class TypeException extends ParserException {
@@ -25,6 +26,10 @@ public class TypeException extends ParserException {
 
     public static TypeException incompatibleTypes(String type, String otherType) {
         return new TypeException(String.format("Incompatible types %s and %s", type, otherType));
+    }
+
+    public static TypeException types(GLSLType type, GLSLType otherType, String message) {
+        return new TypeException(String.format("Type '%s' and '%s' %s", type, otherType, message));
     }
 
     public static TypeException incompatibleTypes(String function, FunctionPrototypeMatcher matcher) {

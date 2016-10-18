@@ -7,6 +7,8 @@ import com.tazadum.glsl.parser.Usage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -49,5 +51,17 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     @Override
     public Usage<FunctionPrototypeNode> usagesOf(FunctionPrototypeNode node) {
         return usageMap.get(node);
+    }
+
+    @Override
+    public Map<Identifier, Usage<FunctionPrototypeNode>> getUsedFunctions() {
+        final Map<Identifier, Usage<FunctionPrototypeNode>> map = new TreeMap<>();
+        for (Map.Entry<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> entry : usageMap.entrySet()) {
+            if (entry.getValue().getUsageNodes().isEmpty()) {
+                continue;
+            }
+            map.put(entry.getKey().getIdentifier(), entry.getValue());
+        }
+        return map;
     }
 }

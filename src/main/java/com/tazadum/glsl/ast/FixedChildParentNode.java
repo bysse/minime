@@ -26,6 +26,9 @@ public class FixedChildParentNode extends ParentNode {
             throw new IllegalArgumentException("Index is outside of range");
         }
 
+        if (node != null) {
+            node.setParentNode(this);
+        }
         nodes[index] = node;
         return this;
     }
