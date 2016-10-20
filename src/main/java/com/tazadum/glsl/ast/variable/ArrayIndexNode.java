@@ -1,15 +1,15 @@
 package com.tazadum.glsl.ast.variable;
 
-import com.tazadum.glsl.ast.ASTVisitor;
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 /**
  * Created by Erik on 2016-10-07.
  */
-public class ArrayIndexNode extends FixedChildParentNode {
+public class ArrayIndexNode extends FixedChildParentNode implements HasMutableType {
+    private GLSLType type;
+
     public ArrayIndexNode(Node expression, Node index) {
         this(null, expression, index);
     }
@@ -38,5 +38,15 @@ public class ArrayIndexNode extends FixedChildParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitArrayIndex(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(GLSLType type) {
+        this.type = type;
     }
 }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast;
 
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class ParenthesisNode extends FixedChildParentNode {
@@ -26,5 +27,10 @@ public class ParenthesisNode extends FixedChildParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitParenthesis(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return getExpression().getType();
     }
 }

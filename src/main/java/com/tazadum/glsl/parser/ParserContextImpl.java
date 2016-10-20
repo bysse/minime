@@ -140,7 +140,7 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
         function("normalize" , GenTypes.GenType, GenTypes.GenType);
         function("faceforward" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
         function("reflect" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
-        function("refract" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
+        function("refract" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType, BuiltInType.FLOAT);
 
         // Matrix Functions
         function("inverse", GenTypes.GenMatrixType, GenTypes.GenMatrixType);

@@ -1,6 +1,7 @@
 package com.tazadum.glsl.ast.iteration;
 
 import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class WhileIterationNode extends FixedChildParentNode implements IterationNode {
@@ -36,5 +37,10 @@ public class WhileIterationNode extends FixedChildParentNode implements Iteratio
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitWhileIteration(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return null;
     }
 }

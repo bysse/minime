@@ -3,6 +3,7 @@ package com.tazadum.glsl.ast.conditional;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.GLSLType;
 
 public class ContinueLeafNode extends LeafNode {
 
@@ -22,5 +23,10 @@ public class ContinueLeafNode extends LeafNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitContinue(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return null;
     }
 }

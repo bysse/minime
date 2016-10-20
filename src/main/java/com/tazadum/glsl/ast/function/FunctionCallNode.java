@@ -3,6 +3,7 @@ package com.tazadum.glsl.ast.function;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class FunctionCallNode extends ParentNode {
@@ -46,5 +47,10 @@ public class FunctionCallNode extends ParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitFunctionCall(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return declarationNode.getType();
     }
 }

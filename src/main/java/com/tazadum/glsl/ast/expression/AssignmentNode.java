@@ -2,6 +2,7 @@ package com.tazadum.glsl.ast.expression;
 
 import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.language.AssignmentOperator;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class AssignmentNode extends FixedChildParentNode implements MutatingOperation {
@@ -40,5 +41,10 @@ public class AssignmentNode extends FixedChildParentNode implements MutatingOper
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitAssignment(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return getLeft().getType();
     }
 }

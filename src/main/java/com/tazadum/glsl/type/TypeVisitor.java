@@ -1,20 +1,13 @@
 package com.tazadum.glsl.type;
 
-import com.tazadum.glsl.ast.*;
-import com.tazadum.glsl.ast.arithmetic.*;
-import com.tazadum.glsl.ast.conditional.*;
+import com.tazadum.glsl.ast.DefaultASTVisitor;
+import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.ast.conditional.TernaryConditionNode;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
-import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.iteration.DoWhileIterationNode;
-import com.tazadum.glsl.ast.iteration.ForIterationNode;
-import com.tazadum.glsl.ast.iteration.WhileIterationNode;
-import com.tazadum.glsl.ast.logical.BooleanLeafNode;
-import com.tazadum.glsl.ast.logical.LogicalOperationNode;
-import com.tazadum.glsl.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.ast.variable.*;
+import com.tazadum.glsl.ast.variable.ArrayIndexNode;
+import com.tazadum.glsl.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.BuiltInType;
@@ -23,95 +16,38 @@ import com.tazadum.glsl.language.TypeCategory;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Created by Erik on 2016-10-16.
  */
-public class TypeVisitor implements ASTVisitor<GLSLType> {
+public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     private ParserContext parserContext;
-    private Map<Node, GLSLType> map;
-
-    public Map<Node, GLSLType> getLookup() {
-        return map;
-    }
 
     public TypeVisitor(ParserContext parserContext) {
         this.parserContext = parserContext;
-        this.map = new HashMap<>();
-    }
-
-    @Override
-    public GLSLType visitBoolean(BooleanLeafNode node) {
-        map.put(node, BuiltInType.BOOL);
-        return BuiltInType.BOOL;
-    }
-
-    @Override
-    public GLSLType visitStatementList(StatementListNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public GLSLType visitParenthesis(ParenthesisNode node) {
-        final GLSLType type = node.getExpression().accept(this);
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitVariable(VariableNode node) {
-        final GLSLType type = node.getDeclarationNode().getFullySpecifiedType().getType();
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitVariableDeclaration(VariableDeclarationNode node) {
-        final GLSLType type = node.getFullySpecifiedType().getType();
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitVariableDeclarationList(VariableDeclarationListNode node) {
-        final GLSLType type = node.getFullySpecifiedType().getType();
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitPrecision(PrecisionDeclarationNode node) {
-        return null;
-    }
-
-    @Override
-    public GLSLType visitParameterDeclaration(ParameterDeclarationNode node) {
-        final GLSLType type = node.getFullySpecifiedType().getType();
-        map.put(node, type);
-        return type;
     }
 
     @Override
     public GLSLType visitFieldSelection(FieldSelectionNode node) {
-        final GLSLType glslType = node.getExpression().accept(this);
+        super.visitFieldSelection(node);
+
+        final GLSLType glslType = node.getExpression().getType();
         if (!(glslType instanceof BuiltInType)) {
             throw ParserException.notSupported("Custom types are not supported");
         }
 
         final BuiltInType type = (BuiltInType) glslType;
-        final GLSLType fieldType = type.fieldType(node.getSelection());
+        final GLSLType selectionType = type.fieldType(node.getSelection());
 
-        map.put(node, fieldType);
-        return fieldType;
+        node.setType(selectionType);
+        return selectionType;
     }
 
     @Override
     public GLSLType visitArrayIndex(ArrayIndexNode node) {
-        GLSLType expressionType = node.getExpression().accept(this);
-        GLSLType indexType = node.getIndex().accept(this);
+        super.visitArrayIndex(node);
+
+        final GLSLType expressionType = node.getExpression().getType();
+        final GLSLType indexType = node.getIndex().getType();
 
         if (BuiltInType.INT != indexType) {
             throw new TypeException("Array index is not of type int!");
@@ -119,60 +55,16 @@ public class TypeVisitor implements ASTVisitor<GLSLType> {
 
         // TODO: Perform some clever transform of the expressionType to the element type
 
-        map.put(node, expressionType);
         return expressionType;
     }
 
     @Override
-    public GLSLType visitRelationalOperation(RelationalOperationNode node) {
-        visitChildren(node);
-        map.put(node, BuiltInType.BOOL);
-        return BuiltInType.BOOL;
-    }
-
-    @Override
-    public GLSLType visitLogicalOperation(LogicalOperationNode node) {
-        visitChildren(node);
-        map.put(node, BuiltInType.BOOL);
-        return BuiltInType.BOOL;
-    }
-
-    @Override
-    public GLSLType visitWhileIteration(WhileIterationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public GLSLType visitForIteration(ForIterationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public GLSLType visitDoWhileIteration(DoWhileIterationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public GLSLType visitFunctionPrototype(FunctionPrototypeNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public GLSLType visitFunctionDefinition(FunctionDefinitionNode node) {
-        // function definitions has no type
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
     public GLSLType visitFunctionCall(FunctionCallNode node) {
+        super.visitFunctionCall(node);
+
         final GLSLType[] parameterTypes = new GLSLType[node.getChildCount()];
         for (int i = 0; i < node.getChildCount(); i++) {
-            parameterTypes[i] = node.getChild(i).accept(this);
+            parameterTypes[i] = node.getChild(i).getType();
         }
 
         final FunctionPrototypeMatcher prototypeMatcher = new FunctionPrototypeMatcher(FunctionPrototypeMatcher.ANY, parameterTypes);
@@ -185,102 +77,49 @@ public class TypeVisitor implements ASTVisitor<GLSLType> {
         node.setDeclarationNode(prototypeNode);
         parserContext.getFunctionRegistry().usage(prototypeNode, node);
 
-        final GLSLType returnType = prototypeNode.getReturnType().getType();
-        map.put(node, returnType);
-        return returnType;
-    }
-
-    @Override
-    public GLSLType visitConstantExpression(ConstantExpressionNode node) {
-        GLSLType type = node.getExpression().accept(this);
-        map.put(node, type);
-        return type;
+        return prototypeNode.getReturnType().getType();
     }
 
     @Override
     public GLSLType visitAssignment(AssignmentNode node) {
-        visitChildren(node);
+        super.visitAssignment(node);
+
+        // TODO: verify assignment types
+
         return null;
     }
 
     @Override
     public GLSLType visitTernaryCondition(TernaryConditionNode node) {
-        node.getCondition().accept(this);
+        super.visitTernaryCondition(node);
 
-        final GLSLType thenType = node.getThen().accept(this);
-        final GLSLType elseType = node.getElse().accept(this);
+        final GLSLType thenType = node.getThen().getType();
+        final GLSLType elseType = node.getElse().getType();
 
         if (!thenType.isAssignableBy(elseType)) {
             throw TypeException.incompatibleTypes(thenType.token(), elseType.token());
         }
 
-        map.put(node, thenType);
         return thenType;
     }
 
     @Override
-    public GLSLType visitReturn(ReturnNode node) {
-        if (node.getExpression() == null) {
-            map.put(node, BuiltInType.VOID);
-            return BuiltInType.VOID;
-        }
-
-        GLSLType type = node.getExpression().accept(this);
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitDiscard(DiscardLeafNode node) {
-        return null;
-    }
-
-    @Override
-    public GLSLType visitContinue(ContinueLeafNode node) {
-        return null;
-    }
-
-    @Override
-    public GLSLType visitCondition(ConditionNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public GLSLType visitBreak(BreakLeafNode node) {
-        return null;
-    }
-
-    @Override
-    public GLSLType visitUnaryOperation(UnaryOperationNode node) {
-        final GLSLType type = node.getExpression().accept(this);
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitPrefixOperation(PrefixOperationNode node) {
-        final GLSLType type = node.getExpression().accept(this);
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
-    public GLSLType visitPostfixOperation(PostfixOperationNode node) {
-        final GLSLType type = node.getExpression().accept(this);
-        map.put(node, type);
-        return type;
-    }
-
-    @Override
     public GLSLType visitNumericOperation(NumericOperationNode node) {
-        final BuiltInType left = (BuiltInType)node.getLeft().accept(this);
-        final BuiltInType right = (BuiltInType)node.getRight().accept(this);
+        super.visitNumericOperation(node);
+
+        final BuiltInType left = (BuiltInType)node.getLeft().getType();
+        final BuiltInType right = (BuiltInType)node.getRight().getType();
 
         if (left.category() == TypeCategory.Special || right.category() == TypeCategory.Special) {
             throw TypeException.types(left, right, " are not compatible together in an arithmetic operation!");
         }
 
+        final GLSLType type = getTypeCombination(left, right);
+        node.setType(type);
+        return type;
+    }
+
+    private GLSLType getTypeCombination(BuiltInType left, BuiltInType right) {
         switch (left.category()) {
             case Scalar:
                 switch (right.category()) {
@@ -315,26 +154,5 @@ public class TypeVisitor implements ASTVisitor<GLSLType> {
                 break;
         }
         throw TypeException.types(left, right, " are not compatible together in arithmetic operations!");
-    }
-
-    @Override
-    public GLSLType visitInt(IntLeafNode node) {
-        map.put(node, BuiltInType.INT);
-        return BuiltInType.INT;
-    }
-
-    @Override
-    public GLSLType visitFloat(FloatLeafNode node) {
-        map.put(node, BuiltInType.FLOAT);
-        return BuiltInType.FLOAT;
-    }
-
-
-    private <T extends ParentNode> String visitChildren(T node) {
-        final StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < node.getChildCount(); i++) {
-            builder.append(node.getChild(i).accept(this));
-        }
-        return builder.toString();
     }
 }

@@ -2,36 +2,42 @@ package com.tazadum.glsl.ast.variable;
 
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class VariableDeclarationListNode extends ParentNode {
-    private FullySpecifiedType fst;
+    private FullySpecifiedType type;
 
-    public VariableDeclarationListNode(FullySpecifiedType fst) {
-        this.fst = fst;
+    public VariableDeclarationListNode(FullySpecifiedType type) {
+        this.type = type;
     }
 
-    public VariableDeclarationListNode(ParentNode parentNode, FullySpecifiedType fst) {
+    public VariableDeclarationListNode(ParentNode parentNode, FullySpecifiedType type) {
         super(parentNode);
-        this.fst = fst;
+        this.type = type;
     }
 
     public void setFullySpecifiedType(FullySpecifiedType fst) {
-        this.fst = fst;
+        this.type = fst;
     }
 
     public FullySpecifiedType getFullySpecifiedType() {
-        return fst;
+        return type;
     }
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(fst));
+        return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(type));
     }
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitVariableDeclarationList(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return type.getType();
     }
 }

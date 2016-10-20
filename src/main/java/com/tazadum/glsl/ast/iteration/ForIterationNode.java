@@ -1,6 +1,7 @@
 package com.tazadum.glsl.ast.iteration;
 
 import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.util.CloneUtils;
 
@@ -55,6 +56,11 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitForIteration(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return null;
     }
 
     @Override

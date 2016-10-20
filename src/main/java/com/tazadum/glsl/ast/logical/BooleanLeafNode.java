@@ -3,6 +3,8 @@ package com.tazadum.glsl.ast.logical;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.GLSLType;
 
 public class BooleanLeafNode extends LeafNode {
     private final boolean value;
@@ -28,5 +30,10 @@ public class BooleanLeafNode extends LeafNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitBoolean(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return BuiltInType.BOOL;
     }
 }

@@ -4,6 +4,8 @@ import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class ReturnNode extends FixedChildParentNode {
@@ -36,5 +38,13 @@ public class ReturnNode extends FixedChildParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitReturn(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        if (hasExpression()) {
+            return getExpression().getType();
+        }
+        return BuiltInType.VOID;
     }
 }

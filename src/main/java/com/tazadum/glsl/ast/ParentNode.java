@@ -1,5 +1,6 @@
 package com.tazadum.glsl.ast;
 
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 import java.util.ArrayList;
@@ -48,6 +49,11 @@ public class ParentNode implements Node {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         throw new UnsupportedOperationException("Extending classes should override ParentNode::accept");
+    }
+
+    @Override
+    public GLSLType getType() {
+        throw new UnsupportedOperationException("Extending classes should override ParentNode::getType");
     }
 
     public int getChildCount() {

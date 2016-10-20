@@ -1,5 +1,7 @@
 package com.tazadum.glsl.ast;
 
+import com.tazadum.glsl.language.GLSLType;
+
 /**
  * @author erikb
  * @since 2016-07-31
@@ -41,5 +43,10 @@ public class LeafNode implements Node {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         throw new UnsupportedOperationException("Extending classes should override LeafNode::accept");
+    }
+
+    @Override
+    public GLSLType getType() {
+        return null;
     }
 }

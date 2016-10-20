@@ -3,6 +3,7 @@ package com.tazadum.glsl.ast.variable;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.GLSLType;
 
 public class VariableNode extends LeafNode {
     /**
@@ -28,5 +29,10 @@ public class VariableNode extends LeafNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitVariable(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return declarationNode.getType();
     }
 }

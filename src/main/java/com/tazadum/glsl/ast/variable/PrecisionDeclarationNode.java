@@ -4,6 +4,7 @@ import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.PrecisionQualifier;
 
 public class PrecisionDeclarationNode extends LeafNode {
@@ -36,5 +37,10 @@ public class PrecisionDeclarationNode extends LeafNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitPrecision(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return null;
     }
 }

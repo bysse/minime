@@ -1,5 +1,6 @@
 package com.tazadum.glsl.util;
 
+import com.tazadum.glsl.ast.HasMutableType;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
 
@@ -25,6 +26,10 @@ public class CloneUtils {
         for (int i = 0; i < source.getChildCount(); i++) {
             final Node clonedChild = clone(source.getChild(i), clone);
             clone.setChild(i, clonedChild);
+        }
+
+        if (source instanceof HasMutableType) {
+            ((HasMutableType)clone).setType(source.getType());
         }
         return clone;
     }

@@ -1,9 +1,8 @@
 package com.tazadum.glsl.ast.logical;
 
-import com.tazadum.glsl.ast.ASTVisitor;
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.RelationalOperator;
 import com.tazadum.glsl.util.CloneUtils;
 
@@ -52,4 +51,8 @@ public class RelationalOperationNode extends FixedChildParentNode {
         return visitor.visitRelationalOperation(this);
     }
 
+    @Override
+    public GLSLType getType() {
+        return BuiltInType.BOOL;
+    }
 }

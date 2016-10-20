@@ -1,16 +1,15 @@
 package com.tazadum.glsl.ast.variable;
 
-import com.tazadum.glsl.ast.ASTVisitor;
-import com.tazadum.glsl.ast.FixedChildParentNode;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.util.CloneUtils;
 
 /**
  * Created by Erik on 2016-10-07.
  */
-public class FieldSelectionNode extends FixedChildParentNode {
+public class FieldSelectionNode extends FixedChildParentNode implements HasMutableType {
     private String selection;
+    private GLSLType type;
 
     public FieldSelectionNode(String selection) {
         this(null, selection);
@@ -41,5 +40,15 @@ public class FieldSelectionNode extends FixedChildParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitFieldSelection(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return type;
+    }
+
+    @Override
+    public void setType(GLSLType type) {
+        this.type = type;
     }
 }

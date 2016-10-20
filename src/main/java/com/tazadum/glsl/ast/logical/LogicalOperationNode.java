@@ -4,6 +4,8 @@ import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.LogicalOperator;
 import com.tazadum.glsl.util.CloneUtils;
 
@@ -50,5 +52,10 @@ public class LogicalOperationNode extends FixedChildParentNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitLogicalOperation(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return BuiltInType.BOOL;
     }
 }

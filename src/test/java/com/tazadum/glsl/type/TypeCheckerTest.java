@@ -73,8 +73,9 @@ public class TypeCheckerTest {
         }
     }
 
-    private TypeLookup testOutput(String shader) {
+    private Node testOutput(String shader) {
         final Node node = TestUtils.parse(parserContext, Node.class, shader);
-        return typeChecker.check(parserContext, node);
+        typeChecker.check(parserContext, node);
+        return node;
     }
 }

@@ -3,6 +3,7 @@ package com.tazadum.glsl.ast.conditional;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.GLSLType;
 
 public class DiscardLeafNode extends LeafNode {
 
@@ -22,5 +23,10 @@ public class DiscardLeafNode extends LeafNode {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitDiscard(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return null;
     }
 }

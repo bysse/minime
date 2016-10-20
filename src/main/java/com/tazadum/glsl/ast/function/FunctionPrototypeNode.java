@@ -3,6 +3,7 @@ package com.tazadum.glsl.ast.function;
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
@@ -49,6 +50,11 @@ public class FunctionPrototypeNode extends ParentNode implements GLSLContext {
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitFunctionPrototype(this);
+    }
+
+    @Override
+    public GLSLType getType() {
+        return returnType.getType();
     }
 
     @Override
