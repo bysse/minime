@@ -305,12 +305,12 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitInt(IntLeafNode node) {
-        return formatInt(node.getValue());
+        return formatNumeric(node.getValue());
     }
 
     @Override
     public String visitFloat(FloatLeafNode node) {
-        return formatFloat(node.getValue());
+        return formatNumeric(node.getValue());
     }
 
     private String formatInt(Numeric numeric) {
@@ -319,18 +319,17 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     private String formatNumeric(Numeric numeric) {
         if (numeric.hasFraction()) {
-            String format = String.format("%%.0%df", numeric.getDecimals());
-            return String.format(Locale.US, format, numeric.getValue());
+            String format = String.format("%%.%df", numeric.getDecimals());
+            String result = String.format(Locale.US, format, numeric.getValue());
+            if(result.startsWith("0")) {
+                return result.substring(1);
+            }
+            return result;
         }
-        return String.format(Locale.US, "%d.", (int)numeric.getValue());
-    }
-
-    private String formatFloat(Numeric numeric) {
-        String output = formatNumeric(numeric);
-        if (output.startsWith("0") && output.length() > 2) {
-            return output.substring(1);
+        if (numeric.isFloat()) {
+            return String.format(Locale.US, "%d.", (int)numeric.getValue());
         }
-        return output;
+        return String.format(Locale.US, "%d", (int)numeric.getValue());
     }
 
     private void enterScope() {

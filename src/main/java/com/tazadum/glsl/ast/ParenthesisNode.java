@@ -14,9 +14,12 @@ public class ParenthesisNode extends FixedChildParentNode {
         setChild(0, node);
     }
 
+    public void setExpression(Node node) {
+        setChild(0, node);
+    }
 
     public Node getExpression() {
-        return nodes[0];
+        return getChild(0);
     }
 
     @Override

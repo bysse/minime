@@ -10,10 +10,10 @@ import static org.junit.Assert.assertTrue;
 public class NumericTest {
     @Test
     public void testFraction() {
-        assertFalse(Numeric.create("0.").hasFraction());
+        assertTrue(Numeric.create("0.").hasFraction());
         assertFalse(Numeric.create("0").hasFraction());
         assertFalse(Numeric.create("10").hasFraction());
-        assertFalse(Numeric.create("20.").hasFraction());
+        assertTrue(Numeric.create("20.").hasFraction());
 
         assertTrue(Numeric.create("0.1").hasFraction());
         assertTrue(Numeric.create("0.10").hasFraction());

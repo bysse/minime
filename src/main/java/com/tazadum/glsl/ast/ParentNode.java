@@ -90,7 +90,7 @@ public class ParentNode implements Node {
             throw new IllegalArgumentException("The node doesn't have the correct parent set.");
         }
         node.setParentNode(this);
-        childNodes.add(index, node);
+        childNodes.set(index, node);
         return this;
     }
 

@@ -1,13 +1,14 @@
 package com.tazadum.glsl.ast.arithmetic;
 
 import com.tazadum.glsl.ast.ASTVisitor;
+import com.tazadum.glsl.ast.HasNumeric;
 import com.tazadum.glsl.ast.LeafNode;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.Numeric;
 
-public class FloatLeafNode extends LeafNode {
+public class FloatLeafNode extends LeafNode implements HasNumeric {
     private final Numeric value;
 
     public FloatLeafNode(Numeric value) {
@@ -35,6 +36,6 @@ public class FloatLeafNode extends LeafNode {
 
     @Override
     public GLSLType getType() {
-        return BuiltInType.INT;
+        return BuiltInType.FLOAT;
     }
 }

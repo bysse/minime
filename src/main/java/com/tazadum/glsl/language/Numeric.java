@@ -3,10 +3,12 @@ package com.tazadum.glsl.language;
 public class Numeric implements Comparable<Numeric> {
     private double value;
     private int decimals;
+    private boolean isFloat;
 
-    Numeric(double value, int decimals) {
+    public Numeric(double value, int decimals, boolean isFloat) {
         this.value = value;
         this.decimals = decimals;
+        this.isFloat = isFloat;
     }
 
     public boolean hasFraction() {
@@ -21,6 +23,10 @@ public class Numeric implements Comparable<Numeric> {
         return value;
     }
 
+    public boolean isFloat() {
+        return isFloat;
+    }
+
     @Override
     public int compareTo(Numeric o) {
         return (int) Math.signum(value - o.value);
@@ -33,7 +39,7 @@ public class Numeric implements Comparable<Numeric> {
         int index = number.indexOf('.');
 
         if (index < 0) {
-            return new Numeric(value, 0);
+            return new Numeric(value, 0, false);
         }
         decimals = number.length() - index - 1;
 
@@ -45,6 +51,6 @@ public class Numeric implements Comparable<Numeric> {
             decimals--;
         }
 
-        return new Numeric(value, decimals);
+        return new Numeric(value, decimals, true);
     }
 }

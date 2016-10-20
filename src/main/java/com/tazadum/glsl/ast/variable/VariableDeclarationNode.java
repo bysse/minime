@@ -23,12 +23,17 @@ public class VariableDeclarationNode extends FixedChildParentNode {
         this.identifier = identifier;
         this.arraySpecifier = arraySpecifier;
         this.initializer = initializer;
-        setChild(0, arraySpecifier);
-        setChild(1, initializer);
+
+        setArraySpecifier(arraySpecifier);
+        setInitializer(initializer);
     }
 
     public Node getArraySpecifier() {
         return arraySpecifier;
+    }
+
+    public void setArraySpecifier(Node arraySpecifier) {
+        setChild(0, arraySpecifier);
     }
 
     public Identifier getIdentifier() {
@@ -37,6 +42,10 @@ public class VariableDeclarationNode extends FixedChildParentNode {
 
     public Node getInitializer() {
         return initializer;
+    }
+
+    public void setInitializer(Node initializer) {
+        setChild(1, initializer);
     }
 
     public FullySpecifiedType getFullySpecifiedType() {

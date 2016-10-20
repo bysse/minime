@@ -124,7 +124,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             case Scalar:
                 switch (right.category()) {
                     case Scalar:
-                        return right;
+                        return floatOrInt(left, right);
                     case Vector:
                         return right;
                     case Matrix:
@@ -154,5 +154,12 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 break;
         }
         throw TypeException.types(left, right, " are not compatible together in arithmetic operations!");
+    }
+
+    private GLSLType floatOrInt(BuiltInType left, BuiltInType right) {
+        if (left == BuiltInType.FLOAT || right == BuiltInType.FLOAT) {
+            return BuiltInType.FLOAT;
+        }
+        return BuiltInType.INT;
     }
 }
