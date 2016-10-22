@@ -21,9 +21,11 @@ import com.tazadum.glsl.parser.ParserContext;
  */
 public class ReplacingASTVisitor implements ASTVisitor<Node> {
     protected ParserContext parserContext;
+    private boolean dereference;
 
-    public ReplacingASTVisitor(ParserContext parserContext) {
+    public ReplacingASTVisitor(ParserContext parserContext, boolean dereference) {
         this.parserContext = parserContext;
+        this.dereference = dereference;
     }
 
     @Override
@@ -215,7 +217,9 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
             }
             final Node replacement = child.accept(this);
             if (replacement != null) {
-                parserContext.dereferenceTree(child);
+                if (dereference) {
+                    parserContext.dereferenceTree(child);
+                }
                 node.setChild(i, replacement);
             }
         }

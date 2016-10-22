@@ -16,6 +16,12 @@ public class NumericOperationNode extends FixedChildParentNode implements HasMut
         this(null, operator);
     }
 
+    public NumericOperationNode(NumericOperator operator, Node left, Node right) {
+        this(null, operator);
+        setLeft(left);
+        setRight(right);
+    }
+
     public NumericOperationNode(ParentNode parentNode, NumericOperator operator) {
         super(2, parentNode);
         this.operator = operator;

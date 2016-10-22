@@ -16,7 +16,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
     private int changes = 0;
 
     public ConstantFoldingVisitor(ParserContext parserContext, OptimizationDecider decider) {
-        super(parserContext);
+        super(parserContext, false);
         this.decider = decider;
     }
 
@@ -77,7 +77,65 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             return evaluate(node, left, right);
         }
 
+        if (node.getOperator() == NumericOperator.DIV) {
+            // TODO: do something clever with divs
+            return null;
+        }
+
+        // all simple cases are exhausted, search for down the chain
+        if (right != null && hasOperation(node.getOperator(), node.getLeft())) {
+            Node result = handleOperation(node, (NumericOperationNode) node.getLeft(), left, right);
+            if (result != null) {
+                return result;
+            }
+        }
+
+        if (hasOperation(node.getOperator(), node.getRight())) {
+            Node result = handleOperation(node, (NumericOperationNode) node.getRight(), left, right);
+            if (result != null) {
+                return result;
+            }
+        }
+
         return null;
+    }
+
+    private Node handleOperation(NumericOperationNode node, NumericOperationNode child, Numeric left, Numeric right) {
+        final Numeric childLeft = getNumeric(child.getLeft());
+        final Numeric childRight = getNumeric(child.getRight());
+
+        // pull down any constant
+        if (childLeft != null) {
+            final Node leftClone = child.getLeft().clone(null);
+            final Node rightClone = node.getRight().clone(null);
+            final NumericOperationNode dummyNode = new NumericOperationNode(node.getOperator(), leftClone, rightClone);
+
+            final Node result = evaluate(dummyNode, childLeft, right);
+            if (result != dummyNode) {
+                changes++;
+                return new NumericOperationNode(node.getOperator(), result, child.getRight());
+            }
+        } else if (childRight != null) {
+            // pull down constant
+            final Node leftClone = node.getLeft().clone(null);
+            final Node rightClone = child.getRight().clone(null);
+            final NumericOperationNode dummyNode = new NumericOperationNode(node.getOperator(), leftClone, rightClone);
+
+            final Node result = evaluate(dummyNode, left, childRight);
+            if (result != dummyNode) {
+                changes++;
+                return new NumericOperationNode(node.getOperator(), result, child.getLeft());
+            }
+        }
+        return null;
+    }
+
+    private boolean hasOperation(NumericOperator operator, Node node) {
+        if (node instanceof NumericOperationNode) {
+            final NumericOperationNode child = (NumericOperationNode) node;
+            return child.getOperator() == operator && (child.getLeft() instanceof HasNumeric || child.getRight() instanceof HasNumeric);
+        }
+        return false;
     }
 
     private Node evaluate(NumericOperationNode node, Numeric left, Numeric right) {
@@ -132,6 +190,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         if ((left != null && left.getValue() == 0.0) || (right != null && right.getValue() == 0.0)) {
             // replace node with 0
             changes++;
+            parserContext.dereferenceTree(node);
             return createConstant(node.getType(), 0);
         }
         if (left != null && left.getValue() == 1.0) {
@@ -154,10 +213,12 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         }
         if (left != null && left.getValue() == 0.0) {
             changes++;
+            parserContext.dereferenceTree(node.getRight());
             return createConstant(node.getType(), 0);
         }
         if (left != null && right != null && left.equals(right)) {
             changes++;
+            parserContext.dereferenceTree(node);
             return createConstant(node.getType(), 1);
         }
         return null;
