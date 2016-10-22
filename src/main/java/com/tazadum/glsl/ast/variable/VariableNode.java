@@ -20,6 +20,10 @@ public class VariableNode extends LeafNode {
         return declarationNode;
     }
 
+    public void setDeclarationNode(VariableDeclarationNode declarationNode) {
+        this.declarationNode = declarationNode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -49,5 +53,13 @@ public class VariableNode extends LeafNode {
     @Override
     public GLSLType getType() {
         return declarationNode.getType();
+    }
+
+    @Override
+    public String toString() {
+        if (declarationNode == null) {
+            return "Variable('unresolved')";
+        }
+        return "Variable('" + declarationNode.getIdentifier() + "')";
     }
 }

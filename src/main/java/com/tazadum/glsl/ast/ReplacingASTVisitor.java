@@ -14,11 +14,18 @@ import com.tazadum.glsl.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
+import com.tazadum.glsl.parser.ParserContext;
 
 /**
  * Created by Erik on 2016-10-20.
  */
 public class ReplacingASTVisitor implements ASTVisitor<Node> {
+    protected ParserContext parserContext;
+
+    public ReplacingASTVisitor(ParserContext parserContext) {
+        this.parserContext = parserContext;
+    }
+
     @Override
     public Node visitBoolean(BooleanLeafNode node) {
         return null;
@@ -32,10 +39,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitParenthesis(ParenthesisNode node) {
-        final Node replacement = node.getExpression().accept(this);
-        if (replacement != null) {
-            node.setExpression(replacement);
-        }
+        processParentNode(node);
         return null;
     }
 
@@ -46,18 +50,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitVariableDeclaration(VariableDeclarationNode node) {
-        if (node.getArraySpecifier() != null) {
-            final Node replacement = node.getArraySpecifier().accept(this);
-            if (replacement != null) {
-                node.setArraySpecifier(replacement);
-            }
-        }
-        if (node.getInitializer() != null) {
-            final Node replacement = node.getInitializer().accept(this);
-            if (replacement != null) {
-                node.setInitializer(replacement);
-            }
-        }
+        processParentNode(node);
         return null;
     }
 
@@ -216,8 +209,13 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     private void processParentNode(ParentNode node) {
         for (int i = 0; i < node.getChildCount(); i++) {
-            final Node replacement = node.getChild(i).accept(this);
+            Node child = node.getChild(i);
+            if (child == null) {
+                continue;
+            }
+            final Node replacement = child.accept(this);
             if (replacement != null) {
+                parserContext.dereferenceTree(child);
                 node.setChild(i, replacement);
             }
         }

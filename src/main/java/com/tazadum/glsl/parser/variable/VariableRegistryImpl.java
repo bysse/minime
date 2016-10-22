@@ -3,15 +3,20 @@ package com.tazadum.glsl.parser.variable;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class VariableRegistryImpl implements VariableRegistry {
+    private final Logger logger = LoggerFactory.getLogger(VariableRegistryImpl.class);
+
     private Map<GLSLContext, VariableRegistryContext> declarationMap;
     private Map<VariableDeclarationNode, Usage<VariableDeclarationNode>> usageMap;
 
@@ -67,6 +72,45 @@ public class VariableRegistryImpl implements VariableRegistry {
             map.put(entry.getKey().getIdentifier(), entry.getValue());
         }
         return map;
+    }
+
+    @Override
+    public boolean dereference(VariableNode node) {
+        final VariableDeclarationNode declarationNode = node.getDeclarationNode();
+        if (declarationNode == null) {
+            return false;
+        }
+
+        // remove any usage of the variable
+        final Usage<VariableDeclarationNode> usage = usageMap.get(declarationNode);
+        if (usage == null) {
+            return false;
+        }
+
+        return usage.remove(node);
+    }
+
+    @Override
+    public boolean dereference(VariableDeclarationNode node) {
+        for (Map.Entry<GLSLContext, VariableRegistryContext> entry : declarationMap.entrySet()) {
+            if (entry.getValue().undeclare(node)) {
+                logger.debug("Removing declaration of {}", node);
+
+                // remove all usages of the node
+                Usage<VariableDeclarationNode> usage = usageMap.get(node);
+                if (usage != null) {
+                    for (Node reference : usage.getUsageNodes()) {
+                        if (reference instanceof VariableNode) {
+                            logger.debug("Setting declaration reference to null for {}", reference);
+                            ((VariableNode) reference).setDeclarationNode(null);
+                        }
+                    }
+                }
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private VariableRegistryContext resolveContext(GLSLContext context, String identifier) {

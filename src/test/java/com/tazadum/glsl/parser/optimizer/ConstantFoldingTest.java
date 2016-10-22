@@ -118,7 +118,7 @@ public class ConstantFoldingTest {
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.expression().accept(visitor);
             typeChecker.check(parserContext, node);
-            Optimizer.OptimizerResult result = constantFolding.run(decider, node);
+            Optimizer.OptimizerResult result = constantFolding.run(parserContext, decider, node);
             return output.render(result.getNode(), new OutputConfig());
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

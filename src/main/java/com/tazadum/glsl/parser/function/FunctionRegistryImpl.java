@@ -1,9 +1,12 @@
 package com.tazadum.glsl.parser.function;
 
 import com.tazadum.glsl.ast.Identifier;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.parser.Usage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +16,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public class FunctionRegistryImpl implements FunctionRegistry {
+    private final Logger logger = LoggerFactory.getLogger(FunctionRegistryImpl.class);
+
     private ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap;
     private ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap;
 
@@ -63,5 +68,45 @@ public class FunctionRegistryImpl implements FunctionRegistry {
             map.put(entry.getKey().getIdentifier(), entry.getValue());
         }
         return map;
+    }
+
+    @Override
+    public boolean dereference(FunctionCallNode node) {
+        final FunctionPrototypeNode declarationNode = node.getDeclarationNode();
+        if (declarationNode == null) {
+            return false;
+        }
+
+        // remove any usage of the variable
+        final Usage<FunctionPrototypeNode> usage = usageMap.get(declarationNode);
+        if (usage == null) {
+            return false;
+        }
+
+        return usage.remove(node);
+    }
+
+    @Override
+    public boolean dereference(FunctionPrototypeNode node) {
+        final List<FunctionPrototypeNode> prototypeList = functionMap.get(node.getIdentifier().original());
+        if (prototypeList == null) {
+            return false;
+        }
+
+        if (!prototypeList.remove(node)) {
+            return false;
+        }
+
+        final Usage<FunctionPrototypeNode> usage = usageMap.get(node);
+        if (usage != null) {
+            for (Node reference : usage.getUsageNodes()) {
+                if (reference instanceof FunctionCallNode) {
+                    logger.debug("Setting declaration reference to null for {}", reference);
+                    ((FunctionCallNode) reference).setDeclarationNode(null);
+                }
+            }
+        }
+
+        return true;
     }
 }

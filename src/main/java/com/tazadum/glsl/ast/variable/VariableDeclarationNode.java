@@ -66,4 +66,9 @@ public class VariableDeclarationNode extends FixedChildParentNode {
     public GLSLType getType() {
         return type.getType();
     }
+
+    @Override
+    public String toString() {
+        return "VariableDeclaration('" + identifier + "')";
+    }
 }

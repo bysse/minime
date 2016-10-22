@@ -17,4 +17,8 @@ public interface FunctionRegistry {
     Usage<FunctionPrototypeNode> usagesOf(FunctionPrototypeNode node);
 
     Map<Identifier, Usage<FunctionPrototypeNode>> getUsedFunctions();
+
+    boolean dereference(FunctionCallNode node);
+
+    boolean dereference(FunctionPrototypeNode node);
 }

@@ -1,12 +1,13 @@
 package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.parser.ParserContext;
 
 /**
  * Created by Erik on 2016-10-20.
  */
 public interface Optimizer {
-    OptimizerResult run(OptimizationDecider optimizationDecider, Node node);
+    OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node);
 
     class OptimizerResult {
         private int changes;

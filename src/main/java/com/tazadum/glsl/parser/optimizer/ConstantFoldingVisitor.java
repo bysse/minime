@@ -6,6 +6,7 @@ import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.arithmetic.UnaryOperationNode;
 import com.tazadum.glsl.language.*;
+import com.tazadum.glsl.parser.ParserContext;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -14,7 +15,8 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
     private final OptimizationDecider decider;
     private int changes = 0;
 
-    public ConstantFoldingVisitor(OptimizationDecider decider) {
+    public ConstantFoldingVisitor(ParserContext parserContext, OptimizationDecider decider) {
+        super(parserContext);
         this.decider = decider;
     }
 
@@ -44,6 +46,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         // if the node implementation has equals implemented, we can detect total elimination of expressions
         if (node.getOperator() == NumericOperator.DIV && node.getLeft().equals(node.getRight())) {
             changes++;
+            parserContext.dereferenceTree(node);
             return createConstant(node.getType(), 1);
         }
 

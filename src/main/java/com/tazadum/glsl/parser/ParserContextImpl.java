@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser;
 
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
@@ -10,6 +11,7 @@ import com.tazadum.glsl.parser.function.FunctionRegistry;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeRegistry;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
+import com.tazadum.glsl.parser.visitor.DereferenceVisitor;
 
 import java.util.Arrays;
 
@@ -17,11 +19,13 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
     private final TypeRegistry typeRegistry;
     private final VariableRegistry variableRegistry;
     private final FunctionRegistry functionRegistry;
+    private final DereferenceVisitor dereferenceVisitor;
 
     public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry) {
         this.typeRegistry = typeRegistry;
         this.variableRegistry = variableRegistry;
         this.functionRegistry = functionRegistry;
+        this.dereferenceVisitor = new DereferenceVisitor(this);
 
         setupVariables();
     }
@@ -196,5 +200,10 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
     @Override
     public FunctionRegistry getFunctionRegistry() {
         return functionRegistry;
+    }
+
+    @Override
+    public void dereferenceTree(Node node) {
+        node.accept(dereferenceVisitor);
     }
 }

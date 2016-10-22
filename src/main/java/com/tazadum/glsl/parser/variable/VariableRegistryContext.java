@@ -20,6 +20,10 @@ public class VariableRegistryContext {
         variables.add(variableNode);
     }
 
+    public boolean undeclare(VariableDeclarationNode variableNode) {
+        return variables.remove(variableNode);
+    }
+
     public VariableDeclarationNode resolve(String identifier) {
         for (VariableDeclarationNode node : variables) {
             if (identifier.equals(node.getIdentifier().original())) {
