@@ -21,6 +21,21 @@ public class VariableNode extends LeafNode {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        VariableNode that = (VariableNode) o;
+
+        return declarationNode != null ? declarationNode.equals(that.declarationNode) : that.declarationNode == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return declarationNode != null ? declarationNode.hashCode() : 0;
+    }
+
+    @Override
     public LeafNode clone(ParentNode newParent) {
         // TODO: we might need to resolve the declarationNode
         return new VariableNode(declarationNode);

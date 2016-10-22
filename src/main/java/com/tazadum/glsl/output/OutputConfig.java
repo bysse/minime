@@ -7,11 +7,13 @@ public class OutputConfig {
     private boolean newlines;
     private int indentation;
     private IdentifierOutput identifiers;
+    private int maxDecimals;
 
     public OutputConfig() {
         setNewlines(true);
         setIndentation(4);
         setIdentifiers(IdentifierOutput.Original);
+        setMaxDecimals(5);
     }
 
     public boolean isNewlines() {
@@ -36,5 +38,13 @@ public class OutputConfig {
 
     public void setIdentifiers(IdentifierOutput identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public int getMaxDecimals() {
+        return maxDecimals;
+    }
+
+    public void setMaxDecimals(int maxDecimals) {
+        this.maxDecimals = maxDecimals;
     }
 }

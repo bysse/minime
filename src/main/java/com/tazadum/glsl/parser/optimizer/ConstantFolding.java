@@ -7,11 +7,20 @@ import com.tazadum.glsl.ast.Node;
  */
 public class ConstantFolding implements Optimizer {
     @Override
-    public OptimizerResult run(Node node) {
-        ConstantFoldingVisitor visitor = new ConstantFoldingVisitor();
-        final Node accept = node.accept(visitor);
-        final int changes = visitor.getChanges();
+    public OptimizerResult run(OptimizationDecider decider, Node node) {
+        ConstantFoldingVisitor visitor = new ConstantFoldingVisitor(decider);
 
-        return new OptimizerResult(changes, accept == null ? node : accept);
+        int changes;
+        do {
+            visitor.reset();
+            Node accept = node.accept(visitor);
+            changes = visitor.getChanges();
+
+            if (accept != null) {
+                node = accept;
+            }
+        } while (changes > 0);
+
+        return new OptimizerResult(changes, node);
     }
 }

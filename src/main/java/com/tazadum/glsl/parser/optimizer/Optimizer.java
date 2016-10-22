@@ -6,7 +6,7 @@ import com.tazadum.glsl.ast.Node;
  * Created by Erik on 2016-10-20.
  */
 public interface Optimizer {
-    OptimizerResult run(Node node);
+    OptimizerResult run(OptimizationDecider optimizationDecider, Node node);
 
     class OptimizerResult {
         private int changes;

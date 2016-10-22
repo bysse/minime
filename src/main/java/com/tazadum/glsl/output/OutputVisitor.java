@@ -318,8 +318,10 @@ public class OutputVisitor implements ASTVisitor<String> {
     }
 
     private String formatNumeric(Numeric numeric) {
+
         if (numeric.hasFraction()) {
-            String format = String.format("%%.%df", numeric.getDecimals());
+            final int decimals = Math.min(numeric.getDecimals(), config.getMaxDecimals());
+            String format = String.format("%%.%df", decimals);
             String result = String.format(Locale.US, format, numeric.getValue());
             if(result.startsWith("0")) {
                 return result.substring(1);

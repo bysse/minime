@@ -32,6 +32,23 @@ public class Numeric implements Comparable<Numeric> {
         return (int) Math.signum(value - o.value);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Numeric numeric = (Numeric) o;
+
+        return Double.compare(numeric.value, value) == 0;
+
+    }
+
+    @Override
+    public int hashCode() {
+        long temp = Double.doubleToLongBits(value);
+        return (int) (temp ^ (temp >>> 32));
+    }
+
     public static Numeric create(String number) {
         final double value = Double.parseDouble(number);
 
