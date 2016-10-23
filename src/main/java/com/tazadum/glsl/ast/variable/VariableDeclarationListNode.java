@@ -40,4 +40,9 @@ public class VariableDeclarationListNode extends ParentNode {
     public GLSLType getType() {
         return type.getType();
     }
+
+    @Override
+    public String toString() {
+        return getId() + ": VariableDeclarationList(type='" + type + "')";
+    }
 }

@@ -16,6 +16,8 @@ public interface VariableRegistry {
 
     ResolutionResult resolve(GLSLContext context, String identifier);
 
+    Usage<VariableDeclarationNode> resolve(VariableDeclarationNode declarationNode);
+
     Map<Identifier, Usage<VariableDeclarationNode>> getUsedVariables();
 
     boolean dereference(VariableNode node);

@@ -26,6 +26,7 @@ public class DeclarationSqueezeTest {
     private Output output;
     private DeclarationSqueeze declarationSqueeze;
     private TypeChecker typeChecker;
+    private OutputConfig config;
 
     @Before
     public void setup() {
@@ -33,13 +34,35 @@ public class DeclarationSqueezeTest {
         output = new Output();
         declarationSqueeze = new DeclarationSqueeze();
         typeChecker = new TypeChecker();
+        config = new OutputConfig();
+        config.setNewlines(false);
 
         decider.getConfig().setMaxDecimals(3);
     }
 
     @Test
-    public void test_basic() {
+    public void test_basic_1() {
         assertEquals("vec3 a,b,c;", optimize("vec3 a;vec3 b;vec3 c;"));
+    }
+
+    @Test
+    public void test_basic_2() {
+        assertEquals("float a,b=2.,c;", optimize("float a;float b=2.;float c;"));
+    }
+
+    @Test
+    public void test_basic_3() {
+        assertEquals("float a,b=2.,c=b;", optimize("float a;float b=2.;float c=b;"));
+    }
+
+    @Test
+    public void test_squeeze_1() {
+        assertEquals("float a,b,c=a;int x=a;", optimize("float a;float b;int x=a;float c=a;"));
+    }
+
+    @Test
+    public void test_squeeze_2() {
+        assertEquals("float a,b;int x=a;float c=a;", optimize("float a;float b;int x=a++;float c=a;"));
     }
 
     private String optimize(String source) {
@@ -50,7 +73,7 @@ public class DeclarationSqueezeTest {
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
             Optimizer.OptimizerResult result = declarationSqueeze.run(parserContext, decider, node);
-            return output.render(result.getNode(), new OutputConfig());
+            return output.render(result.getNode(), config).trim();
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {
                 System.out.println(token);

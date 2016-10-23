@@ -223,7 +223,8 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
                     parserContext.dereferenceTree(child);
                 }
                 if (replacement.equals(REMOVE)) {
-                    node.setChild(i, null);
+                    node.removeChild(child);
+                    i--;
                 } else {
                     node.setChild(i, replacement);
                 }

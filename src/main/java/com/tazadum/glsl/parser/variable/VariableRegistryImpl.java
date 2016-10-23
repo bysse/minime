@@ -63,6 +63,11 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
+    public Usage<VariableDeclarationNode> resolve(VariableDeclarationNode declarationNode) {
+        return usageMap.computeIfAbsent(declarationNode, Usage::new);
+    }
+
+    @Override
     public Map<Identifier, Usage<VariableDeclarationNode>> getUsedVariables() {
         final Map<Identifier, Usage<VariableDeclarationNode>> map = new TreeMap<>();
         for (Map.Entry<VariableDeclarationNode, Usage<VariableDeclarationNode>> entry : usageMap.entrySet()) {

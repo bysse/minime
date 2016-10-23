@@ -4,6 +4,7 @@ import com.tazadum.glsl.ast.Node;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 public class Usage<T> {
     private T target;
@@ -24,6 +25,17 @@ public class Usage<T> {
 
     public Set<Node> getUsageNodes() {
         return nodes;
+    }
+
+    public Set<Node> getUsagesBetween(int from, int to) {
+        final Set<Node> set = new TreeSet<>();
+        for (Node node : nodes) {
+            final int id = node.getId();
+            if (from <= id && id <= to) {
+                set.add(node);
+            }
+        }
+        return set;
     }
 
     public boolean remove(Node node) {
