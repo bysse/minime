@@ -655,8 +655,9 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             for (GLSLParser.Statement_no_new_scopeContext statementScope : ctx.statement_list().statement_no_new_scope()) {
                 final Node node = statementScope.accept(this);
                 if (node instanceof StatementListNode) {
-                    for (Node child : ((StatementListNode) node).getChildren()) {
-                        statementList.addChild(child);
+                    final StatementListNode statementListNode = (StatementListNode) node;
+                    for (int i=0;i<statementListNode.getChildCount();i++) {
+                        statementList.addChild(statementListNode.getChild(i));
                     }
                 } else {
                     statementList.addChild(node);

@@ -12,7 +12,7 @@ import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
-import com.tazadum.glsl.type.TypeChecker;
+import com.tazadum.glsl.parser.type.TypeChecker;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
 import org.junit.Before;

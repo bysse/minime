@@ -10,6 +10,7 @@ import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.function.FunctionRegistry;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
+import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.junit.Before;
 import org.junit.Test;

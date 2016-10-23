@@ -1,4 +1,4 @@
-package com.tazadum.glsl.type;
+package com.tazadum.glsl.parser.type;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;

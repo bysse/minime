@@ -1,4 +1,4 @@
-package com.tazadum.glsl.type;
+package com.tazadum.glsl.parser.type;
 
 import com.tazadum.glsl.ast.DefaultASTVisitor;
 import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;

@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
@@ -205,5 +206,17 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
     @Override
     public void dereferenceTree(Node node) {
         node.accept(dereferenceVisitor);
+    }
+
+    @Override
+    public GLSLContext findContext(Node node) {
+        if (node instanceof GLSLContext) {
+            return (GLSLContext) node;
+        }
+        final ParentNode parentNode = node.getParentNode();
+        if (parentNode != null) {
+            return findContext(parentNode);
+        }
+        return globalContext();
     }
 }

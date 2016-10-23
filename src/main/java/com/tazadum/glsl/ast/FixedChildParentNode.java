@@ -1,8 +1,5 @@
 package com.tazadum.glsl.ast;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class FixedChildParentNode extends ParentNode {
     protected final Node[] nodes;
 
@@ -55,17 +52,6 @@ public class FixedChildParentNode extends ParentNode {
             throw new IllegalArgumentException("Index is outside of range");
         }
         return nodes[index];
-    }
-
-    @Override
-    public Iterable<Node> getChildren() {
-        List<Node> list = new ArrayList<>();
-        for (Node node : nodes) {
-            if (node != null) {
-                list.add(node);
-            }
-        }
-        return list;
     }
 
     @Override

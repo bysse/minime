@@ -4,12 +4,12 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 
 /**
- * Created by Erik on 2016-10-20.
+ * Created by Erik on 2016-10-23.
  */
-public class ConstantFolding implements Optimizer {
+public class DeclarationSqueeze implements Optimizer {
     @Override
-    public OptimizerResult run(ParserContext parserContext, OptimizationDecider decider, Node node) {
-        final ConstantFoldingVisitor visitor = new ConstantFoldingVisitor(parserContext, decider);
+    public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
+        final DeclarationSqueezeVisitor visitor = new DeclarationSqueezeVisitor(parserContext);
 
         int changes;
         do {

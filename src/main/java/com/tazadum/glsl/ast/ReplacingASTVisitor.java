@@ -20,6 +20,8 @@ import com.tazadum.glsl.parser.ParserContext;
  * Created by Erik on 2016-10-20.
  */
 public class ReplacingASTVisitor implements ASTVisitor<Node> {
+    public static final Node REMOVE = new LeafNode();
+
     protected ParserContext parserContext;
     private boolean dereference;
 
@@ -220,7 +222,11 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
                 if (dereference) {
                     parserContext.dereferenceTree(child);
                 }
-                node.setChild(i, replacement);
+                if (replacement.equals(REMOVE)) {
+                    node.setChild(i, null);
+                } else {
+                    node.setChild(i, replacement);
+                }
             }
         }
     }

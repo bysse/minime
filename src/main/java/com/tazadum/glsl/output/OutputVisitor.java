@@ -313,10 +313,6 @@ public class OutputVisitor implements ASTVisitor<String> {
         return formatNumeric(node.getValue());
     }
 
-    private String formatInt(Numeric numeric) {
-        return String.format("%d", (int) numeric.getValue());
-    }
-
     private String formatNumeric(Numeric numeric) {
 
         if (numeric.hasFraction()) {

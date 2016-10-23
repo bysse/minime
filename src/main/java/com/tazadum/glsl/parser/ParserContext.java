@@ -17,4 +17,6 @@ public interface ParserContext extends ContextAware {
     FunctionRegistry getFunctionRegistry();
 
     void dereferenceTree(Node node);
+
+    GLSLContext findContext(Node node);
 }

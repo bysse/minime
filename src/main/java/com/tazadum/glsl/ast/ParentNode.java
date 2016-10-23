@@ -68,10 +68,6 @@ public class ParentNode implements Node {
         return (T) getChild(index);
     }
 
-    public Iterable<Node> getChildren() {
-        return childNodes;
-    }
-
     public <T extends Node> Iterable<T> getChildren(Class<T> nodeType) {
         return (Iterable<T>) childNodes;
     }
@@ -102,7 +98,9 @@ public class ParentNode implements Node {
     int getChildId(Node node) {
         int id = getId();
 
-        for (Node childNode : getChildren()) {
+        for (int i=0;i<getChildCount();i++) {
+            final Node childNode = getChild(i);
+
             id += 1;
             if (node.equals(childNode)) {
                 return id;

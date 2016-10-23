@@ -20,4 +20,12 @@ public class GLSLContextImpl implements GLSLContext {
     public void setParent(GLSLContext context) {
         this.parent = context;
     }
+
+    @Override
+    public String toString() {
+        if (parent == null) {
+            return "GlobalContext";
+        }
+        return parent + " <- context";
+    }
 }
