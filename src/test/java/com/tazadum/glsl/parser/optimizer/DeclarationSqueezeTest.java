@@ -5,6 +5,7 @@ import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
+import com.tazadum.glsl.util.IdVisitor;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.type.TypeChecker;
@@ -62,7 +63,7 @@ public class DeclarationSqueezeTest {
 
     @Test
     public void test_squeeze_2() {
-        assertEquals("float a,b;int x=a;float c=a;", optimize("float a;float b;int x=a++;float c=a;"));
+        assertEquals("float a,b;int x=a++;float c=a;", optimize("float a;float b;int x=a++;float c=a;"));
     }
 
     private String optimize(String source) {
@@ -72,6 +73,9 @@ public class DeclarationSqueezeTest {
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
+
+            node.accept(new IdVisitor());
+
             Optimizer.OptimizerResult result = declarationSqueeze.run(parserContext, decider, node);
             return output.render(result.getNode(), config).trim();
         } catch (Exception e) {

@@ -43,12 +43,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitVariableDeclaration(VariableDeclarationNode node) {
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
-        if (node.getInitializer() != null) {
-            node.getInitializer().accept(this);
-        }
+        visitChildren(node);
         return null;
     }
 
@@ -208,7 +203,10 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     protected <T extends ParentNode> void visitChildren(T node) {
         for (int i = 0; i < node.getChildCount(); i++) {
-            node.getChild(i).accept(this);
+            Node child = node.getChild(i);
+            if (child != null) {
+                child.accept(this);
+            }
         }
     }
 }

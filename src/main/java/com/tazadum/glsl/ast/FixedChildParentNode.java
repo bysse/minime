@@ -27,6 +27,7 @@ public class FixedChildParentNode extends ParentNode {
             node.setParentNode(this);
         }
         nodes[index] = node;
+        invalidateId();
         return this;
     }
 
@@ -37,13 +38,7 @@ public class FixedChildParentNode extends ParentNode {
 
     @Override
     public int getChildCount() {
-        int count = 0;
-        for (Node node : nodes) {
-            if (node != null) {
-                count++;
-            }
-        }
-        return count;
+        return nodes.length;
     }
 
     @Override

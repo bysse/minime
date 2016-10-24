@@ -4,6 +4,7 @@ import com.tazadum.glsl.ast.MutatingOperation;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
+import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
@@ -11,10 +12,11 @@ import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.finder.MutableOperationFinder;
 import com.tazadum.glsl.parser.finder.NodeFinder;
 import com.tazadum.glsl.parser.finder.VariableFinder;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -22,6 +24,7 @@ import java.util.*;
  * Created by Erik on 2016-10-23.
  */
 public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
+    private final Logger logger = LoggerFactory.getLogger(DeclarationSqueezeVisitor.class);
     private final VariableRegistry variableRegistry;
     private int changes = 0;
 
@@ -88,6 +91,9 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
             }
         }
 
+        //System.out.println("--------------");
+        //node.accept(new IdVisitor());
+
         // register this declaration
         declarations.register(node);
 
@@ -107,7 +113,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
 
             // Check if the variable was involved in a mutating operation
             for (Node node : usagesBetween) {
-                MutatingOperation operation = MutableOperationFinder.findMutableOperation(node);
+                MutatingOperation operation = NodeFinder.findMutableOperation(node);
                 if (operation != null) {
                     if (operation instanceof AssignmentNode) {
                         final Node assignment = ((AssignmentNode) operation).getLeft();
@@ -118,6 +124,15 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                         continue;
                     }
                     // The MutatingOperation was not an AssignmentNode of the 'good' type
+                    return false;
+                }
+
+                final FunctionCallNode functionCall = NodeFinder.findFunctionCall(node);
+                if (functionCall != null) {
+                    // if the variable is in global scope and modified due to a function call in the
+                    // initializer this squeeze will yield bad results
+                    logger.warn("Variable {} might be modified in function {} which blocks further declaration squeeze",
+                            variable.getDeclarationNode().getIdentifier().original(), functionCall.getIdentifier().original());
                     return false;
                 }
             }

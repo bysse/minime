@@ -41,6 +41,4 @@ public class Usage<T> {
     public boolean remove(Node node) {
         return nodes.remove(node);
     }
-
-    // TODO: add methods for sorting and clipping
 }

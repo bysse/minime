@@ -40,6 +40,12 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
         variableRegistry.declare(context, variable(BuiltInType.VEC2, "gl_PointCoord"));
         variableRegistry.declare(context, variable(BuiltInType.FLOAT, "gl_FragDepth"));
 
+        // scalar type construction
+        fixedFunction("float", BuiltInType.FLOAT,  BuiltInType.FLOAT);
+        fixedFunction("float", BuiltInType.FLOAT,  BuiltInType.INT);
+        fixedFunction("int", BuiltInType.INT,  BuiltInType.FLOAT);
+        fixedFunction("int", BuiltInType.INT,  BuiltInType.INT);
+
         // vector construction
         fixedFunction("vec2", BuiltInType.VEC2,  BuiltInType.VEC2);
         function("vec2", BuiltInType.VEC2, GenTypes.GenScalarType);

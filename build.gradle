@@ -23,6 +23,7 @@ configurations {
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'org.antlr:antlr4-runtime:4.+'
+    compile 'net.sf.jopt-simple:jopt-simple:5.0.+'
 
     antlr4 'org.antlr:antlr4:4.+'
 

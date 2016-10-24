@@ -14,6 +14,8 @@ public class ParentNode implements Node {
     private ParentNode parentNode;
     private List<Node> childNodes;
 
+    private int cachedId = -1;
+
     public ParentNode() {
         this(null);
     }
@@ -26,9 +28,15 @@ public class ParentNode implements Node {
     @Override
     public int getId() {
         if (parentNode == null) {
-            return 1;
+            cachedId = 1;
         }
-        return parentNode.getChildId(this);
+        if (cachedId < 0) {
+            cachedId = parentNode.getChildId(this);
+            if (cachedId < 0) {
+                cachedId *= -1;
+            }
+        }
+        return cachedId;
     }
 
     @Override
@@ -78,6 +86,7 @@ public class ParentNode implements Node {
         }
         node.setParentNode(this);
         childNodes.add(node);
+        invalidateId();
         return this;
     }
 
@@ -87,35 +96,53 @@ public class ParentNode implements Node {
         }
         node.setParentNode(this);
         childNodes.set(index, node);
+        invalidateId();
         return this;
     }
 
     public ParentNode removeChild(Node node) {
+        node.setParentNode(null);
         childNodes.remove(node);
+        invalidateId();
         return this;
     }
 
     int getChildId(Node node) {
         int id = getId();
 
+        if (id == NO_NODE_ID) {
+            throw new RuntimeException("Node is not part of this tree");
+        }
+
         for (int i=0;i<getChildCount();i++) {
             final Node childNode = getChild(i);
 
             id += 1;
+            if (childNode == null) {
+                continue;
+            }
+
             if (node.equals(childNode)) {
                 return id;
             }
 
             if (childNode instanceof ParentNode) {
-                int childId = ((ParentNode) childNode).getChildId(node);
-                if (childId == NO_NODE_ID) {
-                    id += ((ParentNode) childNode).getChildCount();
+                final int childId = ((ParentNode) childNode).getChildId(node);
+                if (childId < 0) {
+                    id = -childId;
                 } else {
                     return childId;
                 }
             }
         }
 
-        return NO_NODE_ID;
+        return -id;
+    }
+
+    protected void invalidateId() {
+        cachedId = -1;
+        if (parentNode != null) {
+            parentNode.invalidateId();
+        }
     }
 }

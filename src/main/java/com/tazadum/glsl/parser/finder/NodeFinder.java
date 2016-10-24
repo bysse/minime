@@ -1,13 +1,34 @@
 package com.tazadum.glsl.parser.finder;
 
-import com.tazadum.glsl.ast.DefaultASTVisitor;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.ast.function.FunctionCallNode;
 
 /**
  * Created by Erik on 2016-10-23.
  */
 public class NodeFinder {
+    public static MutatingOperation findMutableOperation(Node node) {
+        if (node instanceof MutatingOperation) {
+            return (MutatingOperation) node;
+        }
+        final ParentNode parent = node.getParentNode();
+        if (parent == null || node instanceof StatementListNode) {
+            return null;
+        }
+        return findMutableOperation(parent);
+    }
+
+    public static FunctionCallNode findFunctionCall(Node node) {
+        if (node instanceof FunctionCallNode) {
+            return (FunctionCallNode) node;
+        }
+        final ParentNode parent = node.getParentNode();
+        if (parent == null || node instanceof StatementListNode) {
+            return null;
+        }
+        return findFunctionCall(parent);
+    }
+
     public static boolean isNodeInTree(Node needle, Node haystack) {
         final VariableFinderVisitor visitor = new VariableFinderVisitor(needle);
         haystack.accept(visitor);

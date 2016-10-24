@@ -14,6 +14,7 @@ public class DeclarationSqueeze implements Optimizer {
         int changes;
         do {
             visitor.reset();
+
             Node accept = node.accept(visitor);
             changes = visitor.getChanges();
 
