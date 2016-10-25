@@ -185,7 +185,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             functionPrototype.addChild(parameter);
         }
 
-        final FunctionPrototype prototype = new FunctionPrototype(returnType.getType(), parameterTypes);
+        final FunctionPrototype prototype = new FunctionPrototype(false, returnType.getType(), parameterTypes);
         functionPrototype.setPrototype(prototype);
 
         // register the function

@@ -129,6 +129,11 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
 
                 final FunctionCallNode functionCall = NodeFinder.findFunctionCall(node);
                 if (functionCall != null) {
+                    if (functionCall.getDeclarationNode().getPrototype().isBuiltIn()) {
+                        // built-in function doesn't mutate parameter state
+                        continue;
+                    }
+
                     // if the variable is in global scope and modified due to a function call in the
                     // initializer this squeeze will yield bad results
                     logger.warn("Variable {} might be modified in function {} which blocks further declaration squeeze",

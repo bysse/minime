@@ -6,17 +6,24 @@ import java.util.Arrays;
 import java.util.List;
 
 public class FunctionPrototype {
+    private boolean builtIn;
     private GLSLType returnType;
     private GLSLType[] parameterTypes;
 
-    public FunctionPrototype(GLSLType returnType, List<GLSLType> parameterTypes) {
+    public FunctionPrototype(boolean builtIn, GLSLType returnType, List<GLSLType> parameterTypes) {
+        this.builtIn = builtIn;
         this.returnType = returnType;
         this.parameterTypes = parameterTypes.toArray(new GLSLType[parameterTypes.size()]);
     }
 
-    public FunctionPrototype(GLSLType returnType, GLSLType... parameterTypes) {
+    public FunctionPrototype(boolean builtIn, GLSLType returnType, GLSLType... parameterTypes) {
+        this.builtIn = builtIn;
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
+    }
+
+    public boolean isBuiltIn() {
+        return builtIn;
     }
 
     public GLSLType[] getParameterTypes() {

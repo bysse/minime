@@ -11,18 +11,19 @@ public class DeclarationSqueeze implements Optimizer {
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
         final DeclarationSqueezeVisitor visitor = new DeclarationSqueezeVisitor(parserContext);
 
-        int changes;
+        int changes, totalChanges = 0;
         do {
             visitor.reset();
 
             Node accept = node.accept(visitor);
             changes = visitor.getChanges();
+            totalChanges += changes;
 
             if (accept != null) {
                 node = accept;
             }
         } while (changes > 0);
 
-        return new OptimizerResult(changes, node);
+        return new OptimizerResult(totalChanges, node);
     }
 }

@@ -177,7 +177,7 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
 
     private void fixedFunction(String identifier, BuiltInType returnType, BuiltInType... parameters) {
         final FunctionPrototypeNode node = new FunctionPrototypeNode(identifier, new FullySpecifiedType(returnType));
-        node.setPrototype(new FunctionPrototype(returnType, parameters));
+        node.setPrototype(new FunctionPrototype(true, returnType, parameters));
         functionRegistry.declare(node);
     }
 
@@ -189,7 +189,7 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
             final BuiltInType[] arguments = Arrays.copyOfRange(parameters, 1, parameters.length);
 
             final FunctionPrototypeNode node = new FunctionPrototypeNode(identifier, new FullySpecifiedType(returnType));
-            node.setPrototype(new FunctionPrototype(returnType, arguments));
+            node.setPrototype(new FunctionPrototype(true, returnType, arguments));
             functionRegistry.declare(node);
         }
     }

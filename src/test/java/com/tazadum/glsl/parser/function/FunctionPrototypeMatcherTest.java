@@ -13,8 +13,8 @@ public class FunctionPrototypeMatcherTest {
 
     @Before
     public void setUp() throws Exception {
-        f_1 = new FunctionPrototype(BuiltInType.VOID, BuiltInType.VOID);
-        f_2 = new FunctionPrototype(BuiltInType.INT, BuiltInType.MAT2, BuiltInType.FLOAT);
+        f_1 = new FunctionPrototype(true, BuiltInType.VOID, BuiltInType.VOID);
+        f_2 = new FunctionPrototype(true, BuiltInType.INT, BuiltInType.MAT2, BuiltInType.FLOAT);
     }
 
     @Test
