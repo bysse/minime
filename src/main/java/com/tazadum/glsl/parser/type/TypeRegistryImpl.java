@@ -25,7 +25,7 @@ public class TypeRegistryImpl implements TypeRegistry {
 
     @Override
     public void usage(GLSLContext context, GLSLType type, Node node) {
-        usageMap.computeIfAbsent(type, Usage::new).add(context, node);
+        usageMap.computeIfAbsent(type, Usage::new).add(node);
     }
 
     @Override

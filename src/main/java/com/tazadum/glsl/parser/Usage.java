@@ -19,7 +19,7 @@ public class Usage<T> {
         return target;
     }
 
-    public void add(GLSLContext context, Node node) {
+    public void add(Node node) {
         nodes.add(node);
     }
 

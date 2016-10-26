@@ -5,9 +5,12 @@ import com.tazadum.glsl.ast.FixedChildParentNode;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.ast.StatementListNode;
 import com.tazadum.glsl.language.GLSLType;
+import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class FunctionDefinitionNode extends FixedChildParentNode {
+public class FunctionDefinitionNode extends FixedChildParentNode implements GLSLContext {
+    private GLSLContext parentContext;
+
     public FunctionDefinitionNode(FunctionPrototypeNode prototype, StatementListNode statementList) {
         this(null, prototype, statementList);
     }
@@ -20,6 +23,10 @@ public class FunctionDefinitionNode extends FixedChildParentNode {
 
     public FunctionPrototypeNode getFunctionPrototype() {
         return getChild(0, FunctionPrototypeNode.class);
+    }
+
+    public void setStatements(StatementListNode node) {
+        setChild(1, node);
     }
 
     public StatementListNode getStatements() {
@@ -42,4 +49,15 @@ public class FunctionDefinitionNode extends FixedChildParentNode {
     public GLSLType getType() {
         return null;
     }
+
+    @Override
+    public GLSLContext getParent() {
+        return parentContext;
+    }
+
+    @Override
+    public void setParent(GLSLContext parentContext) {
+        this.parentContext = parentContext;
+    }
+
 }

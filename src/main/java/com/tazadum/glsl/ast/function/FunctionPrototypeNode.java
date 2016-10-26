@@ -9,11 +9,11 @@ import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class FunctionPrototypeNode extends ParentNode implements GLSLContext {
+public class FunctionPrototypeNode extends ParentNode {
     private Identifier identifier;
     private FullySpecifiedType returnType;
     private FunctionPrototype prototype;
-    private GLSLContext parentContext;
+    private GLSLContext context;
 
     public FunctionPrototypeNode(String functionName, FullySpecifiedType returnType) {
         this.identifier = new Identifier(functionName);
@@ -24,6 +24,14 @@ public class FunctionPrototypeNode extends ParentNode implements GLSLContext {
         super(parentNode);
         this.identifier = identifier;
         this.returnType = returnType;
+    }
+
+    public GLSLContext getContext() {
+        return context;
+    }
+
+    public void setContext(GLSLContext context) {
+        this.context = context;
     }
 
     public Identifier getIdentifier() {
@@ -44,7 +52,13 @@ public class FunctionPrototypeNode extends ParentNode implements GLSLContext {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new FunctionPrototypeNode(newParent, identifier, returnType));
+        final FunctionPrototypeNode prototypeNode = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(newParent, identifier, returnType));
+
+        if (newParent instanceof GLSLContext) {
+            prototypeNode.setContext((GLSLContext) newParent);
+        }
+
+        return prototypeNode;
     }
 
     @Override
@@ -55,15 +69,5 @@ public class FunctionPrototypeNode extends ParentNode implements GLSLContext {
     @Override
     public GLSLType getType() {
         return returnType.getType();
-    }
-
-    @Override
-    public GLSLContext getParent() {
-        return parentContext;
-    }
-
-    @Override
-    public void setParent(GLSLContext parentContext) {
-        this.parentContext = parentContext;
     }
 }

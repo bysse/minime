@@ -34,7 +34,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     @Override
     public void usage(FunctionPrototypeNode prototypeNode, FunctionCallNode node) {
         final Usage<FunctionPrototypeNode> usage = usageMap.computeIfAbsent(prototypeNode, Usage::new);
-        usage.add(prototypeNode, node);
+        usage.add(node);
     }
 
     @Override

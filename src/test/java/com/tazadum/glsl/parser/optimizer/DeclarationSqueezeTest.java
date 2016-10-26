@@ -36,6 +36,7 @@ public class DeclarationSqueezeTest {
         typeChecker = new TypeChecker();
         config = new OutputConfig();
         config.setNewlines(false);
+        config.setIndentation(0);
 
         decider.getConfig().setMaxDecimals(3);
     }

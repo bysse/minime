@@ -171,6 +171,9 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final FullySpecifiedType returnType = TypeHelper.parseFullySpecifiedType(functionHeader.fully_specified_type());
         final FunctionPrototypeNode functionPrototype = new FunctionPrototypeNode(functionName, returnType);
 
+        // function declarations are in the global context
+        functionPrototype.setContext(null); // TODO: should we change to global context here?
+
         // parse the parameters
         final List<GLSLType> parameterTypes = new ArrayList<>();
         for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
@@ -604,22 +607,20 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_definition(GLSLParser.Function_definitionContext ctx) {
-        try {
-            // parse the function declaration
-            final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
-            parserContext.enterContext(functionPrototype);
+        // parse the function declaration
+        final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
+        final FunctionDefinitionNode definitionNode = new FunctionDefinitionNode(functionPrototype, null);
+        functionPrototype.setContext(definitionNode);
 
-            StatementListNode statementList = null;
+        parserContext.enterContext(definitionNode);
 
-            GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
-            if (statements != null) {
-                statementList = (StatementListNode) statements.accept(this);
-            }
-
-            return new FunctionDefinitionNode(functionPrototype, statementList);
-        } finally {
-            parserContext.exitContext();
+        GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
+        if (statements != null) {
+            definitionNode.setStatements((StatementListNode) statements.accept(this));
         }
+        parserContext.exitContext();
+
+        return definitionNode;
     }
 
     @Override
@@ -656,7 +657,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
                 final Node node = statementScope.accept(this);
                 if (node instanceof StatementListNode) {
                     final StatementListNode statementListNode = (StatementListNode) node;
-                    for (int i=0;i<statementListNode.getChildCount();i++) {
+                    for (int i = 0; i < statementListNode.getChildCount(); i++) {
                         statementList.addChild(statementListNode.getChild(i));
                     }
                 } else {
