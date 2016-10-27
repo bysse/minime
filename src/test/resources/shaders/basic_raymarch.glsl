@@ -42,5 +42,5 @@ void mainImage(out vec4 fragColor,in vec2 fragCoord){
     vec3 rp=cp+cd+.5*(uv.x*side+uv.y*up);
     vec3 rd=normalize(rp-cp);
     vec3 color=abs(march(rp,rd));
-    fragColor=vec4(color,1.);
+    fragColor=vec4(color,1.*1.);
 }

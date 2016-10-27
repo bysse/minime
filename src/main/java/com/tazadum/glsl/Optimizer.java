@@ -49,7 +49,8 @@ public class Optimizer {
             optimizer.execute(shader);
         } catch (Exception e) {
             System.err.println("ERROR: " + e.getMessage());
-            System.exit(2);
+
+            throw new RuntimeException(e);
         }
     }
 }

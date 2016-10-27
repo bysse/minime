@@ -76,6 +76,11 @@ public class DeclarationSqueezeTest {
         assertEquals("int a;void main(){int b,c=a;}", optimize("int a;void main(){int b;int c=a;}"));
     }
 
+    @Test
+    public void test_context_2() {
+        assertEquals("void main(){vec2 a,c=2*a,d=vec2(c);}", optimize("void main(){vec2 a;vec2 c=2*a;vec2 d=vec2(c);}"));
+    }
+
     private String optimize(String source) {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);

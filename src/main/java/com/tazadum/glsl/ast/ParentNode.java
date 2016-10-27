@@ -91,9 +91,6 @@ public class ParentNode implements Node {
     }
 
     public ParentNode setChild(int index, Node node) {
-        if (!equals(node.getParentNode())) {
-            throw new IllegalArgumentException("The node doesn't have the correct parent set.");
-        }
         node.setParentNode(this);
         childNodes.set(index, node);
         invalidateId();

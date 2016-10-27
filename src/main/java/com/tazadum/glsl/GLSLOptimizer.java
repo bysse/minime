@@ -116,21 +116,25 @@ public class GLSLOptimizer {
         int changes, iteration = 0;
         do {
             final int size = output.render(node, outputConfig).length();
-            System.out.format("Iteration #%d: %d bytes\n", iteration++, size);
+            System.out.format("# Iteration #%d: %d bytes\n", iteration++, size);
 
             // apply constant folding
+            System.out.println("# Running constant folding");
             final Optimizer.OptimizerResult foldResult = constantFolding.run(parserContext, decider, node);
             changes = foldResult.getChanges();
             node = foldResult.getNode();
             if (changes > 0) {
+                System.out.println("  - changes: " + changes);
                 continue;
             }
 
             // apply declaration squeeze
+            System.out.println("# Running declaration squeeze");
             final Optimizer.OptimizerResult squeezeResult = declarationSqueeze.run(parserContext, decider, node);
             changes = foldResult.getChanges();
             node = foldResult.getNode();
             if (changes > 0) {
+                System.out.println("  - Changes: " + changes);
                 continue;
             }
 
