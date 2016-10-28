@@ -131,8 +131,8 @@ public class GLSLOptimizer {
             // apply declaration squeeze
             System.out.println("# Running declaration squeeze");
             final Optimizer.OptimizerResult squeezeResult = declarationSqueeze.run(parserContext, decider, node);
-            changes = foldResult.getChanges();
-            node = foldResult.getNode();
+            changes = squeezeResult.getChanges();
+            node = squeezeResult.getNode();
             if (changes > 0) {
                 System.out.println("  - Changes: " + changes);
                 continue;

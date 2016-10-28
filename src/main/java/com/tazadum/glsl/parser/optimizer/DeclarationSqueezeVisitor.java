@@ -5,10 +5,13 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
+import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.language.GLSLType;
+import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
@@ -129,16 +132,33 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
 
                 final FunctionCallNode functionCall = NodeFinder.findFunctionCall(node);
                 if (functionCall != null) {
-                    if (functionCall.getDeclarationNode().getPrototype().isBuiltIn()) {
+                    final FunctionPrototypeNode functionDeclaration = functionCall.getDeclarationNode();
+                    if (functionDeclaration.getPrototype().isBuiltIn()) {
                         // built-in function doesn't mutate parameter state
                         continue;
                     }
 
+                    for (int i = 0; i < functionCall.getChildCount(); i++) {
+                        // check if argument i is equal to node
+                        if (node.equals(functionCall.getChild(i))) {
+                            final ParameterDeclarationNode parameterDeclaration = functionDeclaration.getChild(i, ParameterDeclarationNode.class);
+                            final TypeQualifier qualifier = parameterDeclaration.getFullySpecifiedType().getQualifier();
+
+                            if (qualifier == null) {
+                                continue;
+                            }
+                            if (qualifier != TypeQualifier.INOUT && qualifier != TypeQualifier.OUT) {
+                                continue;
+                            }
+                            return false;
+                        }
+                    }
+
                     // if the variable is in global scope and modified due to a function call in the
                     // initializer this squeeze will yield bad results
-                    logger.warn("Variable {} might be modified in function {} which blocks further declaration squeeze",
-                            variable.getDeclarationNode().getIdentifier().original(), functionCall.getIdentifier().original());
-                    return false;
+                    //logger.warn("Variable {} might be modified in function {} which blocks further declaration squeeze",
+                    //    variable.getDeclarationNode().getIdentifier().original(), functionCall.getIdentifier().original());
+                    continue;
                 }
             }
         }
