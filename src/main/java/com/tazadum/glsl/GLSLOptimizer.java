@@ -49,6 +49,7 @@ public class GLSLOptimizer {
             case GLSL:
                 outputConfig.setIndentation(0);
                 outputConfig.setNewlines(true);
+                outputConfig.setOutputConst(false);
                 break;
         }
     }

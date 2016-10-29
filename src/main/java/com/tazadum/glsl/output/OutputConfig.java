@@ -5,12 +5,14 @@ package com.tazadum.glsl.output;
  */
 public class OutputConfig {
     private boolean newlines;
+    private boolean outputConst;
     private int indentation;
     private IdentifierOutput identifiers;
     private int maxDecimals;
 
     public OutputConfig() {
         setNewlines(true);
+        setOutputConst(true);
         setIndentation(4);
         setIdentifiers(IdentifierOutput.Original);
         setMaxDecimals(5);
@@ -20,20 +22,28 @@ public class OutputConfig {
         return newlines;
     }
 
-    public int getIndentation() {
-        return indentation;
-    }
-
-    public IdentifierOutput getIdentifiers() {
-        return identifiers;
-    }
-
     public void setNewlines(boolean newlines) {
         this.newlines = newlines;
     }
 
+    public boolean isOutputConst() {
+        return outputConst;
+    }
+
+    public void setOutputConst(boolean outputConst) {
+        this.outputConst = outputConst;
+    }
+
+    public int getIndentation() {
+        return indentation;
+    }
+
     public void setIndentation(int indentation) {
         this.indentation = indentation;
+    }
+
+    public IdentifierOutput getIdentifiers() {
+        return identifiers;
     }
 
     public void setIdentifiers(IdentifierOutput identifiers) {

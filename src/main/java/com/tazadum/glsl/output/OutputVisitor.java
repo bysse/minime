@@ -16,6 +16,7 @@ import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.language.Numeric;
+import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 
 import java.util.Locale;
@@ -380,7 +381,9 @@ public class OutputVisitor implements ASTVisitor<String> {
     private String outputType(FullySpecifiedType type) {
         final StringBuilder builder = new StringBuilder();
         if (type.getQualifier() != null) {
-            builder.append(type.getQualifier().token()).append(' ');
+            if (type.getQualifier() != TypeQualifier.CONST || config.isOutputConst()) {
+                builder.append(type.getQualifier().token()).append(' ');
+            }
         }
         if (type.getPrecision() != null) {
             builder.append(type.getPrecision().token()).append(' ');
