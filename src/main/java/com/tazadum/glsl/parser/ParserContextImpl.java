@@ -172,7 +172,7 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
     }
 
     private VariableDeclarationNode variable(BuiltInType type, String identifier) {
-        return new VariableDeclarationNode(new FullySpecifiedType(type), identifier, null, null);
+        return new VariableDeclarationNode(true, new FullySpecifiedType(type), identifier, null, null);
     }
 
     private void fixedFunction(String identifier, BuiltInType returnType, BuiltInType... parameters) {

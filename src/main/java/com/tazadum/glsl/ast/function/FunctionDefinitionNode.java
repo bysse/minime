@@ -20,6 +20,9 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
         setChild(0, prototype);
         setChild(1, statementList);
     }
+    public void setFunctionPrototype(FunctionPrototypeNode prototype) {
+        setChild(0, prototype);
+    }
 
     public FunctionPrototypeNode getFunctionPrototype() {
         return getChild(0, FunctionPrototypeNode.class);

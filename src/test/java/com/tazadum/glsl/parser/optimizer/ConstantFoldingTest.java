@@ -79,7 +79,7 @@ public class ConstantFoldingTest {
         @Test
     public void test_1_elimination() {
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
         assertEquals("var", optimize("var*1"));
         assertEquals("5", optimize("1*5"));
@@ -104,7 +104,7 @@ public class ConstantFoldingTest {
     @Test
     public void test_folding_adv() {
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
         assertEquals(".0121", optimize(".11*.11"));
         assertEquals("9", optimize("3*(2+var/var)"));
@@ -114,7 +114,7 @@ public class ConstantFoldingTest {
     @Test
     public void test_folding_chain() {
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
         assertEquals("4*var", optimize("2 * var * 2"));
         assertEquals("2+var", optimize("1 + var + 1"));

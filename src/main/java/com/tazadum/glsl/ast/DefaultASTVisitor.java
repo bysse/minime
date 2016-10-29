@@ -144,6 +144,9 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitReturn(ReturnNode node) {
+        if (node.hasExpression()) {
+            visitChildren(node);
+        }
         return null;
     }
 
@@ -159,6 +162,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitCondition(ConditionNode node) {
+        visitChildren(node);
         return null;
     }
 

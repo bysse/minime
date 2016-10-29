@@ -2,17 +2,15 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.ast.Node;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Usage<T> {
     private T target;
-    private Set<Node> nodes;
+    private List<Node> nodes;
 
     public Usage(T target) {
         this.target = target;
-        this.nodes = new HashSet<>();
+        this.nodes = new ArrayList<>();
     }
 
     public T getTarget() {
@@ -23,7 +21,7 @@ public class Usage<T> {
         nodes.add(node);
     }
 
-    public Set<Node> getUsageNodes() {
+    public List<Node> getUsageNodes() {
         return nodes;
     }
 

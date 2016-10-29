@@ -49,7 +49,9 @@ public class OutputVisitor implements ASTVisitor<String> {
             if (!noSemiColon(child)) {
                 builder.append(';');
             }
-            builder.append(newLine());
+            if (builder.charAt(builder.length()-1) != '\n') {
+                builder.append(newLine());
+            }
         }
         return builder.toString();
     }
@@ -397,13 +399,20 @@ public class OutputVisitor implements ASTVisitor<String> {
             return;
         }
         if (node instanceof StatementListNode) {
-            builder.append('{').append(newLine());
+            final boolean singleStatement = ((StatementListNode) node).getChildCount() == 1;
+
+            if (!singleStatement) {
+                builder.append('{');
+            }
+            builder.append(newLine());
 
             enterScope();
             builder.append(node.accept(this));
             exitScope();
 
-            builder.append(indentation()).append('}');
+            if (!singleStatement) {
+                builder.append(indentation()).append('}');
+            }
         } else {
             enterScope();
             builder.append(node.accept(this));

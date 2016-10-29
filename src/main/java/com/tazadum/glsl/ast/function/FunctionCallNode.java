@@ -20,6 +20,9 @@ public class FunctionCallNode extends ParentNode {
     }
 
     public Identifier getIdentifier() {
+        if (declarationNode != null) {
+            return declarationNode.getIdentifier();
+        }
         return identifier;
     }
 

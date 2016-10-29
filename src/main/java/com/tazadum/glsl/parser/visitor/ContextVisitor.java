@@ -66,7 +66,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final FullySpecifiedType fullySpecifiedType = TypeHelper.parseFullySpecifiedType(ctx.fully_specified_type());
         final String identifier = ctx.IDENTIFIER().getText();
         final Node initializer = ctx.initializer().accept(this);
-        return new VariableDeclarationNode(fullySpecifiedType, identifier, null, initializer);
+        return new VariableDeclarationNode(false, fullySpecifiedType, identifier, null, initializer);
     }
 
     @Override
@@ -243,7 +243,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             initializer = ctx.initializer().accept(this);
         }
 
-        final VariableDeclarationNode node = new VariableDeclarationNode(fullySpecifiedType, identifier, arraySpecifier, initializer);
+        final VariableDeclarationNode node = new VariableDeclarationNode(false, fullySpecifiedType, identifier, arraySpecifier, initializer);
         listNode.addChild(node);
 
         // register the declaration and usage of the type to enable easy look up during optimization
@@ -471,7 +471,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             initializer = ctx.initializer().accept(this);
         }
 
-        final VariableDeclarationNode node = new VariableDeclarationNode(fullySpecifiedType, identifier, arraySpecifier, initializer);
+        final VariableDeclarationNode node = new VariableDeclarationNode(false, fullySpecifiedType, identifier, arraySpecifier, initializer);
 
         // register the declaration and usage of the type to enable easy look up during optimization
         parserContext.getVariableRegistry().declare(parserContext.currentContext(), node);
@@ -607,12 +607,13 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_definition(GLSLParser.Function_definitionContext ctx) {
-        // parse the function declaration
-        final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
-        final FunctionDefinitionNode definitionNode = new FunctionDefinitionNode(functionPrototype, null);
-        functionPrototype.setContext(definitionNode);
-
+        // create the context
+        final FunctionDefinitionNode definitionNode = new FunctionDefinitionNode(null, null);
         parserContext.enterContext(definitionNode);
+
+        final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
+        definitionNode.setFunctionPrototype(functionPrototype);
+        functionPrototype.setContext(definitionNode);
 
         GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
         if (statements != null) {

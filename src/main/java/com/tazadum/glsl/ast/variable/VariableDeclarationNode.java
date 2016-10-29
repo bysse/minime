@@ -6,19 +6,21 @@ import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
 public class VariableDeclarationNode extends FixedChildParentNode {
+    private boolean builtIn;
     protected final FullySpecifiedType type;
     protected final Node arraySpecifier;
     protected final Node initializer;
 
     protected Identifier identifier;
 
-    public VariableDeclarationNode(FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
-        this(null, fst, new Identifier(identifier), arraySpecifier, initializer);
+    public VariableDeclarationNode(boolean builtIn, FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
+        this(null, builtIn, fst, new Identifier(identifier), arraySpecifier, initializer);
     }
 
-    protected VariableDeclarationNode(ParentNode newParent, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
+    protected VariableDeclarationNode(ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
         super(2, newParent);
 
+        this.builtIn = builtIn;
         this.type = fst;
         this.identifier = identifier;
         this.arraySpecifier = arraySpecifier;
@@ -26,6 +28,10 @@ public class VariableDeclarationNode extends FixedChildParentNode {
 
         setArraySpecifier(arraySpecifier);
         setInitializer(initializer);
+    }
+
+    public boolean isBuiltIn() {
+        return builtIn;
     }
 
     public Node getArraySpecifier() {
@@ -54,7 +60,7 @@ public class VariableDeclarationNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return new VariableDeclarationNode(newParent, type, identifier, CloneUtils.clone(arraySpecifier), CloneUtils.clone(initializer));
+        return new VariableDeclarationNode(newParent, builtIn, type, identifier, CloneUtils.clone(arraySpecifier), CloneUtils.clone(initializer));
     }
 
     @Override

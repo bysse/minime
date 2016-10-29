@@ -1,6 +1,5 @@
 package com.tazadum.glsl.type;
 
-import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
@@ -18,7 +17,6 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.Map;
 
 /**
  * Created by Erik on 2016-10-17.
@@ -57,20 +55,18 @@ public class TypeCheckerTest {
         System.out.println("Function usage:");
         final FunctionRegistry functionRegistry = parserContext.getFunctionRegistry();
 
-        for (Map.Entry<Identifier, Usage<FunctionPrototypeNode>> entry : functionRegistry.getUsedFunctions().entrySet()) {
-            final Usage<FunctionPrototypeNode> nodeUsage = entry.getValue();
+        for (Usage<FunctionPrototypeNode> nodeUsage : functionRegistry.getUsedFunctions()) {
             final FunctionPrototype prototype = nodeUsage.getTarget().getPrototype();
-            System.out.println(String.format("\t%d : %s : %s", nodeUsage.getUsageNodes().size(), entry.getKey().original(), prototype));
+            System.out.println(String.format("\t%d : %s : %s", nodeUsage.getUsageNodes().size(), nodeUsage.getTarget().getIdentifier().original(), prototype));
         }
     }
 
     private void displayUsedVariables() {
         System.out.println("Variable usage:");
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
-        for (Map.Entry<Identifier, Usage<VariableDeclarationNode>> entry : variableRegistry.getUsedVariables().entrySet()) {
-            final Usage<VariableDeclarationNode> nodeUsage = entry.getValue();
+        for (Usage<VariableDeclarationNode> nodeUsage : variableRegistry.getUsedVariables()) {
             final FullySpecifiedType fullySpecifiedType = nodeUsage.getTarget().getFullySpecifiedType();
-            System.out.println(String.format("\t%d : %s : %s", nodeUsage.getUsageNodes().size(), entry.getKey().original(), fullySpecifiedType));
+            System.out.println(String.format("\t%d : %s : %s", nodeUsage.getUsageNodes().size(), nodeUsage.getTarget().getIdentifier().original(), fullySpecifiedType));
         }
     }
 

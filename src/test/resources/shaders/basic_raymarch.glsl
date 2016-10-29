@@ -1,5 +1,3 @@
-uniform vec3 iResolution;
-uniform float iGlobalTime;
 const vec4 sphere=vec4(0.,0.,0.,1.);
 const int steps=40;
 float sdBox(vec3 p,vec3 b){

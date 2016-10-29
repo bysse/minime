@@ -1,6 +1,5 @@
 package com.tazadum.glsl.parser.variable;
 
-import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
@@ -10,8 +9,9 @@ import com.tazadum.glsl.parser.Usage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class VariableRegistryImpl implements VariableRegistry {
@@ -68,15 +68,15 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public Map<Identifier, Usage<VariableDeclarationNode>> getUsedVariables() {
-        final Map<Identifier, Usage<VariableDeclarationNode>> map = new TreeMap<>();
+    public List<Usage<VariableDeclarationNode>> getUsedVariables() {
+        final List<Usage<VariableDeclarationNode>> list = new ArrayList<>();
         for (Map.Entry<VariableDeclarationNode, Usage<VariableDeclarationNode>> entry : usageMap.entrySet()) {
             if (entry.getValue().getUsageNodes().isEmpty()) {
                 continue;
             }
-            map.put(entry.getKey().getIdentifier(), entry.getValue());
+            list.add(entry.getValue());
         }
-        return map;
+        return list;
     }
 
     @Override

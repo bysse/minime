@@ -11,7 +11,6 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -59,15 +58,15 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     }
 
     @Override
-    public Map<Identifier, Usage<FunctionPrototypeNode>> getUsedFunctions() {
-        final Map<Identifier, Usage<FunctionPrototypeNode>> map = new TreeMap<>();
+    public List<Usage<FunctionPrototypeNode>> getUsedFunctions() {
+        final List<Usage<FunctionPrototypeNode>> list = new ArrayList<>();
         for (Map.Entry<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> entry : usageMap.entrySet()) {
             if (entry.getValue().getUsageNodes().isEmpty()) {
                 continue;
             }
-            map.put(entry.getKey().getIdentifier(), entry.getValue());
+            list.add(entry.getValue());
         }
-        return map;
+        return list;
     }
 
     @Override

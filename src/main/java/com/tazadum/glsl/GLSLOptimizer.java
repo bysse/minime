@@ -6,6 +6,7 @@ import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.language.TypeQualifier;
+import com.tazadum.glsl.output.IdentifierOutput;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
@@ -13,8 +14,7 @@ import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.ParserContextImpl;
 import com.tazadum.glsl.parser.function.FunctionRegistryImpl;
-import com.tazadum.glsl.parser.optimizer.ConstantFolding;
-import com.tazadum.glsl.parser.optimizer.DeclarationSqueeze;
+import com.tazadum.glsl.parser.optimizer.*;
 import com.tazadum.glsl.parser.optimizer.Optimizer;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeChecker;
@@ -47,6 +47,7 @@ public class GLSLOptimizer {
 
         switch (profile) {
             case GLSL:
+                outputConfig.setIdentifiers(IdentifierOutput.Replaced);
                 outputConfig.setIndentation(0);
                 outputConfig.setNewlines(true);
                 outputConfig.setOutputConst(false);
@@ -72,7 +73,7 @@ public class GLSLOptimizer {
 
     private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
         final FullySpecifiedType fst = new FullySpecifiedType(TypeQualifier.UNIFORM, null, type);
-        return new VariableDeclarationNode(fst, identifier, null, null);
+        return new VariableDeclarationNode(true, fst, identifier, null, null);
     }
 
     public void execute(String shaderFilename) {
@@ -80,7 +81,7 @@ public class GLSLOptimizer {
         final CommonTokenStream tokenStream = tokenStream(shaderSource);
         final GLSLParser parser = new GLSLParser(tokenStream);
 
-        System.out.format("Source: %d bytes\n", shaderSource.length());
+        System.out.format("# Input: %d bytes\n", shaderSource.length());
 
         // run the parser
         final ContextVisitor visitor = new ContextVisitor(parserContext);
@@ -89,11 +90,12 @@ public class GLSLOptimizer {
         // perform type checking
         typeChecker.check(parserContext, shaderNode);
 
-        // run the optimizer
+        // run the optimizers
         final Node node = optimize(shaderNode);
+
         final String outputShader = output.render(node, outputConfig).trim();
 
-        System.out.format("Result: %d bytes\n", outputShader.length());
+        System.out.format("# Result: %d bytes\n", outputShader.length());
 
         // output the result
         try (OutputStream outputStream = outputStreamProvider.get()) {
@@ -105,10 +107,22 @@ public class GLSLOptimizer {
         }
     }
 
+    private void shortenIdentifiers(Node node) {
+        final OutputConfig config = new OutputConfig();
+        config.setIdentifiers(IdentifierOutput.None);
+        config.setNewlines(false);
+        config.setIndentation(0);
+        config.setOutputConst(false);
+
+        final IdentifierShortener identifierShortener = new IdentifierShortener();
+        identifierShortener.run(parserContext, node, config);
+    }
+
     private Node optimize(Node shaderNode) {
         final OutputSizeDecider decider = new OutputSizeDecider();
 
         // instantiate all the optimizers
+        final DeadCodeElimination deadCodeElimination = new DeadCodeElimination();
         final ConstantFolding constantFolding = new ConstantFolding();
         final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
 
@@ -120,35 +134,35 @@ public class GLSLOptimizer {
             System.out.format("# Iteration #%d: %d bytes\n", iteration++, size);
 
             // apply dead code elimination
-            System.out.println("# Running dead code elimination");
-            final Optimizer.OptimizerResult deadCodeResult = constantFolding.run(parserContext, decider, node);
+            final Optimizer.OptimizerResult deadCodeResult = deadCodeElimination.run(parserContext, decider, node);
             changes = deadCodeResult.getChanges();
             node = deadCodeResult.getNode();
             if (changes > 0) {
-                System.out.println("  - changes: " + changes);
+                System.out.format("  # %d dead code eliminations\n", changes);
             }
 
             // apply constant folding
-            System.out.println("# Running constant folding");
             final Optimizer.OptimizerResult foldResult = constantFolding.run(parserContext, decider, node);
             changes = foldResult.getChanges();
             node = foldResult.getNode();
             if (changes > 0) {
-                System.out.println("  - changes: " + changes);
+                System.out.format("  # %d constant folding replacements\n", changes);
                 continue;
             }
 
             // apply declaration squeeze
-            System.out.println("# Running declaration squeeze");
             final Optimizer.OptimizerResult squeezeResult = declarationSqueeze.run(parserContext, decider, node);
             changes = squeezeResult.getChanges();
             node = squeezeResult.getNode();
             if (changes > 0) {
-                System.out.println("  - Changes: " + changes);
+                System.out.format("  # %d declaration squeezes\n", changes);
                 continue;
             }
-
         } while (changes > 0);
+
+        System.out.println("# Shortening identifiers");
+        // fix the identifier names
+        shortenIdentifiers(node);
 
         return node;
     }

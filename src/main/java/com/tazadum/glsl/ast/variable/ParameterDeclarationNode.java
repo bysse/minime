@@ -9,11 +9,11 @@ import com.tazadum.glsl.util.CloneUtils;
 
 public class ParameterDeclarationNode extends VariableDeclarationNode {
     public ParameterDeclarationNode(FullySpecifiedType fst, String identifier, Node arraySpecifier) {
-        super(fst, identifier, arraySpecifier, null);
+        super(false, fst, identifier, arraySpecifier, null);
     }
 
     protected ParameterDeclarationNode(ParentNode newParent, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
-        super(newParent, fst, identifier, arraySpecifier, initializer);
+        super(newParent, false, fst, identifier, arraySpecifier, initializer);
     }
 
     @Override
