@@ -51,6 +51,31 @@ public class ParentNodeTest {
         assertEquals(2, h.getId());
     }
 
+    @Test
+    public void testId_2() {
+        ParentNode root = new ParentNode(), child1 = new ParentNode(), child2 = new ParentNode();
+        Node a = new LeafNode(), b = new LeafNode(), c = new LeafNode(), d = new LeafNode();
+
+        root.addChild(child1);
+        root.addChild(child2);
+        child1.addChild(a);
+        child1.addChild(b);
+        child2.addChild(c);
+        child2.addChild(d);
+
+        assertEquals(3, a.getId());
+        assertEquals(6, c.getId());
+
+        output(root, "");
+
+        child2.addChild(a);
+
+        output(root, "");
+
+        assertEquals(7, a.getId());
+        assertEquals(5, c.getId());
+    }
+
     private void output(ParentNode node, String indentation) {
         System.out.format(indentation + "id=%d: %s\n", node.getId(), node.getClass().getSimpleName());
         indentation += "  ";
@@ -60,7 +85,7 @@ public class ParentNodeTest {
             if (child instanceof ParentNode) {
                 output((ParentNode) child, indentation);
             } else {
-                System.out.format(indentation + "id=%d: %s\n", child.getId(), child.getClass().getSimpleName());
+                System.out.format(indentation + "id=%d: %s [0x%08x]\n", child.getId(), child.getClass().getSimpleName(), System.identityHashCode(child));
             }
         }
     }

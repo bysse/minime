@@ -8,6 +8,7 @@ import com.tazadum.glsl.language.GLSLType;
  */
 public class LeafNode implements Node {
     private ParentNode parentNode;
+    private int cachedId = -1;
 
     public LeafNode() {
         this(null);
@@ -19,10 +20,14 @@ public class LeafNode implements Node {
 
     @Override
     public int getId() {
-        if (parentNode == null) {
-            return 1;
+        if (cachedId < 0) {
+            if (parentNode == null) {
+                return 1;
+            } else {
+                parentNode.invalidateId();
+            }
         }
-        return parentNode.getChildId(this);
+        return cachedId;
     }
 
     @Override
@@ -49,4 +54,10 @@ public class LeafNode implements Node {
     public GLSLType getType() {
         return null;
     }
+
+    public int calculateId(int id) {
+        cachedId = id;
+        return id;
+    }
+
 }

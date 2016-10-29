@@ -26,20 +26,6 @@ public class ParentNode implements Node {
     }
 
     @Override
-    public int getId() {
-        if (parentNode == null) {
-            cachedId = 1;
-        }
-        if (cachedId < 0) {
-            cachedId = parentNode.getChildId(this);
-            if (cachedId < 0) {
-                cachedId *= -1;
-            }
-        }
-        return cachedId;
-    }
-
-    @Override
     public ParentNode getParentNode() {
         return parentNode;
     }
@@ -84,6 +70,9 @@ public class ParentNode implements Node {
         if (node == null) {
             throw new IllegalArgumentException("Node is null.");
         }
+        if (node.getParentNode() != null) {
+            node.getParentNode().removeChild(node);
+        }
         node.setParentNode(this);
         childNodes.add(node);
         invalidateId();
@@ -91,6 +80,9 @@ public class ParentNode implements Node {
     }
 
     public ParentNode setChild(int index, Node node) {
+        if (node.getParentNode() != null) {
+            node.getParentNode().removeChild(node);
+        }
         node.setParentNode(this);
         childNodes.set(index, node);
         invalidateId();
@@ -99,46 +91,36 @@ public class ParentNode implements Node {
 
     public ParentNode removeChild(Node node) {
         node.setParentNode(null);
-        childNodes.remove(node);
-        invalidateId();
+        if (childNodes.remove(node)) {
+            invalidateId();
+        }
         return this;
     }
 
-    int getChildId(Node node) {
-        int id = getId();
-
-        if (id == NO_NODE_ID) {
-            throw new RuntimeException("Node is not part of this tree");
+    @Override
+    public int getId() {
+        if (cachedId < 0) {
+            parentNode.invalidateId();
         }
+        return cachedId;
+    }
 
-        for (int i=0;i<getChildCount();i++) {
-            final Node childNode = getChild(i);
-
-            id += 1;
-            if (childNode == null) {
+    public int calculateId(int id) {
+        cachedId = id;
+        for (int i = 0; i < getChildCount(); i++) {
+            final Node child = getChild(i);
+            if (child == null) {
                 continue;
             }
-
-            if (node.equals(childNode)) {
-                return id;
-            }
-
-            if (childNode instanceof ParentNode) {
-                final int childId = ((ParentNode) childNode).getChildId(node);
-                if (childId < 0) {
-                    id = -childId;
-                } else {
-                    return childId;
-                }
-            }
+            id = child.calculateId(id + 1);
         }
-
-        return -id;
+        return id;
     }
 
     protected void invalidateId() {
-        cachedId = -1;
-        if (parentNode != null) {
+        if (parentNode == null) {
+            calculateId(1);
+        } else {
             parentNode.invalidateId();
         }
     }

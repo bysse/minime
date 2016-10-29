@@ -22,8 +22,10 @@ public class FixedChildParentNode extends ParentNode {
         if (index < 0 || index >= nodes.length) {
             throw new IllegalArgumentException("Index is outside of range");
         }
-
         if (node != null) {
+            if (node.getParentNode() != null) {
+                node.getParentNode().removeChild(node);
+            }
             node.setParentNode(this);
         }
         nodes[index] = node;
@@ -51,6 +53,13 @@ public class FixedChildParentNode extends ParentNode {
 
     @Override
     public ParentNode removeChild(Node node) {
-        throw new UnsupportedOperationException("removeChild is not supported");
+        for (int i = 0; i < nodes.length; i++) {
+            if (node.equals(nodes[i])) {
+                nodes[i] = null;
+                invalidateId();
+                break;
+            }
+        }
+        return this;
     }
 }

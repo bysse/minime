@@ -11,6 +11,8 @@ public interface Node extends Comparable<Node> {
 
     int getId();
 
+    int calculateId(int id);
+
     ParentNode getParentNode();
 
     void setParentNode(ParentNode parentNode);
