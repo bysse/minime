@@ -1,10 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.MutatingOperation;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
-import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
+import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
@@ -116,17 +115,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
 
             // Check if the variable was involved in a mutating operation
             for (Node node : usagesBetween) {
-                MutatingOperation operation = NodeFinder.findMutableOperation(node);
-                if (operation != null) {
-                    if (operation instanceof AssignmentNode) {
-                        final Node assignment = ((AssignmentNode) operation).getLeft();
-                        if (NodeFinder.isNodeInTree(node, assignment)) {
-                            // the variable usage is in the assignment part of an AssignmentNode
-                            return false;
-                        }
-                        continue;
-                    }
-                    // The MutatingOperation was not an AssignmentNode of the 'good' type
+                if (NodeFinder.isMutated(node)) {
                     return false;
                 }
 
@@ -138,6 +127,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                         continue;
                     }
 
+                    // check if the parameter declaration has the TypeQualifier OUT or INOUT
                     for (int i = 0; i < functionCall.getChildCount(); i++) {
                         // check if argument i is equal to node
                         if (node.equals(functionCall.getChild(i))) {
@@ -145,25 +135,42 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                             final TypeQualifier qualifier = parameterDeclaration.getFullySpecifiedType().getQualifier();
 
                             if (qualifier == null) {
-                                continue;
+                                break;
                             }
                             if (qualifier != TypeQualifier.INOUT && qualifier != TypeQualifier.OUT) {
-                                continue;
+                                break;
                             }
                             return false;
                         }
                     }
 
-                    // if the variable is in global scope and modified due to a function call in the
-                    // initializer this squeeze will yield bad results
-                    //logger.warn("Variable {} might be modified in function {} which blocks further declaration squeeze",
-                    //    variable.getDeclarationNode().getIdentifier().original(), functionCall.getIdentifier().original());
-                    continue;
+                    // if the variable is in global scope there's a possibility that it's modifier anyway
+                    /*
+                    final GLSLContext variableContext = parserContext.findContext(variable.getDeclarationNode());
+                    if (parserContext.globalContext().equals(variableContext) && modifiedInFunction(functionDeclaration, usage)) {
+                        return false;
+                    }
+                    */
                 }
             }
         }
 
         return true;
+    }
+
+    private boolean modifiedInFunction(FunctionPrototypeNode functionDeclaration, Usage<VariableDeclarationNode> usage) {
+        final FunctionDefinitionNode definitionNode = (FunctionDefinitionNode) functionDeclaration.getParentNode();
+
+        for (Node usageNode : usage.getUsageNodes()) {
+            // check if the variable was used in the function
+            if (NodeFinder.isNodeInTree(usageNode, definitionNode.getStatements())) {
+                if (NodeFinder.isMutated(usageNode)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     private class ContextDeclarations {

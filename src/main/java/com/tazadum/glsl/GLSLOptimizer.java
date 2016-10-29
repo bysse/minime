@@ -119,6 +119,15 @@ public class GLSLOptimizer {
             final int size = output.render(node, outputConfig).length();
             System.out.format("# Iteration #%d: %d bytes\n", iteration++, size);
 
+            // apply dead code elimination
+            System.out.println("# Running dead code elimination");
+            final Optimizer.OptimizerResult deadCodeResult = constantFolding.run(parserContext, decider, node);
+            changes = deadCodeResult.getChanges();
+            node = deadCodeResult.getNode();
+            if (changes > 0) {
+                System.out.println("  - changes: " + changes);
+            }
+
             // apply constant folding
             System.out.println("# Running constant folding");
             final Optimizer.OptimizerResult foldResult = constantFolding.run(parserContext, decider, node);

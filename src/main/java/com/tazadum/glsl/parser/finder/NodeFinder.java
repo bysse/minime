@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser.finder;
 
 import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 
 /**
@@ -16,6 +17,20 @@ public class NodeFinder {
             return null;
         }
         return findMutableOperation(parent);
+    }
+
+    public static boolean isMutated(Node node) {
+        final MutatingOperation operation = NodeFinder.findMutableOperation(node);
+        if (operation == null) {
+            return false;
+        }
+        if (operation instanceof AssignmentNode) {
+            // check if the variable usage is in the assignment part of an AssignmentNode
+            final Node assignment = ((AssignmentNode) operation).getLeft();
+            return NodeFinder.isNodeInTree(node, assignment);
+        }
+        // The MutatingOperation was not an AssignmentNode of the 'good' type
+        return true;
     }
 
     public static FunctionCallNode findFunctionCall(Node node) {

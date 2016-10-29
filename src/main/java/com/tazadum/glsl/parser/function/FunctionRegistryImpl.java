@@ -54,8 +54,8 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     }
 
     @Override
-    public Usage<FunctionPrototypeNode> usagesOf(FunctionPrototypeNode node) {
-        return usageMap.get(node);
+    public Usage<FunctionPrototypeNode> resolve(FunctionPrototypeNode node) {
+        return usageMap.computeIfAbsent(node, Usage::new);
     }
 
     @Override

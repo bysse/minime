@@ -14,7 +14,7 @@ public interface FunctionRegistry {
 
     FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher);
 
-    Usage<FunctionPrototypeNode> usagesOf(FunctionPrototypeNode node);
+    Usage<FunctionPrototypeNode> resolve(FunctionPrototypeNode node);
 
     Map<Identifier, Usage<FunctionPrototypeNode>> getUsedFunctions();
 
