@@ -53,6 +53,20 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     }
 
     @Override
+    public List<FunctionPrototypeNode> resolve(String identifier, Identifier.Mode mode) {
+        final List<FunctionPrototypeNode> prototypeNodes = new ArrayList<>();
+
+        for (List<FunctionPrototypeNode> prototypeNodeList : functionMap.values()) {
+            for (FunctionPrototypeNode prototypeNode : prototypeNodeList) {
+                if (identifier.equals(prototypeNode.getIdentifier().token(mode))) {
+                    prototypeNodes.add(prototypeNode);
+                }
+            }
+        }
+        return prototypeNodes;
+    }
+
+    @Override
     public Usage<FunctionPrototypeNode> resolve(FunctionPrototypeNode node) {
         return usageMap.computeIfAbsent(node, Usage::new);
     }

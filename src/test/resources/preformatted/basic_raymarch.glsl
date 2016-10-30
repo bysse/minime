@@ -24,9 +24,8 @@ vec3 march(vec3 pos,vec3 dir){
     for(int i=0;i<steps;i++){
         p=pos+t*dir;
         d=field(p);
-        if(abs(d)<=.0001){
+        if(abs(d)<=.0001)
             return normal(p);
-        }
         t+=d;
     }
     return vec3(0.);

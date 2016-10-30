@@ -5,6 +5,8 @@ import joptsimple.OptionSet;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Erik on 2016-10-24.
@@ -14,13 +16,14 @@ public class Optimizer {
     private static final String OUTPUT_FORMAT = "f";
     private static final String OUTPUT_SHADER_TOY = "t";
     private static final String OUTPUT_STATISTICS = "s";
+    private static final String OUTPUT_PREFERENCE = "p";
 
     public static void displayHelp() {
         System.out.println("Syntax: ");
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        final OptionParser parser = new OptionParser("o:f:ts");
+        final OptionParser parser = new OptionParser("o:f:tsp:");
         final OptionSet options = parser.parse(args);
 
         if (options.nonOptionArguments().isEmpty()) {
@@ -48,6 +51,13 @@ public class Optimizer {
             }
             if (options.has(OUTPUT_STATISTICS)) {
                 optimizer.showStatistics();
+            }
+            if (options.has(OUTPUT_PREFERENCE)) {
+                final Set<Preference> preferences = options.valuesOf(OUTPUT_PREFERENCE).stream()
+                        .map(String::valueOf)
+                        .map(Preference::valueOf)
+                        .collect(Collectors.toSet());
+                optimizer.setPreferences(preferences);
             }
 
             final String shader = String.valueOf(options.nonOptionArguments().get(0));

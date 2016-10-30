@@ -64,7 +64,7 @@ public class TypeCheckerTest {
     private void displayUsedVariables() {
         System.out.println("Variable usage:");
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
-        for (Usage<VariableDeclarationNode> nodeUsage : variableRegistry.getUsedVariables()) {
+        for (Usage<VariableDeclarationNode> nodeUsage : variableRegistry.getAllVariables()) {
             final FullySpecifiedType fullySpecifiedType = nodeUsage.getTarget().getFullySpecifiedType();
             System.out.println(String.format("\t%d : %s : %s", nodeUsage.getUsageNodes().size(), nodeUsage.getTarget().getIdentifier().original(), fullySpecifiedType));
         }

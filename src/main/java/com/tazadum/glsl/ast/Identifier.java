@@ -24,6 +24,10 @@ public class Identifier implements Comparable<Identifier> {
         return replacement == null ? original : replacement;
     }
 
+    public String token(Mode mode) {
+        return mode == Mode.Original ? original : replacement;
+    }
+
     public String toString() {
         return original;
     }
@@ -35,5 +39,10 @@ public class Identifier implements Comparable<Identifier> {
     @Override
     public int compareTo(Identifier o) {
         return original.compareTo(o.original);
+    }
+
+    public enum Mode {
+        Original,
+        Replacement
     }
 }

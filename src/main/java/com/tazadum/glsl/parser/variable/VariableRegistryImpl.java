@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.variable;
 
+import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
@@ -25,19 +26,24 @@ public class VariableRegistryImpl implements VariableRegistry {
         this.usageMap = new ConcurrentHashMap<>();
     }
 
+    public Map<GLSLContext, VariableRegistryContext> getDeclarationMap() {
+        return declarationMap;
+    }
+
     @Override
     public void declare(GLSLContext context, VariableDeclarationNode variableNode) {
         declarationMap.computeIfAbsent(context, VariableRegistryContext::new).declare(variableNode);
+        usageMap.computeIfAbsent(variableNode, Usage::new);
     }
 
     @Override
     public void usage(GLSLContext context, String identifier, Node node) {
-        final VariableRegistryContext variableContext = resolveContext(context, identifier);
+        final VariableRegistryContext variableContext = resolveContext(context, identifier, Identifier.Mode.Original);
         if (variableContext == null) {
             throw new VariableException("Unregistered context for identifier " + identifier);
         }
 
-        final VariableDeclarationNode declarationNode = variableContext.resolve(identifier);
+        final VariableDeclarationNode declarationNode = variableContext.resolve(identifier, Identifier.Mode.Original);
         if (declarationNode == null) {
             throw new VariableException("Undeclared identifier " + identifier);
         }
@@ -46,13 +52,13 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public ResolutionResult resolve(GLSLContext context, String identifier) {
-        final VariableRegistryContext variableContext = resolveContext(context, identifier);
+    public ResolutionResult resolve(GLSLContext context, String identifier, Identifier.Mode mode) {
+        final VariableRegistryContext variableContext = resolveContext(context, identifier, mode);
         if (variableContext == null) {
             throw new VariableException("Unregistered context for identifier " + identifier);
         }
 
-        VariableDeclarationNode declarationNode = variableContext.resolve(identifier);
+        VariableDeclarationNode declarationNode = variableContext.resolve(identifier, mode);
         if (declarationNode == null) {
             throw new VariableException("Undeclared identifier " + identifier);
         }
@@ -68,12 +74,9 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public List<Usage<VariableDeclarationNode>> getUsedVariables() {
+    public List<Usage<VariableDeclarationNode>> getAllVariables() {
         final List<Usage<VariableDeclarationNode>> list = new ArrayList<>();
         for (Map.Entry<VariableDeclarationNode, Usage<VariableDeclarationNode>> entry : usageMap.entrySet()) {
-            if (entry.getValue().getUsageNodes().isEmpty()) {
-                continue;
-            }
             list.add(entry.getValue());
         }
         return list;
@@ -118,10 +121,10 @@ public class VariableRegistryImpl implements VariableRegistry {
         return false;
     }
 
-    private VariableRegistryContext resolveContext(GLSLContext context, String identifier) {
+    private VariableRegistryContext resolveContext(GLSLContext context, String identifier, Identifier.Mode mode) {
         final VariableRegistryContext variableContext = declarationMap.get(context);
         if (variableContext != null) {
-            final VariableDeclarationNode declarationNode = variableContext.resolve(identifier);
+            final VariableDeclarationNode declarationNode = variableContext.resolve(identifier, mode);
             if (declarationNode != null) {
                 return variableContext;
             }
@@ -132,6 +135,6 @@ public class VariableRegistryImpl implements VariableRegistry {
             return null;
         }
 
-        return resolveContext(parentContext, identifier);
+        return resolveContext(parentContext, identifier, mode);
     }
 }

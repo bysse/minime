@@ -45,11 +45,13 @@ public class OutputVisitor implements ASTVisitor<String> {
             final Node child = node.getChild(i);
             builder.append(indentation()).append(child.accept(this));
 
+            final char lastChar = builder.charAt(builder.length() - 1);
+
             // some statements do not require a semicolon
-            if (!noSemiColon(child)) {
+            if (!noSemiColon(child) && lastChar != '}' && lastChar != ';') {
                 builder.append(';');
             }
-            if (builder.charAt(builder.length()-1) != '\n') {
+            if (lastChar != '\n') {
                 builder.append(newLine());
             }
         }
@@ -347,9 +349,7 @@ public class OutputVisitor implements ASTVisitor<String> {
     }
 
     private boolean noSemiColon(Node node) {
-        return node instanceof FunctionDefinitionNode ||
-                node instanceof IterationNode ||
-                node instanceof ConditionNode;
+        return node instanceof FunctionDefinitionNode || node instanceof IterationNode;
     }
 
     private String indentation() {
@@ -415,6 +415,7 @@ public class OutputVisitor implements ASTVisitor<String> {
             }
         } else {
             enterScope();
+            builder.append(newLine()).append(indentation());
             builder.append(node.accept(this));
             exitScope();
         }

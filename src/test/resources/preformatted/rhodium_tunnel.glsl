@@ -32,7 +32,8 @@ float castRayx(vec3 ro,vec3 rd){
     float h=precis*2.;
     float t=0.;
     for(int i=0;i<120;i++){
-        if(abs(h)<precis||t>12.)break;
+        if(abs(h)<precis||t>12.)
+            break;
         h=function_sign*map(ro+rd*t);
         t+=h;
     }
@@ -43,7 +44,8 @@ float refr(vec3 pos,vec3 lig,vec3 dir,vec3 nor,float angle,out float t2,out vec3
     t2=2.;
     vec3 dir2=refract(dir,nor,angle);
     for(int i=0;i<50;i++){
-        if(abs(h)>3.)break;
+        if(abs(h)>3.)
+            break;
         h=map(pos+dir2*t2);
         t2-=h;
     }
@@ -55,7 +57,8 @@ float softshadow(vec3 ro,vec3 rd){
     float t=.02;
     float h=0.;
     for(int i=0;i<22;i++){
-        if(t>20.)continue;
+        if(t>20.)
+            continue;
         h=map(ro+rd*t);
         sh=min(sh,4.*h/t);
         t+=h;
@@ -100,7 +103,8 @@ void mainImage(out vec4 fragColor,in vec2 fragCoord){
         if(density>0.){
             tmp=density/128.;
             T*=1.-tmp*100.;
-            if(T<=0.)break;
+            if(T<=0.)
+                break;
         }
         org+=dir*.078;
     }

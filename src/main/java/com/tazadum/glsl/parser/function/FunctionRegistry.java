@@ -14,6 +14,8 @@ public interface FunctionRegistry {
 
     FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher);
 
+    List<FunctionPrototypeNode> resolve(String identifier, Identifier.Mode mode);
+
     Usage<FunctionPrototypeNode> resolve(FunctionPrototypeNode node);
 
     List<Usage<FunctionPrototypeNode>> getUsedFunctions();

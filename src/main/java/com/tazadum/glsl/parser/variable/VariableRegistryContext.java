@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.variable;
 
+import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.parser.GLSLContext;
 
@@ -24,9 +25,13 @@ public class VariableRegistryContext {
         return variables.remove(variableNode);
     }
 
-    public VariableDeclarationNode resolve(String identifier) {
+    public Set<VariableDeclarationNode> getVariables() {
+        return variables;
+    }
+
+    public VariableDeclarationNode resolve(String identifier, Identifier.Mode mode) {
         for (VariableDeclarationNode node : variables) {
-            if (identifier.equals(node.getIdentifier().original())) {
+            if (identifier.equals(node.getIdentifier().token(mode))) {
                 return node;
             }
         }

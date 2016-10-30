@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.visitor;
 
+import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParenthesisNode;
 import com.tazadum.glsl.ast.StatementListNode;
@@ -766,7 +767,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         final String variableName = ctx.variable_identifier().IDENTIFIER().getText();
 
-        final ResolutionResult result = variableRegistry.resolve(currentContext, variableName);
+        final ResolutionResult result = variableRegistry.resolve(currentContext, variableName, Identifier.Mode.Original);
         final VariableNode node = new VariableNode(result.getDeclaration());
 
         variableRegistry.usage(currentContext, variableName, node);

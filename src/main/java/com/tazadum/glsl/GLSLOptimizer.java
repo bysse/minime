@@ -26,6 +26,8 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Erik on 2016-10-24.
@@ -36,8 +38,10 @@ public class GLSLOptimizer {
     private final Output output;
     private final TypeChecker typeChecker;
     private final ParserContext parserContext;
-    private final IdentifierShortener identifierShortener = new IdentifierShortener();
+    private final IdentifierShortener identifierShortener = new ContextBasedIdentifierShortener();
+
     private boolean showStatistics = false;
+    private Set<Preference> preferences = new HashSet<>();
 
     public GLSLOptimizer(OutputStreamProvider outputStreamProvider, OutputProfile profile) {
         this.outputStreamProvider = outputStreamProvider;
@@ -51,7 +55,6 @@ public class GLSLOptimizer {
             case GLSL:
                 outputConfig.setIdentifiers(IdentifierOutput.Replaced);
                 outputConfig.setIndentation(0);
-                outputConfig.setNewlines(false);
                 outputConfig.setOutputConst(false);
                 break;
         }
@@ -83,6 +86,8 @@ public class GLSLOptimizer {
     }
 
     public void execute(String shaderFilename) {
+        outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
+
         final String shaderSource = loadFile(new File(shaderFilename));
         final CommonTokenStream tokenStream = tokenStream(shaderSource);
         final GLSLParser parser = new GLSLParser(tokenStream);
@@ -91,14 +96,14 @@ public class GLSLOptimizer {
         final int sourceSize = shaderSource.length();
         output("Input shader: %d bytes\n", sourceSize);
 
-        // analyse the parser
+        // updateIdentifiers the parser
         final ContextVisitor visitor = new ContextVisitor(parserContext);
         final Node shaderNode = parser.translation_unit().accept(visitor);
 
         // perform type checking
         typeChecker.check(parserContext, shaderNode);
 
-        // analyse the optimizers
+        // updateIdentifiers the optimizers
         final Node node = optimize(shaderNode);
 
         output("Shortening identifiers\n");
@@ -107,8 +112,10 @@ public class GLSLOptimizer {
         String outputShader = output.render(node, outputConfig).trim();
         output("  - %d bytes\n", outputShader.length());
 
-        output("Macro replacements\n");
-        outputShader = identifierShortener.replaceTokens(outputShader);
+        if (!preferences.contains(Preference.NO_MACRO)) {
+            output("Macro replacements\n");
+            outputShader = identifierShortener.updateTokens(outputShader);
+        }
 
         output("  - %d bytes\n", outputShader.length());
 
@@ -179,8 +186,7 @@ public class GLSLOptimizer {
         config.setIndentation(0);
         config.setOutputConst(false);
 
-        identifierShortener.analyse(parserContext, node, config);
-        identifierShortener.replaceIdentifiers();
+        identifierShortener.updateIdentifiers(parserContext, node, config);
     }
 
     private CommonTokenStream tokenStream(String source) {
@@ -206,6 +212,10 @@ public class GLSLOptimizer {
         if (showStatistics) {
             System.out.format(format, args);
         }
+    }
+
+    public void setPreferences(Set<Preference> preferences) {
+        this.preferences = preferences;
     }
 }
 

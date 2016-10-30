@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.listener;
 
+import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
@@ -52,7 +53,7 @@ public class VariableContextVisitorTest {
 
         // test variable registration
         VariableRegistry variableRegistry = parserContext.getVariableRegistry();
-        ResolutionResult result = variableRegistry.resolve(parserContext.currentContext(), "variable");
+        ResolutionResult result = variableRegistry.resolve(parserContext.currentContext(), "variable", Identifier.Mode.Original);
         assertNotNull(result);
 
         // test declaration

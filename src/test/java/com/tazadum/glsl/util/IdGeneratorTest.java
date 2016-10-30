@@ -23,4 +23,21 @@ public class IdGeneratorTest {
         assertEquals("e", generator.next());
         assertEquals("E", generator.next());
     }
+
+    @Test
+    public void testRemoval() throws Exception {
+        IdGenerator generator = new IdGenerator(new char[]{});
+        generator.exclude('a');
+        generator.exclude('Z');
+        generator.exclude('b');
+
+        assertEquals("A", generator.next());
+        assertEquals("B", generator.next());
+
+        IdGenerator cloned = generator.clone();
+
+        assertEquals("A", cloned.next());
+        assertEquals("B", cloned.next());
+
+    }
 }
