@@ -23,4 +23,8 @@ Date	Hours
 2016-10-26  0.5
 2016-10-28  0.75
 2016-10-29  4.0 Smaller than minifier
-2016-10-30  1.5
+2016-10-30  2.0
+
+// TODO: Add context sensitivity to identifier generation
+// TODO: Add variable inlining
+// TODO: Fix squeeze
