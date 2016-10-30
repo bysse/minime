@@ -36,8 +36,8 @@ public class GLSLOptimizer {
     private final Output output;
     private final TypeChecker typeChecker;
     private final ParserContext parserContext;
-
     private final IdentifierShortener identifierShortener = new IdentifierShortener();
+    private boolean showStatistics = false;
 
     public GLSLOptimizer(OutputStreamProvider outputStreamProvider, OutputProfile profile) {
         this.outputStreamProvider = outputStreamProvider;
@@ -73,6 +73,10 @@ public class GLSLOptimizer {
         variableRegistry.declare(global, uniform(BuiltInType.FLOAT, "iSampleRate"));
     }
 
+    public void showStatistics() {
+        this.showStatistics = true;
+    }
+
     private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
         final FullySpecifiedType fst = new FullySpecifiedType(TypeQualifier.UNIFORM, null, type);
         return new VariableDeclarationNode(true, fst, identifier, null, null);
@@ -83,7 +87,9 @@ public class GLSLOptimizer {
         final CommonTokenStream tokenStream = tokenStream(shaderSource);
         final GLSLParser parser = new GLSLParser(tokenStream);
 
-        System.out.format("# Input: %d bytes\n", shaderSource.length());
+        output("--------------------------------------------------\n");
+        final int sourceSize = shaderSource.length();
+        output("Input shader: %d bytes\n", sourceSize);
 
         // analyse the parser
         final ContextVisitor visitor = new ContextVisitor(parserContext);
@@ -95,13 +101,24 @@ public class GLSLOptimizer {
         // analyse the optimizers
         final Node node = optimize(shaderNode);
 
-        String outputShader = output.render(node, outputConfig).trim();
+        output("Shortening identifiers\n");
+        shortenIdentifiers(node);
 
-        System.out.format("  # %d bytes\n", outputShader.length());
-        System.out.format("# Macro replacements\n");
+        String outputShader = output.render(node, outputConfig).trim();
+        output("  - %d bytes\n", outputShader.length());
+
+        output("Macro replacements\n");
         outputShader = identifierShortener.replaceTokens(outputShader);
 
-        System.out.format("  # %d bytes\n", outputShader.length());
+        output("  - %d bytes\n", outputShader.length());
+
+        // output a summary
+        final int outputSize = outputShader.length();
+        output("--------------------------------------------------\n");
+        output("Input: %d bytes\n", sourceSize);
+        output("Output: %d bytes (%.1f%%)\n", outputSize, 100f * outputSize / sourceSize);
+        output("Removed: %d bytes (%.1f%%)\n", sourceSize - outputSize, 100f * (sourceSize - outputSize) / sourceSize);
+        output("--------------------------------------------------\n");
 
         // output the result
         try (OutputStream outputStream = outputStreamProvider.get()) {
@@ -126,14 +143,14 @@ public class GLSLOptimizer {
         int changes, iteration = 0;
         do {
             final int size = output.render(node, outputConfig).length();
-            System.out.format("# Iteration #%d: %d bytes\n", iteration++, size);
+            output("Iteration #%d: %d bytes\n", iteration++, size);
 
             // apply dead code elimination
             final Optimizer.OptimizerResult deadCodeResult = deadCodeElimination.run(parserContext, decider, node);
             changes = deadCodeResult.getChanges();
             node = deadCodeResult.getNode();
             if (changes > 0) {
-                System.out.format("  # %d dead code eliminations\n", changes);
+                output("  - %d dead code eliminations\n", changes);
             }
 
             // apply constant folding
@@ -141,8 +158,7 @@ public class GLSLOptimizer {
             changes = foldResult.getChanges();
             node = foldResult.getNode();
             if (changes > 0) {
-                System.out.format("  # %d constant folding replacements\n", changes);
-                continue;
+                output("  - %d constant folding replacements\n", changes);
             }
 
             // apply declaration squeeze
@@ -150,16 +166,9 @@ public class GLSLOptimizer {
             changes = squeezeResult.getChanges();
             node = squeezeResult.getNode();
             if (changes > 0) {
-                System.out.format("  # %d declaration squeezes\n", changes);
-                continue;
+                output("  - %d declaration squeezes\n", changes);
             }
         } while (changes > 0);
-
-        System.out.println("# Shortening identifiers");
-
-        // fix the identifier names
-        shortenIdentifiers(node);
-
         return node;
     }
 
@@ -190,6 +199,12 @@ public class GLSLOptimizer {
             return content.toString();
         } catch (Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void output(String format, Object... args) {
+        if (showStatistics) {
+            System.out.format(format, args);
         }
     }
 }

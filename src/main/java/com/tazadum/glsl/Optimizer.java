@@ -12,13 +12,15 @@ import java.io.FileOutputStream;
 public class Optimizer {
     private static final String OUTPUT_FILE = "o";
     private static final String OUTPUT_FORMAT = "f";
+    private static final String OUTPUT_SHADER_TOY = "t";
+    private static final String OUTPUT_STATISTICS = "s";
 
     public static void displayHelp() {
         System.out.println("Syntax: ");
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-        final OptionParser parser = new OptionParser("o:f:t");
+        final OptionParser parser = new OptionParser("o:f:ts");
         final OptionSet options = parser.parse(args);
 
         if (options.nonOptionArguments().isEmpty()) {
@@ -41,8 +43,11 @@ public class Optimizer {
 
         try {
             final GLSLOptimizer optimizer = new GLSLOptimizer(outputFunction, profile);
-            if (options.has("t")) {
+            if (options.has(OUTPUT_SHADER_TOY)) {
                 optimizer.addShaderToySupport();
+            }
+            if (options.has(OUTPUT_STATISTICS)) {
+                optimizer.showStatistics();
             }
 
             final String shader = String.valueOf(options.nonOptionArguments().get(0));
