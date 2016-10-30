@@ -67,7 +67,7 @@ public class IdentifierShortenerTest {
             typeChecker.check(parserContext, node);
 
             config.setIdentifiers(IdentifierOutput.None);
-            identifierShortener.run(parserContext, node, config);
+            identifierShortener.analyse(parserContext, node, config);
 
             config.setIdentifiers(IdentifierOutput.Replaced);
             return output.render(node, config).trim();

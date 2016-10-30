@@ -18,10 +18,9 @@ public class IdGeneratorTest {
         assertEquals("B", generator.next());
         assertEquals("c", generator.next());
 
-        assertEquals("aa", generator.next());
-        assertEquals("ab", generator.next());
-        assertEquals("aC", generator.next());
-        assertEquals("aA", generator.next());
-
+        assertEquals("d", generator.next());
+        assertEquals("D", generator.next());
+        assertEquals("e", generator.next());
+        assertEquals("E", generator.next());
     }
 }

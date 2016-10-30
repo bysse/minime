@@ -37,6 +37,8 @@ public class GLSLOptimizer {
     private final TypeChecker typeChecker;
     private final ParserContext parserContext;
 
+    private final IdentifierShortener identifierShortener = new IdentifierShortener();
+
     public GLSLOptimizer(OutputStreamProvider outputStreamProvider, OutputProfile profile) {
         this.outputStreamProvider = outputStreamProvider;
 
@@ -49,7 +51,7 @@ public class GLSLOptimizer {
             case GLSL:
                 outputConfig.setIdentifiers(IdentifierOutput.Replaced);
                 outputConfig.setIndentation(0);
-                outputConfig.setNewlines(true);
+                outputConfig.setNewlines(false);
                 outputConfig.setOutputConst(false);
                 break;
         }
@@ -83,19 +85,23 @@ public class GLSLOptimizer {
 
         System.out.format("# Input: %d bytes\n", shaderSource.length());
 
-        // run the parser
+        // analyse the parser
         final ContextVisitor visitor = new ContextVisitor(parserContext);
         final Node shaderNode = parser.translation_unit().accept(visitor);
 
         // perform type checking
         typeChecker.check(parserContext, shaderNode);
 
-        // run the optimizers
+        // analyse the optimizers
         final Node node = optimize(shaderNode);
 
-        final String outputShader = output.render(node, outputConfig).trim();
+        String outputShader = output.render(node, outputConfig).trim();
 
-        System.out.format("# Result: %d bytes\n", outputShader.length());
+        System.out.format("  # %d bytes\n", outputShader.length());
+        System.out.format("# Macro replacements\n");
+        outputShader = identifierShortener.replaceTokens(outputShader);
+
+        System.out.format("  # %d bytes\n", outputShader.length());
 
         // output the result
         try (OutputStream outputStream = outputStreamProvider.get()) {
@@ -105,17 +111,6 @@ public class GLSLOptimizer {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private void shortenIdentifiers(Node node) {
-        final OutputConfig config = new OutputConfig();
-        config.setIdentifiers(IdentifierOutput.None);
-        config.setNewlines(false);
-        config.setIndentation(0);
-        config.setOutputConst(false);
-
-        final IdentifierShortener identifierShortener = new IdentifierShortener();
-        identifierShortener.run(parserContext, node, config);
     }
 
     private Node optimize(Node shaderNode) {
@@ -161,10 +156,22 @@ public class GLSLOptimizer {
         } while (changes > 0);
 
         System.out.println("# Shortening identifiers");
+
         // fix the identifier names
         shortenIdentifiers(node);
 
         return node;
+    }
+
+    private void shortenIdentifiers(Node node) {
+        final OutputConfig config = new OutputConfig();
+        config.setIdentifiers(IdentifierOutput.None);
+        config.setNewlines(false);
+        config.setIndentation(0);
+        config.setOutputConst(false);
+
+        identifierShortener.analyse(parserContext, node, config);
+        identifierShortener.replaceIdentifiers();
     }
 
     private CommonTokenStream tokenStream(String source) {

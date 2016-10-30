@@ -4,6 +4,7 @@ package com.tazadum.glsl.util;
  * Created by Erik on 2016-10-29.
  */
 public class IdGenerator {
+    private String alphabet = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     private String frequent;
     private int index;
 
@@ -15,6 +16,14 @@ public class IdGenerator {
                 frequent += Character.toLowerCase(ch);
             } else {
                 frequent += Character.toUpperCase(ch);
+            }
+        }
+
+        // add extra single letter characters
+        for (int i = 0; i < alphabet.length(); i++) {
+            final char ch = alphabet.charAt(i);
+            if (frequent.indexOf(ch) < 0) {
+                frequent += ch;
             }
         }
 
