@@ -2,6 +2,7 @@ package com.tazadum.glsl;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.compresion.Compressor;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
@@ -112,12 +113,26 @@ public class GLSLOptimizer {
         String outputShader = output.render(node, outputConfig).trim();
         output("  - %d bytes\n", outputShader.length());
 
-        if (!preferences.contains(Preference.NO_MACRO)) {
-            output("Macro replacements\n");
-            outputShader = identifierShortener.updateTokens(outputShader);
+        int compressedLength = Compressor.compress(outputShader);
+        if (compressedLength > 0) {
+            output("  - %d bytes compressed\n", compressedLength);
         }
 
-        output("  - %d bytes\n", outputShader.length());
+        if (!preferences.contains(Preference.NO_MACRO)) {
+            output("Macro replacements\n");
+            final String macroShader = identifierShortener.updateTokens(outputShader);
+            output("  - %d bytes\n", macroShader.length());
+
+            final int macroLength = Compressor.compress(macroShader);
+            if (macroLength > 0) {
+                output("  - %d bytes compressed\n", macroLength);
+            }
+            if (macroLength < compressedLength) {
+                outputShader = macroShader;
+                compressedLength = macroLength;
+                output("Using macro replacements for output");
+            }
+        }
 
         // output a summary
         final int outputSize = outputShader.length();
@@ -125,6 +140,7 @@ public class GLSLOptimizer {
         output("Input: %d bytes\n", sourceSize);
         output("Output: %d bytes (%.1f%%)\n", outputSize, 100f * outputSize / sourceSize);
         output("Removed: %d bytes (%.1f%%)\n", sourceSize - outputSize, 100f * (sourceSize - outputSize) / sourceSize);
+        output("Compressed: %d bytes (%.1f%%)\n", compressedLength, 100f * compressedLength / sourceSize);
         output("--------------------------------------------------\n");
 
         // output the result
