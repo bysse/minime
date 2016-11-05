@@ -38,6 +38,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitVariable(VariableNode node) {
+        visitLeafNode(node);
         return null;
     }
 
@@ -55,6 +56,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitPrecision(PrecisionDeclarationNode node) {
+        visitLeafNode(node);
         return null;
     }
 
@@ -152,11 +154,13 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitDiscard(DiscardLeafNode node) {
+        visitLeafNode(node);
         return null;
     }
 
     @Override
     public T visitContinue(ContinueLeafNode node) {
+        visitLeafNode(node);
         return null;
     }
 
@@ -168,6 +172,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitBreak(BreakLeafNode node) {
+        visitLeafNode(node);
         return null;
     }
 
@@ -197,11 +202,13 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitInt(IntLeafNode node) {
+        visitLeafNode(node);
         return null;
     }
 
     @Override
     public T visitFloat(FloatLeafNode node) {
+        visitLeafNode(node);
         return null;
     }
 
@@ -212,5 +219,8 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
                 child.accept(this);
             }
         }
+    }
+
+    protected void visitLeafNode(LeafNode leafNode) {
     }
 }

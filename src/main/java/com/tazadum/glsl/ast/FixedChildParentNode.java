@@ -62,4 +62,17 @@ public class FixedChildParentNode extends ParentNode {
         }
         return this;
     }
+
+    public ParentNode replaceChild(Node replace, Node replacement) {
+        replace.setParentNode(null);
+        for (int i = 0; i < nodes.length; i++) {
+            if (replace.equals(nodes[i])) {
+                nodes[i] = replacement;
+                replacement.setParentNode(this);
+                invalidateId();
+                break;
+            }
+        }
+        return this;
+    }
 }

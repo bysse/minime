@@ -97,6 +97,14 @@ public class ParentNode implements Node {
         return this;
     }
 
+    public ParentNode replaceChild(Node replace, Node replacement) {
+        replace.setParentNode(null);
+        childNodes.replaceAll((node) -> replace.equals(node) ? replacement : node);
+        replacement.setParentNode(this);
+        invalidateId();
+        return this;
+    }
+
     @Override
     public int getId() {
         if (cachedId < 0) {

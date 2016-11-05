@@ -1,19 +1,22 @@
 package com.tazadum.glsl.parser.type;
 
 import com.tazadum.glsl.ast.DefaultASTVisitor;
+import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.conditional.TernaryConditionNode;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
+import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.ArrayIndexNode;
-import com.tazadum.glsl.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.TypeCategory;
+import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.finder.NodeFinder;
 import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 
 /**
@@ -81,6 +84,56 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     }
 
     @Override
+    public GLSLType visitFunctionDefinition(FunctionDefinitionNode node) {
+        super.visitFunctionDefinition(node);
+
+        // try to find out if this function can mutate global state
+
+        // check if the parameters are writable
+        for (int i = 0; i < node.getFunctionPrototype().getChildCount(); i++) {
+            final ParameterDeclarationNode declarationNode = node.getFunctionPrototype().getChild(i, ParameterDeclarationNode.class);
+            final TypeQualifier typeQualifier = declarationNode.getFullySpecifiedType().getQualifier();
+            if (typeQualifier != null && (typeQualifier == TypeQualifier.OUT || typeQualifier == TypeQualifier.INOUT)) {
+                node.setMutatesGlobalState(true);
+                return null;
+            }
+        }
+
+        // check if the body contains calls to other functions that mutates state
+        for (FunctionCallNode functionCallNode : NodeFinder.findAll(node.getStatements(), FunctionCallNode.class)) {
+            if (functionCallNode.getDeclarationNode().getPrototype().isBuiltIn()) {
+                continue;
+            }
+
+            final ParentNode functionDefinition = functionCallNode.getDeclarationNode().getParentNode();
+            if (functionDefinition instanceof FunctionDefinitionNode) {
+                final FunctionDefinitionNode definition = (FunctionDefinitionNode)functionDefinition;
+                if (definition.mutatesGlobalState()) {
+                    node.setMutatesGlobalState(true);
+                    return null;
+                }
+            }
+        }
+
+        // check if the body contains global variable mutations
+        for (VariableNode variableNode : NodeFinder.findAll(node.getStatements(), VariableNode.class)) {
+            final VariableDeclarationNode declarationNode = variableNode.getDeclarationNode();
+            if (declarationNode.isBuiltIn()) {
+                continue;
+            }
+            // check if this is a global variable
+            if (parserContext.globalContext().equals(parserContext.findContext(declarationNode))) {
+                if (NodeFinder.isMutated(variableNode)) {
+                    node.setMutatesGlobalState(true);
+                    return null;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
     public GLSLType visitAssignment(AssignmentNode node) {
         super.visitAssignment(node);
 
@@ -107,8 +160,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     public GLSLType visitNumericOperation(NumericOperationNode node) {
         super.visitNumericOperation(node);
 
-        final BuiltInType left = (BuiltInType)node.getLeft().getType();
-        final BuiltInType right = (BuiltInType)node.getRight().getType();
+        final BuiltInType left = (BuiltInType) node.getLeft().getType();
+        final BuiltInType right = (BuiltInType) node.getRight().getType();
 
         if (left.category() == TypeCategory.Special || right.category() == TypeCategory.Special) {
             throw TypeException.types(left, right, " are not compatible together in an arithmetic operation!");

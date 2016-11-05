@@ -36,10 +36,10 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
         tokenReplacements = getSubStringOccurrences(shaderContent);
         templateGenerator = IdGenerator.create(shaderContent);
 
+        final Map<GLSLContext, IdGenerator> contextGeneratorMap = new HashMap<>();
+
         final Map<Node, Integer> nodeUsageMap = getNodeUsageCountMap(parserContext);
         final List<Node> nodeUsageList = sortByUsage(nodeUsageMap);
-
-        final Map<GLSLContext, IdGenerator> contextGeneratorMap = new HashMap<>();
 
         for (Node node : nodeUsageList) {
             final GLSLContext context = parserContext.findContext(node);
@@ -169,6 +169,17 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
                     if (isVariableReachable(parserContext, usageContext, identifier)) {
                         return true;
                     }
+                }
+            }
+        }
+        if (node instanceof FunctionPrototypeNode) {
+            final FunctionPrototypeNode prototypeNode = (FunctionPrototypeNode)node;
+            final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(prototypeNode);
+            // for each usage of the function, check if a variable with the same name is reachable
+            for (Node usage : nodeUsage.getUsageNodes()) {
+                final GLSLContext usageContext = parserContext.findContext(usage);
+                if (isVariableReachable(parserContext, usageContext, identifier)) {
+                    return true;
                 }
             }
         }

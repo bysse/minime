@@ -48,7 +48,7 @@ public class OutputVisitor implements ASTVisitor<String> {
             final char lastChar = builder.charAt(builder.length() - 1);
 
             // some statements do not require a semicolon
-            if (!noSemiColon(child) && lastChar != '}' && lastChar != ';') {
+            if (!noSemiColon(child) && lastChar != '}' && lastChar != ';' && lastChar != '\n') {
                 builder.append(';');
             }
             if (lastChar != '\n') {

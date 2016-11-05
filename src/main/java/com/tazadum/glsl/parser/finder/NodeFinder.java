@@ -4,6 +4,9 @@ import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Created by Erik on 2016-10-23.
  */
@@ -44,6 +47,12 @@ public class NodeFinder {
         return findFunctionCall(parent);
     }
 
+    public static <T> Set<T> findAll(Node node, Class<T> nodeType) {
+        final NodeFinderVisitor<T> visitor = new NodeFinderVisitor<>(nodeType);
+        node.accept(visitor);
+        return visitor.getResult();
+    }
+
     public static boolean isNodeInTree(Node needle, Node haystack) {
         final VariableFinderVisitor visitor = new VariableFinderVisitor(needle);
         haystack.accept(visitor);
@@ -74,6 +83,36 @@ public class NodeFinder {
             for (int i = 0; i < node.getChildCount(); i++) {
                 node.getChild(i).accept(this);
             }
+        }
+    }
+
+    private static class NodeFinderVisitor<T> extends DefaultASTVisitor<Boolean> {
+        private Class<T> nodeType;
+        private Set<T> result;
+
+        public NodeFinderVisitor(Class<T> nodeType) {
+            this.nodeType = nodeType;
+            this.result = new HashSet<>();
+        }
+
+        public Set<T> getResult() {
+            return result;
+        }
+
+        @Override
+        protected <P extends ParentNode> void visitChildren(P node) {
+            if (nodeType.isAssignableFrom(node.getClass())) {
+                result.add((T)node);
+            }
+            super.visitChildren(node);
+        }
+
+        @Override
+        protected void visitLeafNode(LeafNode leafNode) {
+            if (nodeType.isAssignableFrom(leafNode.getClass())) {
+                result.add((T)leafNode);
+            }
+            super.visitLeafNode(leafNode);
         }
     }
 }

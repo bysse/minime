@@ -75,8 +75,8 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                 // if the declaration has no initializer it can be moved up safely
                 if (declaration.getInitializer() == null) {
                     // move the declaration to the previously existing declaration list
-                    previousDeclaration.addChild(declaration);
                     node.removeChild(declaration);
+                    previousDeclaration.addChild(declaration);
                     changes++;
                     i--;
                 } else {
@@ -84,8 +84,8 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                     final SortedSet<VariableNode> variables = VariableFinder.findVariables(declaration);
                     if (variables.isEmpty() || variablesAreSafe(variables, previousDeclaration.getId(), node.getId())) {
                         // move the declaration to the previously existing declaration list
-                        previousDeclaration.addChild(declaration);
                         node.removeChild(declaration);
+                        previousDeclaration.addChild(declaration);
                         changes++;
                         i--;
                     }

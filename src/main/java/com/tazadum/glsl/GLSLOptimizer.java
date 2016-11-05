@@ -159,6 +159,7 @@ public class GLSLOptimizer {
         // instantiate all the optimizers
         final DeadCodeElimination deadCodeElimination = new DeadCodeElimination();
         final ConstantFolding constantFolding = new ConstantFolding();
+        final ConstantPropagation constantPropagation = new ConstantPropagation();
         final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
 
         Node node = shaderNode;
@@ -182,6 +183,14 @@ public class GLSLOptimizer {
             node = foldResult.getNode();
             if (changes > 0) {
                 output("  - %d constant folding replacements\n", changes);
+            }
+
+            // apply constant propagation
+            final Optimizer.OptimizerResult propagationResult = constantPropagation.run(parserContext, decider, node);
+            changes = propagationResult.getChanges();
+            node = propagationResult.getNode();
+            if (changes > 0) {
+                output("  - %d constant propagation\n", changes);
             }
 
             // apply declaration squeeze

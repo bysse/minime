@@ -54,7 +54,20 @@ public class ContextBasedIdentifierShortenerTest {
 
     @Test
     public void test_advanced_1() {
-        assertEquals("int i=0;void main(in int n){int t=i+n;}", optimize("int X=0;void main(in int Y){int i=X+Y;}"));
+        assertEquals("float t=0.;void main(out float o){float a=t+o;}", optimize("float X=0.;void main(out float Y){float i=X+Y;}"));
+    }
+
+    @Test
+    public void test_advanced_2() {
+        assertEquals("vec2 x=0;vec3 v=0;vec3 c(){return vec3(0.);}void main(out vec3 e){vec3 y=v;vec2 o=x+e.xy+e.xy+c().xy;}",
+                optimize("" +
+                        "vec2 X=0;" +
+                        "vec3 V=0;" +
+                        "vec3 Z(){return vec3(0.);}" +
+                        "void main(out vec3 Y){" +
+                        "vec3 A = V;" +
+                        "vec2 i=X+Y.xy+Y.xy+Z().xy;" +
+                        "}"));
     }
 
     private String optimize(String source) {
