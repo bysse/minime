@@ -118,6 +118,24 @@ public class GLSLOptimizer {
             output("  - %d bytes compressed\n", compressedLength);
         }
 
+        // iterate on the symbol allocation
+        while (true) {
+            final boolean loop = identifierShortener.iterateOnIdentifiers();
+            final String iteration = output.render(node, outputConfig).trim();
+            final int length = Compressor.compress(outputShader);
+
+            if (length > 0 && length < compressedLength) {
+                output("Re-allocating identifiers\n");
+                output("  - %d bytes compressed\n", length);
+                outputShader = iteration;
+                compressedLength = length;
+            }
+
+            if (!loop) {
+                break;
+            }
+        }
+
         if (!preferences.contains(Preference.NO_MACRO)) {
             output("Macro replacements\n");
             final String macroShader = identifierShortener.updateTokens(outputShader);

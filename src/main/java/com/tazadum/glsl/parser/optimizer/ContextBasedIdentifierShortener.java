@@ -25,6 +25,8 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
     private IdGenerator templateGenerator;
     private List<TokenReplacement> tokenReplacements;
     private Set<String> usedIdentifiers;
+    private Map<String, List<Identifier>> materializedIdentifiers;
+    private int iteration = 0;
 
     public ContextBasedIdentifierShortener() {
         output = new Output();
@@ -41,25 +43,52 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
         final Map<Node, Integer> nodeUsageMap = getNodeUsageCountMap(parserContext);
         final List<Node> nodeUsageList = sortByUsage(nodeUsageMap);
 
+        materializedIdentifiers = new HashMap<>();
+
         for (Node node : nodeUsageList) {
             final GLSLContext context = parserContext.findContext(node);
             final IdGenerator generator = contextGeneratorMap.computeIfAbsent(context, (ctx) -> templateGenerator.clone());
 
             while (true) {
                 // generate a new identifier
-                final String identifier = generator.next();
-                if (isIdentifierInUse(parserContext, context, node, identifier)) {
+                final String replacement = generator.next();
+                if (isIdentifierInUse(parserContext, context, node, replacement)) {
                     // another variable or function has the same name as the proposed identifier
                     continue;
                 }
 
                 // set the identifier
-                setNodeIdentifier(node, identifier);
-                usedIdentifiers.add(identifier);
-
+                final Identifier identifier = getNodeIdentifier(node);
+                identifier.replacement(replacement);
+                usedIdentifiers.add(replacement);
+                materializedIdentifiers.computeIfAbsent(replacement, (key) -> new ArrayList<>()).add(identifier);
                 break;
             }
         }
+    }
+
+    public boolean iterateOnIdentifiers() {
+        final IdGenerator idGenerator = templateGenerator.clone();
+
+        // sort the identifiers by usage count
+        final List<String> list = new ArrayList<>(materializedIdentifiers.keySet());
+
+        // sorting is stable so a shuffle could change the sorted order
+        Collections.shuffle(list);
+        Collections.sort(list, (a, b) -> materializedIdentifiers.get(b).size() - materializedIdentifiers.get(a).size());
+
+        if (iteration > 50) {
+            Collections.shuffle(list);
+        }
+
+        for (String id : list) {
+            final String replacement = idGenerator.next();
+            for (Identifier identifier : materializedIdentifiers.get(id)) {
+                identifier.replacement(replacement);
+            }
+        }
+
+        return iteration++ < 100;
     }
 
     public String updateTokens(String shader) {
@@ -186,12 +215,16 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
         return false;
     }
 
-    private void setNodeIdentifier(Node node, String identifier) {
+    private Identifier getNodeIdentifier(Node node) {
         if (node instanceof VariableDeclarationNode) {
-            ((VariableDeclarationNode) node).getIdentifier().replacement(identifier);
-        } else if (node instanceof FunctionPrototypeNode) {
-            ((FunctionPrototypeNode) node).getIdentifier().replacement(identifier);
+            return ((VariableDeclarationNode) node).getIdentifier();
         }
+
+        if (node instanceof FunctionPrototypeNode) {
+            return ((FunctionPrototypeNode) node).getIdentifier();
+        }
+
+        throw new IllegalArgumentException("Unknown node " + node.getClass().getSimpleName());
     }
 
     private boolean isVariableReachable(ParserContext parserContext, GLSLContext context, String identifier) {

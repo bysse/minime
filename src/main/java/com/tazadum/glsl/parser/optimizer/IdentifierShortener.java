@@ -11,4 +11,6 @@ public interface IdentifierShortener {
     void updateIdentifiers(ParserContext parserContext, Node node, OutputConfig outputConfig);
 
     String updateTokens(String outputShader);
+
+    boolean iterateOnIdentifiers();
 }
