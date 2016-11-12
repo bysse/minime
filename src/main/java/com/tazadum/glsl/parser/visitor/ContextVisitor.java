@@ -1,9 +1,6 @@
 package com.tazadum.glsl.parser.visitor;
 
-import com.tazadum.glsl.ast.Identifier;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParenthesisNode;
-import com.tazadum.glsl.ast.StatementListNode;
+import com.tazadum.glsl.ast.*;
 import com.tazadum.glsl.ast.arithmetic.*;
 import com.tazadum.glsl.ast.conditional.*;
 import com.tazadum.glsl.ast.expression.AssignmentNode;
@@ -19,6 +16,7 @@ import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.exception.ParserException;
+import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
@@ -231,7 +229,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         final VariableDeclarationListNode listNode = (VariableDeclarationListNode) ctx.init_declarator_list().accept(this);
 
-        final FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
+        FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
         final String identifier = ctx.IDENTIFIER().getText();
 
         Node arraySpecifier = null;
@@ -239,7 +237,22 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         if (ctx.array_specifier() != null) {
             arraySpecifier = ctx.array_specifier().accept(this);
+
+            int arrayLength = ArrayType.UNKNOWN_LENGTH;
+            if (arraySpecifier instanceof FloatLeafNode) {
+                throw new TypeException("Float values can't be used as array length.");
+            }
+
+            if (arraySpecifier instanceof IntLeafNode) {
+                arrayLength = (int) ((HasNumeric) arraySpecifier).getValue().getValue();
+            }
+
+            // TODO: Evaluate the length of the array
+
+            final GLSLType type = new ArrayType(fullySpecifiedType.getType(), arrayLength);
+            fullySpecifiedType = new FullySpecifiedType(fullySpecifiedType.getQualifier(), fullySpecifiedType.getPrecision(), type);
         }
+
         if (ctx.initializer() != null) {
             initializer = ctx.initializer().accept(this);
         }

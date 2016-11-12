@@ -27,10 +27,12 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
     private Set<String> usedIdentifiers;
     private Map<String, List<Identifier>> materializedIdentifiers;
     private int iteration = 0;
+    private boolean deterministic;
 
-    public ContextBasedIdentifierShortener() {
-        output = new Output();
-        usedIdentifiers = new HashSet<>();
+    public ContextBasedIdentifierShortener(boolean deterministic) {
+        this.deterministic = deterministic;
+        this.output = new Output();
+        this.usedIdentifiers = new HashSet<>();
     }
 
     public void updateIdentifiers(ParserContext parserContext, Node shaderNode, OutputConfig outputConfig) {
@@ -73,12 +75,24 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
         // sort the identifiers by usage count
         final List<String> list = new ArrayList<>(materializedIdentifiers.keySet());
 
-        // sorting is stable so a shuffle could change the sorted order
-        Collections.shuffle(list);
-        Collections.sort(list, (a, b) -> materializedIdentifiers.get(b).size() - materializedIdentifiers.get(a).size());
+        if (deterministic) {
+            // make the unit tests stable
+            Collections.sort(list, (a, b) -> {
+                int ret = materializedIdentifiers.get(b).size() - materializedIdentifiers.get(a).size();
+                if (ret != 0) {
+                    return ret;
+                }
+                return a.compareTo(b);
+            });
 
-        if (iteration > 50) {
+        } else {
+            // sorting is stable so a shuffle could change the sorted order
             Collections.shuffle(list);
+            Collections.sort(list, (a, b) -> materializedIdentifiers.get(b).size() - materializedIdentifiers.get(a).size());
+
+            if (iteration > 50) {
+                Collections.shuffle(list);
+            }
         }
 
         for (String id : list) {
@@ -88,7 +102,11 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
             }
         }
 
-        return iteration++ < 100;
+        if (deterministic) {
+            return iteration++ < 2;
+        } else {
+            return iteration++ < 100;
+        }
     }
 
     public String updateTokens(String shader) {

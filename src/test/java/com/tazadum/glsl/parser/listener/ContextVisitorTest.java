@@ -42,6 +42,19 @@ public class ContextVisitorTest {
     }
 
     @Test
+    public void test_simple_2() {
+        StatementListNode node = parse(StatementListNode.class,
+            "vec4 color[2];" +
+                "void main() {" +
+                "  gl_FragColor = color[0];" +
+                "}");
+
+        assertEquals(2, node.getChildCount());
+        assertEquals(VariableDeclarationListNode.class, node.getChild(0).getClass());
+        assertEquals(FunctionDefinitionNode.class, node.getChild(1).getClass());
+    }
+
+    @Test
     public void test_unary_arithmetic() {
         StatementListNode node = parse(StatementListNode.class,
                 "void main() {" +

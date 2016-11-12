@@ -84,6 +84,10 @@ public enum BuiltInType implements GLSLType, HasToken {
     }
 
     public boolean isAssignableBy(GLSLType type) {
+        if (isArray() != type.isArray()) {
+            return false;
+        }
+
         switch (this) {
             case FLOAT:
             case INT:
@@ -91,6 +95,14 @@ public enum BuiltInType implements GLSLType, HasToken {
 
         }
         return this == type;
+    }
+
+    public boolean isArray() {
+        return false;
+    }
+
+    public GLSLType baseType() {
+        return this;
     }
 
     private BuiltInType swizzle(String field, BuiltInType... types) {

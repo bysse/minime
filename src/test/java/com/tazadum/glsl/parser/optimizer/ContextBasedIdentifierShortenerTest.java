@@ -33,7 +33,7 @@ public class ContextBasedIdentifierShortenerTest {
     public void setup() {
         parserContext = TestUtils.parserContext();
         output = new Output();
-        identifierShortener = new ContextBasedIdentifierShortener();
+        identifierShortener = new ContextBasedIdentifierShortener(true);
         typeChecker = new TypeChecker();
         config = new OutputConfig();
         config.setNewlines(false);
@@ -54,12 +54,12 @@ public class ContextBasedIdentifierShortenerTest {
 
     @Test
     public void test_advanced_1() {
-        assertEquals("float t=0.;void main(out float o){float a=t+o;}", optimize("float X=0.;void main(out float Y){float i=X+Y;}"));
+        assertEquals("float a=0.;void main(out float t){float o=a+t;}", optimize("float X=0.;void main(out float Y){float i=X+Y;}"));
     }
 
     @Test
     public void test_advanced_2() {
-        assertEquals("vec2 x=0;vec3 v=0;vec3 c(){return vec3(0.);}void main(out vec3 e){vec3 y=v;vec2 o=x+e.xy+e.xy+c().xy;}",
+        assertEquals("vec2 y=0;vec3 e=0;vec3 x(){return vec3(0.);}void main(out vec3 v){vec3 o=e;vec2 c=y+v.xy+v.xy+x().xy;}",
                 optimize("" +
                         "vec2 X=0;" +
                         "vec3 V=0;" +
@@ -80,6 +80,7 @@ public class ContextBasedIdentifierShortenerTest {
 
             config.setIdentifiers(IdentifierOutput.None);
             identifierShortener.updateIdentifiers(parserContext, node, config);
+            identifierShortener.iterateOnIdentifiers();
 
             config.setIdentifiers(IdentifierOutput.Replaced);
             return output.render(node, config).trim();

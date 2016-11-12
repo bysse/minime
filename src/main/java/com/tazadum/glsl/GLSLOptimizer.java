@@ -39,7 +39,7 @@ public class GLSLOptimizer {
     private final Output output;
     private final TypeChecker typeChecker;
     private final ParserContext parserContext;
-    private final IdentifierShortener identifierShortener = new ContextBasedIdentifierShortener();
+    private final IdentifierShortener identifierShortener = new ContextBasedIdentifierShortener(false);
 
     private boolean showStatistics = false;
     private Set<Preference> preferences = new HashSet<>();
