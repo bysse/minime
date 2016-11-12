@@ -9,7 +9,7 @@ import com.tazadum.glsl.parser.ParserContext;
 public class ConstantPropagation implements Optimizer {
     @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
-        final ConstantPropagationVisitor visitor = new ConstantPropagationVisitor(parserContext);
+        final ConstantPropagationVisitor visitor = new ConstantPropagationVisitor(parserContext, optimizationDecider);
 
         int changes, totalChanges = 0;
         do {

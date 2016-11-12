@@ -62,6 +62,11 @@ public class ConstantPropagationTest {
     }
 
     @Test
+    public void test_constants_5() {
+        assertEquals("float f(){return 1+1;}", optimize("float a=1;float f(){return a+a;}"));
+    }
+
+    @Test
     public void test_fail_1() {
         assertEquals("int a=1;int f(){a++;return a;}", optimize("int a=1;int f(){a++;return a;}"));
     }
