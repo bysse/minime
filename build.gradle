@@ -28,6 +28,8 @@ dependencies {
     antlr4 'org.antlr:antlr4:4.+'
 
     testCompile 'junit:junit:4.12'
+    testCompile 'org.jogamp.jogl:jogl-all:2.3.2'
+    testCompile 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
 }
 
 task wrapper(type: Wrapper) {

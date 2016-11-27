@@ -23,6 +23,8 @@ public interface Node extends Comparable<Node> {
 
     GLSLType getType();
 
+    Node find(int id);
+
     default int compareTo(Node o) {
         return o.getId() - getId();
     }

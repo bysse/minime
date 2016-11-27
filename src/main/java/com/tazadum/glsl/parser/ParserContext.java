@@ -19,4 +19,6 @@ public interface ParserContext extends ContextAware {
     void dereferenceTree(Node node);
 
     GLSLContext findContext(Node node);
+
+    ParserContext clone(Node source, Node destination);
 }

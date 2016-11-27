@@ -50,6 +50,26 @@ public class ParentNode implements Node {
         throw new UnsupportedOperationException("Extending classes should override ParentNode::getType");
     }
 
+    @Override
+    public Node find(int id) {
+        if (getId() == id) {
+            return this;
+        }
+        if (id < getId()) {
+            return null;
+        }
+        for (int i = 0; i < getChildCount(); i++) {
+            Node child = getChild(i);
+            if (child != null) {
+                Node node = child.find(id);
+                if (node != null) {
+                    return node;
+                }
+            }
+        }
+        return null;
+    }
+
     public int getChildCount() {
         return childNodes.size();
     }

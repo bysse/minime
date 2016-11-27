@@ -5,23 +5,39 @@ import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
+import com.tazadum.glsl.util.OpenGLForTesting;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
 public class OptimizerTest {
+    private static OpenGLForTesting openGL;
     private final String shaderSource;
 
     private ParserContext parserContext;
     private Output output;
     private OutputConfig config;
+
+    @BeforeClass
+    public static void setupContext() {
+        System.out.println("Initializing OpenGL");
+
+        openGL = new OpenGLForTesting();
+        openGL.waitForInit();
+    }
+
+    @AfterClass
+    public static void destroyContext() {
+
+    }
 
     public OptimizerTest(String name, String shaderSource) {
         this.shaderSource = shaderSource;
@@ -29,8 +45,7 @@ public class OptimizerTest {
 
     @Parameterized.Parameters(name = "{index}: {0}")
     public static Collection<Object[]> shaders() {
-        //return TestUtils.loadShaders("shaders");
-        return Collections.emptySet();
+        return TestUtils.loadShaders("shaders");
     }
 
     @Before

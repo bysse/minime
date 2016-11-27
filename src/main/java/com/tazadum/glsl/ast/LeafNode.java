@@ -55,6 +55,14 @@ public class LeafNode implements Node {
         return null;
     }
 
+    @Override
+    public Node find(int id) {
+        if (getId() == id) {
+            return this;
+        }
+        return null;
+    }
+
     public int calculateId(int id) {
         cachedId = id;
         return id;

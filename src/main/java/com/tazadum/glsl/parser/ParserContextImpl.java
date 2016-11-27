@@ -225,4 +225,9 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
         }
         return globalContext();
     }
+
+    @Override
+    public ParserContext clone(Node source, Node destination) {
+        return null;
+    }
 }
