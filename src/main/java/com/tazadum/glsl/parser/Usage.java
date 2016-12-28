@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.util.CloneUtils;
 
 import java.util.*;
 
@@ -38,5 +39,13 @@ public class Usage<T> {
 
     public boolean remove(Node node) {
         return nodes.remove(node);
+    }
+
+    public Usage<T> remap(Node base) {
+        final Usage<T> usage = new Usage<>(target);
+        for (Node node : nodes) {
+            usage.add(CloneUtils.remap(base, node));
+        }
+        return usage;
     }
 }

@@ -3,6 +3,13 @@ package com.tazadum.glsl.util;
 import com.tazadum.glsl.ast.HasMutableType;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.parser.ContextAware;
+import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.parser.GLSLContextImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Erik on 2016-10-07.
@@ -33,4 +40,44 @@ public class CloneUtils {
         }
         return clone;
     }
+
+    public static <T extends Node> T remap(Node base, T node) {
+        final Node remappedNode = base.find(node.getId());
+        if (remappedNode == null) {
+            throw new IllegalStateException("Unable to find node with id " + node.getId() + " in the new node tree.");
+        }
+        return (T)remappedNode;
+    }
+
+    public static <T extends Node> List<T> remap(Node base, List<T> nodes) {
+        final List<T> remapped = new ArrayList<>(nodes.size());
+        for (T node : nodes) {
+            remapped.add(remap(base, node));
+        }
+        return remapped;
+    }
+
+
+    public static GLSLContext remap(Node base, GLSLContext context) {
+        if (context instanceof GLSLContextImpl) {
+            return new GLSLContextImpl();
+        }
+        return (GLSLContext)remap(base, (Node)context);
+    }
+
+    public static GLSLContext remapContext(ContextAware contextAware, GLSLContext context) {
+        if (context instanceof GLSLContextImpl) {
+            return contextAware.globalContext();
+        }
+
+        final int contextId = ((Node) context).getId();
+        for(GLSLContext ctx : contextAware.contexts()) {
+            if (ctx instanceof Node && ((Node)ctx).getId() == contextId) {
+                return ctx;
+            }
+        }
+
+        throw new IllegalStateException("Unable to remap the GLSLContext");
+    }
+
 }

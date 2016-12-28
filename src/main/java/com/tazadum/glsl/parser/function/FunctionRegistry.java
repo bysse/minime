@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser.function;
 
 import com.tazadum.glsl.ast.Identifier;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.parser.Usage;
@@ -23,4 +24,6 @@ public interface FunctionRegistry {
     boolean dereference(FunctionCallNode node);
 
     boolean dereference(FunctionPrototypeNode node);
+
+    FunctionRegistry remap(Node base);
 }

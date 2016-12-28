@@ -15,21 +15,31 @@ import com.tazadum.glsl.parser.variable.VariableRegistry;
 import com.tazadum.glsl.parser.visitor.DereferenceVisitor;
 
 import java.util.Arrays;
+import java.util.Set;
 
-public class ParserContextImpl extends ContextAwareImpl implements ParserContext {
+public class ParserContextImpl implements ParserContext {
     private final TypeRegistry typeRegistry;
     private final VariableRegistry variableRegistry;
     private final FunctionRegistry functionRegistry;
     private final DereferenceVisitor dereferenceVisitor;
+    private final ContextAware contextAware;
 
     public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry) {
+        this(typeRegistry, variableRegistry, functionRegistry, new ContextAwareImpl());
+    }
+
+    public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry, ContextAware contextAware) {
         this.typeRegistry = typeRegistry;
         this.variableRegistry = variableRegistry;
         this.functionRegistry = functionRegistry;
         this.dereferenceVisitor = new DereferenceVisitor(this);
+        this.contextAware = contextAware;
 
-        setupVariables();
+        if (variableRegistry.isEmpty()) {
+            setupVariables();
+        }
     }
+
 
     private void setupVariables() {
         GLSLContext context = currentContext();
@@ -227,7 +237,36 @@ public class ParserContextImpl extends ContextAwareImpl implements ParserContext
     }
 
     @Override
-    public ParserContext clone(Node source, Node destination) {
-        return null;
+    public ParserContext remap(Node base) {
+        final TypeRegistry typeRegistryRemap = typeRegistry.remap(base);
+        final ContextAware contextAwareRemap = contextAware.remap(base);
+        final VariableRegistry variableRegistryCopy = variableRegistry.remap(base, contextAwareRemap);
+        final FunctionRegistry functionRegistryCopy = functionRegistry.remap(base);
+        return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, contextAwareRemap);
+    }
+
+    @Override
+    public GLSLContext currentContext() {
+        return contextAware.currentContext();
+    }
+
+    @Override
+    public GLSLContext enterContext(GLSLContext context) {
+        return contextAware.enterContext(context);
+    }
+
+    @Override
+    public GLSLContext exitContext() {
+        return contextAware.exitContext();
+    }
+
+    @Override
+    public GLSLContext globalContext() {
+        return contextAware.globalContext();
+    }
+
+    @Override
+    public Set<GLSLContext> contexts() {
+        return contextAware.contexts();
     }
 }

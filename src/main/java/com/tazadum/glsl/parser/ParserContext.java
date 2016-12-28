@@ -20,5 +20,5 @@ public interface ParserContext extends ContextAware {
 
     GLSLContext findContext(Node node);
 
-    ParserContext clone(Node source, Node destination);
+    ParserContext remap(Node base);
 }

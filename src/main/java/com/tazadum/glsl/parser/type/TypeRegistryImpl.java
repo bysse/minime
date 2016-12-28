@@ -6,6 +6,7 @@ import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
 
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -16,6 +17,11 @@ public class TypeRegistryImpl implements TypeRegistry {
     public TypeRegistryImpl() {
         this.typeMap = new ConcurrentHashMap<>();
         this.usageMap = new ConcurrentHashMap<>();
+    }
+
+    private TypeRegistryImpl(ConcurrentMap<String, FullySpecifiedType> typeMapCopy, ConcurrentMap<GLSLType, Usage<GLSLType>> usageMapCopy) {
+        this.typeMap = typeMapCopy;
+        this.usageMap = usageMapCopy;
     }
 
     @Override
@@ -40,5 +46,19 @@ public class TypeRegistryImpl implements TypeRegistry {
     @Override
     public Usage<GLSLType> usagesOf(FullySpecifiedType fst) {
         return usageMap.get(fst.getType());
+    }
+
+    @Override
+    public TypeRegistry remap(Node base) {
+        final ConcurrentMap<String, FullySpecifiedType> typeMapCopy = new ConcurrentHashMap<>(typeMap);
+        final ConcurrentMap<GLSLType, Usage<GLSLType>> usageMapCopy = new ConcurrentHashMap<>();
+
+        for (Map.Entry<GLSLType, Usage<GLSLType>> entry : usageMap.entrySet()) {
+            final GLSLType type = entry.getKey();
+            final Usage<GLSLType> usage = entry.getValue();
+            usageMapCopy.put(type, usage.remap(base));
+        }
+
+        return new TypeRegistryImpl(typeMapCopy, usageMapCopy);
     }
 }

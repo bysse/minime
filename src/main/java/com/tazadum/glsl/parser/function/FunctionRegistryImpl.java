@@ -5,6 +5,7 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.parser.Usage;
+import com.tazadum.glsl.util.CloneUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +24,11 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     public FunctionRegistryImpl() {
         functionMap = new ConcurrentHashMap<>();
         usageMap = new ConcurrentHashMap<>();
+    }
+
+    private FunctionRegistryImpl(ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap, ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap) {
+        this.functionMap = functionMap;
+        this.usageMap = usageMap;
     }
 
     @Override
@@ -121,5 +127,16 @@ public class FunctionRegistryImpl implements FunctionRegistry {
         }
 
         return true;
+    }
+
+    @Override
+    public FunctionRegistry remap(Node base) {
+        final ConcurrentMap<String, List<FunctionPrototypeNode>> functionMapRemapped = new ConcurrentHashMap<>();
+        functionMap.forEach((name, list) -> functionMapRemapped.put(name, CloneUtils.remap(base, list)));
+
+        final ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMapRemapped = new ConcurrentHashMap<>();
+        usageMap.forEach((prototype, usage) -> usageMapRemapped.put(CloneUtils.remap(base, prototype), usage.remap(base)));
+
+        return new FunctionRegistryImpl(functionMapRemapped, usageMapRemapped);
     }
 }

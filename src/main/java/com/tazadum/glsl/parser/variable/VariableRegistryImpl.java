@@ -5,8 +5,10 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.exception.VariableException;
+import com.tazadum.glsl.parser.ContextAware;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
+import com.tazadum.glsl.util.CloneUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +26,11 @@ public class VariableRegistryImpl implements VariableRegistry {
     public VariableRegistryImpl() {
         this.declarationMap = new ConcurrentHashMap<>();
         this.usageMap = new ConcurrentHashMap<>();
+    }
+
+    private VariableRegistryImpl(Map<GLSLContext, VariableRegistryContext> declarationMap, Map<VariableDeclarationNode, Usage<VariableDeclarationNode>> usageMap) {
+        this.declarationMap = declarationMap;
+        this.usageMap = usageMap;
     }
 
     public Map<GLSLContext, VariableRegistryContext> getDeclarationMap() {
@@ -119,6 +126,25 @@ public class VariableRegistryImpl implements VariableRegistry {
         }
 
         return false;
+    }
+
+    @Override
+    public VariableRegistry remap(Node base, ContextAware contextAware) {
+        final Map<GLSLContext, VariableRegistryContext> declarationMapCopy = new ConcurrentHashMap<>();
+        declarationMap.forEach((context, registry) -> {
+            final GLSLContext ctx = CloneUtils.remapContext(contextAware, context);
+            declarationMapCopy.put(ctx, registry.remap(contextAware, base));
+        });
+
+        final Map<VariableDeclarationNode, Usage<VariableDeclarationNode>> usageMapCopy = new ConcurrentHashMap<>();
+        usageMap.forEach((declaration, usage) -> usageMapCopy.put(CloneUtils.remap(base, declaration), usage.remap(base)));
+
+        return new VariableRegistryImpl(declarationMapCopy, usageMapCopy);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return  declarationMap.isEmpty() && usageMap.isEmpty();
     }
 
     private VariableRegistryContext resolveContext(GLSLContext context, String identifier, Identifier.Mode mode) {

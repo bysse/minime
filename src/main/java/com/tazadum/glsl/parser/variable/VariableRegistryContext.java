@@ -1,8 +1,11 @@
 package com.tazadum.glsl.parser.variable;
 
 import com.tazadum.glsl.ast.Identifier;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.parser.ContextAware;
 import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.util.CloneUtils;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,5 +39,13 @@ public class VariableRegistryContext {
             }
         }
         return null;
+    }
+
+    public VariableRegistryContext remap(ContextAware contextAware, Node base) {
+        final VariableRegistryContext remapped = new VariableRegistryContext(CloneUtils.remapContext(contextAware, this.context));
+        for (VariableDeclarationNode node : variables) {
+            remapped.declare(CloneUtils.remap(base, node));
+        }
+        return remapped;
     }
 }

@@ -4,6 +4,7 @@ import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.parser.ContextAware;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
 
@@ -26,4 +27,8 @@ public interface VariableRegistry {
     boolean dereference(VariableDeclarationNode node);
 
     Map<GLSLContext, VariableRegistryContext> getDeclarationMap();
+
+    VariableRegistry remap(Node base, ContextAware contextAwareRemap);
+
+    boolean isEmpty();
 }

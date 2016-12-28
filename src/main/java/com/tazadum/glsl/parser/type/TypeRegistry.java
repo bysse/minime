@@ -13,4 +13,6 @@ public interface TypeRegistry {
     FullySpecifiedType resolve(String name);
 
     Usage<GLSLType> usagesOf(FullySpecifiedType fst);
+
+    TypeRegistry remap(Node destinationRoot);
 }
