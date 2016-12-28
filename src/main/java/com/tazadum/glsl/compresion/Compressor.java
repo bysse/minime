@@ -7,7 +7,7 @@ import java.util.zip.Deflater;
  * Created by Erik on 2016-11-04.
  */
 public class Compressor {
-    private static byte [] buffer = new byte[65536];
+    private static byte[] buffer = new byte[65536];
 
     public static int compress(String content) {
         try {

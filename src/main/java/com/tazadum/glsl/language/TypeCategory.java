@@ -7,6 +7,5 @@ public enum TypeCategory {
     Special,
     Scalar,
     Vector,
-    Matrix,
-    ;
+    Matrix,;
 }

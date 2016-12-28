@@ -17,8 +17,8 @@ public class GenTypeIterator implements Iterator<BuiltInType[]> {
         for (Object parameter : parameters) {
             if (parameter instanceof GenTypes) {
                 if (this.gentype == null) {
-                    this.gentype = (GenTypes)parameter;
-                } else if (this.gentype != parameter){
+                    this.gentype = (GenTypes) parameter;
+                } else if (this.gentype != parameter) {
                     throw new IllegalArgumentException("Different GenTypes specified!");
                 }
                 continue;
@@ -42,12 +42,12 @@ public class GenTypeIterator implements Iterator<BuiltInType[]> {
     @Override
     public BuiltInType[] next() {
         final BuiltInType type = gentype.concreteTypes[index++];
-        final BuiltInType [] types = new BuiltInType[parameters.length];
+        final BuiltInType[] types = new BuiltInType[parameters.length];
 
-        for (int i=0;i<parameters.length;i++) {
+        for (int i = 0; i < parameters.length; i++) {
             final Object parameter = parameters[i];
             if (parameter instanceof BuiltInType) {
-                types[i] = (BuiltInType)parameter;
+                types[i] = (BuiltInType) parameter;
                 continue;
             }
             if (parameter instanceof GenTypes) {

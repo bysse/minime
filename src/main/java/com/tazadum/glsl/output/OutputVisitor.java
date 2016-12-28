@@ -324,15 +324,15 @@ public class OutputVisitor implements ASTVisitor<String> {
             final int decimals = Math.min(numeric.getDecimals(), config.getMaxDecimals());
             String format = String.format("%%.%df", decimals);
             String result = String.format(Locale.US, format, numeric.getValue());
-            if(result.startsWith("0")) {
+            if (result.startsWith("0")) {
                 return result.substring(1);
             }
             return result;
         }
         if (numeric.isFloat()) {
-            return String.format(Locale.US, "%d.", (int)numeric.getValue());
+            return String.format(Locale.US, "%d.", (int) numeric.getValue());
         }
-        return String.format(Locale.US, "%d", (int)numeric.getValue());
+        return String.format(Locale.US, "%d", (int) numeric.getValue());
     }
 
     private void enterScope() {

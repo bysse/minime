@@ -3,8 +3,7 @@ package com.tazadum.glsl.language;
 public enum LogicalOperator implements HasToken {
     AND("&&"),
     XOR("^^"),
-    OR("||"),
-    ;
+    OR("||"),;
 
     private String token;
 

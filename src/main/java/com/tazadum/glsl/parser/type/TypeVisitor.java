@@ -107,7 +107,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
             final ParentNode functionDefinition = functionCallNode.getDeclarationNode().getParentNode();
             if (functionDefinition instanceof FunctionDefinitionNode) {
-                final FunctionDefinitionNode definition = (FunctionDefinitionNode)functionDefinition;
+                final FunctionDefinitionNode definition = (FunctionDefinitionNode) functionDefinition;
                 if (definition.mutatesGlobalState()) {
                     node.setMutatesGlobalState(true);
                     return null;

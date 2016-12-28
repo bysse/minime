@@ -6,8 +6,7 @@ public enum RelationalOperator implements HasToken {
     LessThanOrEqual("<="),
     GreaterThanOrEqual(">="),
     Equal("=="),
-    NotEqual("!="),
-    ;
+    NotEqual("!="),;
 
     private String token;
 

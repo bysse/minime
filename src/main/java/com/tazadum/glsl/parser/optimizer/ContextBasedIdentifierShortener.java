@@ -150,7 +150,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
             if (tokenReplacement.getToken() == null) {
                 continue;
             }
-            final String definition = String.format(DEFINE +"%s %s\n", tokenReplacement.getToken(), tokenReplacement.getOriginal());
+            final String definition = String.format(DEFINE + "%s %s\n", tokenReplacement.getToken(), tokenReplacement.getOriginal());
             builder.insert(0, definition);
         }
         return builder.toString();
@@ -206,7 +206,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
             return true;
         }
         if (node instanceof VariableDeclarationNode) {
-            final VariableDeclarationNode declarationNode = (VariableDeclarationNode)node;
+            final VariableDeclarationNode declarationNode = (VariableDeclarationNode) node;
             if (parserContext.globalContext().equals(context)) {
                 // if the variable is declared in global scope we need to look if the identifier
                 // can be resolved in the context of any of the usage nodes
@@ -220,7 +220,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
             }
         }
         if (node instanceof FunctionPrototypeNode) {
-            final FunctionPrototypeNode prototypeNode = (FunctionPrototypeNode)node;
+            final FunctionPrototypeNode prototypeNode = (FunctionPrototypeNode) node;
             final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(prototypeNode);
             // for each usage of the function, check if a variable with the same name is reachable
             for (Node usage : nodeUsage.getUsageNodes()) {

@@ -11,8 +11,7 @@ public enum GenTypes {
     GenScalarType(BuiltInType.FLOAT, BuiltInType.INT),
     GenVectorType(BuiltInType.VEC2, BuiltInType.VEC3, BuiltInType.VEC4, BuiltInType.IVEC2, BuiltInType.IVEC3, BuiltInType.IVEC4, BuiltInType.BVEC2, BuiltInType.BVEC3, BuiltInType.BVEC4),
     GenMatrixType(BuiltInType.MAT2, BuiltInType.MAT3, BuiltInType.MAT4),
-    GenSamplerType(BuiltInType.SAMPLER2D, BuiltInType.SAMPLER_CUBE),
-    ;
+    GenSamplerType(BuiltInType.SAMPLER2D, BuiltInType.SAMPLER_CUBE),;
 
     public BuiltInType[] concreteTypes;
 

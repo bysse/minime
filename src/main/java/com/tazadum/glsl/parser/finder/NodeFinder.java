@@ -102,7 +102,7 @@ public class NodeFinder {
         @Override
         protected <P extends ParentNode> void visitChildren(P node) {
             if (nodeType.isAssignableFrom(node.getClass())) {
-                result.add((T)node);
+                result.add((T) node);
             }
             super.visitChildren(node);
         }
@@ -110,7 +110,7 @@ public class NodeFinder {
         @Override
         protected void visitLeafNode(LeafNode leafNode) {
             if (nodeType.isAssignableFrom(leafNode.getClass())) {
-                result.add((T)leafNode);
+                result.add((T) leafNode);
             }
             super.visitLeafNode(leafNode);
         }

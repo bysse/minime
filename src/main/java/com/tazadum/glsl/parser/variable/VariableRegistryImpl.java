@@ -144,7 +144,7 @@ public class VariableRegistryImpl implements VariableRegistry {
 
     @Override
     public boolean isEmpty() {
-        return  declarationMap.isEmpty() && usageMap.isEmpty();
+        return declarationMap.isEmpty() && usageMap.isEmpty();
     }
 
     private VariableRegistryContext resolveContext(GLSLContext context, String identifier, Identifier.Mode mode) {

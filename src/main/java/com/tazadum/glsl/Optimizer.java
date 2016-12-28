@@ -54,9 +54,9 @@ public class Optimizer {
             }
             if (options.has(OUTPUT_PREFERENCE)) {
                 final Set<Preference> preferences = options.valuesOf(OUTPUT_PREFERENCE).stream()
-                        .map(String::valueOf)
-                        .map(Preference::valueOf)
-                        .collect(Collectors.toSet());
+                    .map(String::valueOf)
+                    .map(Preference::valueOf)
+                    .collect(Collectors.toSet());
                 optimizer.setPreferences(preferences);
             }
 

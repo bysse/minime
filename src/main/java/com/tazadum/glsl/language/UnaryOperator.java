@@ -8,8 +8,7 @@ public enum UnaryOperator implements HasToken {
     DECREASE("--"),
     MINUS("-"),
     BANG("!"),
-    PLUS("+")
-    ;
+    PLUS("+");
 
     private String token;
 

@@ -40,7 +40,6 @@ public class ParserContextImpl implements ParserContext {
         }
     }
 
-
     private void setupVariables() {
         GLSLContext context = currentContext();
 
@@ -51,24 +50,24 @@ public class ParserContextImpl implements ParserContext {
         variableRegistry.declare(context, variable(BuiltInType.FLOAT, "gl_FragDepth"));
 
         // scalar type construction
-        fixedFunction("float", BuiltInType.FLOAT,  BuiltInType.FLOAT);
-        fixedFunction("float", BuiltInType.FLOAT,  BuiltInType.INT);
-        fixedFunction("int", BuiltInType.INT,  BuiltInType.FLOAT);
-        fixedFunction("int", BuiltInType.INT,  BuiltInType.INT);
+        fixedFunction("float", BuiltInType.FLOAT, BuiltInType.FLOAT);
+        fixedFunction("float", BuiltInType.FLOAT, BuiltInType.INT);
+        fixedFunction("int", BuiltInType.INT, BuiltInType.FLOAT);
+        fixedFunction("int", BuiltInType.INT, BuiltInType.INT);
 
         // vector construction
-        fixedFunction("vec2", BuiltInType.VEC2,  BuiltInType.VEC2);
+        fixedFunction("vec2", BuiltInType.VEC2, BuiltInType.VEC2);
         function("vec2", BuiltInType.VEC2, GenTypes.GenScalarType);
         function("vec2", BuiltInType.VEC2, GenTypes.GenScalarType, GenTypes.GenScalarType);
 
         // vec3
-        fixedFunction("vec3", BuiltInType.VEC3,  BuiltInType.VEC3);
+        fixedFunction("vec3", BuiltInType.VEC3, BuiltInType.VEC3);
         function("vec3", BuiltInType.VEC3, GenTypes.GenScalarType);
         function("vec3", BuiltInType.VEC3, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
         function("vec3", BuiltInType.VEC3, BuiltInType.VEC2, GenTypes.GenScalarType);
         function("vec3", BuiltInType.VEC3, GenTypes.GenScalarType, BuiltInType.VEC2);
         // vec4
-        fixedFunction("vec4", BuiltInType.VEC4,  BuiltInType.VEC4);
+        fixedFunction("vec4", BuiltInType.VEC4, BuiltInType.VEC4);
         function("vec4", BuiltInType.VEC4, GenTypes.GenScalarType);
         function("vec4", BuiltInType.VEC4, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
         function("vec4", BuiltInType.VEC4, BuiltInType.VEC3, GenTypes.GenScalarType);
@@ -84,13 +83,13 @@ public class ParserContextImpl implements ParserContext {
         function("mat2", BuiltInType.MAT2, GenTypes.GenScalarType, GenTypes.GenScalarType, BuiltInType.VEC2);
 
         function("mat3", BuiltInType.MAT3, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
-                GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
-                GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
+            GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
+            GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
 
         function("mat4", BuiltInType.MAT4, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
-                GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
-                GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
-                GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
+            GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
+            GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
+            GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
 
         // Angle and Trigonometry Functions
         function("radians", GenTypes.GenType, GenTypes.GenType);
@@ -156,12 +155,12 @@ public class ParserContextImpl implements ParserContext {
         // Geometric Functions
         function("length", BuiltInType.FLOAT, GenTypes.GenType);
         function("distance", BuiltInType.FLOAT, GenTypes.GenType);
-        function("dot" , BuiltInType.FLOAT, GenTypes.GenType, GenTypes.GenType);
+        function("dot", BuiltInType.FLOAT, GenTypes.GenType, GenTypes.GenType);
         fixedFunction("cross", BuiltInType.VEC3, BuiltInType.VEC3, BuiltInType.VEC3);
-        function("normalize" , GenTypes.GenType, GenTypes.GenType);
-        function("faceforward" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
-        function("reflect" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
-        function("refract" , GenTypes.GenType, GenTypes.GenType, GenTypes.GenType, BuiltInType.FLOAT);
+        function("normalize", GenTypes.GenType, GenTypes.GenType);
+        function("faceforward", GenTypes.GenType, GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
+        function("reflect", GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
+        function("refract", GenTypes.GenType, GenTypes.GenType, GenTypes.GenType, BuiltInType.FLOAT);
 
         // Matrix Functions
         function("inverse", GenTypes.GenMatrixType, GenTypes.GenMatrixType);

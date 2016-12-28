@@ -3,7 +3,10 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.util.CloneUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
 public class Usage<T> {
     private T target;

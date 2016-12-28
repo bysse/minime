@@ -5,8 +5,7 @@ public enum AssignmentOperator implements HasToken {
     MUL_ASSIGN("*="),
     DIV_ASSIGN("/="),
     ADD_ASSIGN("+="),
-    SUB_ASSIGN("-="),
-    ;
+    SUB_ASSIGN("-="),;
 
     private String token;
 

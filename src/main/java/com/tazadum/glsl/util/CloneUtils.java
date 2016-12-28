@@ -9,7 +9,6 @@ import com.tazadum.glsl.parser.GLSLContextImpl;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by Erik on 2016-10-07.
@@ -36,7 +35,7 @@ public class CloneUtils {
         }
 
         if (source instanceof HasMutableType) {
-            ((HasMutableType)clone).setType(source.getType());
+            ((HasMutableType) clone).setType(source.getType());
         }
         return clone;
     }
@@ -46,7 +45,7 @@ public class CloneUtils {
         if (remappedNode == null) {
             throw new IllegalStateException("Unable to find node with id " + node.getId() + " in the new node tree.");
         }
-        return (T)remappedNode;
+        return (T) remappedNode;
     }
 
     public static <T extends Node> List<T> remap(Node base, List<T> nodes) {
@@ -62,7 +61,7 @@ public class CloneUtils {
         if (context instanceof GLSLContextImpl) {
             return new GLSLContextImpl();
         }
-        return (GLSLContext)remap(base, (Node)context);
+        return (GLSLContext) remap(base, (Node) context);
     }
 
     public static GLSLContext remapContext(ContextAware contextAware, GLSLContext context) {
@@ -71,8 +70,8 @@ public class CloneUtils {
         }
 
         final int contextId = ((Node) context).getId();
-        for(GLSLContext ctx : contextAware.contexts()) {
-            if (ctx instanceof Node && ((Node)ctx).getId() == contextId) {
+        for (GLSLContext ctx : contextAware.contexts()) {
+            if (ctx instanceof Node && ((Node) ctx).getId() == contextId) {
                 return ctx;
             }
         }
