@@ -103,6 +103,9 @@ public class ParentNode implements Node {
         if (node.getParentNode() != null) {
             node.getParentNode().removeChild(node);
         }
+        while (index >= childNodes.size()) {
+            childNodes.add(null);
+        }
         node.setParentNode(this);
         childNodes.set(index, node);
         invalidateId();
@@ -145,7 +148,7 @@ public class ParentNode implements Node {
         return id;
     }
 
-    protected void invalidateId() {
+    public void invalidateId() {
         if (parentNode == null) {
             calculateId(1);
         } else {

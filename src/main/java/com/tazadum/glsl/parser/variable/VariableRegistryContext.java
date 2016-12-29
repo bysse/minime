@@ -44,7 +44,12 @@ public class VariableRegistryContext {
     public VariableRegistryContext remap(ContextAware contextAware, Node base) {
         final VariableRegistryContext remapped = new VariableRegistryContext(CloneUtils.remapContext(contextAware, this.context));
         for (VariableDeclarationNode node : variables) {
-            remapped.declare(CloneUtils.remap(base, node));
+            if (node.isBuiltIn()) {
+                // this node is a predefined variable which is ok to reuse
+                remapped.declare(node);
+            } else {
+                remapped.declare(CloneUtils.remap(base, node));
+            }
         }
         return remapped;
     }

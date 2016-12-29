@@ -88,7 +88,7 @@ public class DeclarationSqueezeTest {
 
     @Test
     public void test_context_4() {
-        // x is modifier in function call so c shouldn't be squeezed
+        // x is modified in function call so c shouldn't be squeezed
         assertEquals("float x=0;float f(){return x++;}void main(){float a=0;vec2 b=vec2(f());float c=x;}", optimize("float x=0;float f(){return x++;}void main(){float a=0;vec2 b=vec2(f());float c=x;}"));
     }
     private String optimize(String source) {
@@ -101,7 +101,12 @@ public class DeclarationSqueezeTest {
 
             //node.accept(new IdVisitor());
 
-            Optimizer.OptimizerResult result = declarationSqueeze.run(parserContext, decider, node);
+            Node cNode = node.clone(null);
+            ParserContext cParserContext = parserContext.remap(cNode);
+            Optimizer.OptimizerResult result = declarationSqueeze.run(cParserContext, decider, cNode);
+
+            //Optimizer.OptimizerResult result = declarationSqueeze.run(parserContext, decider, node);
+
             return output.render(result.getNode(), config).trim();
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

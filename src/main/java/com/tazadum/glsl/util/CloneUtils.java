@@ -37,11 +37,17 @@ public class CloneUtils {
         if (source instanceof HasMutableType) {
             ((HasMutableType) clone).setType(source.getType());
         }
+
         return clone;
     }
 
     public static <T extends Node> T remap(Node base, T node) {
         final Node remappedNode = base.find(node.getId());
+
+        if (!remappedNode.getClass().equals(node.getClass())) {
+            throw new IllegalStateException("The remapped node has a different class for node id = " + node.getId());
+        }
+
         if (remappedNode == null) {
             throw new IllegalStateException("Unable to find node with id " + node.getId() + " in the new node tree.");
         }
@@ -55,7 +61,6 @@ public class CloneUtils {
         }
         return remapped;
     }
-
 
     public static GLSLContext remap(Node base, GLSLContext context) {
         if (context instanceof GLSLContextImpl) {

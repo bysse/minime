@@ -38,6 +38,10 @@ public class ParserContextImpl implements ParserContext {
         if (variableRegistry.isEmpty()) {
             setupVariables();
         }
+
+        if (functionRegistry.isEmpty()) {
+            setupFunctions();
+        }
     }
 
     private void setupVariables() {
@@ -48,7 +52,9 @@ public class ParserContextImpl implements ParserContext {
         variableRegistry.declare(context, variable(BuiltInType.BOOL, "gl_FrontFacing"));
         variableRegistry.declare(context, variable(BuiltInType.VEC2, "gl_PointCoord"));
         variableRegistry.declare(context, variable(BuiltInType.FLOAT, "gl_FragDepth"));
+    }
 
+    private void setupFunctions() {
         // scalar type construction
         fixedFunction("float", BuiltInType.FLOAT, BuiltInType.FLOAT);
         fixedFunction("float", BuiltInType.FLOAT, BuiltInType.INT);

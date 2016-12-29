@@ -132,11 +132,36 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     @Override
     public FunctionRegistry remap(Node base) {
         final ConcurrentMap<String, List<FunctionPrototypeNode>> functionMapRemapped = new ConcurrentHashMap<>();
-        functionMap.forEach((name, list) -> functionMapRemapped.put(name, CloneUtils.remap(base, list)));
+        functionMap.forEach((name, list) -> functionMapRemapped.put(name, remap(base, list)));
 
         final ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMapRemapped = new ConcurrentHashMap<>();
-        usageMap.forEach((prototype, usage) -> usageMapRemapped.put(CloneUtils.remap(base, prototype), usage.remap(base)));
+        usageMap.forEach((prototype, usage) -> {
+            if (!prototype.getPrototype().isBuiltIn()) {
+                prototype = CloneUtils.remap(base, prototype);
+            }
+
+            usageMapRemapped.put(prototype, usage.remap(base, prototype));
+        });
 
         return new FunctionRegistryImpl(functionMapRemapped, usageMapRemapped);
     }
+
+    @Override
+    public boolean isEmpty() {
+        return functionMap.isEmpty();
+    }
+
+    private List<FunctionPrototypeNode> remap(Node base, List<FunctionPrototypeNode> nodes) {
+        final List<FunctionPrototypeNode> remapped = new ArrayList<>(nodes.size());
+        for (FunctionPrototypeNode node : nodes) {
+            if (node.getPrototype().isBuiltIn()) {
+                // built in funtion, reuse node
+                remapped.add(node);
+            } else {
+                remapped.add(CloneUtils.remap(base, node));
+            }
+        }
+        return remapped;
+    }
+
 }

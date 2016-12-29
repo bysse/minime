@@ -45,6 +45,10 @@ public class Usage<T> {
     }
 
     public Usage<T> remap(Node base) {
+        return remap(base, this.target);
+    }
+
+    public Usage<T> remap(Node base, T target) {
         final Usage<T> usage = new Usage<>(target);
         for (Node node : nodes) {
             usage.add(CloneUtils.remap(base, node));

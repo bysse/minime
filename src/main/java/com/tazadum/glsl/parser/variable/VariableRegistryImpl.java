@@ -137,7 +137,13 @@ public class VariableRegistryImpl implements VariableRegistry {
         });
 
         final Map<VariableDeclarationNode, Usage<VariableDeclarationNode>> usageMapCopy = new ConcurrentHashMap<>();
-        usageMap.forEach((declaration, usage) -> usageMapCopy.put(CloneUtils.remap(base, declaration), usage.remap(base)));
+        usageMap.forEach((declaration, usage) -> {
+            if (!declaration.isBuiltIn()) {
+                declaration = CloneUtils.remap(base, declaration);
+            }
+
+            usageMapCopy.put(declaration, usage.remap(base, declaration));
+        });
 
         return new VariableRegistryImpl(declarationMapCopy, usageMapCopy);
     }

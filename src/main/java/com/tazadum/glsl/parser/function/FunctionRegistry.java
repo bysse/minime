@@ -26,4 +26,6 @@ public interface FunctionRegistry {
     boolean dereference(FunctionPrototypeNode node);
 
     FunctionRegistry remap(Node base);
+
+    boolean isEmpty();
 }
