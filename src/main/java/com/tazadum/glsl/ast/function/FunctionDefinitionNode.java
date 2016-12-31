@@ -40,10 +40,10 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final FunctionPrototypeNode prototype = CloneUtils.clone(getFunctionPrototype());
-        final StatementListNode statementList = CloneUtils.clone(getStatements());
-        final FunctionDefinitionNode node = new FunctionDefinitionNode(newParent, prototype, statementList);
+        final FunctionDefinitionNode node = new FunctionDefinitionNode(newParent, null, null);
         node.setMutatesGlobalState(mutatesGlobalState);
+        node.setFunctionPrototype(CloneUtils.clone(getFunctionPrototype(), node));
+        node.setStatements(CloneUtils.clone(getStatements(), node));
         return node;
     }
 

@@ -18,7 +18,11 @@ public class ParameterDeclarationNode extends VariableDeclarationNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return new ParameterDeclarationNode(newParent, type, identifier, CloneUtils.clone(arraySpecifier), CloneUtils.clone(initializer));
+        final ParameterDeclarationNode node = new ParameterDeclarationNode(newParent, type, identifier, null, null);
+        node.setArraySpecifier(CloneUtils.clone(arraySpecifier, node));
+        node.setInitializer(CloneUtils.clone(initializer, node));
+        return node;
+
     }
 
     @Override

@@ -36,10 +36,11 @@ public class TernaryConditionNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        Node condition = CloneUtils.clone(getChild(0));
-        Node thenNode = CloneUtils.clone(getChild(1));
-        Node elseNode = CloneUtils.clone(getChild(2));
-        return new TernaryConditionNode(newParent, condition, thenNode, elseNode);
+        final TernaryConditionNode node = new TernaryConditionNode(newParent, null, null, null);
+        for (int i = 0; i < 3; i++) {
+            node.setChild(i, CloneUtils.clone(getChild(i), node));
+        }
+        return node;
     }
 
     @Override

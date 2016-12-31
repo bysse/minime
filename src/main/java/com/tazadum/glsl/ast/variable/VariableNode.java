@@ -2,8 +2,10 @@ package com.tazadum.glsl.ast.variable;
 
 import com.tazadum.glsl.ast.ASTVisitor;
 import com.tazadum.glsl.ast.LeafNode;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.GLSLType;
+import com.tazadum.glsl.util.CloneUtils;
 
 public class VariableNode extends LeafNode {
     /**
@@ -41,8 +43,11 @@ public class VariableNode extends LeafNode {
 
     @Override
     public LeafNode clone(ParentNode newParent) {
-        // TODO: we might need to resolve the declarationNode
-        return new VariableNode(declarationNode);
+        // we need to resolve the declarationNode
+        final Node root = CloneUtils.getRoot(newParent);
+        final VariableDeclarationNode remap = CloneUtils.remap(root, this.declarationNode);
+
+        return new VariableNode(remap);
     }
 
     @Override

@@ -72,7 +72,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
     private boolean isWorthIt(VariableDeclarationNode node, List<Node> usageNodes) {
         // create a separate tree for this declaration to include the type declaration when determining size
         final VariableDeclarationListNode listNode = new VariableDeclarationListNode(node.getFullySpecifiedType());
-        listNode.addChild(node.clone(null));
+        listNode.addChild(node.clone(listNode));
 
         // assume we can get a single character variable identifier
         final int identifierSize = 1;

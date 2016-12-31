@@ -21,13 +21,6 @@ public class CloneUtils {
         return (T) node.clone(parent);
     }
 
-    public static <T extends Node> T clone(T node) {
-        if (node == null) {
-            return null;
-        }
-        return (T) node.clone(null);
-    }
-
     public static <T extends ParentNode> T cloneChildren(T source, T clone) {
         for (int i = 0; i < source.getChildCount(); i++) {
             final Node clonedChild = clone(source.getChild(i), clone);
@@ -39,6 +32,13 @@ public class CloneUtils {
         }
 
         return clone;
+    }
+
+    public static Node getRoot(Node node) {
+        while (node.getParentNode() != null) {
+            node = node.getParentNode();
+        }
+        return node;
     }
 
     public static <T extends Node> T remap(Node base, T node) {

@@ -24,7 +24,9 @@ public class ParenthesisNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return new ParenthesisNode(newParent, CloneUtils.clone(getChild(0)));
+        ParenthesisNode node = new ParenthesisNode(newParent, null);
+        node.setExpression(CloneUtils.clone(getExpression(), node));
+        return node;
     }
 
     @Override

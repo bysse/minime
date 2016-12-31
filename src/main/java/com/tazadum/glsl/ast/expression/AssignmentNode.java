@@ -33,9 +33,8 @@ public class AssignmentNode extends FixedChildParentNode implements MutatingOper
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final Node lparam = CloneUtils.clone(getLeft());
-        final Node rparam = CloneUtils.clone(getRight());
-        return new AssignmentNode(newParent, lparam, operator, rparam);
+        final AssignmentNode node = new AssignmentNode(newParent, null, operator, null);
+        return CloneUtils.cloneChildren(this, node);
     }
 
     @Override

@@ -60,7 +60,10 @@ public class VariableDeclarationNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return new VariableDeclarationNode(newParent, builtIn, type, identifier, CloneUtils.clone(arraySpecifier), CloneUtils.clone(initializer));
+        final VariableDeclarationNode node = new VariableDeclarationNode(newParent, builtIn, type, identifier, null, null);
+        node.setArraySpecifier(CloneUtils.clone(arraySpecifier, node));
+        node.setInitializer(CloneUtils.clone(initializer, node));
+        return node;
     }
 
     @Override

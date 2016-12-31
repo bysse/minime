@@ -191,7 +191,12 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
             if (nodes == null || nodes.isEmpty()) {
                 return null;
             }
-            return nodes.first();
+            for (VariableDeclarationListNode node : nodes) {
+                if (node.getChildCount() > 0) {
+                    return node;
+                }
+            }
+            return null;
         }
     }
 }

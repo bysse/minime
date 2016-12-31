@@ -26,7 +26,9 @@ public class ConstantExpressionNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return new ConstantExpressionNode(newParent, CloneUtils.clone(getExpression()));
+        final ConstantExpressionNode node = new ConstantExpressionNode(newParent, null);
+        node.setChild(0, CloneUtils.clone(getExpression(), node));
+        return node;
     }
 
     @Override

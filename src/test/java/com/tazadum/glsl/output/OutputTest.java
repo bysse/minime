@@ -43,7 +43,7 @@ public class OutputTest {
 
     private void testOutput(String shader) {
         final Node node = TestUtils.parse(parserContext, Node.class, shader);
-        final String renderedShader = output.render(node, config);
+        final String renderedShader = output.render(node.clone(null), config);
         //System.out.println(renderedShader);
         assertEquals(shader, renderedShader);
     }

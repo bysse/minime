@@ -28,11 +28,20 @@ public class ArrayIndexNode extends FixedChildParentNode implements HasMutableTy
         return getChild(1);
     }
 
+    public void setExpression(Node expression) {
+        setChild(0, expression);
+    }
+
+    public void setIndex(Node node) {
+        setChild(1, node);
+    }
+
     @Override
     public ParentNode clone(ParentNode newParent) {
-        Node expression = CloneUtils.clone(getExpression());
-        Node index = CloneUtils.clone(getIndex());
-        return new ArrayIndexNode(newParent, expression, index);
+        final ArrayIndexNode node = new ArrayIndexNode(newParent, null, null);
+        node.setExpression(CloneUtils.clone(getExpression(), node));
+        node.setIndex(CloneUtils.clone(getIndex(), node));
+        return node;
     }
 
     @Override

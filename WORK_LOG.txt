@@ -29,5 +29,7 @@ Date	Hours
 2016-11-12  2.0
 2016-12-28  1.0
 2016-12-29  1.0
+2016-12-30  1.5
 
+// TODO: Fix stand-alone cloning with base node passed through
 // TODO: Fix squeeze

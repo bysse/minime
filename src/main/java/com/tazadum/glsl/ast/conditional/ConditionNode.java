@@ -36,10 +36,8 @@ public class ConditionNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        Node condition = CloneUtils.clone(getCondition());
-        Node thenNode = CloneUtils.clone(getThen());
-        Node elseNode = CloneUtils.clone(getElse());
-        return new ConditionNode(newParent, condition, thenNode, elseNode);
+        final ConditionNode node = new ConditionNode(newParent, null, null, null);
+        return CloneUtils.cloneChildren(this, node);
     }
 
     @Override
