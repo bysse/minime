@@ -31,5 +31,6 @@ Date	Hours
 2016-12-29  1.0
 2016-12-30  1.5
 
-// TODO: Fix stand-alone cloning with base node passed through
-// TODO: Fix squeeze
+2017-01-12 1.0
+
+// TODO: Fix squeeze - something is wrong with the cloning of the node tree and usage maps. It can't find the same nodes afterwards in the lookup

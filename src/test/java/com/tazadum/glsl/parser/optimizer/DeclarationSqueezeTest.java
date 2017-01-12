@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.optimizer;
 
+import com.tazadum.glsl.ast.ASTCloner;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.output.Output;
@@ -99,11 +100,8 @@ public class DeclarationSqueezeTest {
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
 
-            //node.accept(new IdVisitor());
-
-            Node cNode = node.clone(null);
-            ParserContext cParserContext = parserContext.remap(cNode);
-            Optimizer.OptimizerResult result = declarationSqueeze.run(cParserContext, decider, cNode);
+            final ASTCloner astCloner = new ASTCloner(parserContext, node);
+            Optimizer.OptimizerResult result = declarationSqueeze.run(astCloner.getContext(), decider, astCloner.getNode());
 
             //Optimizer.OptimizerResult result = declarationSqueeze.run(parserContext, decider, node);
 

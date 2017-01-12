@@ -8,8 +8,6 @@ import com.tazadum.glsl.util.CloneUtils;
 public class VariableDeclarationNode extends FixedChildParentNode {
     private boolean builtIn;
     protected final FullySpecifiedType type;
-    protected final Node arraySpecifier;
-    protected final Node initializer;
 
     protected Identifier identifier;
 
@@ -23,8 +21,6 @@ public class VariableDeclarationNode extends FixedChildParentNode {
         this.builtIn = builtIn;
         this.type = fst;
         this.identifier = identifier;
-        this.arraySpecifier = arraySpecifier;
-        this.initializer = initializer;
 
         setArraySpecifier(arraySpecifier);
         setInitializer(initializer);
@@ -35,7 +31,7 @@ public class VariableDeclarationNode extends FixedChildParentNode {
     }
 
     public Node getArraySpecifier() {
-        return arraySpecifier;
+        return getChild(0);
     }
 
     public void setArraySpecifier(Node arraySpecifier) {
@@ -47,7 +43,7 @@ public class VariableDeclarationNode extends FixedChildParentNode {
     }
 
     public Node getInitializer() {
-        return initializer;
+        return getChild(1);
     }
 
     public void setInitializer(Node initializer) {
@@ -61,8 +57,8 @@ public class VariableDeclarationNode extends FixedChildParentNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         final VariableDeclarationNode node = new VariableDeclarationNode(newParent, builtIn, type, identifier, null, null);
-        node.setArraySpecifier(CloneUtils.clone(arraySpecifier, node));
-        node.setInitializer(CloneUtils.clone(initializer, node));
+        node.setArraySpecifier(CloneUtils.clone(getArraySpecifier(), node));
+        node.setInitializer(CloneUtils.clone(getInitializer(), node));
         return node;
     }
 

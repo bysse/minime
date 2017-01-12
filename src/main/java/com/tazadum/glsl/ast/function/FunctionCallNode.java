@@ -42,7 +42,7 @@ public class FunctionCallNode extends ParentNode {
     @Override
     public ParentNode clone(ParentNode newParent) {
         FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(newParent, identifier));
-        // TODO: we need to resolve the declaration again
+        // we don't clone the declaration here
         clone.setDeclarationNode(declarationNode);
         return clone;
     }
