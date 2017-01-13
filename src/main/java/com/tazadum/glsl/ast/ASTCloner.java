@@ -17,14 +17,24 @@ public class ASTCloner {
 
         // remap all VariableDeclarations in VariableNode
         for (VariableNode variable : VariableFinder.findVariables(clone)) {
-            final Node declarationNode = clone.find(variable.getDeclarationNode().getId());
+            final VariableDeclarationNode variableDeclaration = variable.getDeclarationNode();
+            if (variableDeclaration.isBuiltIn()) {
+                continue;
+            }
+
+            final Node declarationNode = clone.find(variableDeclaration.getId());
             final VariableDeclarationNode declaration = (VariableDeclarationNode) declarationNode;
             variable.setDeclarationNode(declaration);
         }
 
         // remap all
         for (FunctionCallNode functionCall : NodeFinder.findAll(clone, FunctionCallNode.class)) {
-            final Node declarationNode = clone.find(functionCall.getDeclarationNode().getId());
+            final FunctionPrototypeNode functionDeclaration = functionCall.getDeclarationNode();
+            if (functionDeclaration.getPrototype().isBuiltIn()) {
+                continue;
+            }
+
+            final Node declarationNode = clone.find(functionDeclaration.getId());
             final FunctionPrototypeNode declaration = (FunctionPrototypeNode) declarationNode;
             functionCall.setDeclarationNode(declaration);
         }
