@@ -6,6 +6,7 @@ import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.finder.NodeFinder;
+import com.tazadum.glsl.parser.finder.VariableFinder;
 
 public class ASTCloner {
     private final ParserContext clonedContext;
@@ -15,7 +16,7 @@ public class ASTCloner {
         this.clone = node.clone(null);
 
         // remap all VariableDeclarations in VariableNode
-        for (VariableNode variable : NodeFinder.findAll(clone, VariableNode.class)) {
+        for (VariableNode variable : VariableFinder.findVariables(clone)) {
             final Node declarationNode = clone.find(variable.getDeclarationNode().getId());
             final VariableDeclarationNode declaration = (VariableDeclarationNode) declarationNode;
             variable.setDeclarationNode(declaration);

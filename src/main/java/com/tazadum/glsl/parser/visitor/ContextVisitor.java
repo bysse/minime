@@ -486,11 +486,9 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         final VariableDeclarationNode node = new VariableDeclarationNode(false, fullySpecifiedType, identifier, arraySpecifier, initializer);
-
         // register the declaration and usage of the type to enable easy look up during optimization
         parserContext.getVariableRegistry().declare(parserContext.currentContext(), node);
         parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
-
         return node;
     }
 

@@ -105,6 +105,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
     private boolean variablesAreSafe(SortedSet<VariableNode> variables, int fromId, int toId) {
         // Check if the variables are modified anywhere
         for (VariableNode variable : variables) {
+            int hash = System.identityHashCode(variable.getDeclarationNode());
             final Usage<VariableDeclarationNode> usage = variableRegistry.resolve(variable.getDeclarationNode());
             final Set<Node> usagesBetween = usage.getUsagesBetween(fromId, toId);
 
