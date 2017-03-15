@@ -28,6 +28,7 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,9 +38,7 @@ public class GLSLOptimizer {
     private final OutputStreamProvider outputStreamProvider;
     private final OutputConfig outputConfig;
     private final Output output;
-    private final TypeChecker typeChecker;
-    private final ParserContext parserContext;
-    private final IdentifierShortener identifierShortener = new ContextBasedIdentifierShortener(false);
+
 
     private boolean showStatistics = false;
     private Set<Preference> preferences = new HashSet<>();
@@ -49,8 +48,6 @@ public class GLSLOptimizer {
 
         this.outputConfig = new OutputConfig();
         this.output = new Output();
-        this.typeChecker = new TypeChecker();
-        this.parserContext = new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
 
         switch (profile) {
             case GLSL:
@@ -61,7 +58,8 @@ public class GLSLOptimizer {
         }
     }
 
-    public void addShaderToySupport() {
+    void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
+        final ParserContext parserContext = optimizerContext.getParserContext();
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
         final GLSLContext global = parserContext.globalContext();
 
@@ -86,7 +84,15 @@ public class GLSLOptimizer {
         return new VariableDeclarationNode(true, fst, identifier, null, null);
     }
 
-    public void execute(String shaderFilename) {
+    public void execute(List<String> shaderFiles) {
+        for (String shaderFile : shaderFiles) {
+            execute(shaderFile);
+        }
+    }
+
+    private void execute(String shaderFilename) {
+        final GLSLOptimizerContext optimizerContext = createOptimizerContext(shaderFilename);
+
         outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
 
         final String shaderSource = loadFile(new File(shaderFilename));
@@ -98,17 +104,17 @@ public class GLSLOptimizer {
         output("Input shader: %d bytes\n", sourceSize);
 
         // updateIdentifiers the parser
-        final ContextVisitor visitor = new ContextVisitor(parserContext);
+        final ContextVisitor visitor = new ContextVisitor(optimizerContext.getParserContext());
         final Node shaderNode = parser.translation_unit().accept(visitor);
 
         // perform type checking
-        typeChecker.check(parserContext, shaderNode);
+        optimizerContext.getTypeChecker().check(optimizerContext.getParserContext(), shaderNode);
 
         // updateIdentifiers the optimizers
-        final Node node = optimize(shaderNode);
+        final Node node = optimize(optimizerContext, shaderNode);
 
         output("Shortening identifiers\n");
-        shortenIdentifiers(node);
+        shortenIdentifiers(optimizerContext, node);
 
         String outputShader = output.render(node, outputConfig).trim();
         output("  - %d bytes\n", outputShader.length());
@@ -119,6 +125,7 @@ public class GLSLOptimizer {
         }
 
         // iterate on the symbol allocation
+        IdentifierShortener identifierShortener = optimizerContext.getIdentifierShortener();
         while (true) {
             final boolean loop = identifierShortener.iterateOnIdentifiers();
             final String iteration = output.render(node, outputConfig).trim();
@@ -171,7 +178,7 @@ public class GLSLOptimizer {
         }
     }
 
-    private Node optimize(Node shaderNode) {
+    private Node optimize(GLSLOptimizerContext optimizerContext, Node shaderNode) {
         final OutputSizeDecider decider = new OutputSizeDecider();
 
         // instantiate all the optimizers
@@ -179,6 +186,8 @@ public class GLSLOptimizer {
         final ConstantFolding constantFolding = new ConstantFolding();
         final ConstantPropagation constantPropagation = new ConstantPropagation();
         final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
+
+        final ParserContext parserContext = optimizerContext.getParserContext();
 
         Node node = shaderNode;
 
@@ -222,14 +231,14 @@ public class GLSLOptimizer {
         return node;
     }
 
-    private void shortenIdentifiers(Node node) {
+    private void shortenIdentifiers(GLSLOptimizerContext optimizerContext, Node node) {
         final OutputConfig config = new OutputConfig();
         config.setIdentifiers(IdentifierOutput.None);
         config.setNewlines(false);
         config.setIndentation(0);
         config.setOutputConst(false);
 
-        identifierShortener.updateIdentifiers(parserContext, node, config);
+        optimizerContext.getIdentifierShortener().updateIdentifiers(optimizerContext.getParserContext(), node, config);
     }
 
     private CommonTokenStream tokenStream(String source) {
@@ -259,6 +268,16 @@ public class GLSLOptimizer {
 
     public void setPreferences(Set<Preference> preferences) {
         this.preferences = preferences;
+    }
+
+
+    private GLSLOptimizerContext createOptimizerContext(String filename) {
+        TypeChecker typeChecker = new TypeChecker();
+        ParserContext parserContext = new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
+        IdentifierShortener identifierShortener = new ContextBasedIdentifierShortener(false);
+
+        GLSLOptimizerContext optimizerContext = new GLSLOptimizerContext(typeChecker, parserContext, identifierShortener);
+        return optimizerContext;
     }
 }
 

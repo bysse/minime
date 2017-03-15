@@ -5,6 +5,7 @@ import joptsimple.OptionSet;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -60,8 +61,11 @@ public class Optimizer {
                 optimizer.setPreferences(preferences);
             }
 
-            final String shader = String.valueOf(options.nonOptionArguments().get(0));
-            optimizer.execute(shader);
+            List<String> shaderList = options.nonOptionArguments().stream()
+                    .map(String::valueOf)
+                    .collect(Collectors.toList());
+
+            optimizer.execute(shaderList);
         } catch (Exception e) {
             System.err.println("ERROR: " + e.getMessage());
 
