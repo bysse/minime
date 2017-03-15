@@ -41,6 +41,7 @@ public class GLSLOptimizer {
 
 
     private boolean showStatistics = false;
+    private boolean shaderToySupport = false;
     private Set<Preference> preferences = new HashSet<>();
 
     public GLSLOptimizer(OutputStreamProvider outputStreamProvider, OutputProfile profile) {
@@ -56,6 +57,10 @@ public class GLSLOptimizer {
                 outputConfig.setOutputConst(false);
                 break;
         }
+    }
+
+    public void addShaderToySupport() {
+        shaderToySupport = true;
     }
 
     void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
@@ -92,6 +97,10 @@ public class GLSLOptimizer {
 
     private void execute(String shaderFilename) {
         final GLSLOptimizerContext optimizerContext = createOptimizerContext(shaderFilename);
+
+        if (shaderToySupport) {
+            addShaderToySupport(optimizerContext);
+        }
 
         outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
 
