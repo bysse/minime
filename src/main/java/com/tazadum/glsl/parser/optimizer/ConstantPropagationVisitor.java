@@ -8,6 +8,7 @@ import com.tazadum.glsl.ast.arithmetic.PrefixOperationNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
@@ -86,6 +87,9 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
     private boolean isConstant(VariableDeclarationNode node) {
         if (node.getFullySpecifiedType().getQualifier() == TypeQualifier.CONST) {
             return true;
+        }
+        if (node.getParentNode().getParentNode() instanceof ForIterationNode) {
+            return false;
         }
         if (node.getInitializer() instanceof HasNumeric) {
             return true;
