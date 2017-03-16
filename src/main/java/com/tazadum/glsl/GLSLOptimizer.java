@@ -48,13 +48,16 @@ public class GLSLOptimizer {
         this.outputStreamProvider = outputStreamProvider;
 
         this.outputConfig = new OutputConfig();
+        this.outputConfig.setIdentifiers(IdentifierOutput.Replaced);
+        this.outputConfig.setIndentation(0);
+        this.outputConfig.setOutputConst(false);
+
         this.output = new Output();
 
         switch (profile) {
+            case C:
+                break;
             case GLSL:
-                outputConfig.setIdentifiers(IdentifierOutput.Replaced);
-                outputConfig.setIndentation(0);
-                outputConfig.setOutputConst(false);
                 break;
         }
     }
@@ -264,6 +267,10 @@ public class GLSLOptimizer {
                 content.append(line).append('\n');
             }
             return content.toString();
+        } catch (FileNotFoundException e) {
+            System.err.format("Can't open file : %s\n", file.toString());
+            System.exit(-1);
+            return null;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

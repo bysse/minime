@@ -1,5 +1,5 @@
 apply plugin: 'java'
-apply from: file('gradle/idea.gradle')
+apply plugin: 'antlr'
 
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
@@ -14,57 +14,37 @@ repositories {
     jcenter()
 }
 
-configurations {
-    antlr4 {
-        description = "ANTLR4"
-    }
-}
-
 dependencies {
     compile 'org.slf4j:slf4j-api:1.7.21'
     compile 'org.antlr:antlr4-runtime:4.+'
     compile 'net.sf.jopt-simple:jopt-simple:5.0.+'
 
-    antlr4 'org.antlr:antlr4:4.+'
+	antlr 'org.antlr:antlr4:4.5.+'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.jogamp.jogl:jogl-all:2.3.2'
     testCompile 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
 }
 
+// work around for https://github.com/gradle/gradle/issues/820
+configurations {
+	runtime {
+		exclude module: 'antlr4'
+	}
+}
+
+generateGrammarSource {
+	arguments += ['-package', 'com.tazadum.glsl.language', '-visitor']
+	outputDirectory = file("${projectDir}/generated-src/com/tazadum/glsl/language")
+}
+
+task cleanAntlr(type: Delete) {
+	delete file("${projectDir}/generated-src")
+}
+clean.dependsOn cleanAntlr
+
+sourceSets.main.java.srcDirs += file("${projectDir}/generated-src")
+
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14'
-}
-
-tasks.withType(Test) {
-    systemProperties = System.getProperties()
-    testLogging.showStandardStreams = true
-}
-
-task antlrOutputDir << {
-    mkdir(antlr.destinationDir)
-}
-
-task generateGrammarSource(dependsOn: antlrOutputDir, type: JavaExec) {
-    description = 'Generates Java sources from ANTLR4 grammars.'
-
-    inputs.dir file(antlr.antlrSource)
-    outputs.dir file(antlr.destinationDir)
-
-    def grammars = fileTree(antlr.antlrSource).include('**/*.g4')
-
-    main = 'org.antlr.v4.Tool'
-    classpath = configurations.antlr4
-    def pkg = antlr.grammarpackage.replaceAll("\\.", "/")
-    args = ["-o", "${antlr.destinationDir}/${pkg}"/*, "-atn"*/, "-visitor", "-package", antlr.grammarpackage, grammars.files].flatten()
-
-}
-
-compileJava {
-    dependsOn generateGrammarSource
-    source antlr.destinationDir
-}
-
-clean {
-    delete antlr.destinationDir
+	gradleVersion = '3.3'
 }
