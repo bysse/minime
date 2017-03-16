@@ -201,7 +201,7 @@ public class GLSLOptimizer {
             case GLSL:
                 return new PassThroughGenerator();
             case C:
-                return new HeaderFileGenerator(shaderFilename);
+                return new HeaderFileGenerator(shaderFilename, outputConfig);
         }
         throw new IllegalArgumentException("Unknown OutputProfile!");
     }
