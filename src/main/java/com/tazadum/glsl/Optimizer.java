@@ -4,7 +4,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,11 +32,10 @@ public class Optimizer {
             System.exit(1);
         }
 
-        OutputStreamProvider outputFunction = () -> System.out;
+        OutputWriter outputFunction = new OutputWriter.StdOutOutputWriter();
         if (options.has(OUTPUT_FILE)) {
             final String filename = String.valueOf(options.valueOf(OUTPUT_FILE));
-            final FileOutputStream fileOutputStream = new FileOutputStream(filename);
-            outputFunction = () -> fileOutputStream;
+            outputFunction = new OutputWriter.FileOutputWriter(filename);
         }
 
         OutputProfile profile = OutputProfile.GLSL;

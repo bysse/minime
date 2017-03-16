@@ -3,10 +3,7 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.util.CloneUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public class Usage<T> {
     private T target;
@@ -26,6 +23,14 @@ public class Usage<T> {
     }
 
     public List<Node> getUsageNodes() {
+        // clean up the nodes first
+        ListIterator<Node> iterator = nodes.listIterator();
+        while (iterator.hasNext()) {
+            Node node = iterator.next();
+            if (node.getParentNode() == null) {
+                iterator.remove();
+            }
+        }
         return nodes;
     }
 

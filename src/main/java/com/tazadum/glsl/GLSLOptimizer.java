@@ -11,6 +11,9 @@ import com.tazadum.glsl.output.IdentifierOutput;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
+import com.tazadum.glsl.output.generator.FileGenerator;
+import com.tazadum.glsl.output.generator.HeaderFileGenerator;
+import com.tazadum.glsl.output.generator.PassThroughGenerator;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.ParserContextImpl;
@@ -35,7 +38,8 @@ import java.util.Set;
  * Created by Erik on 2016-10-24.
  */
 public class GLSLOptimizer {
-    private final OutputStreamProvider outputStreamProvider;
+    private final OutputWriter outputWriter;
+    private final OutputProfile outputProfile;
     private final OutputConfig outputConfig;
     private final Output output;
 
@@ -44,8 +48,9 @@ public class GLSLOptimizer {
     private boolean shaderToySupport = false;
     private Set<Preference> preferences = new HashSet<>();
 
-    public GLSLOptimizer(OutputStreamProvider outputStreamProvider, OutputProfile profile) {
-        this.outputStreamProvider = outputStreamProvider;
+    public GLSLOptimizer(OutputWriter outputWriter, OutputProfile outputProfile) {
+        this.outputWriter = outputWriter;
+        this.outputProfile = outputProfile;
 
         this.outputConfig = new OutputConfig();
         this.outputConfig.setIdentifiers(IdentifierOutput.Replaced);
@@ -53,13 +58,6 @@ public class GLSLOptimizer {
         this.outputConfig.setOutputConst(false);
 
         this.output = new Output();
-
-        switch (profile) {
-            case C:
-                break;
-            case GLSL:
-                break;
-        }
     }
 
     public void addShaderToySupport() {
@@ -87,15 +85,19 @@ public class GLSLOptimizer {
         this.showStatistics = true;
     }
 
-    private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
-        final FullySpecifiedType fst = new FullySpecifiedType(TypeQualifier.UNIFORM, null, type);
-        return new VariableDeclarationNode(true, fst, identifier, null, null);
+    public void setPreferences(Set<Preference> preferences) {
+        this.preferences = preferences;
     }
 
     public void execute(List<String> shaderFiles) {
         for (String shaderFile : shaderFiles) {
             execute(shaderFile);
         }
+    }
+
+    private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
+        final FullySpecifiedType fst = new FullySpecifiedType(TypeQualifier.UNIFORM, null, type);
+        return new VariableDeclarationNode(true, fst, identifier, null, null);
     }
 
     private void execute(String shaderFilename) {
@@ -180,14 +182,28 @@ public class GLSLOptimizer {
         output("Compressed: %d bytes (%.1f%%)\n", compressedLength, 100f * compressedLength / sourceSize);
         output("--------------------------------------------------\n");
 
+        // transform the output
+        FileGenerator generator = createGenerator(outputProfile, shaderFilename);
+        String content = generator.generate(optimizerContext, shaderNode, outputShader);
+
         // output the result
-        try (OutputStream outputStream = outputStreamProvider.get()) {
+        try (OutputStream outputStream = outputWriter.outputStream()) {
             OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-            writer.write(outputShader);
+            writer.write(content);
             writer.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private FileGenerator createGenerator(OutputProfile outputProfile, String shaderFilename) {
+        switch (outputProfile) {
+            case GLSL:
+                return new PassThroughGenerator();
+            case C:
+                return new HeaderFileGenerator(shaderFilename);
+        }
+        throw new IllegalArgumentException("Unknown OutputProfile!");
     }
 
     private Node optimize(GLSLOptimizerContext optimizerContext, Node shaderNode) {
@@ -281,11 +297,6 @@ public class GLSLOptimizer {
             System.out.format(format, args);
         }
     }
-
-    public void setPreferences(Set<Preference> preferences) {
-        this.preferences = preferences;
-    }
-
 
     private GLSLOptimizerContext createOptimizerContext(String filename) {
         TypeChecker typeChecker = new TypeChecker();
