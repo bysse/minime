@@ -1,5 +1,8 @@
 const vec4 sphere=vec4(0.,0.,0.,1.);
 const int steps=40;
+
+#pragma include(noise.glsl)
+
 float sdBox(vec3 p,vec3 b){
     vec3 d=abs(p)-b;
     return min(max(d.x,max(d.y,d.z)),0.)+length(max(d,0.));

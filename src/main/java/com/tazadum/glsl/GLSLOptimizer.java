@@ -30,9 +30,12 @@ import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Erik on 2016-10-24.
@@ -43,6 +46,7 @@ public class GLSLOptimizer {
     private final OutputConfig outputConfig;
     private final Output output;
 
+    private Pattern pragmaInclude = Pattern.compile("\\s*#pragma\\s+include\\(([^)]+)\\)\\s*");
 
     private boolean showStatistics = false;
     private boolean shaderToySupport = false;
@@ -109,7 +113,7 @@ public class GLSLOptimizer {
 
         outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
 
-        final String shaderSource = loadFile(new File(shaderFilename));
+        final String shaderSource = loadFile(new File(shaderFilename), new HashSet<>());
         final CommonTokenStream tokenStream = tokenStream(shaderSource);
         final GLSLParser parser = new GLSLParser(tokenStream);
 
@@ -275,11 +279,27 @@ public class GLSLOptimizer {
         return new CommonTokenStream(lexer);
     }
 
-    private String loadFile(File file) {
+    private String loadFile(File file, Set<File> visited) {
+        if (visited.contains(file)) {
+            throw new IllegalArgumentException("Include loop found!");
+        }
+        visited.add(file);
+
+        Path directoryPath = file.toPath().getParent();
+
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
             StringBuilder content = new StringBuilder();
             while ((line = reader.readLine()) != null) {
+                if (line.contains("#pragma")) {
+                    Matcher matcher = pragmaInclude.matcher(line);
+                    if (matcher.matches()) {
+                        String filename = matcher.group(1);
+                        Path includePath = directoryPath.resolve(filename);
+                        content.append(loadFile(includePath.toFile(), visited)).append('\n');
+                        continue;
+                    }
+                }
                 content.append(line).append('\n');
             }
             return content.toString();
