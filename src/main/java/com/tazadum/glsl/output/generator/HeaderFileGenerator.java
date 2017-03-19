@@ -60,13 +60,13 @@ public class HeaderFileGenerator implements FileGenerator {
                 }
                 Identifier identifier = declarationNode.getIdentifier();
                 builder.append("#define UNIFORM_").append(identifier.original().toUpperCase()).append(' ');
-                builder.append(identifier.token()).append('\n');
+                builder.append('"').append(identifier.token()).append("\"\n");
             }
         }
         builder.append('\n');
 
         // output shader source
-        builder.append("const unsigned char *").append(id).append(" = \n");
+        builder.append("const char *").append(id).append(" = \n");
 
         for (String line : shader.split("\n+")) {
             line = line.replaceFirst("^(\\s*)", "$1\"");
