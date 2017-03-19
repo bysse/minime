@@ -101,7 +101,7 @@ public class GLSLOptimizer {
 
     private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
         final FullySpecifiedType fst = new FullySpecifiedType(TypeQualifier.UNIFORM, null, type);
-        return new VariableDeclarationNode(true, fst, identifier, null, null);
+        return new VariableDeclarationNode(false, fst, identifier, null, null);
     }
 
     private void execute(String shaderFilename) {
