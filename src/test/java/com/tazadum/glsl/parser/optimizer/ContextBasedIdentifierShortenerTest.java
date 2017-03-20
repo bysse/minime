@@ -15,7 +15,7 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -44,22 +44,26 @@ public class ContextBasedIdentifierShortenerTest {
 
     @Test
     public void test_basic_1() {
-        assertEquals("vec2 o;void main(){float v=o.x;}", optimize("vec2 apanjapan;void main(){float a=apanjapan.x;}"));
+        config.setIdentifiers(IdentifierOutput.None);
+        assertEquals("vec2;void(){float=.x;}", optimize("vec2 apanjapan;void main(){float a=apanjapan.x;}"));
     }
 
     @Test
     public void test_basic_2() {
-        assertEquals("int i(){return 3;}void main(){int n=i();}", optimize("int f(){return 3;}void main(){int a=f();}"));
+        config.setIdentifiers(IdentifierOutput.None);
+        assertEquals("int(){return 3;}void(){int=();}", optimize("int f(){return 3;}void main(){int a=f();}"));
     }
 
     @Test
     public void test_advanced_1() {
-        assertEquals("float a=0.;void main(out float t){float o=a+t;}", optimize("float X=0.;void main(out float Y){float i=X+Y;}"));
+        config.setIdentifiers(IdentifierOutput.None);
+        assertEquals("float=0.;void(out float){float=+;}", optimize("float X=0.;void main(out float Y){float i=X+Y;}"));
     }
 
     @Test
     public void test_advanced_2() {
-        assertEquals("vec2 y=0;vec3 e=0;vec3 x(){return vec3(0.);}void main(out vec3 v){vec3 o=e;vec2 c=y+v.xy+v.xy+x().xy;}",
+        config.setIdentifiers(IdentifierOutput.None);
+        assertEquals("vec2=0;vec3=0;vec3(){return (0.);}void(out vec3){vec3=;vec2=+.xy+.xy+().xy;}",
                 optimize("" +
                         "vec2 X=0;" +
                         "vec3 V=0;" +
@@ -78,11 +82,11 @@ public class ContextBasedIdentifierShortenerTest {
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
 
-            config.setIdentifiers(IdentifierOutput.None);
+            //config.setIdentifiers(IdentifierOutput.None);
             identifierShortener.updateIdentifiers(parserContext, node, config);
             identifierShortener.iterateOnIdentifiers();
 
-            config.setIdentifiers(IdentifierOutput.Replaced);
+            //config.setIdentifiers(IdentifierOutput.Replaced);
             return output.render(node, config).trim();
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

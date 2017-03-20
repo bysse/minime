@@ -6,17 +6,15 @@ import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.util.OpenGLForTesting;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
+@Ignore
 @RunWith(Parameterized.class)
 public class OptimizerTest {
     private static OpenGLForTesting openGL;

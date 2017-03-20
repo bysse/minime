@@ -1,6 +1,5 @@
 // Generated from GLSL.g4 by ANTLR 4.5.3
 package com.tazadum.glsl.language;
-
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.atn.ATN;
 import org.antlr.v4.runtime.atn.ATNDeserializer;

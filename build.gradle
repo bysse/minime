@@ -4,6 +4,9 @@ apply plugin: 'antlr'
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
+group = 'com.tazadum.glsl'
+version = '1.0.0'
+
 ext.antlr = [
         grammarpackage: "com.tazadum.glsl.language",
         antlrSource   : 'src/main/antlr',
@@ -32,6 +35,18 @@ configurations {
 		exclude module: 'antlr4'
 	}
 }
+
+task fatJar(type: Jar) {
+	manifest {
+		attributes 'Implementation-Title': 'GLSL-Optimizer',
+				'Implementation-Version': project.version,
+				'Main-Class': 'com.tazadum.glsl.Optimizer'
+	}
+	baseName = project.name + '-all'
+	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	with jar
+}
+
 
 generateGrammarSource {
 	arguments += ['-package', 'com.tazadum.glsl.language', '-visitor']

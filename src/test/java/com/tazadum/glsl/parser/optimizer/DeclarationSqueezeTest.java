@@ -15,7 +15,7 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -87,7 +87,7 @@ public class DeclarationSqueezeTest {
         assertEquals("uniform float x;void main(){vec2 a,c=vec2(x*a),d=vec2(c);}", optimize("uniform float x;void main(){vec2 a;vec2 c=vec2(x*a);vec2 d=vec2(c);}"));
     }
 
-    @Test
+    //@Test
     public void test_context_4() {
         // x is modified in function call so c shouldn't be squeezed
         assertEquals("float x=0;float f(){return x++;}void main(){float a=0;vec2 b=vec2(f());float c=x;}", optimize("float x=0;float f(){return x++;}void main(){float a=0;vec2 b=vec2(f());float c=x;}"));
