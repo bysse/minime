@@ -2,7 +2,7 @@ package com.tazadum.glsl.util;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created by Erik on 2016-10-29.
@@ -38,6 +38,13 @@ public class IdGeneratorTest {
 
         assertEquals("A", cloned.next());
         assertEquals("B", cloned.next());
+    }
+
+    @Test
+    public void testGeneration_2() throws Exception {
+        IdGenerator generator = IdGenerator.create("float=0.;void(){float=tan(0.)*tan(0.);}");
+        assertEquals("a", generator.next());
+        assertEquals("t", generator.next());
 
     }
 }

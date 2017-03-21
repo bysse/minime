@@ -213,12 +213,17 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitFunctionCall(FunctionCallNode node) {
+        boolean overrideIdentifier = false;
+        if (node.getDeclarationNode() != null) {
+            overrideIdentifier = node.getDeclarationNode().getPrototype().isBuiltIn();
+        }
+
         if (node.getChildCount() == 0) {
-            return identifier(node.getIdentifier()) + "()";
+            return identifier(node.getIdentifier(), overrideIdentifier) + "()";
         }
 
         final StringBuilder builder = new StringBuilder();
-        builder.append(identifier(node.getIdentifier()));
+        builder.append(identifier(node.getIdentifier(), overrideIdentifier));
         builder.append('(');
         outputChildCSV(builder, node);
         builder.append(')');
@@ -369,6 +374,13 @@ public class OutputVisitor implements ASTVisitor<String> {
     }
 
     private String identifier(Identifier identifier) {
+        return identifier(identifier, false);
+    }
+
+    private String identifier(Identifier identifier, boolean override) {
+        if (override) {
+            return identifier.token();
+        }
         switch (config.getIdentifiers()) {
             case None:
                 return "";
