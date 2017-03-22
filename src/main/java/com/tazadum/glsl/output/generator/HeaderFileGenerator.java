@@ -2,7 +2,6 @@ package com.tazadum.glsl.output.generator;// (C) King.com Ltd 2017
 
 import com.tazadum.glsl.GLSLOptimizerContext;
 import com.tazadum.glsl.ast.Identifier;
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.output.OutputConfig;
@@ -13,7 +12,6 @@ import com.tazadum.glsl.parser.variable.VariableRegistryContext;
 
 import java.io.File;
 import java.util.Map;
-import java.util.Set;
 
 public class HeaderFileGenerator implements FileGenerator {
     private final String id;
@@ -31,11 +29,11 @@ public class HeaderFileGenerator implements FileGenerator {
     }
 
     @Override
-    public String generate(GLSLOptimizerContext optimizerContext, Node shaderNode, String shaderGLSL) {
+    public String generate(GLSLOptimizerContext context, String shaderGLSL) {
         outputConfig.setNewlines(true);
         outputConfig.setIndentation(3);
         final OutputVisitor visitor = new OutputVisitor(outputConfig);
-        String shader = shaderNode.accept(visitor);
+        String shader = context.getNode().accept(visitor);
 
         String def = "__" + id.toUpperCase() + "__";
 
@@ -45,10 +43,10 @@ public class HeaderFileGenerator implements FileGenerator {
 
         // generate identifier mapping
         builder.append("// uniform mapping\n");
-        VariableRegistry registry = optimizerContext.getParserContext().getVariableRegistry();
+        VariableRegistry registry = context.parserContext().getVariableRegistry();
         for (Map.Entry<GLSLContext, VariableRegistryContext> entry : registry.getDeclarationMap().entrySet()) {
-            GLSLContext context = entry.getKey();
-            if (context.getParent() != null) {
+            GLSLContext glslContext = entry.getKey();
+            if (glslContext.getParent() != null) {
                 // skip everything that is not in global scope
                 continue;
             }

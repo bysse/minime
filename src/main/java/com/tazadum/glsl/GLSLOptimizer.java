@@ -16,21 +16,17 @@ import com.tazadum.glsl.output.generator.HeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PassThroughGenerator;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.ParserContextImpl;
-import com.tazadum.glsl.parser.function.FunctionRegistryImpl;
 import com.tazadum.glsl.parser.optimizer.*;
 import com.tazadum.glsl.parser.optimizer.Optimizer;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
-import com.tazadum.glsl.parser.type.TypeChecker;
-import com.tazadum.glsl.parser.type.TypeRegistryImpl;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
-import com.tazadum.glsl.parser.variable.VariableRegistryImpl;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -51,6 +47,7 @@ public class GLSLOptimizer {
     private boolean showStatistics = false;
     private boolean shaderToySupport = false;
     private Set<Preference> preferences = new HashSet<>();
+    private ContextBasedMultiIdentifierShortener identifierShortener;
 
     public GLSLOptimizer(OutputWriter outputWriter, OutputProfile outputProfile) {
         this.outputWriter = outputWriter;
@@ -62,6 +59,8 @@ public class GLSLOptimizer {
         this.outputConfig.setOutputConst(false);
 
         this.output = new Output();
+
+        this.identifierShortener = new ContextBasedMultiIdentifierShortener(false);
     }
 
     public void addShaderToySupport() {
@@ -69,7 +68,7 @@ public class GLSLOptimizer {
     }
 
     void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
-        final ParserContext parserContext = optimizerContext.getParserContext();
+        final ParserContext parserContext = optimizerContext.parserContext();
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
         final GLSLContext global = parserContext.globalContext();
 
@@ -94,8 +93,13 @@ public class GLSLOptimizer {
     }
 
     public void execute(List<String> shaderFiles) {
+        List<GLSLOptimizerContext> contexts = new ArrayList<>();
         for (String shaderFile : shaderFiles) {
-            execute(shaderFile);
+            contexts.add(execute(shaderFile));
+        }
+
+        for (GLSLOptimizerContext context : contexts) {
+            writeShader(context);
         }
     }
 
@@ -104,11 +108,11 @@ public class GLSLOptimizer {
         return new VariableDeclarationNode(false, fst, identifier, null, null);
     }
 
-    private void execute(String shaderFilename) {
-        final GLSLOptimizerContext optimizerContext = createOptimizerContext(shaderFilename);
+    private GLSLOptimizerContext execute(String shaderFilename) {
+        final GLSLOptimizerContext context = new GLSLOptimizerContext(shaderFilename);
 
         if (shaderToySupport) {
-            addShaderToySupport(optimizerContext);
+            addShaderToySupport(context);
         }
 
         outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
@@ -117,22 +121,33 @@ public class GLSLOptimizer {
         final CommonTokenStream tokenStream = tokenStream(shaderSource);
         final GLSLParser parser = new GLSLParser(tokenStream);
 
+        context.setSource(shaderSource);
+
         output("--------------------------------------------------\n");
         final int sourceSize = shaderSource.length();
         output("Input shader: %d bytes\n", sourceSize);
 
         // updateIdentifiers the parser
-        final ContextVisitor visitor = new ContextVisitor(optimizerContext.getParserContext());
+        final ContextVisitor visitor = new ContextVisitor(context.parserContext());
         final Node shaderNode = parser.translation_unit().accept(visitor);
 
         // perform type checking
-        optimizerContext.getTypeChecker().check(optimizerContext.getParserContext(), shaderNode);
+        context.typeChecker().check(context.parserContext(), shaderNode);
 
-        // updateIdentifiers the optimizers
-        final Node node = optimize(optimizerContext, shaderNode);
+        // optimize the shader
+        final Node node = optimize(context, shaderNode);
+        context.setNode(node);
+
+        // register the ast with the identifier shortener
+        shortenIdentifiers(context);
+        return context;
+    }
+
+    private void writeShader(GLSLOptimizerContext context) {
+        final Node node = context.getNode();
 
         output("Shortening identifiers\n");
-        shortenIdentifiers(optimizerContext, node);
+        identifierShortener.apply();
 
         String outputShader = output.render(node, outputConfig).trim();
         output("  - %d bytes\n", outputShader.length());
@@ -143,9 +158,8 @@ public class GLSLOptimizer {
         }
 
         // iterate on the symbol allocation
-        IdentifierShortener identifierShortener = optimizerContext.getIdentifierShortener();
         while (true) {
-            final boolean loop = identifierShortener.iterateOnIdentifiers();
+            final boolean loop = identifierShortener.permutateIdentifiers();
             final String iteration = output.render(node, outputConfig).trim();
             final int length = Compressor.compress(outputShader);
 
@@ -161,6 +175,7 @@ public class GLSLOptimizer {
             }
         }
 
+        /*
         if (!preferences.contains(Preference.NO_MACRO)) {
             output("Macro replacements\n");
             final String macroShader = identifierShortener.updateTokens(outputShader);
@@ -176,8 +191,10 @@ public class GLSLOptimizer {
                 output("Using macro replacements for output");
             }
         }
+        */
 
         // output a summary
+        final int sourceSize = context.getSource().length();
         final int outputSize = outputShader.length();
         output("--------------------------------------------------\n");
         output("Input: %d bytes\n", sourceSize);
@@ -187,8 +204,8 @@ public class GLSLOptimizer {
         output("--------------------------------------------------\n");
 
         // transform the output
-        FileGenerator generator = createGenerator(outputProfile, shaderFilename);
-        String content = generator.generate(optimizerContext, shaderNode, outputShader);
+        FileGenerator generator = createGenerator(outputProfile, context.getShaderName());
+        String content = generator.generate(context, outputShader);
 
         // output the result
         try (OutputStream outputStream = outputWriter.outputStream()) {
@@ -219,7 +236,7 @@ public class GLSLOptimizer {
         final ConstantPropagation constantPropagation = new ConstantPropagation();
         final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
 
-        final ParserContext parserContext = optimizerContext.getParserContext();
+        final ParserContext parserContext = optimizerContext.parserContext();
 
         Node node = shaderNode;
 
@@ -263,14 +280,14 @@ public class GLSLOptimizer {
         return node;
     }
 
-    private void shortenIdentifiers(GLSLOptimizerContext optimizerContext, Node node) {
+    private void shortenIdentifiers(GLSLOptimizerContext context) {
         final OutputConfig config = new OutputConfig();
         config.setIdentifiers(IdentifierOutput.None);
         config.setNewlines(false);
         config.setIndentation(0);
         config.setOutputConst(false);
 
-        optimizerContext.getIdentifierShortener().updateIdentifiers(optimizerContext.getParserContext(), node, config);
+        identifierShortener.register(context.parserContext(), context.getNode(), config);
     }
 
     private CommonTokenStream tokenStream(String source) {
@@ -316,15 +333,6 @@ public class GLSLOptimizer {
         if (showStatistics) {
             System.out.format(format, args);
         }
-    }
-
-    private GLSLOptimizerContext createOptimizerContext(String filename) {
-        TypeChecker typeChecker = new TypeChecker();
-        ParserContext parserContext = new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
-        IdentifierShortener identifierShortener = new ContextBasedIdentifierShortener(false);
-
-        GLSLOptimizerContext optimizerContext = new GLSLOptimizerContext(typeChecker, parserContext, identifierShortener);
-        return optimizerContext;
     }
 }
 

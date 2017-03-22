@@ -324,7 +324,6 @@ public class OutputVisitor implements ASTVisitor<String> {
     }
 
     private String formatNumeric(Numeric numeric) {
-
         if (numeric.hasFraction()) {
             final int decimals = Math.min(numeric.getDecimals(), config.getMaxDecimals());
             String format = String.format("%%.%df", decimals);
@@ -335,6 +334,9 @@ public class OutputVisitor implements ASTVisitor<String> {
             return result;
         }
         if (numeric.isFloat()) {
+            if (numeric.getValue() == 0) {
+                return ".0";
+            }
             return String.format(Locale.US, "%d.", (int) numeric.getValue());
         }
         return String.format(Locale.US, "%d", (int) numeric.getValue());
