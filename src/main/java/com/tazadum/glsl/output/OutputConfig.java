@@ -8,6 +8,7 @@ public class OutputConfig {
     private boolean outputConst;
     private int indentation;
     private IdentifierOutput identifiers;
+    private boolean commentWithOriginalIdentifiers;
     private int maxDecimals;
 
     public OutputConfig() {
@@ -15,6 +16,7 @@ public class OutputConfig {
         setOutputConst(true);
         setIndentation(4);
         setIdentifiers(IdentifierOutput.Original);
+        setCommentWithOriginalIdentifiers(false);
         setMaxDecimals(5);
     }
 
@@ -48,6 +50,14 @@ public class OutputConfig {
 
     public void setIdentifiers(IdentifierOutput identifiers) {
         this.identifiers = identifiers;
+    }
+
+    public boolean isCommentWithOriginalIdentifiers() {
+        return commentWithOriginalIdentifiers;
+    }
+
+    public void setCommentWithOriginalIdentifiers(boolean commentWithOriginalIdentifiers) {
+        this.commentWithOriginalIdentifiers = commentWithOriginalIdentifiers;
     }
 
     public int getMaxDecimals() {

@@ -12,6 +12,8 @@ import com.tazadum.glsl.parser.variable.VariableRegistryContext;
 
 import java.io.File;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class HeaderFileGenerator implements FileGenerator {
     private final String id;
@@ -32,6 +34,8 @@ public class HeaderFileGenerator implements FileGenerator {
     public String generate(GLSLOptimizerContext context, String shaderGLSL) {
         outputConfig.setNewlines(true);
         outputConfig.setIndentation(3);
+        outputConfig.setCommentWithOriginalIdentifiers(true);
+
         final OutputVisitor visitor = new OutputVisitor(outputConfig);
         String shader = context.getNode().accept(visitor);
 
@@ -66,8 +70,19 @@ public class HeaderFileGenerator implements FileGenerator {
         // output shader source
         builder.append("const char *").append(id).append(" = \n");
 
+        Pattern commentPattern = Pattern.compile("/\\*\\s*(.+)\\s*\\*/", Pattern.DOTALL);
+        Pattern indentationPattern = Pattern.compile("^(\\s*)");
+
         for (String line : shader.split("\n+")) {
-            line = line.replaceFirst("^(\\s*)", "$1\"");
+            line = indentationPattern.matcher(line).replaceFirst("$1\"");
+
+            Matcher matcher = commentPattern.matcher(line);
+            if (matcher.find()) {
+                line = matcher.replaceFirst("\" // $1");
+                builder.append("   ").append(line).append("\n");
+                continue;
+            }
+
             builder.append("   ").append(line).append("\"\n");
         }
 

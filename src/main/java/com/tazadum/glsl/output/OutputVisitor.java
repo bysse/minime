@@ -201,7 +201,13 @@ public class OutputVisitor implements ASTVisitor<String> {
     public String visitFunctionDefinition(FunctionDefinitionNode node) {
         final StringBuilder builder = new StringBuilder();
         builder.append(node.getFunctionPrototype().accept(this));
-        builder.append('{').append(newLine());
+
+        if (config.isCommentWithOriginalIdentifiers() && config.isNewlines()) {
+            String original = node.getFunctionPrototype().getIdentifier().original();
+            builder.append('{').append(" /* ").append(original).append(" */").append(newLine());
+        } else {
+            builder.append('{').append(newLine());
+        }
 
         enterScope();
         builder.append(node.getStatements().accept(this));
