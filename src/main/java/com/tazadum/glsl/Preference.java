@@ -6,5 +6,5 @@ package com.tazadum.glsl;
 public enum Preference {
     NO_MACRO,
     LINE_BREAKS,
-
+    NO_TYPE_CONVERSION
 }

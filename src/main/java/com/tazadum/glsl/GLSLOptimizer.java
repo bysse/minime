@@ -116,6 +116,7 @@ public class GLSLOptimizer {
         }
 
         outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
+        outputConfig.setImplicitConversionToFloat(!preferences.contains(Preference.NO_TYPE_CONVERSION));
 
         final String shaderSource = loadFile(new File(shaderFilename), new HashSet<>());
         final CommonTokenStream tokenStream = tokenStream(shaderSource);

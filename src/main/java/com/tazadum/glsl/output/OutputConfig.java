@@ -10,6 +10,7 @@ public class OutputConfig {
     private IdentifierOutput identifiers;
     private boolean commentWithOriginalIdentifiers;
     private int maxDecimals;
+    private boolean implicitConversionToFloat;
 
     public OutputConfig() {
         setNewlines(true);
@@ -18,6 +19,7 @@ public class OutputConfig {
         setIdentifiers(IdentifierOutput.Original);
         setCommentWithOriginalIdentifiers(false);
         setMaxDecimals(5);
+        setImplicitConversionToFloat(true);
     }
 
     public boolean isNewlines() {
@@ -58,6 +60,14 @@ public class OutputConfig {
 
     public void setCommentWithOriginalIdentifiers(boolean commentWithOriginalIdentifiers) {
         this.commentWithOriginalIdentifiers = commentWithOriginalIdentifiers;
+    }
+
+    public boolean isImplicitConversionToFloat() {
+        return implicitConversionToFloat;
+    }
+
+    public void setImplicitConversionToFloat(boolean implicitConversionToFloat) {
+        this.implicitConversionToFloat = implicitConversionToFloat;
     }
 
     public int getMaxDecimals() {
