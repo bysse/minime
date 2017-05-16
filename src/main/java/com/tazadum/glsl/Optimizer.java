@@ -3,7 +3,7 @@ package com.tazadum.glsl;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -18,17 +18,13 @@ public class Optimizer {
     private static final String OUTPUT_STATISTICS = "s";
     private static final String OUTPUT_PREFERENCE = "p";
 
-    public static void displayHelp() {
-        System.out.println("Syntax: ");
-    }
-
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         final OptionParser parser = new OptionParser("o:f:tsp:");
         final OptionSet options = parser.parse(args);
 
         if (options.nonOptionArguments().isEmpty()) {
             System.err.println("Error: Missing input shader!");
-            displayHelp();
+            parser.printHelpOn(System.err);
             System.exit(1);
         }
 
