@@ -19,7 +19,12 @@ public class Optimizer {
     private static final String OUTPUT_PREFERENCE = "p";
 
     public static void main(String[] args) throws IOException {
-        final OptionParser parser = new OptionParser("o:f:tsp:");
+        final OptionParser parser = new OptionParser();
+        parser.accepts(OUTPUT_FILE, "Output file.").withRequiredArg();
+        parser.accepts(OUTPUT_FORMAT, "Format of output [GLSL, C].").withRequiredArg();
+        parser.accepts(OUTPUT_SHADER_TOY, "Output ShaderToy compatible shaders.");
+        parser.accepts(OUTPUT_STATISTICS, "Show statistics during optimization.");
+        parser.accepts(OUTPUT_PREFERENCE, "Set preference flag [NO_MACRO, LINE_BREAKS, NO_TYPE_CONVERSION]").withRequiredArg();
         final OptionSet options = parser.parse(args);
 
         if (options.nonOptionArguments().isEmpty()) {
