@@ -49,7 +49,7 @@ public class ContextBasedMultiIdentifierShortenerTest {
         System.out.println(output.render(node1, config));
         System.out.println(output.render(node2, config));
 
-        assertEquals("vec2 a=vec2(1.);", output.render(node2, config));
+        assertEquals("vec2 a=vec2(1);", output.render(node2, config));
     }
 
     private Node compile(ParserContext parserContext, String source) {

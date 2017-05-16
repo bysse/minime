@@ -51,28 +51,28 @@ public class ConstantFoldingTest {
     public void test_0_elimination_mul() {
         assertEquals("0", optimize("0*1"));
         assertEquals("0", optimize("2*0"));
-        assertEquals("0.", optimize("0.*1"));
-        assertEquals("0.", optimize("0*2."));
-        assertEquals("0.", optimize("0.*2."));
-        assertEquals("0.", optimize("2.*0."));
+        assertEquals("0", optimize("0.*1"));
+        assertEquals("0", optimize("0*2."));
+        assertEquals("0", optimize("0.*2."));
+        assertEquals("0", optimize("2.*0."));
     }
 
     @Test
     public void test_0_elimination_div() {
-        assertEquals("1.", optimize("2./2."));
+        assertEquals("1", optimize("2/2"));
         assertEquals("0", optimize("0/2"));
-        assertEquals("5.", optimize("5./1."));
+        assertEquals("5", optimize("5/1"));
     }
 
     @Test
     public void test_0_elimination_add() {
-        assertEquals("1.", optimize("1.+0."));
+        assertEquals("1", optimize("1+0"));
         assertEquals("1", optimize("0+1"));
     }
 
     @Test
     public void test_0_elimination_sub() {
-        assertEquals("1.", optimize("1.-0."));
+        assertEquals("1", optimize("1-0"));
         assertEquals("-1", optimize("0-1"));
     }
 

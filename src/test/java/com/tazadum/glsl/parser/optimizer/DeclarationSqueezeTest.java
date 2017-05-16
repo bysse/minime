@@ -49,12 +49,12 @@ public class DeclarationSqueezeTest {
 
     @Test
     public void test_basic_2() {
-        assertEquals("float a,b=2.,c;", optimize("float a;float b=2.;float c;"));
+        assertEquals("float a,b=2,c;", optimize("float a;float b=2;float c;"));
     }
 
     @Test
     public void test_basic_3() {
-        assertEquals("float a,b=2.,c=b;", optimize("float a;float b=2.;float c=b;"));
+        assertEquals("float a,b=2,c=b;", optimize("float a;float b=2;float c=b;"));
     }
 
     @Test

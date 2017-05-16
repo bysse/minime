@@ -57,17 +57,17 @@ public class ContextBasedIdentifierShortenerTest {
     @Test
     public void test_advanced_1() {
         config.setIdentifiers(IdentifierOutput.None);
-        assertEquals("float=0.;void(out float){float=+;}", optimize("float X=0.;void main(out float Y){float i=X+Y;}"));
+        assertEquals("float=0;void(out float){float=+;}", optimize("float X=0;void main(out float Y){float i=X+Y;}"));
     }
 
     @Test
     public void test_advanced_2() {
         config.setIdentifiers(IdentifierOutput.None);
-        assertEquals("vec2=0;vec3=0;vec3(){return (0.);}void(out vec3){vec3=;vec2=+.xy+.xy+().xy;}",
+        assertEquals("vec2=0;vec3=0;vec3(){return vec3(0);}void(out vec3){vec3=;vec2=+.xy+.xy+().xy;}",
                 optimize("" +
                         "vec2 X=0;" +
                         "vec3 V=0;" +
-                        "vec3 Z(){return vec3(0.);}" +
+                        "vec3 Z(){return vec3(0);}" +
                         "void main(out vec3 Y){" +
                         "vec3 A = V;" +
                         "vec2 i=X+Y.xy+Y.xy+Z().xy;" +
