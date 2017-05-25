@@ -668,6 +668,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             // go through all of the statements
             for (GLSLParser.Statement_no_new_scopeContext statementScope : ctx.statement_list().statement_no_new_scope()) {
                 final Node node = statementScope.accept(this);
+                if (node == null) {
+                    // this can happen if we have double semicolons
+                    continue;
+                }
                 if (node instanceof StatementListNode) {
                     final StatementListNode statementListNode = (StatementListNode) node;
                     for (int i = 0; i < statementListNode.getChildCount(); i++) {
