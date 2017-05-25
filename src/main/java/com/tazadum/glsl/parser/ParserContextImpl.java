@@ -177,6 +177,8 @@ public class ParserContextImpl implements ParserContext {
 
         // Texture Functions
         fixedFunction("texture2D", BuiltInType.VEC4, BuiltInType.SAMPLER2D, BuiltInType.VEC2);
+        fixedFunction("texture", BuiltInType.VEC4, BuiltInType.SAMPLER2D, BuiltInType.VEC2);
+        fixedFunction("texture", BuiltInType.VEC4, BuiltInType.SAMPLER3D, BuiltInType.VEC3);
 
         // Derivative Functions
         function("dFdx", GenTypes.GenType, GenTypes.GenType);

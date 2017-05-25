@@ -24,6 +24,7 @@ public enum BuiltInType implements GLSLType, HasToken {
     MAT3("mat3", TypeCategory.Matrix),
     MAT4("mat4", TypeCategory.Matrix),
     SAMPLER2D("sampler2D", TypeCategory.Special),
+    SAMPLER3D("sampler3D", TypeCategory.Special),
     SAMPLER_CUBE("samplerCube", TypeCategory.Special);
 
     private String token;
@@ -54,6 +55,7 @@ public enum BuiltInType implements GLSLType, HasToken {
             case MAT3:
             case MAT4:
             case SAMPLER2D:
+            case SAMPLER3D:
             case SAMPLER_CUBE:
                 throw TypeException.noFields(name());
         }
