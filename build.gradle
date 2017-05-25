@@ -22,7 +22,7 @@ dependencies {
     compile 'org.antlr:antlr4-runtime:4.+'
     compile 'net.sf.jopt-simple:jopt-simple:5.0.+'
 
-	antlr 'org.antlr:antlr4:4.5.+'
+	antlr 'org.antlr:antlr4:4.+'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.jogamp.jogl:jogl-all:2.3.2'
