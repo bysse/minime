@@ -9,13 +9,13 @@ import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
-import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.finder.NodeFinder;
 import com.tazadum.glsl.parser.finder.VariableFinder;
+import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
         final ContextDeclarations declarations = contextMap.computeIfAbsent(context, ContextDeclarations::new);
 
         // Find any earlier declarations of this type
-        final VariableDeclarationListNode previousDeclaration = declarations.findDeclaration(node.getType());
+        final VariableDeclarationListNode previousDeclaration = declarations.findDeclaration(node.getFullySpecifiedType());
         if (previousDeclaration != null && previousDeclaration.getId() < node.getId()) {
             // Check if the usage is "safe" between this id and the previous declaration
 
@@ -176,7 +176,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
 
     private class ContextDeclarations {
         private final GLSLContext context;
-        private final Map<GLSLType, TreeSet<VariableDeclarationListNode>> typeMap;
+        private final Map<FullySpecifiedType, TreeSet<VariableDeclarationListNode>> typeMap;
 
         ContextDeclarations(GLSLContext context) {
             this.context = context;
@@ -184,10 +184,10 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
         }
 
         void register(VariableDeclarationListNode node) {
-            typeMap.computeIfAbsent(node.getType(), (key) -> new TreeSet<>()).add(node);
+            typeMap.computeIfAbsent(node.getFullySpecifiedType(), (key) -> new TreeSet<>()).add(node);
         }
 
-        VariableDeclarationListNode findDeclaration(GLSLType type) {
+        VariableDeclarationListNode findDeclaration(FullySpecifiedType type) {
             final TreeSet<VariableDeclarationListNode> nodes = typeMap.get(type);
             if (nodes == null || nodes.isEmpty()) {
                 return null;

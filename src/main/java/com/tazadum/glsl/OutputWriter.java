@@ -28,9 +28,11 @@ public interface OutputWriter {
 
     class FileOutputWriter implements OutputWriter {
         private final File file;
+        private final FileOutputStream outputStream;
 
-        public FileOutputWriter(String file) {
+        public FileOutputWriter(String file) throws FileNotFoundException {
             this.file = new File(file);
+            this.outputStream = new FileOutputStream(file);
         }
 
         @Override
@@ -39,8 +41,8 @@ public interface OutputWriter {
         }
 
         @Override
-        public OutputStream outputStream() throws FileNotFoundException {
-            return  new FileOutputStream(file);
+        public OutputStream outputStream() {
+            return outputStream;
         }
     }
 }

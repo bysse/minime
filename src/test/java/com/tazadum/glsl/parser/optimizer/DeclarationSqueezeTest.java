@@ -92,6 +92,12 @@ public class DeclarationSqueezeTest {
         // x is modified in function call so c shouldn't be squeezed
         assertEquals("float x=0;float f(){return x++;}void main(){float a=0;vec2 b=vec2(f());float c=x;}", optimize("float x=0;float f(){return x++;}void main(){float a=0;vec2 b=vec2(f());float c=x;}"));
     }
+
+    @Test
+    public void test_context_5() {
+        assertEquals("uniform float x;float a=2;void main(){float b=x+a;}", optimize("uniform float x;float a=2;void main(){float b=x+a;}"));
+    }
+
     private String optimize(String source) {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);

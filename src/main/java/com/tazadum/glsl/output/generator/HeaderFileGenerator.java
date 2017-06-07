@@ -18,9 +18,11 @@ import java.util.regex.Pattern;
 public class HeaderFileGenerator implements FileGenerator {
     private final String id;
     private final OutputConfig outputConfig;
+    private boolean multipleShaders;
 
-    public HeaderFileGenerator(String shaderFilename, OutputConfig outputConfig) {
+    public HeaderFileGenerator(String shaderFilename, OutputConfig outputConfig, boolean multipleShaders) {
         this.outputConfig = outputConfig;
+        this.multipleShaders = multipleShaders;
         String name = new File(shaderFilename).getName();
         int index = name.lastIndexOf('.');
 
@@ -61,7 +63,11 @@ public class HeaderFileGenerator implements FileGenerator {
                     continue;
                 }
                 Identifier identifier = declarationNode.getIdentifier();
-                builder.append("#define UNIFORM_").append(identifier.original().toUpperCase()).append(' ');
+                builder.append("#define UNIFORM_").append(identifier.original().toUpperCase());
+                if (multipleShaders) {
+                    builder.append('_').append(id.toUpperCase());
+                }
+                builder.append(' ');
                 builder.append('"').append(identifier.token()).append("\"\n");
             }
         }
@@ -87,7 +93,7 @@ public class HeaderFileGenerator implements FileGenerator {
         }
 
         builder.append("   ;\n\n");
-        builder.append("#endif // #ifndef ").append(def).append("\n");
+        builder.append("#endif // #ifndef ").append(def).append("\n\n");
         return builder.toString();
     }
 }

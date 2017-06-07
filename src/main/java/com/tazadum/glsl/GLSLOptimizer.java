@@ -99,7 +99,7 @@ public class GLSLOptimizer {
         }
 
         for (GLSLOptimizerContext context : contexts) {
-            writeShader(context);
+            writeShader(context, contexts.size() > 1);
         }
     }
 
@@ -144,7 +144,7 @@ public class GLSLOptimizer {
         return context;
     }
 
-    private void writeShader(GLSLOptimizerContext context) {
+    private void writeShader(GLSLOptimizerContext context, boolean multipleShaders) {
         final Node node = context.getNode();
 
         output("Shortening identifiers\n");
@@ -205,11 +205,12 @@ public class GLSLOptimizer {
         output("--------------------------------------------------\n");
 
         // transform the output
-        FileGenerator generator = createGenerator(outputProfile, context.getShaderName());
+        FileGenerator generator = createGenerator(outputProfile, context.getShaderName(), multipleShaders);
         String content = generator.generate(context, outputShader);
 
         // output the result
-        try (OutputStream outputStream = outputWriter.outputStream()) {
+        try {
+            OutputStream outputStream = outputWriter.outputStream();
             OutputStreamWriter writer = new OutputStreamWriter(outputStream);
             writer.write(content);
             writer.flush();
@@ -218,12 +219,12 @@ public class GLSLOptimizer {
         }
     }
 
-    private FileGenerator createGenerator(OutputProfile outputProfile, String shaderFilename) {
+    private FileGenerator createGenerator(OutputProfile outputProfile, String shaderFilename, boolean multipleShaders) {
         switch (outputProfile) {
             case GLSL:
                 return new PassThroughGenerator();
             case C:
-                return new HeaderFileGenerator(shaderFilename, outputConfig);
+                return new HeaderFileGenerator(shaderFilename, outputConfig, multipleShaders);
         }
         throw new IllegalArgumentException("Unknown OutputProfile!");
     }

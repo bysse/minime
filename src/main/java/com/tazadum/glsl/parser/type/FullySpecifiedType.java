@@ -52,7 +52,6 @@ public class FullySpecifiedType {
         if (qualifier != that.qualifier) return false;
         if (precision != that.precision) return false;
         return type.equals(that.type);
-
     }
 
     @Override
