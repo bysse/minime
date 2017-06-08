@@ -73,10 +73,11 @@ public class HeaderFileGenerator implements FileGenerator {
         }
         builder.append('\n');
 
+        builder.append("// shader source\n");
         // output shader source
         builder.append("const char *").append(id).append(" = \n");
 
-        Pattern commentPattern = Pattern.compile("/\\*\\s*(.+)\\s*\\*/", Pattern.DOTALL);
+        Pattern commentPattern = Pattern.compile("\\s*/\\*\\s*(.+)\\s*\\*/", Pattern.DOTALL);
         Pattern indentationPattern = Pattern.compile("^(\\s*)");
 
         for (String line : shader.split("\n+")) {
