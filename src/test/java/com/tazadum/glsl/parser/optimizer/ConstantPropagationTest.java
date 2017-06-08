@@ -14,7 +14,7 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -64,6 +64,11 @@ public class ConstantPropagationTest {
     @Test
     public void test_constants_5() {
         assertEquals("float f(){return 1+1;}", optimize("float a=1;float f(){return a+a;}"));
+    }
+
+    @Test
+    public void test_constants_6() {
+        assertEquals("int main(){int x=0;for(int i=0;i<5;i++)x+=i;return x;}", optimize("int main(){int x=0;for(int i=0;i<5;i++)x+=i;return x;}"));
     }
 
     @Test

@@ -266,12 +266,12 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitDiscard(DiscardLeafNode node) {
-        return "discard;";
+        return "discard";
     }
 
     @Override
     public String visitContinue(ContinueLeafNode node) {
-        return "continue;";
+        return "continue";
     }
 
     @Override
@@ -294,7 +294,7 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitBreak(BreakLeafNode node) {
-        return "break;";
+        return "break";
     }
 
     @Override
@@ -442,7 +442,7 @@ public class OutputVisitor implements ASTVisitor<String> {
         } else {
             enterScope();
             builder.append(newLine()).append(indentation());
-            builder.append(node.accept(this));
+            builder.append(node.accept(this)).append(';');
             exitScope();
         }
     }

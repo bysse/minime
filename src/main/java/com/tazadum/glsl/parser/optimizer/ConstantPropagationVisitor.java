@@ -1,10 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.ast.HasNumeric;
+import com.tazadum.glsl.ast.MutatingOperation;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
-import com.tazadum.glsl.ast.arithmetic.PostfixOperationNode;
-import com.tazadum.glsl.ast.arithmetic.PrefixOperationNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
@@ -55,7 +54,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
             if (usageNodes.size() == 1 || isWorthIt(node, usageNodes)) {
                 for (Node usageNode : usageNodes) {
                     final VariableNode usage = (VariableNode) usageNode;
-                    if (usage.getParentNode() instanceof PrefixOperationNode || usage.getParentNode() instanceof PostfixOperationNode) {
+                    if (usage.getParentNode() instanceof MutatingOperation) {
                         return null;
                     }
 
