@@ -85,7 +85,7 @@ public class HeaderFileGenerator implements FileGenerator {
             Matcher matcher = commentPattern.matcher(line);
             if (matcher.find()) {
                 line = matcher.replaceFirst("\" // $1");
-                builder.append("   ").append(line).append("\n");
+                builder.append("  \t").append(line).append("\n");
                 continue;
             }
 
