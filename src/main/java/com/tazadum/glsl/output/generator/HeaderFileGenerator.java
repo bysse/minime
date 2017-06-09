@@ -34,6 +34,7 @@ public class HeaderFileGenerator implements FileGenerator {
 
     @Override
     public String generate(GLSLOptimizerContext context, String shaderGLSL) {
+        final boolean keepNewlines = outputConfig.isNewlines();
         outputConfig.setNewlines(true);
         outputConfig.setIndentation(3);
         outputConfig.setCommentWithOriginalIdentifiers(true);
@@ -85,12 +86,20 @@ public class HeaderFileGenerator implements FileGenerator {
 
             Matcher matcher = commentPattern.matcher(line);
             if (matcher.find()) {
-                line = matcher.replaceFirst("\" // $1");
+                if (keepNewlines) {
+                    line = matcher.replaceFirst("\\\\n\" // $1");
+                } else {
+                    line = matcher.replaceFirst("\" // $1");
+                }
                 builder.append("  \t").append(line).append("\n");
                 continue;
             }
 
-            builder.append("   ").append(line).append("\"\n");
+            builder.append("   ").append(line);
+            if (keepNewlines) {
+                builder.append("\\n");
+            }
+            builder.append("\"\n");
         }
 
         builder.append("   ;\n\n");

@@ -6,6 +6,7 @@ import com.tazadum.glsl.ast.function.FunctionCallNode;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Predicate;
 
 /**
  * Created by Erik on 2016-10-23.
@@ -20,6 +21,16 @@ public class NodeFinder {
             return null;
         }
         return findMutableOperation(parent);
+    }
+
+    public static Node findParent(Node node, Predicate<Node> predicate) {
+        while (node != null) {
+            if (predicate.test(node)) {
+                return node;
+            }
+            node = node.getParentNode();
+        }
+        return null;
     }
 
     public static boolean isMutated(Node node) {

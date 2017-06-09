@@ -1,9 +1,7 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.HasNumeric;
-import com.tazadum.glsl.ast.MutatingOperation;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ReplacingASTVisitor;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
@@ -11,6 +9,7 @@ import com.tazadum.glsl.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.language.NumericOperator;
 import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
@@ -51,6 +50,10 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
             final Usage<VariableDeclarationNode> nodeUsage = parserContext.getVariableRegistry().resolve(node);
             final List<Node> usageNodes = nodeUsage.getUsageNodes();
 
+            if (isDestroyingOptimization(node, usageNodes)) {
+                return null;
+            }
+
             if (usageNodes.size() == 1 || isWorthIt(node, usageNodes)) {
                 for (Node usageNode : usageNodes) {
                     final VariableNode usage = (VariableNode) usageNode;
@@ -58,7 +61,12 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
                         return null;
                     }
 
-                    usage.getParentNode().replaceChild(usage, node.getInitializer());
+                    Node initializer = node.getInitializer();
+                    if (initializerNeedWrapping(initializer)) {
+                        initializer = new ParenthesisNode(initializer);
+                    }
+
+                    usage.getParentNode().replaceChild(usage, initializer);
 
                     changes++;
                 }
@@ -69,6 +77,38 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
         return null;
     }
 
+    private boolean initializerNeedWrapping(Node initializer) {
+        if (initializer instanceof NumericOperationNode){
+            return ((NumericOperationNode) initializer).getOperator() != NumericOperator.MUL;
+        }
+        return false;
+    }
+
+    private boolean isDestroyingOptimization(VariableDeclarationNode node, List<Node> usageNodes) {
+        // check if node is declared within a for loop and is the usage is inside the same loop
+        Node sourceIterationNode = NodeFinder.findParent(node, (n) -> n instanceof IterationNode);
+
+        if (sourceIterationNode == null) {
+            // the declaration was not in any loop
+            for (Node usage : usageNodes) {
+                if (NodeFinder.findParent(usage, (n) -> n instanceof IterationNode) != null) {
+                    // if a usage node is  inside a loop, don't propagate the constant
+                    return true;
+                }
+            }
+        } else {
+            // the declaration was in any loop, make sure the usage is in the same loop
+            for (Node usage : usageNodes) {
+                if (!sourceIterationNode.equals(NodeFinder.findParent(usage, (n) -> n instanceof IterationNode))) {
+                    // the usage node is inside another loop, don't propagate the constant
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     private boolean isWorthIt(VariableDeclarationNode node, List<Node> usageNodes) {
         // create a separate tree for this declaration to include the type declaration when determining size
         final VariableDeclarationListNode listNode = new VariableDeclarationListNode(node.getFullySpecifiedType());
@@ -77,7 +117,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
         // assume we can get a single character variable identifier
         final int identifierSize = 1;
 
-        final int valueScore = decider.score(node.getInitializer());
+        final int valueScore = decider.score(node.getInitializer()) + (initializerNeedWrapping(node.getInitializer())?2:0);
         final int declarationScore = decider.score(listNode) - valueScore + identifierSize;
 
         return valueScore * usageNodes.size() < declarationScore;

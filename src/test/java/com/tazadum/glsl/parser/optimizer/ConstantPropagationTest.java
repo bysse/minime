@@ -72,6 +72,16 @@ public class ConstantPropagationTest {
     }
 
     @Test
+    public void test_constants_7() {
+        assertEquals("int main(){vec2 a=2*(vec2(1,1)-1).xy;return a.x+a.y;}", optimize("vec2 m=vec2(1,1)-1;int main(){vec2 a=2*m.xy;return a.x+a.y;}"));
+    }
+
+    @Test
+    public void test_constants_8() {
+        assertEquals("int a(){return 2;}int main(){int b=a(),x=0;for(int i=0;i<5;i++)x+=i*b;return x;}", optimize("int a(){return 2;}int main(){int b=a(),x=0;for(int i=0;i<5;i++){x+=i*b;}return x;}"));
+    }
+
+    @Test
     public void test_fail_1() {
         assertEquals("int a=1;int f(){a++;return a;}", optimize("int a=1;int f(){a++;return a;}"));
     }
