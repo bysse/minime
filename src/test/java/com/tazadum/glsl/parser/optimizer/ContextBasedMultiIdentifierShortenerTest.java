@@ -32,10 +32,10 @@ public class ContextBasedMultiIdentifierShortenerTest {
             "        gl_FragColor = vec4(color, 10 * (1 + sin(6*iResolution.z)));\n" +
             "    }";
 
-    private static String SHADER_2 = "uniform vec3 iResolution;\n" +
+    public static String SHADER_2 = "uniform vec3 iResolution;\n" +
             "uniform sampler2D image;\n" +
-            "float WIDTH = iResolution.x;\n" +
-            "float HEIGHT = iResolution.y;\n" +
+            "float WIDTH = iResolution.x\n" +
+            "float HEIGHT = iResolution.y\n" +
             "const float GA = 2.399; \n" +
             "const mat2 rot = mat2(cos(GA),sin(GA),-sin(GA),cos(GA));\n" +
             "vec3 dof(sampler2D tex,vec2 uv,float rad) {\n" +
@@ -122,6 +122,23 @@ public class ContextBasedMultiIdentifierShortenerTest {
 
             System.out.println(output.render(node1, config));
             System.out.println(output.render(node2, config));
+            System.out.println("");
+
+        } while(identifierShortener.permutateIdentifiers());
+    }
+
+    @Test
+    public void test_basic_5() {
+        config.setIdentifiers(IdentifierOutput.None);
+        Node node1 = compile(TestUtils.parserContext(), "uniform vec2 a; float x=a.x; float y=a.y; vec2 f(float b){return b*a*x/y;}void main(){ gl_FragColor.xy = f(2);}");
+
+        do {
+            identifierShortener.apply();
+
+            config.setIdentifiers(IdentifierOutput.Replaced);
+
+            System.out.println(output.render(node1, config));
+            System.out.println("");
 
         } while(identifierShortener.permutateIdentifiers());
     }
@@ -134,6 +151,9 @@ public class ContextBasedMultiIdentifierShortenerTest {
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
+
+            new ConstantPropagation().run(parserContext, new OutputSizeDecider(), node);
+
             identifierShortener.register(parserContext, node, config);
             return node;
         } catch (Exception e) {

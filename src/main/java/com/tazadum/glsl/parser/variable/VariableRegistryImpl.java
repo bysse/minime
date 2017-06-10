@@ -121,6 +121,8 @@ public class VariableRegistryImpl implements VariableRegistry {
                         }
                     }
                 }
+                // remove the entry
+                usageMap.remove(node);
                 return true;
             }
         }

@@ -11,17 +11,21 @@ import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.language.NumericOperator;
 import com.tazadum.glsl.language.TypeQualifier;
+import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.finder.NodeFinder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Erik on 2016-10-29.
  */
 public class ConstantPropagationVisitor extends ReplacingASTVisitor {
+    private final Logger logger = LoggerFactory.getLogger(ConstantPropagationVisitor.class);
     private final OptimizationDecider decider;
     private int changes = 0;
 
@@ -55,6 +59,10 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
             }
 
             if (usageNodes.size() == 1 || isWorthIt(node, usageNodes)) {
+
+                List<NodeUsage> newNodeUsage = new ArrayList<>();
+                boolean firstNode = true;
+
                 for (Node usageNode : usageNodes) {
                     final VariableNode usage = (VariableNode) usageNode;
                     if (usage.getParentNode() instanceof MutatingOperation) {
@@ -62,6 +70,26 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
                     }
 
                     Node initializer = node.getInitializer();
+
+                    // The first usage node can be ignored because the references just moves
+                    if (!firstNode) {
+                        GLSLContext usageContext = parserContext.findContext(usageNode);
+
+                        // we need to clone the initializer because it's going to be insert in multiple places in the AST
+                        initializer = initializer.clone(null);
+
+                        // find all variables
+                        newNodeUsage.addAll(NodeFinder.findAll(initializer, VariableNode.class).stream()
+                                .map(variableNode -> new NodeUsage(usageContext, variableNode.getDeclarationNode().getIdentifier(), variableNode))
+                                .collect(Collectors.toList()));
+
+                        // find all functions
+                        newNodeUsage.addAll(NodeFinder.findAll(initializer, FunctionCallNode.class).stream()
+                                .map(functionCallNode -> new NodeUsage(usageContext, functionCallNode.getDeclarationNode().getIdentifier(), functionCallNode))
+                                .collect(Collectors.toList()));
+                    }
+                    firstNode = false;
+
                     if (initializerNeedWrapping(initializer)) {
                         initializer = new ParenthesisNode(initializer);
                     }
@@ -70,6 +98,13 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
 
                     changes++;
                 }
+
+                for (NodeUsage usage : newNodeUsage) {
+                    parserContext.getVariableRegistry().usage(usage.context, usage.identifier.original(), usage.node);
+                }
+
+                parserContext.getVariableRegistry().dereference(node);
+
                 return ReplacingASTVisitor.REMOVE;
             }
         }
@@ -181,5 +216,17 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
         super.visitVariable(node);
 
         return null;
+    }
+
+    private static class NodeUsage {
+        Identifier identifier;
+        Node node;
+        GLSLContext context;
+
+        public NodeUsage(GLSLContext context, Identifier identifier, Node node) {
+            this.identifier = identifier;
+            this.node = node;
+            this.context = context;
+        }
     }
 }

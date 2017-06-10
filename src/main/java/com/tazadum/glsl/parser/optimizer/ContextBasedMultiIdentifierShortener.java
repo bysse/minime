@@ -150,6 +150,7 @@ public class ContextBasedMultiIdentifierShortener {
                 final Usage<VariableDeclarationNode> nodeUsage = parserContext.getVariableRegistry().resolve(declarationNode);
                 for (Node usage : nodeUsage.getUsageNodes()) {
                     final GLSLContext usageContext = parserContext.findContext(usage);
+
                     if (isVariableReachable(parserContext, usageContext, identifier)) {
                         return true;
                     }

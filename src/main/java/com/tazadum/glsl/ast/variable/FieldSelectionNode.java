@@ -51,4 +51,8 @@ public class FieldSelectionNode extends FixedChildParentNode implements HasMutab
     public void setType(GLSLType type) {
         this.type = type;
     }
+
+    public String toString() {
+        return "FieldSelection(" + selection + ")";
+    }
 }

@@ -74,4 +74,8 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
     public boolean mutatesGlobalState() {
         return mutatesGlobalState;
     }
+
+    public String toString() {
+        return String.valueOf(getChild(0));
+    }
 }

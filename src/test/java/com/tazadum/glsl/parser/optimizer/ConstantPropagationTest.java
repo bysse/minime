@@ -2,6 +2,7 @@ package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.output.IdentifierOutput;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
@@ -14,7 +15,7 @@ import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -22,6 +23,7 @@ import static org.junit.Assert.*;
 public class ConstantPropagationTest {
     final private OutputSizeDecider decider = new OutputSizeDecider();
 
+    private Node node;
     private ParserContext parserContext;
     private Output output;
     private OutputConfig outputConfig;
@@ -82,6 +84,27 @@ public class ConstantPropagationTest {
     }
 
     @Test
+    public void test_constants_9() {
+        optimize(ContextBasedMultiIdentifierShortenerTest.SHADER_2);
+
+        final OutputConfig config = new OutputConfig();
+        config.setIdentifiers(IdentifierOutput.None);
+        config.setNewlines(false);
+        config.setIndentation(0);
+        config.setOutputConst(false);
+
+        ContextBasedMultiIdentifierShortener shortener = new ContextBasedMultiIdentifierShortener(true);
+        shortener.register(parserContext, node, config);
+        shortener.apply();
+
+        outputConfig.setNewlines(true);
+        outputConfig.setIndentation(3);
+        outputConfig.setIdentifiers(IdentifierOutput.Replaced);
+
+        System.out.println(output.render(node, outputConfig));
+    }
+
+    @Test
     public void test_fail_1() {
         assertEquals("int a=1;int f(){a++;return a;}", optimize("int a=1;int f(){a++;return a;}"));
     }
@@ -96,7 +119,7 @@ public class ConstantPropagationTest {
             final CommonTokenStream stream = TestUtils.tokenStream(source);
             final GLSLParser parser = TestUtils.parser(stream);
             final ContextVisitor visitor = new ContextVisitor(parserContext);
-            Node node = parser.translation_unit().accept(visitor);
+            node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
             Optimizer.OptimizerResult result = constantPropagation.run(parserContext, decider, node);
             return output.render(result.getNode(), outputConfig);

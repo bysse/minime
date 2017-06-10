@@ -70,4 +70,8 @@ public class FunctionPrototypeNode extends ParentNode {
     public GLSLType getType() {
         return returnType.getType();
     }
+
+    public String toString() {
+        return "function(" + identifier + ")";
+    }
 }

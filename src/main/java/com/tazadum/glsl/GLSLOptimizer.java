@@ -95,12 +95,19 @@ public class GLSLOptimizer {
     public void execute(List<String> shaderFiles) {
         List<GLSLOptimizerContext> contexts = new ArrayList<>();
         for (String shaderFile : shaderFiles) {
+            output("--------------------------------------------------\n");
             contexts.add(execute(shaderFile));
         }
+        output("--------------------------------------------------\n");
+
+        output("Shortening identifiers\n");
+        identifierShortener.apply();
 
         for (GLSLOptimizerContext context : contexts) {
+            output("--------------------------------------------------\n");
             writeShader(context, contexts.size() > 1);
         }
+        output("--------------------------------------------------\n");
     }
 
     private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
@@ -124,9 +131,9 @@ public class GLSLOptimizer {
 
         context.setSource(shaderSource);
 
-        output("--------------------------------------------------\n");
+        output("Filename:     %s\n", shaderFilename);
         final int sourceSize = shaderSource.length();
-        output("Input shader: %d bytes\n", sourceSize);
+        output("Input size:   %d bytes\n", sourceSize);
 
         // updateIdentifiers the parser
         final ContextVisitor visitor = new ContextVisitor(context.parserContext());
@@ -147,16 +154,8 @@ public class GLSLOptimizer {
     private void writeShader(GLSLOptimizerContext context, boolean multipleShaders) {
         final Node node = context.getNode();
 
-        output("Shortening identifiers\n");
-        identifierShortener.apply();
-
         String outputShader = output.render(node, outputConfig).trim();
-        output("  - %d bytes\n", outputShader.length());
-
         int compressedLength = Compressor.compress(outputShader);
-        if (compressedLength > 0) {
-            output("  - %d bytes compressed\n", compressedLength);
-        }
 
         // iterate on the symbol allocation
         while (true) {
@@ -197,12 +196,11 @@ public class GLSLOptimizer {
         // output a summary
         final int sourceSize = context.getSource().length();
         final int outputSize = outputShader.length();
-        output("--------------------------------------------------\n");
-        output("Input: %d bytes\n", sourceSize);
-        output("Output: %d bytes (%.1f%%)\n", outputSize, 100f * outputSize / sourceSize);
-        output("Removed: %d bytes (%.1f%%)\n", sourceSize - outputSize, 100f * (sourceSize - outputSize) / sourceSize);
+        output("Filename:   %s\n", context.getShaderName());
+        output("Input Size: %d bytes\n", sourceSize);
+        output("Output:     %d bytes (%.1f%%)\n", outputSize, 100f * outputSize / sourceSize);
+        output("Removed:    %d bytes (%.1f%%)\n", sourceSize - outputSize, 100f * (sourceSize - outputSize) / sourceSize);
         output("Compressed: %d bytes (%.1f%%)\n", compressedLength, 100f * compressedLength / sourceSize);
-        output("--------------------------------------------------\n");
 
         // transform the output
         FileGenerator generator = createGenerator(outputProfile, context.getShaderName(), multipleShaders);
