@@ -24,7 +24,7 @@ public class Optimizer {
         parser.accepts(OUTPUT_FORMAT, "Format of output [GLSL, C].").withRequiredArg();
         parser.accepts(OUTPUT_SHADER_TOY, "Output ShaderToy compatible shaders.");
         parser.accepts(OUTPUT_STATISTICS, "Show statistics during optimization.");
-        parser.accepts(OUTPUT_PREFERENCE, "Set preference flag [NO_MACRO, LINE_BREAKS, NO_TYPE_CONVERSION]").withRequiredArg();
+        parser.accepts(OUTPUT_PREFERENCE, "Set preference flag [NO_MACRO, LINE_BREAKS, NO_TYPE_CONVERSION, PASS_THROUGH]").withRequiredArg();
         final OptionSet options = parser.parse(args);
 
         if (options.nonOptionArguments().isEmpty()) {

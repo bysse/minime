@@ -98,10 +98,13 @@ public class GLSLOptimizer {
             output("--------------------------------------------------\n");
             contexts.add(execute(shaderFile));
         }
-        output("--------------------------------------------------\n");
 
-        output("Shortening identifiers\n");
-        identifierShortener.apply();
+        if (!preferences.contains(Preference.PASS_THROUGH)) {
+            output("--------------------------------------------------\n");
+
+            output("Shortening identifiers\n");
+            identifierShortener.apply();
+        }
 
         for (GLSLOptimizerContext context : contexts) {
             output("--------------------------------------------------\n");
@@ -142,12 +145,17 @@ public class GLSLOptimizer {
         // perform type checking
         context.typeChecker().check(context.parserContext(), shaderNode);
 
-        // optimize the shader
-        final Node node = optimize(context, shaderNode);
-        context.setNode(node);
+        if (preferences.contains(Preference.PASS_THROUGH)){
+            context.setNode(shaderNode);
+        } else {
+            // optimize the shader
+            final Node node = optimize(context, shaderNode);
+            context.setNode(node);
 
-        // register the ast with the identifier shortener
-        shortenIdentifiers(context);
+            // register the ast with the identifier shortener
+            shortenIdentifiers(context);
+        }
+
         return context;
     }
 
@@ -157,9 +165,12 @@ public class GLSLOptimizer {
         String outputShader = output.render(node, outputConfig).trim();
         int compressedLength = Compressor.compress(outputShader);
 
+
+        boolean passThrough = preferences.contains(Preference.PASS_THROUGH);
+
         // iterate on the symbol allocation
         while (true) {
-            final boolean loop = identifierShortener.permutateIdentifiers();
+            final boolean loop = !passThrough && identifierShortener.permutateIdentifiers();
             final String iteration = output.render(node, outputConfig).trim();
             final int length = Compressor.compress(outputShader);
 
