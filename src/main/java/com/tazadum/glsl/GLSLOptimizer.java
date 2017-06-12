@@ -166,7 +166,6 @@ public class GLSLOptimizer {
         String outputShader = output.render(node, outputConfig).trim();
         int compressedLength = Compressor.compress(outputShader);
 
-
         boolean passThrough = preferences.contains(Preference.PASS_THROUGH);
         boolean bitPack = preferences.contains(Preference.BIT_PACK);
 

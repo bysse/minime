@@ -22,6 +22,16 @@ public class OutputConfig {
         setImplicitConversionToFloat(true);
     }
 
+    public OutputConfig(OutputConfig config) {
+        setNewlines(config.isNewlines());
+        setOutputConst(config.isOutputConst());
+        setIndentation(config.getIndentation());
+        setIdentifiers(config.getIdentifiers());
+        setCommentWithOriginalIdentifiers(config.isCommentWithOriginalIdentifiers());
+        setMaxDecimals(config.getMaxDecimals());
+        setImplicitConversionToFloat(config.isImplicitConversionToFloat());
+    }
+
     public boolean isNewlines() {
         return newlines;
     }

@@ -18,10 +18,10 @@ public class PackedHeaderFileGenerator implements FileGenerator {
     private final String id;
     private final OutputConfig outputConfig;
     private boolean multipleShaders;
-    private boolean functionWritten = false;
+    private static boolean functionWritten = false;
 
     public PackedHeaderFileGenerator(String shaderFilename, OutputConfig outputConfig, boolean multipleShaders) {
-        this.outputConfig = outputConfig;
+        this.outputConfig = new OutputConfig(outputConfig);
         this.multipleShaders = multipleShaders;
         String name = new File(shaderFilename).getName();
         int index = name.lastIndexOf('.');
@@ -86,10 +86,10 @@ public class PackedHeaderFileGenerator implements FileGenerator {
 
         // output shader source
         builder.append("// Size of the unpacked shader source buffer\n");
-        builder.append("int ").append(id.toUpperCase()).append("_SIZE = ").append(source.length()).append(";\n\n");
+        builder.append("#define ").append(id.toUpperCase()).append("_SIZE ").append(source.length()).append("\n\n");
 
         builder.append("// shader source, 7 bit packed\n");
-        builder.append("const char *").append(id).append(" = {\n    ");
+        builder.append("const char ").append(id).append("[] = {\n    ");
 
         int[] encoded = encode(source);
         for (int i=0;i<encoded.length;i++ ) {
@@ -113,6 +113,9 @@ public class PackedHeaderFileGenerator implements FileGenerator {
 
         int offset = 0;
         for (int i=0;i<source.length();i++) {
+            if (source.charAt(i) < 0x1f) {
+                continue;
+            }
             int value = (source.charAt(i) - 0x1f) & 0x7f;
             int bit = offset & 0x07;
             int index = offset >> 3;
@@ -132,7 +135,7 @@ public class PackedHeaderFileGenerator implements FileGenerator {
 
     private void writeUnpackFunction(StringBuilder builder) {
         builder.append("// use this function to unpack the shader source\n");
-        builder.append("void unpack_shader(char *buffer, char *dest) {\n");
+        builder.append("void unpack_shader(const char *buffer, char *dest) {\n");
         builder.append("    unsigned char memory = 0;\n");
         builder.append("    int bit = 0;\n");
         builder.append("    while (*buffer != 0) {\n");
