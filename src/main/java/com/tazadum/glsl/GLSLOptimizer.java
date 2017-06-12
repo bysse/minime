@@ -13,6 +13,7 @@ import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.output.generator.FileGenerator;
 import com.tazadum.glsl.output.generator.HeaderFileGenerator;
+import com.tazadum.glsl.output.generator.PackedHeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PassThroughGenerator;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
@@ -167,6 +168,7 @@ public class GLSLOptimizer {
 
 
         boolean passThrough = preferences.contains(Preference.PASS_THROUGH);
+        boolean bitPack = preferences.contains(Preference.BIT_PACK);
 
         // iterate on the symbol allocation
         while (true) {
@@ -214,7 +216,7 @@ public class GLSLOptimizer {
         output("Compressed: %d bytes (%.1f%%)\n", compressedLength, 100f * compressedLength / sourceSize);
 
         // transform the output
-        FileGenerator generator = createGenerator(outputProfile, context.getShaderName(), multipleShaders);
+        FileGenerator generator = createGenerator(outputProfile, context.getShaderName(), multipleShaders, bitPack);
         String content = generator.generate(context, outputShader);
 
         // output the result
@@ -228,11 +230,14 @@ public class GLSLOptimizer {
         }
     }
 
-    private FileGenerator createGenerator(OutputProfile outputProfile, String shaderFilename, boolean multipleShaders) {
+    private FileGenerator createGenerator(OutputProfile outputProfile, String shaderFilename, boolean multipleShaders, boolean bitPack) {
         switch (outputProfile) {
             case GLSL:
                 return new PassThroughGenerator();
             case C:
+                if (bitPack) {
+                    return new PackedHeaderFileGenerator(shaderFilename, outputConfig, multipleShaders);
+                }
                 return new HeaderFileGenerator(shaderFilename, outputConfig, multipleShaders);
         }
         throw new IllegalArgumentException("Unknown OutputProfile!");

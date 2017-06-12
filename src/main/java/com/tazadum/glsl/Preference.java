@@ -7,5 +7,6 @@ public enum Preference {
     NO_MACRO,
     LINE_BREAKS,
     NO_TYPE_CONVERSION,
-    PASS_THROUGH
+    PASS_THROUGH,
+    BIT_PACK
 }
