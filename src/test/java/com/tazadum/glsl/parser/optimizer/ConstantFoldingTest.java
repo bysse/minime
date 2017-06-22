@@ -51,6 +51,8 @@ public class ConstantFoldingTest {
         assertEquals("v2", optimize("vec2(v2)"));
         assertEquals("v3", optimize("vec3(v3)"));
         assertEquals("v4", optimize("vec4(v4)"));
+
+        assertEquals("vec2(0,1)", optimize("vec2(vec2(0,1))"));
     }
 
     @Test

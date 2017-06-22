@@ -77,6 +77,12 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
                 // the argument to the vector constructor has the same type
                 return child;
             }
+            if (child instanceof FunctionCallNode) {
+                String childFunction = ((FunctionCallNode) child).getIdentifier().original();
+                if (functionCall.getIdentifier().original().equals(childFunction)) {
+                    return child;
+                }
+            }
         }
         final int elements = BuiltInType.elements(type);
         if (functionCall.getChildCount() == elements) {

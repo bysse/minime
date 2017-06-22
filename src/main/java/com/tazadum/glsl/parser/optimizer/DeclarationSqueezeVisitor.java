@@ -9,6 +9,7 @@ import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
@@ -82,7 +83,8 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                 } else {
                     // Check if the initializer contains any variables
                     final SortedSet<VariableNode> variables = VariableFinder.findVariables(declaration);
-                    if (variables.isEmpty() || variablesAreSafe(variables, previousDeclaration.getId(), node.getId())) {
+
+                    if (variables.isEmpty() || variablesAreSafe(variables, previousDeclaration.getId(), node.getId(), previousDeclaration.getType())) {
                         // move the declaration to the previously existing declaration list
                         node.removeChild(declaration);
                         previousDeclaration.addChild(declaration);
@@ -102,12 +104,18 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
         return null;
     }
 
-    private boolean variablesAreSafe(SortedSet<VariableNode> variables, int fromId, int toId) {
+    private boolean variablesAreSafe(SortedSet<VariableNode> variables, int fromId, int toId, GLSLType type) {
         // Check if the variables are modified anywhere
         for (VariableNode variable : variables) {
-            int hash = System.identityHashCode(variable.getDeclarationNode());
             final Usage<VariableDeclarationNode> usage = variableRegistry.resolve(variable.getDeclarationNode());
             final Set<Node> usagesBetween = usage.getUsagesBetween(fromId, toId);
+
+            // Check if the declaration of those variables are after the attempted squeeze position and of a different type
+            if (!type.isAssignableBy(variable.getDeclarationNode().getType())) {
+                if (fromId < variable.getDeclarationNode().getId()) {
+                    return false;
+                }
+            }
 
             // no usages of the variable
             if (usagesBetween.isEmpty()) {
