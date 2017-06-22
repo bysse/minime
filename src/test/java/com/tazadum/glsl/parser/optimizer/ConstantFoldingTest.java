@@ -42,6 +42,50 @@ public class ConstantFoldingTest {
     }
 
     @Test
+    public void test_vector_construction_single_arg() throws Exception {
+        VariableRegistry registry = parserContext.getVariableRegistry();
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
+
+        assertEquals("v2", optimize("vec2(v2)"));
+        assertEquals("v3", optimize("vec3(v3)"));
+        assertEquals("v4", optimize("vec4(v4)"));
+    }
+
+    @Test
+    public void test_vector_construction_parameter_collapsing() throws Exception {
+        VariableRegistry registry = parserContext.getVariableRegistry();
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
+
+        assertEquals("v2.xy", optimize("vec2(v2.x,v2.y)"));
+        assertEquals("v3.xyz", optimize("vec3(v3.x,v3.y,v3.z)"));
+        assertEquals("v4.xyzw", optimize("vec4(v4.x,v4.y,v4.z,v4.w)"));
+
+        assertEquals("vec4(v4.x,v4.y,v4.w,v4.z)", optimize("vec4(v4.x,v4.y,v4.w,v4.z)"));
+        assertEquals("vec4(v2.x,v4.y,v4.z,v4.w)", optimize("vec4(v2.x,v4.y,v4.z,v4.w)"));
+    }
+
+    @Test
+    public void test_field_selection_removal() throws Exception {
+        VariableRegistry registry = parserContext.getVariableRegistry();
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
+
+        assertEquals("v2=v2", optimize("v2=v2.xy"));
+        assertEquals("v3=v3", optimize("v3=v3.xyz"));
+        assertEquals("v4=v4", optimize("v4=v4.xyzw)"));
+
+        assertEquals("v2=v2.yx", optimize("v2=v2.yx"));
+        assertEquals("v3=v3.xyy", optimize("v3=v3.xyy"));
+        assertEquals("v4=v4.xywz", optimize("v4=v4.xywz)"));
+    }
+
+
+    @Test
     public void test_parenthesis() {
         assertEquals("1", optimize("(1)"));
         assertEquals("1", optimize("(((1)))"));

@@ -134,4 +134,23 @@ public enum BuiltInType implements GLSLType, HasToken {
                 return false;
         }
     }
+
+    public static int elements(BuiltInType type) {
+        switch (type) {
+            case VEC2:
+            case BVEC2:
+            case IVEC2:
+                return 2;
+            case VEC3:
+            case BVEC3:
+            case IVEC3:
+                return 3;
+            case VEC4:
+            case IVEC4:
+            case BVEC4:
+                return 4;
+            default:
+                return 0;
+        }
+    }
 }

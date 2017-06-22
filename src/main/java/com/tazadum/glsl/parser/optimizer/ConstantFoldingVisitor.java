@@ -5,6 +5,8 @@ import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
 import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.arithmetic.UnaryOperationNode;
+import com.tazadum.glsl.ast.function.FunctionCallNode;
+import com.tazadum.glsl.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.ParserContext;
 
@@ -12,6 +14,8 @@ import com.tazadum.glsl.parser.ParserContext;
  * Created by Erik on 2016-10-20.
  */
 public class ConstantFoldingVisitor extends ReplacingASTVisitor {
+    private final String[] validSelection = {"xrs", "ygt", "zbp", "waq"};
+
     private final OptimizationDecider decider;
     private int changes = 0;
 
@@ -26,6 +30,84 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
 
     public int getChanges() {
         return changes;
+    }
+
+    @Override
+    public Node visitFunctionCall(FunctionCallNode node) {
+        super.visitFunctionCall(node);
+
+        if (node.getDeclarationNode().getPrototype().isBuiltIn()) {
+            switch (node.getDeclarationNode().getIdentifier().original()) {
+                case "vec2":
+                    return optimizeVectorConstruction(node, BuiltInType.VEC2);
+                case "vec3":
+                    return optimizeVectorConstruction(node, BuiltInType.VEC3);
+                case "vec4":
+                    return optimizeVectorConstruction(node, BuiltInType.VEC4);
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public Node visitFieldSelection(FieldSelectionNode node) {
+        super.visitFieldSelection(node);
+
+        if (node.getType() == node.getExpression().getType()) {
+            // verify the selection order
+            for (int i = 0; i < node.getSelection().length(); i++) {
+                if (validSelection[i].indexOf(node.getSelection().charAt(i)) < 0) {
+                    return null;
+                }
+            }
+            return node.getExpression();
+        }
+
+        return null;
+    }
+
+    private Node optimizeVectorConstruction(FunctionCallNode functionCall, BuiltInType type) {
+        if (functionCall.getChildCount() == 0) {
+            return null;
+        }
+        if (functionCall.getChildCount() == 1) {
+            Node child = functionCall.getChild(0);
+            if (type.equals(child.getType())) {
+                // the argument to the vector constructor has the same type
+                return child;
+            }
+        }
+        final int elements = BuiltInType.elements(type);
+        if (functionCall.getChildCount() == elements) {
+            Node target = null;
+            String replacementSelection = "";
+
+            for (int i = 0; i < elements; i++) {
+                Node child = functionCall.getChild(i);
+                if (child instanceof FieldSelectionNode) {
+                    Node expression = ((FieldSelectionNode) child).getExpression();
+                    if (target == null) {
+                        target = expression;
+                    } else if (!target.equals(expression)) {
+                        return null;
+                    }
+
+                    String selection = ((FieldSelectionNode) child).getSelection();
+                    if (validSelection[i].contains(selection)) {
+                        replacementSelection += validSelection[i].charAt(0);
+                        continue;
+                    }
+                }
+                return null;
+            }
+
+            FieldSelectionNode replacement = new FieldSelectionNode(replacementSelection);
+            replacement.setExpression(target);
+            return replacement;
+        }
+
+        return null;
     }
 
     @Override
