@@ -81,6 +81,20 @@ public class MultiOptimizerTest {
         System.out.println(result);
     }
 
+    @Test
+    public void testSqueeze() throws Exception {
+        String result = optimize(
+                        "void main(){\n" +
+                        "    vec2 modified=vec2(1,1);\n" +
+                        "    modified.x = 2;\n" +
+                        "    vec2 color=modified.yx;" +
+                        "    gl_FragColor=vec4(color, color);\n" +
+                        "}\n"
+        );
+
+        System.out.println(result);
+    }
+
     private String optimize(String source) {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);

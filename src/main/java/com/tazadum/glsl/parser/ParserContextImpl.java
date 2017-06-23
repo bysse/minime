@@ -74,6 +74,7 @@ public class ParserContextImpl implements ParserContext {
         function("vec3", BuiltInType.VEC3, GenTypes.GenScalarType, BuiltInType.VEC2);
         // vec4
         fixedFunction("vec4", BuiltInType.VEC4, BuiltInType.VEC4);
+        fixedFunction("vec4", BuiltInType.VEC4, BuiltInType.VEC2, BuiltInType.VEC2);
         function("vec4", BuiltInType.VEC4, GenTypes.GenScalarType);
         function("vec4", BuiltInType.VEC4, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
         function("vec4", BuiltInType.VEC4, BuiltInType.VEC3, GenTypes.GenScalarType);

@@ -95,6 +95,13 @@ public class NodeFinder {
                 node.getChild(i).accept(this);
             }
         }
+
+        @Override
+        protected void visitLeafNode(LeafNode node) {
+            if (needle.equals(node)) {
+                found = true;
+            }
+        }
     }
 
     private static class NodeFinderVisitor<T> extends DefaultASTVisitor<Boolean> {
