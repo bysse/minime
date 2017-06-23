@@ -67,8 +67,8 @@ public class ContextBasedMultiIdentifierShortenerTest {
     @Test
     public void test_basic_1() {
         config.setIdentifiers(IdentifierOutput.None);
-        Node node1 = compile(TestUtils.parserContext(), "float x=0.;void main(){float y=tan(0.0)*tan(0.0);}");
-        Node node2 = compile(TestUtils.parserContext(), "vec2 x=vec2(1.0);");
+        Node node1 = compile(TestUtils.parserContext(), "uniform int x;void main(){float y=tan(0.0)*tan(0.0);}");
+        Node node2 = compile(TestUtils.parserContext(), "void main(){gl_FragColor=vec3(1.0);}");
 
         identifierShortener.apply();
 
@@ -76,8 +76,8 @@ public class ContextBasedMultiIdentifierShortenerTest {
 
         System.out.println(output.render(node1, config));
         System.out.println(output.render(node2, config));
-
-        assertEquals("vec2 a=vec2(1);", output.render(node2, config));
+        assertEquals("uniform int i;void main(){}", output.render(node1, config));
+        assertEquals("void main(){gl_FragColor=vec3(1);}", output.render(node2, config));
     }
 
     @Test

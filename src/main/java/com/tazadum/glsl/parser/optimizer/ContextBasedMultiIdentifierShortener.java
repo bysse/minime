@@ -144,16 +144,13 @@ public class ContextBasedMultiIdentifierShortener {
         }
         if (node instanceof VariableDeclarationNode) {
             final VariableDeclarationNode declarationNode = (VariableDeclarationNode) node;
-            if (parserContext.globalContext().equals(context)) {
-                // if the variable is declared in global scope we need to look if the identifier
-                // can be resolved in the context of any of the usage nodes
-                final Usage<VariableDeclarationNode> nodeUsage = parserContext.getVariableRegistry().resolve(declarationNode);
-                for (Node usage : nodeUsage.getUsageNodes()) {
-                    final GLSLContext usageContext = parserContext.findContext(usage);
+            final Usage<VariableDeclarationNode> nodeUsage = parserContext.getVariableRegistry().resolve(declarationNode);
+            // check if the variable can be resolved in the context of any of the usage nodes
+            for (Node usage : nodeUsage.getUsageNodes()) {
+                final GLSLContext usageContext = parserContext.findContext(usage);
 
-                    if (isVariableReachable(parserContext, usageContext, identifier)) {
-                        return true;
-                    }
+                if (isVariableReachable(parserContext, usageContext, identifier)) {
+                    return true;
                 }
             }
         }

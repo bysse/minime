@@ -2,6 +2,7 @@ package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.output.IdentifierOutput;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
@@ -95,6 +96,31 @@ public class MultiOptimizerTest {
         System.out.println(result);
     }
 
+    @Test
+    public void testRenaming() throws Exception {
+        outputConfig.setIdentifiers(IdentifierOutput.Replaced);
+
+        String result = optimize(
+                "uniform sampler2D fontTexture;\n" +
+                        "float character(vec3 p, int i) {\n" +
+                        "    float d = 1e5;\n" +
+                        "    for (int y=0;y<5;y++) {\n" +
+                        "        for (int x=0;x<5;x++) {\n" +
+                        "            float a = 0.05 * texture(fontTexture, .5+vec2(x, i)).x;\n" +
+                        "            d = min(d, length(max(abs(p - 0.10 * vec3(x,y,0))-a,0.0)));\n" +
+                        "        }\n" +
+                        "        i++;\n" +
+                        "    }\n" +
+                        "    return d;\n" +
+                        "}" +
+                        "void main(){" +
+                        "gl_FragColor=vec3(character(gl_FragCoord.xyz, 4));" +
+                        "}"
+        );
+
+        System.out.println(result);
+    }
+
     private String optimize(String source) {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);
@@ -103,7 +129,18 @@ public class MultiOptimizerTest {
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
 
-            return output.render(optimize(node), outputConfig);
+            Node optimized = optimize(node);
+            ContextBasedMultiIdentifierShortener shortener = new ContextBasedMultiIdentifierShortener(true);
+
+            OutputConfig config = new OutputConfig();
+            config.setNewlines(false);
+            config.setIndentation(0);
+            config.setIdentifiers(IdentifierOutput.None);
+
+            shortener.register(parserContext, optimized, config);
+            shortener.apply();
+
+            return output.render(optimized, outputConfig);
         } catch (Exception e) {
             throw e;
         }
