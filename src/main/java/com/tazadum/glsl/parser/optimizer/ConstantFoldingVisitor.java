@@ -61,6 +61,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
                     return null;
                 }
             }
+            changes++;
             return node.getExpression();
         }
 
@@ -80,6 +81,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             if (child instanceof FunctionCallNode) {
                 String childFunction = ((FunctionCallNode) child).getIdentifier().original();
                 if (functionCall.getIdentifier().original().equals(childFunction)) {
+                    changes++;
                     return child;
                 }
             }
@@ -110,6 +112,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
 
             FieldSelectionNode replacement = new FieldSelectionNode(replacementSelection);
             replacement.setExpression(target);
+            changes++;
             return replacement;
         }
 
@@ -124,6 +127,13 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             changes++;
             return expression;
         }
+
+        ParentNode parentNode = node.getParentNode();
+        if (parentNode !=  null && parentNode instanceof FunctionCallNode) {
+            changes++;
+            return expression;
+        }
+
         return null;
     }
 

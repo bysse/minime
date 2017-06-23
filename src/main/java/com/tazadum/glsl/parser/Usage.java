@@ -46,7 +46,15 @@ public class Usage<T> {
     }
 
     public boolean remove(Node node) {
-        return nodes.remove(node);
+        ListIterator<Node> iterator = nodes.listIterator();
+        while (iterator.hasNext()) {
+            Node element = iterator.next();
+            if (node.getId() == element.getId()) {
+                iterator.remove();
+                return true;
+            }
+        }
+        return false;
     }
 
     public Usage<T> remap(Node base) {

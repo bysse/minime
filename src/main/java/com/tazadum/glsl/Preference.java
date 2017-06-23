@@ -8,5 +8,6 @@ public enum Preference {
     LINE_BREAKS,
     NO_TYPE_CONVERSION,
     PASS_THROUGH,
+    NO_RENAMING,
     BIT_PACK
 }

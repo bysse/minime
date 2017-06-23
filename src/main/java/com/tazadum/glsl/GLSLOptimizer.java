@@ -100,11 +100,15 @@ public class GLSLOptimizer {
             contexts.add(execute(shaderFile));
         }
 
-        if (!preferences.contains(Preference.PASS_THROUGH)) {
-            output("--------------------------------------------------\n");
+        if (preferences.contains(Preference.NO_RENAMING)) {
+            outputConfig.setIdentifiers(IdentifierOutput.Original);
+        } else {
+            if (!preferences.contains(Preference.PASS_THROUGH)) {
+                output("--------------------------------------------------\n");
 
-            output("Shortening identifiers\n");
-            identifierShortener.apply();
+                output("Shortening identifiers\n");
+                identifierShortener.apply();
+            }
         }
 
         for (GLSLOptimizerContext context : contexts) {
@@ -169,21 +173,23 @@ public class GLSLOptimizer {
         boolean passThrough = preferences.contains(Preference.PASS_THROUGH);
         boolean bitPack = preferences.contains(Preference.BIT_PACK);
 
-        // iterate on the symbol allocation
-        while (true) {
-            final boolean loop = !passThrough && identifierShortener.permutateIdentifiers();
-            final String iteration = output.render(node, outputConfig).trim();
-            final int length = Compressor.compress(outputShader);
+        if (!preferences.contains(Preference.NO_RENAMING)) {
+            // iterate on the symbol allocation
+            while (true) {
+                final boolean loop = !passThrough && identifierShortener.permutateIdentifiers();
+                final String iteration = output.render(node, outputConfig).trim();
+                final int length = Compressor.compress(outputShader);
 
-            if (length > 0 && length < compressedLength) {
-                output("Re-allocating identifiers\n");
-                output("  - %d bytes compressed\n", length);
-                outputShader = iteration;
-                compressedLength = length;
-            }
+                if (length > 0 && length < compressedLength) {
+                    output("Re-allocating identifiers\n");
+                    output("  - %d bytes compressed\n", length);
+                    outputShader = iteration;
+                    compressedLength = length;
+                }
 
-            if (!loop) {
-                break;
+                if (!loop) {
+                    break;
+                }
             }
         }
 

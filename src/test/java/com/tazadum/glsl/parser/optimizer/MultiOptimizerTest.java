@@ -1,25 +1,18 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.GLSLOptimizerContext;
 import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
-import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeChecker;
-import com.tazadum.glsl.parser.variable.VariableRegistry;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -45,7 +38,7 @@ public class MultiOptimizerTest {
 
     @Test
     public void testDofShader() throws Exception {
-        String result = optimize("" +
+        String result = optimize(
                 "uniform vec3 iResolution;\n" +
                 "uniform sampler2D image;\n" +
                 "float WIDTH = iResolution.x;\n" +
@@ -71,7 +64,21 @@ public class MultiOptimizerTest {
         int usage = result.indexOf("angle=vec2(0,rad)");
         int declaration = result.indexOf("rad=texture(image,uv).w");
         assertTrue(declaration < usage);
+    }
 
+    @Test
+    public void testFolding() throws Exception {
+        String result = optimize(
+                "uniform vec3 uniformA;\n" +
+                "float uniformProxy = uniformA.z;\n" +
+                "float remove = 10/uniformProxy;\n" +
+                "void main(){\n" +
+                "    float deadcode=uniformProxy;\n" +
+                "    gl_FragColor=vec3(remove);\n" +
+                "}\n"
+        );
+
+        System.out.println(result);
     }
 
     private String optimize(String source) {

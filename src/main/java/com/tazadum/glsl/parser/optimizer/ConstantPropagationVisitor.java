@@ -59,7 +59,6 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
             }
 
             if (usageNodes.size() == 1 || isWorthIt(node, usageNodes)) {
-
                 List<NodeUsage> newNodeUsage = new ArrayList<>();
                 boolean firstNode = true;
 
@@ -90,7 +89,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
                     }
                     firstNode = false;
 
-                    if (initializerNeedWrapping(initializer)) {
+                    if (initializerNeedWrapping(initializer, usage.getParentNode())) {
                         initializer = new ParenthesisNode(initializer);
                     }
 
@@ -112,7 +111,10 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
         return null;
     }
 
-    private boolean initializerNeedWrapping(Node initializer) {
+    private boolean initializerNeedWrapping(Node initializer, Node parentNode) {
+        if (parentNode != null && parentNode instanceof FunctionCallNode) {
+            return false;
+        }
         if (initializer instanceof NumericOperationNode){
             return ((NumericOperationNode) initializer).getOperator() != NumericOperator.MUL;
         }
@@ -152,7 +154,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
         // assume we can get a single character variable identifier
         final int identifierSize = 1;
 
-        final int valueScore = decider.score(node.getInitializer()) + (initializerNeedWrapping(node.getInitializer())?2:0);
+        final int valueScore = decider.score(node.getInitializer()) + (initializerNeedWrapping(node.getInitializer(), listNode)?2:0);
         final int declarationScore = decider.score(listNode) - valueScore + identifierSize;
 
         return valueScore * usageNodes.size() < declarationScore;
