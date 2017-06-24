@@ -81,6 +81,10 @@ public class HeaderFileGenerator implements FileGenerator {
         Pattern commentPattern = Pattern.compile("\\s*/\\*\\s*(.+)\\s*\\*/", Pattern.DOTALL);
         Pattern indentationPattern = Pattern.compile("^(\\s*)");
 
+        if (context.getHeader().length() > 0) {
+            builder.append("  \t\"").append(context.getHeader()).append("\"\n");
+        }
+
         for (String line : shader.split("\n+")) {
             line = indentationPattern.matcher(line).replaceFirst("$1\"");
 
@@ -104,6 +108,10 @@ public class HeaderFileGenerator implements FileGenerator {
 
         builder.append("   ;\n\n");
         builder.append("#endif // #ifndef ").append(def).append("\n\n");
+
+
+        outputConfig.setNewlines(keepNewlines);
+
         return builder.toString();
     }
 }

@@ -15,11 +15,13 @@ public class GLSLOptimizerContext {
     private ParserContext parserContext;
     private Node node;
     private String source;
+    private String header;
 
     public GLSLOptimizerContext(String shaderName) {
         this.shaderName = shaderName;
         this.typeChecker = new TypeChecker();
         this.parserContext = new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
+        this.header = "";
     }
 
     public String getShaderName() {
@@ -48,5 +50,13 @@ public class GLSLOptimizerContext {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    public void setHeader(String header) {
+        this.header = header;
+    }
+
+    public String getHeader() {
+        return header;
     }
 }
