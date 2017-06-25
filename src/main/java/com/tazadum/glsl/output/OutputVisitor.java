@@ -48,7 +48,7 @@ public class OutputVisitor implements ASTVisitor<String> {
             final char lastChar = builder.charAt(builder.length() - 1);
 
             // some statements do not require a semicolon
-            if (!noSemiColon(child) && lastChar != '}' && lastChar != ';' && lastChar != '\n') {
+            if (!noSemiColon(child) && !lastCharacterIs(builder, '}', ';', '\n')) {
                 builder.append(';');
             }
             if (lastChar != '\n') {
@@ -285,6 +285,9 @@ public class OutputVisitor implements ASTVisitor<String> {
         outputBlock(builder, node.getThen());
 
         if (node.getElse() != null) {
+            if (!lastCharacterIs(builder, '}')) {
+                builder.append(indentation());
+            }
             builder.append("else");
             outputBlock(builder, node.getElse());
         }
@@ -442,7 +445,13 @@ public class OutputVisitor implements ASTVisitor<String> {
         } else {
             enterScope();
             builder.append(newLine()).append(indentation());
-            builder.append(node.accept(this)).append(';');
+            builder.append(node.accept(this));
+
+            // some statements do not require a semicolon
+            if (!noSemiColon(node) && !lastCharacterIs(builder, '}', ';', '\n')) {
+                builder.append(';');
+            }
+
             exitScope();
         }
     }
@@ -462,5 +471,15 @@ public class OutputVisitor implements ASTVisitor<String> {
             builder.append(node.getChild(i).accept(this));
         }
         return builder.toString();
+    }
+
+    private boolean lastCharacterIs(StringBuilder builder, char... characters) {
+        final char lastChar = builder.charAt(builder.length() - 1);
+        for (char character : characters) {
+            if (lastChar == character) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -143,6 +143,34 @@ public class ContextBasedMultiIdentifierShortenerTest {
         } while(identifierShortener.permutateIdentifiers());
     }
 
+    @Test
+    public void test_for_loops() {
+        config.setIdentifiers(IdentifierOutput.None);
+        Node node1 = compile(TestUtils.parserContext(),
+                "" +
+                        "void main(){" +
+                        " vec4 color=vec4(1);" +
+                        " for(int i=0;i<5;i++) {" +
+                        "  color.x += 0.1*i;" +
+                        " }" +
+                        " for(int i=0;i<5;i++) {" +
+                        "  color.y += 0.1*i;" +
+                        " }" +
+                        " gl_FragColor = color;" +
+                        "}"
+        );
+
+        do {
+            identifierShortener.apply();
+
+            config.setIdentifiers(IdentifierOutput.Replaced);
+
+            System.out.println(output.render(node1, config));
+            System.out.println("");
+
+        } while(identifierShortener.permutateIdentifiers());
+    }
+
     private Node compile(ParserContext parserContext, String source) {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);
