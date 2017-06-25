@@ -136,8 +136,8 @@ public class GLSLOptimizer {
         String shaderSource = loadFile(new File(shaderFilename), new HashSet<>());
         if (shaderSource.startsWith("#version")) {
             int firstLine = shaderSource.indexOf("\n");
-            context.setHeader(shaderSource.substring(firstLine));
-            shaderSource = shaderSource.substring(firstLine);
+            context.setHeader(shaderSource.substring(0, firstLine));
+            shaderSource = shaderSource.substring(firstLine + 1);
         }
         final CommonTokenStream tokenStream = tokenStream(shaderSource);
         final GLSLParser parser = new GLSLParser(tokenStream);

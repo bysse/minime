@@ -84,7 +84,6 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
                 }
                 return a.compareTo(b);
             });
-
         } else {
             // sorting is stable so a shuffle could change the sorted order
             Collections.shuffle(list);

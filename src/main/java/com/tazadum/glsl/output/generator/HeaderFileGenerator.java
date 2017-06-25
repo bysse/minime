@@ -82,7 +82,7 @@ public class HeaderFileGenerator implements FileGenerator {
         Pattern indentationPattern = Pattern.compile("^(\\s*)");
 
         if (context.getHeader().length() > 0) {
-            builder.append("  \t\"").append(context.getHeader()).append("\"\n");
+            builder.append("  \t\"").append(context.getHeader()).append("\\n\"\n");
         }
 
         for (String line : shader.split("\n+")) {

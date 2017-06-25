@@ -134,6 +134,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitForIterationStatement(GLSLParser.ForIterationStatementContext ctx) {
         final ForIterationNode node = new ForIterationNode();
+        if (ctx.statement_no_new_scope() != null) {
+            parserContext.enterContext(node);
+        }
+
         node.setInitialization(ctx.for_init_statement().accept(this));
 
         GLSLParser.For_rest_statementContext forRestStatement = ctx.for_rest_statement();
@@ -143,7 +147,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         if (ctx.statement_no_new_scope() != null) {
-            parserContext.enterContext(node);
             node.setStatement(ctx.statement_no_new_scope().accept(this));
             parserContext.exitContext();
         }
