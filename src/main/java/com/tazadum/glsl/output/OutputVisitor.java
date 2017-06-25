@@ -344,13 +344,32 @@ public class OutputVisitor implements ASTVisitor<String> {
             String format = String.format("%%.%df", decimals);
             String result = String.format(Locale.US, format, numeric.getValue());
             if (result.startsWith("0")) {
-                return result.substring(1);
+                result = result.substring(1);
             }
+            while (result.endsWith("0")) {
+                result = result.substring(0, result.length()-1);
+            }
+
+            if (".".equals(result)) {
+                if (config.isImplicitConversionToFloat()) {
+                    return "0";
+                } else {
+                    return ".0";
+                }
+            }
+
             return result;
         }
         if (numeric.isFloat()) {
             if (numeric.getValue() == 0) {
-                return ".0";
+                if (config.isImplicitConversionToFloat()) {
+                    return "0";
+                } else {
+                    return ".0";
+                }
+            }
+            if (config.isImplicitConversionToFloat()) {
+                return String.format(Locale.US, "%d", (int) numeric.getValue());
             }
             return String.format(Locale.US, "%d.", (int) numeric.getValue());
         }
