@@ -449,7 +449,11 @@ public class OutputVisitor implements ASTVisitor<String> {
         if (node instanceof StatementListNode) {
             final boolean singleStatement = ((StatementListNode) node).getChildCount() == 1;
 
-            if (!singleStatement) {
+            if (singleStatement) {
+                if (lastCharacterIs(builder, 'e')) {
+                    builder.append(' ');
+                }
+            } else {
                 builder.append('{');
             }
             builder.append(newLine());
@@ -463,6 +467,9 @@ public class OutputVisitor implements ASTVisitor<String> {
             }
         } else {
             enterScope();
+            if (lastCharacterIs(builder, 'e')) {
+                builder.append(' ');
+            }
             builder.append(newLine()).append(indentation());
             builder.append(node.accept(this));
 

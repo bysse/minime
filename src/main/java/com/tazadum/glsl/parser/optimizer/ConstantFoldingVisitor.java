@@ -7,8 +7,12 @@ import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.arithmetic.UnaryOperationNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.finder.NodeFinder;
+
+import java.util.Set;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -44,10 +48,30 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
                     return optimizeVectorConstruction(node, BuiltInType.VEC3);
                 case "vec4":
                     return optimizeVectorConstruction(node, BuiltInType.VEC4);
+                case "abs":
+                    return optimizeAbs(node);
             }
         }
 
         return null;
+    }
+
+    private Node optimizeAbs(FunctionCallNode node) {
+        Node expression = node.getChild(0);
+        if (!isConstant(expression)) {
+            return null;
+        }
+
+        // TODO: evaluate the expression
+
+        return null;
+    }
+
+    private boolean isConstant(Node node) {
+        final Set<FunctionCallNode> functionCalls = NodeFinder.findAll(node, FunctionCallNode.class);
+        final Set<VariableNode> variables = NodeFinder.findAll(node, VariableNode.class);
+
+        return functionCalls.isEmpty() && variables.isEmpty();
     }
 
     @Override
