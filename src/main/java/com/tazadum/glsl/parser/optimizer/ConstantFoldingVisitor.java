@@ -192,6 +192,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         }
 
         if (replacement != null) {
+            changes++;
             return replacement;
         }
 
