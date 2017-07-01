@@ -152,7 +152,11 @@ public class OutputVisitor implements ASTVisitor<String> {
 
     @Override
     public String visitWhileIteration(WhileIterationNode node) {
-        return visitChildren(node);
+        final StringBuilder builder = new StringBuilder();
+        builder.append("while(");
+        builder.append(node.getCondition().accept(this)).append(')');
+        outputBlock(builder, node.getStatement());
+        return builder.toString();
     }
 
     @Override
