@@ -83,9 +83,12 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
                                 .collect(Collectors.toList()));
 
                         // find all functions
+                        /*
+                        Not sure what I was thinking
                         newNodeUsage.addAll(NodeFinder.findAll(initializer, FunctionCallNode.class).stream()
                                 .map(functionCallNode -> new NodeUsage(usageContext, functionCallNode.getDeclarationNode().getIdentifier(), functionCallNode))
                                 .collect(Collectors.toList()));
+                        */
                     }
                     firstNode = false;
 
