@@ -97,6 +97,8 @@ public class ParserContextImpl implements ParserContext {
             GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
             GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType,
             GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType, GenTypes.GenScalarType);
+        fixedFunction("mat4", BuiltInType.MAT4, BuiltInType.VEC4, BuiltInType.VEC4, BuiltInType.VEC4, BuiltInType.VEC4);
+
 
         // Angle and Trigonometry Functions
         function("radians", GenTypes.GenType, GenTypes.GenType);
