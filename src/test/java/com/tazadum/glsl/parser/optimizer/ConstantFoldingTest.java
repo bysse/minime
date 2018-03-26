@@ -168,6 +168,16 @@ public class ConstantFoldingTest {
         assertEquals("4*var*var", optimize("2 * var * 2 * var"));
     }
 
+    /*
+    @Test
+    public void test_folding_chain_div() {
+        VariableRegistry registry = parserContext.getVariableRegistry();
+        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+
+        assertEquals("var", optimize("2 * var / 2"));
+    }
+    */
+
     private String optimize(String source) {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);

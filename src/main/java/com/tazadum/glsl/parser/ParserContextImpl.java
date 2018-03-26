@@ -109,6 +109,7 @@ public class ParserContextImpl implements ParserContext {
         function("asin", GenTypes.GenType, GenTypes.GenType);
         function("acos", GenTypes.GenType, GenTypes.GenType);
         function("atan", GenTypes.GenType, GenTypes.GenType);
+        function("atan", GenTypes.GenType, GenTypes.GenType, GenTypes.GenType);
         function("sinh", GenTypes.GenType, GenTypes.GenType);
         function("cosh", GenTypes.GenType, GenTypes.GenType);
         function("tanh", GenTypes.GenType, GenTypes.GenType);

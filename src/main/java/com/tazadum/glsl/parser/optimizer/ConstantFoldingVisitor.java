@@ -200,11 +200,6 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             return evaluate(node, left, right);
         }
 
-        if (node.getOperator() == NumericOperator.DIV) {
-            // TODO: do something clever with divs
-            return null;
-        }
-
         // all simple cases are exhausted, search for down the chain
         if (right != null && hasOperation(node.getOperator(), node.getLeft())) {
             Node result = handleOperation(node, (NumericOperationNode) node.getLeft(), left, right);
@@ -213,7 +208,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             }
         }
 
-        if (hasOperation(node.getOperator(), node.getRight())) {
+        if (left != null && hasOperation(node.getOperator(), node.getRight())) {
             Node result = handleOperation(node, (NumericOperationNode) node.getRight(), left, right);
             if (result != null) {
                 return result;
@@ -233,6 +228,9 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             final Node rightClone = node.getRight().clone(null);
             final NumericOperationNode dummyNode = new NumericOperationNode(node.getOperator(), leftClone, rightClone);
 
+            if (right == null) {
+                return null;
+            }
             final Node result = evaluate(dummyNode, childLeft, right);
             if (result != dummyNode) {
                 changes++;
@@ -244,6 +242,9 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             final Node rightClone = child.getRight().clone(null);
             final NumericOperationNode dummyNode = new NumericOperationNode(node.getOperator(), leftClone, rightClone);
 
+            if (left == null) {
+                return null;
+            }
             final Node result = evaluate(dummyNode, left, childRight);
             if (result != dummyNode) {
                 changes++;
@@ -344,6 +345,48 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
             parserContext.dereferenceTree(node);
             return createConstant(node.getType(), 1);
         }
+/*
+        if (hasOperation(NumericOperator.ADD, node.getLeft()) ||
+                hasOperation(NumericOperator.SUB, node.getLeft()) ||
+                hasOperation(NumericOperator.DIV, node.getLeft()) ||
+                hasOperation(NumericOperator.ADD, node.getRight()) ||
+                hasOperation(NumericOperator.SUB, node.getRight())) {
+            // can't simplify the expression without other simplifications
+            return null;
+        }
+
+        if (right != null) {
+            // find a numeric leaf node in the left hand side
+            Set<HasNumeric> nodes = NodeFinder.findAll(node.getLeft(), HasNumeric.class);
+            if (nodes.isEmpty()) {
+                return null;
+            }
+
+            HasNumeric first = nodes.iterator().next();
+            Numeric leftNumeric = first.getValue();
+
+            // evaluate the result
+            int decimals = 0;
+            double value = leftNumeric.getValue() / right.getValue();
+            double reminder = leftNumeric.getValue() % right.getValue();
+            if (reminder == 0.0) {
+                decimals = 0;
+            } else {
+                decimals = Math.max(2, leftNumeric.getDecimals() + right.getDecimals());
+            }
+            Numeric result = new Numeric(value, decimals, decimals != 0);
+
+            // switch out the nodes
+            NumericOperationNode clonedRoot = node.clone(null);
+            NumericOperationNode stage2 = ReplaceUtil.replaceNumeric(parserContext, clonedRoot, (LeafNode) first, result);
+            NumericOperationNode stage3 = ReplaceUtil.removeNumeric(parserContext, stage2, (LeafNode)node.getRight());
+
+            if (stage3.getRight() == null) {
+                return stage3.getLeft();
+            }
+            return stage3;
+        }
+*/
         return null;
     }
 
