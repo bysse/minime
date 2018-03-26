@@ -9,5 +9,6 @@ public enum Preference {
     NO_TYPE_CONVERSION,
     PASS_THROUGH,
     NO_RENAMING,
-    BIT_PACK
+    BIT_PACK,
+    NO_PRAGMA_ONCE
 }

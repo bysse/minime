@@ -264,7 +264,7 @@ public class GLSLOptimizer {
                 if (bitPack) {
                     return new PackedHeaderFileGenerator(shaderFilename, outputConfig, multipleShaders);
                 }
-                return new HeaderFileGenerator(shaderFilename, outputConfig, multipleShaders);
+                return new HeaderFileGenerator(shaderFilename, outputConfig, multipleShaders, preferences.contains(Preference.NO_PRAGMA_ONCE));
         }
         throw new IllegalArgumentException("Unknown OutputProfile!");
     }

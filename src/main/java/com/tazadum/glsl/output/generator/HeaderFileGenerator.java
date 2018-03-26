@@ -19,10 +19,12 @@ public class HeaderFileGenerator implements FileGenerator {
     private final String id;
     private final OutputConfig outputConfig;
     private boolean multipleShaders;
+    private boolean noPragmaOnce;
 
-    public HeaderFileGenerator(String shaderFilename, OutputConfig outputConfig, boolean multipleShaders) {
+    public HeaderFileGenerator(String shaderFilename, OutputConfig outputConfig, boolean multipleShaders, boolean noPragmaOnce) {
         this.outputConfig = outputConfig;
         this.multipleShaders = multipleShaders;
+        this.noPragmaOnce = noPragmaOnce;
         String name = new File(shaderFilename).getName();
         int index = name.lastIndexOf('.');
 
@@ -45,8 +47,10 @@ public class HeaderFileGenerator implements FileGenerator {
         String def = "__" + id.toUpperCase() + "__";
 
         StringBuilder builder = new StringBuilder();
-        builder.append("#ifndef ").append(def).append("\n");
-        builder.append("#define ").append(def).append("\n\n");
+        if (!noPragmaOnce) {
+            builder.append("#ifndef ").append(def).append("\n");
+            builder.append("#define ").append(def).append("\n\n");
+        }
 
         // generate identifier mapping
         builder.append("// uniform mapping\n");
@@ -107,8 +111,9 @@ public class HeaderFileGenerator implements FileGenerator {
         }
 
         builder.append("   ;\n\n");
-        builder.append("#endif // #ifndef ").append(def).append("\n\n");
-
+        if (!noPragmaOnce) {
+            builder.append("#endif // #ifndef ").append(def).append("\n\n");
+        }
 
         outputConfig.setNewlines(keepNewlines);
 
