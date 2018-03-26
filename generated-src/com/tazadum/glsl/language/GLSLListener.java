@@ -1,4 +1,4 @@
-// Generated from GLSL.g4 by ANTLR 4.7
+// Generated from GLSL.g4 by ANTLR 4.7.1
 package com.tazadum.glsl.language;
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 

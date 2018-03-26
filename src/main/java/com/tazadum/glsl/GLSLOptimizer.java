@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Erik on 2016-10-24.
@@ -93,11 +94,18 @@ public class GLSLOptimizer {
         this.preferences = preferences;
     }
 
-    public void execute(List<String> shaderFiles) {
+    public void processFiles(List<String> shaderFiles) {
+        List<GLSLSource> sources = shaderFiles.stream()
+                .map(filename -> new GLSLSource(filename, null))
+                .collect(Collectors.toList());
+        process(sources);
+    }
+
+    public void process(List<GLSLSource> shaderSources) {
         List<GLSLOptimizerContext> contexts = new ArrayList<>();
-        for (String shaderFile : shaderFiles) {
+        for (GLSLSource source : shaderSources) {
             output("--------------------------------------------------\n");
-            contexts.add(execute(shaderFile));
+            contexts.add(execute(source));
         }
 
         if (preferences.contains(Preference.NO_RENAMING)) {
@@ -123,7 +131,16 @@ public class GLSLOptimizer {
         return new VariableDeclarationNode(false, fst, identifier, null, null);
     }
 
-    private GLSLOptimizerContext execute(String shaderFilename) {
+    private GLSLOptimizerContext execute(GLSLSource source) {
+        if (source.hasContent()) {
+            return execute(source.getFilename(), source.getContent());
+        }
+
+        String content = loadFile(new File(source.getFilename()), new HashSet<>());
+        return execute(source.getFilename(), content);
+    }
+
+    private GLSLOptimizerContext execute(String shaderFilename, String shaderSource) {
         final GLSLOptimizerContext context = new GLSLOptimizerContext(shaderFilename);
 
         if (shaderToySupport) {
@@ -133,7 +150,6 @@ public class GLSLOptimizer {
         outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
         outputConfig.setImplicitConversionToFloat(!preferences.contains(Preference.NO_TYPE_CONVERSION));
 
-        String shaderSource = loadFile(new File(shaderFilename), new HashSet<>());
         if (shaderSource.startsWith("#version")) {
             int firstLine = shaderSource.indexOf("\n");
             context.setHeader(shaderSource.substring(0, firstLine));

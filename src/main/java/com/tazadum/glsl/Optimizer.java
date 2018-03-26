@@ -60,11 +60,11 @@ public class Optimizer {
                 optimizer.setPreferences(preferences);
             }
 
-            List<String> shaderList = options.nonOptionArguments().stream()
-                    .map(String::valueOf)
+            List<GLSLSource> shaderList = options.nonOptionArguments().stream()
+                    .map(obj -> new GLSLSource(String.valueOf(obj), null))
                     .collect(Collectors.toList());
 
-            optimizer.execute(shaderList);
+            optimizer.process(shaderList);
         } catch (Exception e) {
             System.err.println("ERROR: " + e.getMessage());
 
