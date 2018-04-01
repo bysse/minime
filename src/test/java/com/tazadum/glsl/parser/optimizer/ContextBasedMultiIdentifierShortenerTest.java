@@ -12,10 +12,10 @@ import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ContextBasedMultiIdentifierShortenerTest {
     final private OutputSizeDecider decider = new OutputSizeDecider();
@@ -53,7 +53,7 @@ public class ContextBasedMultiIdentifierShortenerTest {
             "    gl_FragColor=vec4(dof(image,uv,texture(image,uv).w),1.);\n" +
             "}";
 
-    @Before
+    @BeforeEach
     public void setup() {
         output = new Output();
         identifierShortener = new ContextBasedMultiIdentifierShortener(true);

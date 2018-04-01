@@ -3,8 +3,8 @@ package com.tazadum.glsl.parser.shaders;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 
@@ -12,7 +12,7 @@ public class TrickyShadersTest {
     public static final String BASE_DIR = "src/test/resources";
     private ParserContext parserContext;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         parserContext = TestUtils.parserContext();
     }

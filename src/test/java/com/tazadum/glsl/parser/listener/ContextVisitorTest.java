@@ -10,11 +10,11 @@ import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author erikb
@@ -23,7 +23,7 @@ import static org.junit.Assert.assertTrue;
 public class ContextVisitorTest {
     private ParserContext parserContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.parserContext = TestUtils.parserContext();
     }
@@ -75,7 +75,7 @@ public class ContextVisitorTest {
             final GLSLParser parser = TestUtils.parser(stream);
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.translation_unit().accept(visitor);
-            assertTrue("Expected node type " + type.getSimpleName(), type.isAssignableFrom(node.getClass()));
+            assertTrue(type.isAssignableFrom(node.getClass()), "Expected node type " + type.getSimpleName());
             return (T) node;
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

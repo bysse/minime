@@ -3,41 +3,33 @@ package com.tazadum.glsl.output;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Parameterized.class)
 public class OutputTest {
-    private final String shaderSource;
-
     private ParserContext parserContext;
     private Output output;
     private OutputConfig config;
 
-    public OutputTest(String name, String shaderSource) {
-        this.shaderSource = shaderSource;
-    }
-
-    @Parameterized.Parameters(name = "{index}: {0}")
-    public static Collection<Object[]> shaders() {
+    public static Collection<Object[]> loadShaders() {
         return TestUtils.loadShaders("preformatted");
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
         output = new Output();
         config = new OutputConfig();
     }
 
-    @Test
-    public void testShaderOutput() {
+    @ParameterizedTest
+    @MethodSource("loadShaders")
+    public void testShaderOutput(String shaderSource) {
         testOutput(shaderSource);
     }
 

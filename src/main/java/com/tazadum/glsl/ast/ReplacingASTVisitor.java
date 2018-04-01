@@ -211,7 +211,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
         return null;
     }
 
-    private void processParentNode(ParentNode node) {
+    protected void processParentNode(ParentNode node) {
         for (int i = 0; i < node.getChildCount(); i++) {
             Node child = node.getChild(i);
             if (child == null) {

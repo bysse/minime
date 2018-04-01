@@ -7,9 +7,9 @@ import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class LogicalRelationalContextVisitorTest {
     private ParserContext parserContext;
@@ -25,7 +25,7 @@ public class LogicalRelationalContextVisitorTest {
             final GLSLParser parser = TestUtils.parser(stream);
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.numeric_expression().accept(visitor);
-            assertTrue("Expected node type " + type.getSimpleName() + " but got " + node.getClass().getSimpleName(), type.isAssignableFrom(node.getClass()));
+            assertTrue(type.isAssignableFrom(node.getClass()), "Expected node type " + type.getSimpleName() + " but got " + node.getClass().getSimpleName());
             return (T) node;
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

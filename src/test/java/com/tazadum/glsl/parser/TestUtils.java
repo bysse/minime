@@ -20,7 +20,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author erikb
@@ -52,7 +52,7 @@ public class TestUtils {
             final GLSLParser parser = TestUtils.parser(stream);
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.translation_unit().accept(visitor);
-            assertTrue("Expected node type " + type.getSimpleName(), type.isAssignableFrom(node.getClass()));
+            assertTrue(type.isAssignableFrom(node.getClass()), "Expected node type " + type.getSimpleName());
             return (T) node;
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

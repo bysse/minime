@@ -9,11 +9,11 @@ import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * @author erikb
@@ -22,7 +22,7 @@ import static org.junit.Assert.assertTrue;
 public class ArithmeticContextVisitorTest {
     private ParserContext parserContext;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.parserContext = TestUtils.parserContext();
     }
@@ -84,7 +84,7 @@ public class ArithmeticContextVisitorTest {
             final GLSLParser parser = TestUtils.parser(stream);
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.numeric_expression().accept(visitor);
-            assertTrue("Expected node type " + type.getSimpleName() + " but got " + node.getClass().getSimpleName(), type.isAssignableFrom(node.getClass()));
+            assertTrue(type.isAssignableFrom(node.getClass()), "Expected node type " + type.getSimpleName() + " but got " + node.getClass().getSimpleName());
             return (T) node;
         } catch (Exception e) {
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {

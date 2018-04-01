@@ -1,9 +1,10 @@
 package com.tazadum.glsl.language;
 
 import com.tazadum.glsl.exception.TypeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class BuiltInTypeTest {
     @Test
@@ -24,18 +25,24 @@ public class BuiltInTypeTest {
         assertEquals(BuiltInType.BVEC4, BuiltInType.BVEC2.fieldType("stpq"));
     }
 
-    @Test(expected = TypeException.class)
+    @Test
     public void testInvalidField() {
-        BuiltInType.VEC4.fieldType("fail");
+        assertThrows(TypeException.class, () ->
+                BuiltInType.VEC4.fieldType("fail")
+        );
     }
 
-    @Test(expected = TypeException.class)
+    @Test
     public void testTooLongSwizzle() {
-        BuiltInType.IVEC4.fieldType("rbgargba");
+        assertThrows(TypeException.class, () ->
+                BuiltInType.IVEC4.fieldType("rbgargba")
+        );
     }
 
-    @Test(expected = TypeException.class)
+    @Test
     public void testNoField() {
-        BuiltInType.VOID.fieldType("x");
+        assertThrows(TypeException.class, () ->
+                BuiltInType.VOID.fieldType("x")
+        );
     }
 }

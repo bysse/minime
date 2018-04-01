@@ -11,10 +11,11 @@ import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 
 /**
  * Created by Erik on 2016-10-20.
@@ -27,7 +28,7 @@ public class MultiOptimizerTest {
     private TypeChecker typeChecker;
     private OutputConfig outputConfig;
 
-    @Before
+    @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
         output = new Output();

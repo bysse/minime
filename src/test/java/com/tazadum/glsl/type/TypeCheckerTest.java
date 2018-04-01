@@ -11,40 +11,32 @@ import com.tazadum.glsl.parser.function.FunctionRegistry;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Collection;
 
 /**
  * Created by Erik on 2016-10-17.
  */
-@RunWith(Parameterized.class)
 public class TypeCheckerTest {
-    private final String shaderSource;
-
     private ParserContext parserContext;
     private TypeChecker typeChecker;
 
-    public TypeCheckerTest(String name, String shaderSource) {
-        this.shaderSource = shaderSource;
-    }
-
-    @Parameterized.Parameters(name = "{index}: {0}")
-    public static Collection<Object[]> shaders() {
+    public static Collection<Object[]> loadShaders() {
         return TestUtils.loadShaders("preformatted");
     }
 
-    @Before
+    @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
         typeChecker = new TypeChecker();
     }
 
-    @Test
-    public void testShaderOutput() {
+    @ParameterizedTest
+    @MethodSource("loadShaders")
+    public void testShaderOutput(String shaderSource) {
         testOutput(shaderSource);
 
         displayUsedVariables();

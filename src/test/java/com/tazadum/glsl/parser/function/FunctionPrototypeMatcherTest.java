@@ -1,17 +1,17 @@
 package com.tazadum.glsl.parser.function;
 
 import com.tazadum.glsl.language.BuiltInType;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class FunctionPrototypeMatcherTest {
     private FunctionPrototype f_1;
     private FunctionPrototype f_2;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         f_1 = new FunctionPrototype(true, BuiltInType.VOID, BuiltInType.VOID);
         f_2 = new FunctionPrototype(true, BuiltInType.INT, BuiltInType.MAT2, BuiltInType.FLOAT);

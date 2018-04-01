@@ -1,12 +1,9 @@
 package com.tazadum.glsl.ast.arithmetic;
 
 import com.tazadum.glsl.language.Numeric;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-
+import static org.junit.jupiter.api.Assertions.*;
 public class NumericTest {
     @Test
     public void testFraction() {

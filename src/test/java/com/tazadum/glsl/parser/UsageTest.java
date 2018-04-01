@@ -4,14 +4,12 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.StatementListNode;
 import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.language.Numeric;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Objects;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class UsageTest {
     @Test

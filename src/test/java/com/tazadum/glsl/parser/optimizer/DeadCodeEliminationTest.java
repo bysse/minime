@@ -11,10 +11,10 @@ import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.Token;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -28,7 +28,7 @@ public class DeadCodeEliminationTest {
     private TypeChecker typeChecker;
     private OutputConfig config;
 
-    @Before
+    @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
         output = new Output();
