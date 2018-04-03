@@ -42,10 +42,18 @@ public abstract class ParentMatcher implements Matcher {
 
     public abstract boolean doMatch(Node node);
 
-    public MatchNodeStorage capture(MatchNodeStorage matchNodeStorage) {
-        for (int i = 0; i < childMatchers.length; i++) {
-            childMatchers[i].capture(matchNodeStorage);
+
+    @Override
+    public CaptureGroups getGroups() {
+        if (childMatchers.length == 0) {
+            return new CaptureGroups(capture);
         }
-        return matchNodeStorage;
+
+        CaptureGroups groups = new CaptureGroups();
+        for (int i = 0; i < childMatchers.length; i++) {
+            CaptureGroups childGroups = childMatchers[i].getGroups();
+            groups.merge(childGroups);
+        }
+        return groups;
     }
 }

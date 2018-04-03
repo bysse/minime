@@ -8,5 +8,5 @@ import com.tazadum.glsl.ast.Node;
 public interface Matcher {
     boolean matches(Node node);
 
-    MatchNodeStorage capture(MatchNodeStorage matchNodeStorage);
+    CaptureGroups getGroups();
 }

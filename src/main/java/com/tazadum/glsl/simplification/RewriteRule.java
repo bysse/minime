@@ -10,31 +10,37 @@ import java.util.function.Function;
  */
 public class RewriteRule implements Rule {
     private Matcher matcher;
-    private Function<MatchNodeStorage, Node> replacer;
-    private MatchNodeStorage matchNodeStorage;
+    private Function<CaptureGroups, Boolean> constraints;
+    private Function<CaptureGroups, Node> replacer;
+    private CaptureGroups captureGroups;
 
-    public RewriteRule(Matcher matcher, Function<MatchNodeStorage, Node> replacer) {
+    public RewriteRule(Matcher matcher, Function<CaptureGroups, Node> replacer) {
+        this(matcher, (groups) -> Boolean.TRUE, replacer);
+    }
+
+    public RewriteRule(Matcher matcher, Function<CaptureGroups, Boolean> constraints, Function<CaptureGroups, Node> replacer) {
         this.matcher = matcher;
+        this.constraints = constraints;
         this.replacer = replacer;
     }
 
     @Override
     public boolean matches(Node node) {
-        matchNodeStorage = null;
+        captureGroups = null;
         if (matcher.matches(node)) {
-            matchNodeStorage = matcher.capture(new MatchNodeStorage());
-            return true;
+            captureGroups = matcher.getGroups();
+            return constraints.apply(captureGroups);
         }
         return false;
     }
 
     @Override
     public Node replacement() {
-        return replacer.apply(matchNodeStorage);
+        return replacer.apply(captureGroups);
     }
 
     @Override
     public List<Node> removedNodes() {
-        return matchNodeStorage.unreferenced();
+        return captureGroups.unreferenced();
     }
 }

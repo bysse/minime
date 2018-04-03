@@ -22,7 +22,7 @@ public class NodeMatcher implements Matcher {
     }
 
     @Override
-    public MatchNodeStorage capture(MatchNodeStorage storage) {
-        return storage.capture(node);
+    public CaptureGroups getGroups() {
+        return new CaptureGroups(node);
     }
 }

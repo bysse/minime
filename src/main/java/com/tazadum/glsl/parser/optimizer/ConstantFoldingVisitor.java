@@ -153,7 +153,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         }
 
         ParentNode parentNode = node.getParentNode();
-        if (parentNode !=  null && parentNode instanceof FunctionCallNode) {
+        if (parentNode instanceof FunctionCallNode) {
             changes++;
             return expression;
         }

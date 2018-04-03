@@ -18,7 +18,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -35,7 +34,7 @@ public class TestUtils {
 
     public static List<Token> getTokens(CommonTokenStream stream) {
         stream.fill();
-        return stream.getTokens().stream().collect(Collectors.toCollection(ArrayList::new));
+        return new ArrayList<>(stream.getTokens());
     }
 
     public static GLSLParser parser(CommonTokenStream tokenStream) {
@@ -62,12 +61,11 @@ public class TestUtils {
         }
     }
 
-    public static List<Object[]> loadShaders(String directory) {
-        final List<Object[]> shaders = new LinkedList<>();
+    public static List<String> loadShaders(String directory) {
+        final List<String> shaders = new LinkedList<>();
         final File shaderDir = Paths.get("src/test/resources", directory).toFile();
         for (File shader : shaderDir.listFiles()) {
-            final String content = loadFile(shader);
-            shaders.add(new Object[]{shader.getName(), content});
+            shaders.add(loadFile(shader));
         }
         return shaders;
     }

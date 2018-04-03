@@ -27,12 +27,12 @@ public class RuleRunner {
 
         Node replacement = rule.replacement();
         for (Node removed : rule.removedNodes()) {
-            if (node instanceof HasNumeric) {
+            if (removed instanceof HasNumeric) {
                 continue;
             }
 
             // Dereference node
-            parserContext.dereferenceTree(node);
+            parserContext.dereferenceTree(removed);
         }
 
         return replacement;

@@ -167,7 +167,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
     private List<TokenReplacement> getSubStringOccurrences(String shaderContent) {
         final Map<String, AtomicInteger> tokenMap = new HashMap<>();
 
-        // extract and count the number of tokens in the shader
+        // extract and count the numeric of tokens in the shader
         int start = 0;
         for (int i = 0; i < shaderContent.length(); i++) {
             final char ch = shaderContent.charAt(i);

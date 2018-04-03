@@ -35,7 +35,7 @@ public class OptimizerTest {
     public static void destroyContext() {
     }
 
-    public static Collection<Object[]> loadShaders() {
+    public static Collection<String> loadShaders() {
         return TestUtils.loadShaders("shaders");
     }
 

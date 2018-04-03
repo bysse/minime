@@ -10,14 +10,18 @@ import java.util.Set;
 /**
  * Created by Erik on 2018-03-30.
  */
-public class MatchNodeStorage {
+public class CaptureGroups {
     private List<Node> nodes = new ArrayList<>();
     private Set<Integer> references = new HashSet<>();
 
-    public MatchNodeStorage() {
+    public CaptureGroups() {
     }
 
-    public MatchNodeStorage capture(Node node) {
+    public CaptureGroups(Node node) {
+        nodes.add(node);
+    }
+
+    public CaptureGroups capture(Node node) {
         nodes.add(node);
         return this;
     }
@@ -36,5 +40,9 @@ public class MatchNodeStorage {
             list.add(nodes.get(i));
         }
         return list;
+    }
+
+    public void merge(CaptureGroups groups) {
+        nodes.addAll(groups.nodes);
     }
 }

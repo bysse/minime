@@ -16,7 +16,7 @@ public class OutputTest {
     private Output output;
     private OutputConfig config;
 
-    public static Collection<Object[]> loadShaders() {
+    public static Collection<String> loadShaders() {
         return TestUtils.loadShaders("preformatted");
     }
 

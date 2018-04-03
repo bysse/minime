@@ -24,7 +24,7 @@ public class TypeCheckerTest {
     private ParserContext parserContext;
     private TypeChecker typeChecker;
 
-    public static Collection<Object[]> loadShaders() {
+    public static Collection<String> loadShaders() {
         return TestUtils.loadShaders("preformatted");
     }
 
