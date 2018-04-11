@@ -51,6 +51,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
         for (Rule rule : ruleSet) {
             final Node replacement = ruleRunner.run(parserContext, rule, node);
             if (replacement != null) {
+                changes++;
                 return replacement;
             }
         }
@@ -61,6 +62,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitParenthesis(ParenthesisNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitParenthesis(node);
@@ -70,6 +72,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitVariable(VariableNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitVariable(node);
@@ -79,6 +82,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitFieldSelection(FieldSelectionNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitFieldSelection(node);
@@ -88,6 +92,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitArrayIndex(ArrayIndexNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitArrayIndex(node);
@@ -97,6 +102,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitRelationalOperation(RelationalOperationNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitRelationalOperation(node);
@@ -106,6 +112,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitLogicalOperation(LogicalOperationNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitLogicalOperation(node);
@@ -115,6 +122,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitFunctionCall(FunctionCallNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitFunctionCall(node);
@@ -124,6 +132,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitConstantExpression(ConstantExpressionNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitConstantExpression(node);
@@ -133,6 +142,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitAssignment(AssignmentNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitAssignment(node);
@@ -142,6 +152,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitTernaryCondition(TernaryConditionNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitTernaryCondition(node);
@@ -151,6 +162,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitCondition(ConditionNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitCondition(node);
@@ -160,6 +172,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitUnaryOperation(UnaryOperationNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitUnaryOperation(node);
@@ -169,6 +182,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitPrefixOperation(PrefixOperationNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitPrefixOperation(node);
@@ -178,6 +192,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitPostfixOperation(PostfixOperationNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitPostfixOperation(node);
@@ -187,6 +202,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor {
     public Node visitNumericOperation(NumericOperationNode node) {
         Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
         if (replacement != null) {
+            changes++;
             return replacement;
         }
         return super.visitNumericOperation(node);

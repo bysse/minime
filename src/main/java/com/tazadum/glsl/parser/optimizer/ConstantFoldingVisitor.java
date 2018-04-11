@@ -99,7 +99,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         if (functionCall.getChildCount() == 1) {
             Node child = functionCall.getChild(0);
             if (type.equals(child.getType())) {
-                // the argument to the vector constructor has the same type
+                // the argument to the vector constructor has the cSame type
                 return child;
             }
             if (child instanceof FunctionCallNode) {
@@ -222,7 +222,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         final Numeric childLeft = getNumeric(child.getLeft());
         final Numeric childRight = getNumeric(child.getRight());
 
-        // pull down any constant
+        // pull down mAny constant
         if (childLeft != null) {
             final Node leftClone = child.getLeft().clone(null);
             final Node rightClone = node.getRight().clone(null);
@@ -356,7 +356,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         }
 
         if (right != null) {
-            // find a numeric leaf node in the left hand side
+            // find a nNumeric leaf node in the left hand side
             Set<HasNumeric> nodes = NodeFinder.findAll(node.getLeft(), HasNumeric.class);
             if (nodes.isEmpty()) {
                 return null;

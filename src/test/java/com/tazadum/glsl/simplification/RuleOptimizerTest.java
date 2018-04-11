@@ -35,6 +35,16 @@ public class RuleOptimizerTest {
     }
 
     @Test
+    @DisplayName("Rearrangement rules")
+    public void testReArrangement() {
+        test("float a=1,b=a*2;", "float a=1,b=2*a;");
+
+        test("float a=1,b=2+a;", "float a=1,b=a+2;");
+
+        test("float a=1,b=(1+a);", "float a=1,b=(a+1);");
+    }
+
+    @Test
     @DisplayName("Simple arithmetic simplifications")
     public void testSimple() throws Exception {
         test("float a=0*5;", "float a=0;");
@@ -51,9 +61,33 @@ public class RuleOptimizerTest {
         test("float a=1-1;", "float a=0;");
     }
 
+    @Test
+    @DisplayName("More advanced optimizations")
+    public void testDivision() {
+        test("float a=1,b=a/a;", "float a=1,b=1;");
+        test("float a=1,b=(1+a)/(1+a);", "float a=1,b=1;");
+        test("float a=1,b=(1+a)/(a+1);", "float a=1,b=1;");
+    }
+
     private void test(String expression, String expected) {
         Node node = compile(expression);
-        Optimizer.OptimizerResult result = optimizer.run(parserContext, decider, node);
+
+        Optimizer.OptimizerResult result;
+        int changes = 0;
+
+        System.out.println("# " + expression);
+
+        do {
+            result = optimizer.run(parserContext, decider, node);
+            changes += result.getChanges();
+            node = result.getNode();
+
+            if (result.getChanges() > 0) {
+                System.out.println("| " + render(node));
+            }
+
+        } while (result.getChanges() > 0);
+
         assertEquals(expected, render(result.getNode()).trim());
     }
 

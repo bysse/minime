@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import static com.tazadum.glsl.language.NumericOperator.*;
 import static com.tazadum.glsl.simplification.Matchers.*;
 
 /**
@@ -16,35 +17,89 @@ public class RuleSet {
     private List<Rule> rules = new ArrayList<>();
 
     public RuleSet() {
-        rules.addAll(simpleRules());
+        rules.addAll(arrangementRules());
+        rules.addAll(simpleArithmeticRules());
+        rules.addAll(divisionRules());
     }
 
     public List<Rule> getRules() {
         return rules;
     }
 
-    public Collection<Rule> simpleRules() {
+    private Collection<Rule> arrangementRules() {
         List<Rule> list = new ArrayList<>();
-        // mul by zero
-        list.add(rule(mul(literal(0f), any()), group(0)));
-        list.add(rule(mul(any(), literal(0f)), group(1)));
-        // mul by one
-        list.add(rule(mul(literal(1f), any()), group(1)));
-        list.add(rule(mul(any(), literal(1f)), group(0)));
-        // div
-        list.add(rule(div(numeric(), numeric()), same(0, 1, sameNumeric()), Matchers.numeric(1)));
-        // add zero
-        list.add(rule(add(literal(0f), any()), group(1)));
-        list.add(rule(add(any(), literal(0f)), group(0)));
-        // sub zero
-        list.add(rule(sub(any(), literal(0f)), group(0)));
-        list.add(rule(sub(numeric(), numeric()), same(0, 1, sameNumeric()), Matchers.numeric(0)));
+
+        // a * _1 = _1 * a
+        list.add(rule(
+                mMul(mNot(mNumeric()), mNumeric()),
+                operation(MUL, nGroup(1), nGroup(0))
+        ));
+
+        // _1 + a = a + _1
+        list.add(rule(
+                mAdd(mNumeric(), mNot(mNumeric())),
+                operation(ADD, nGroup(1), nGroup(0))
+        ));
+
+        // -a + b = b - a
 
         return list;
     }
 
-    private Collection<Rule> simpleRules2() {
+    public Collection<Rule> simpleArithmeticRules() {
         List<Rule> list = new ArrayList<>();
+
+        // 0 * a = 0
+        list.add(rule(mMul(mLiteral(0f), mAny()), nGroup(0)));
+        // a * 0 = 0
+        list.add(rule(mMul(mAny(), mLiteral(0f)), nGroup(1)));
+        // 1 * a = a
+        list.add(rule(mMul(mLiteral(1f), mAny()), nGroup(1)));
+        // a * 1 = a
+        list.add(rule(mMul(mAny(), mLiteral(1f)), nGroup(0)));
+        // 0 + a = a
+        list.add(rule(mAdd(mLiteral(0f), mAny()), nGroup(1)));
+        // a + 0 = a
+        list.add(rule(mAdd(mAny(), mLiteral(0f)), nGroup(0)));
+        // a - 0 = a
+        list.add(rule(mSub(mAny(), mLiteral(0f)), nGroup(0)));
+        // _1 - _1 = 0
+        list.add(rule(
+                mSub(mNumeric(), mNumeric()),
+                cSame(0, 1, cSameNumeric()),
+                nNumeric(0)
+        ));
+
+        return list;
+    }
+
+    private Collection<Rule> multiplicationRules() {
+        List<Rule> list = new ArrayList<>();
+
+        // _1 * (_2 + a) = _1*_2 + _1*a
+        // pow(a,2) = a*a; and the other way around
+
+        return list;
+    }
+
+    private Collection<Rule> divisionRules() {
+        List<Rule> list = new ArrayList<>();
+
+        // _1 / _1 = 1
+        list.add(rule(
+                mDiv(mNumeric(), mNumeric()),
+                cSame(0, 1, cSameNumeric()),
+                nNumeric(1)
+        ));
+        // a / a = 1
+        list.add(rule(
+                mDiv(mAny(), mAny()),
+                cSame(0, 1, sameTree()),
+                nNumeric(1)
+        ));
+
+        // (a+b)/a = 1 + b/a
+
         return list;
     }
 

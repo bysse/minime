@@ -81,7 +81,7 @@ public class ContextBasedMultiIdentifierShortener {
                 // generate a new identifier
                 final String replacement = generator.next();
                 if (isIdentifierInUse(parserContext, context, node, replacement)) {
-                    // another variable or function has the same name as the proposed identifier
+                    // another variable or function has the cSame name as the proposed identifier
                     continue;
                 }
 
@@ -145,7 +145,7 @@ public class ContextBasedMultiIdentifierShortener {
         if (node instanceof VariableDeclarationNode) {
             final VariableDeclarationNode declarationNode = (VariableDeclarationNode) node;
             final Usage<VariableDeclarationNode> nodeUsage = parserContext.getVariableRegistry().resolve(declarationNode);
-            // check if the variable can be resolved in the context of any of the usage nodes
+            // check if the variable can be resolved in the context of mAny of the usage nodes
             for (Node usage : nodeUsage.getUsageNodes()) {
                 final GLSLContext usageContext = parserContext.findContext(usage);
 
@@ -157,7 +157,7 @@ public class ContextBasedMultiIdentifierShortener {
         if (node instanceof FunctionPrototypeNode) {
             final FunctionPrototypeNode prototypeNode = (FunctionPrototypeNode) node;
             final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(prototypeNode);
-            // for each usage of the function, check if a variable with the same name is reachable
+            // for each usage of the function, check if a variable with the cSame name is reachable
             for (Node usage : nodeUsage.getUsageNodes()) {
                 final GLSLContext usageContext = parserContext.findContext(usage);
                 if (isVariableReachable(parserContext, usageContext, identifier)) {

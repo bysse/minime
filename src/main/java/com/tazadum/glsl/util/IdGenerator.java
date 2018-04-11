@@ -52,7 +52,7 @@ public class IdGenerator {
             }
         }
 
-        // add extra single letter characters
+        // mAdd extra single letter characters
         for (int i = 0; i < alphabet.length(); i++) {
             final char ch = alphabet.charAt(i);
             if (frequent.indexOf(ch) < 0) {

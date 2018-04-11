@@ -55,7 +55,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
                 // generate a new identifier
                 final String replacement = generator.next();
                 if (isIdentifierInUse(parserContext, context, node, replacement)) {
-                    // another variable or function has the same name as the proposed identifier
+                    // another variable or function has the cSame name as the proposed identifier
                     continue;
                 }
 
@@ -144,7 +144,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
             start = i + 1;
         }
 
-        // add the definitions
+        // mAdd the definitions
         for (TokenReplacement tokenReplacement : tokenReplacements) {
             if (tokenReplacement.getToken() == null) {
                 continue;
@@ -167,7 +167,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
     private List<TokenReplacement> getSubStringOccurrences(String shaderContent) {
         final Map<String, AtomicInteger> tokenMap = new HashMap<>();
 
-        // extract and count the numeric of tokens in the shader
+        // extract and count the nNumeric of tokens in the shader
         int start = 0;
         for (int i = 0; i < shaderContent.length(); i++) {
             final char ch = shaderContent.charAt(i);
@@ -208,7 +208,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
             final VariableDeclarationNode declarationNode = (VariableDeclarationNode) node;
             if (parserContext.globalContext().equals(context)) {
                 // if the variable is declared in global scope we need to look if the identifier
-                // can be resolved in the context of any of the usage nodes
+                // can be resolved in the context of mAny of the usage nodes
                 final Usage<VariableDeclarationNode> nodeUsage = parserContext.getVariableRegistry().resolve(declarationNode);
                 for (Node usage : nodeUsage.getUsageNodes()) {
                     final GLSLContext usageContext = parserContext.findContext(usage);
@@ -221,7 +221,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
         if (node instanceof FunctionPrototypeNode) {
             final FunctionPrototypeNode prototypeNode = (FunctionPrototypeNode) node;
             final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(prototypeNode);
-            // for each usage of the function, check if a variable with the same name is reachable
+            // for each usage of the function, check if a variable with the cSame name is reachable
             for (Node usage : nodeUsage.getUsageNodes()) {
                 final GLSLContext usageContext = parserContext.findContext(usage);
                 if (isVariableReachable(parserContext, usageContext, identifier)) {

@@ -65,7 +65,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
         final GLSLContext context = parserContext.findContext(node);
         final ContextDeclarations declarations = contextMap.computeIfAbsent(context, ContextDeclarations::new);
 
-        // Find any earlier declarations of this type
+        // Find mAny earlier declarations of this type
         final VariableDeclarationListNode previousDeclaration = declarations.findDeclaration(node.getFullySpecifiedType());
         if (previousDeclaration != null && previousDeclaration.getId() < node.getId()) {
             // Check if the usage is "safe" between this id and the previous declaration
@@ -81,7 +81,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
                     changes++;
                     i--;
                 } else {
-                    // Check if the initializer contains any variables
+                    // Check if the initializer contains mAny variables
                     final SortedSet<VariableNode> variables = VariableFinder.findVariables(declaration);
 
                     if (variables.isEmpty() || variablesAreSafe(variables, previousDeclaration.getId(), node.getId(), previousDeclaration.getType())) {

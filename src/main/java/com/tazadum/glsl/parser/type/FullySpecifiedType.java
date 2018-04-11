@@ -27,7 +27,7 @@ public class FullySpecifiedType {
             throw TypeException.missingType();
         }
 
-        // TODO: add some lightweight sanity checks, such as bool can't have precision
+        // TODO: mAdd some lightweight sanity checks, such as bool can't have precision
     }
 
     public TypeQualifier getQualifier() {

@@ -125,11 +125,11 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
     }
 
     private boolean isDestroyingOptimization(VariableDeclarationNode node, List<Node> usageNodes) {
-        // check if node is declared within a for loop and is the usage is inside the same loop
+        // check if node is declared within a for loop and is the usage is inside the cSame loop
         Node sourceIterationNode = NodeFinder.findParent(node, (n) -> n instanceof IterationNode);
 
         if (sourceIterationNode == null) {
-            // the declaration was not in any loop
+            // the declaration was not in mAny loop
             for (Node usage : usageNodes) {
                 if (NodeFinder.findParent(usage, (n) -> n instanceof IterationNode) != null) {
                     // if a usage node is  inside a loop, don't propagate the constant
@@ -137,7 +137,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor {
                 }
             }
         } else {
-            // the declaration was in any loop, make sure the usage is in the same loop
+            // the declaration was in mAny loop, make sure the usage is in the cSame loop
             for (Node usage : usageNodes) {
                 if (!sourceIterationNode.equals(NodeFinder.findParent(usage, (n) -> n instanceof IterationNode))) {
                     // the usage node is inside another loop, don't propagate the constant

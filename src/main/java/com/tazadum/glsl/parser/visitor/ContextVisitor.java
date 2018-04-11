@@ -182,7 +182,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             final ParameterDeclarationNode parameter = (ParameterDeclarationNode) parameterCtx.accept(this);
 
             if (parameter.getIdentifier().isEmpty() && BuiltInType.VOID == parameter.getFullySpecifiedType().getType()) {
-                // don't add void as a parameter node
+                // don't mAdd void as a parameter node
                 continue;
             }
 
@@ -649,7 +649,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         if (ctx.VOID() == null) {
             final List<Node> arguments = new ArrayList<>();
             for (GLSLParser.Assignment_expressionContext argCtx : ctx.assignment_expression()) {
-                // parse each argument and add them to the function
+                // parse each argument and mAdd them to the function
                 final Node argument = argCtx.accept(this);
                 functionCallNode.addChild(argument);
             }

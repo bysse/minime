@@ -96,7 +96,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
             return false;
         }
 
-        // remove any usage of the variable
+        // remove mAny usage of the variable
         final Usage<FunctionPrototypeNode> usage = usageMap.get(declarationNode);
         if (usage == null) {
             return false;

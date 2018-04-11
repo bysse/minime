@@ -9,7 +9,7 @@ public class TypeException extends ParserException {
     }
 
     public static TypeException noFields(String type) {
-        return new TypeException(String.format("Type '%s' doesn't have any fields", type));
+        return new TypeException(String.format("Type '%s' doesn't have mAny fields", type));
     }
 
     public static TypeException noSuchField(String type, String field) {
@@ -33,7 +33,7 @@ public class TypeException extends ParserException {
     }
 
     public static TypeException incompatibleTypes(String function, FunctionPrototypeMatcher matcher) {
-        return new TypeException(String.format("Can't find any function '%s' that matches '%s'", function, matcher.toString()));
+        return new TypeException(String.format("Can't find mAny function '%s' that matches '%s'", function, matcher.toString()));
     }
 
     public TypeException(String message) {

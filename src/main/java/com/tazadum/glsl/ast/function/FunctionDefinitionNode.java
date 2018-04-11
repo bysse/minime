@@ -11,6 +11,7 @@ import com.tazadum.glsl.util.CloneUtils;
 public class FunctionDefinitionNode extends FixedChildParentNode implements GLSLContext {
     private GLSLContext parentContext;
     private boolean mutatesGlobalState = false;
+    private boolean usesGlobalState = true;
 
     public FunctionDefinitionNode(FunctionPrototypeNode prototype, StatementListNode statementList) {
         this(null, prototype, statementList);
@@ -42,6 +43,7 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
     public ParentNode clone(ParentNode newParent) {
         final FunctionDefinitionNode node = new FunctionDefinitionNode(newParent, null, null);
         node.setMutatesGlobalState(mutatesGlobalState);
+        node.setUsesGlobalState(usesGlobalState);
         node.setFunctionPrototype(CloneUtils.clone(getFunctionPrototype(), node));
         node.setStatements(CloneUtils.clone(getStatements(), node));
         return node;
@@ -73,6 +75,14 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
 
     public boolean mutatesGlobalState() {
         return mutatesGlobalState;
+    }
+
+    public boolean usesGlobalState() {
+        return usesGlobalState;
+    }
+
+    public void setUsesGlobalState(boolean usesGlobalState) {
+        this.usesGlobalState = usesGlobalState;
     }
 
     public String toString() {

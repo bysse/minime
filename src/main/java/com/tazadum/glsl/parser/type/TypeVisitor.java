@@ -95,6 +95,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             final TypeQualifier typeQualifier = declarationNode.getFullySpecifiedType().getQualifier();
             if (typeQualifier != null && (typeQualifier == TypeQualifier.OUT || typeQualifier == TypeQualifier.INOUT)) {
                 node.setMutatesGlobalState(true);
+                node.setUsesGlobalState(false);
                 return null;
             }
         }
@@ -110,7 +111,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 final FunctionDefinitionNode definition = (FunctionDefinitionNode) functionDefinition;
                 if (definition.mutatesGlobalState()) {
                     node.setMutatesGlobalState(true);
+                    node.setUsesGlobalState(false);
                     return null;
+                }
+                if (!definition.usesGlobalState()) {
+                    node.setUsesGlobalState(false);
                 }
             }
         }
@@ -123,6 +128,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             }
             // check if this is a global variable
             if (parserContext.globalContext().equals(parserContext.findContext(declarationNode))) {
+                node.setUsesGlobalState(false);
                 if (NodeFinder.isMutated(variableNode)) {
                     node.setMutatesGlobalState(true);
                     return null;
