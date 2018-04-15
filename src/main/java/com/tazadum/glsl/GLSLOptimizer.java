@@ -267,8 +267,11 @@ public class GLSLOptimizer {
         final ConstantFolding constantFolding = new ConstantFolding();
         final ConstantPropagation constantPropagation = new ConstantPropagation();
         final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
+        final RuleOptimizer ruleOptimizer = new RuleOptimizer();
 
         final ParserContext parserContext = optimizerContext.parserContext();
+
+        boolean useRuleOptimizer = option(NoArithmeticSimplifications);
 
         Node node = shaderNode;
 
@@ -308,6 +311,17 @@ public class GLSLOptimizer {
             if (changes > 0) {
                 output("  - %d declaration squeezes\n", changes);
             }
+
+            if (useRuleOptimizer) {
+                // apply arithmetic rules
+                final Optimizer.OptimizerResult ruleResult = ruleOptimizer.run(parserContext, decider, node);
+                changes = ruleResult.getChanges();
+                node = ruleResult.getNode();
+                if (changes > 0) {
+                    output("  - %d arithmetic optimizer\n", changes);
+                }
+            }
+
         } while (changes > 0);
         return node;
     }

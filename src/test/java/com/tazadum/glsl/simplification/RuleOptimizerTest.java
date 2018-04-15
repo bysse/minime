@@ -69,6 +69,14 @@ public class RuleOptimizerTest {
         test("float a=1,b=(1+a)/(a+1);", "float a=1,b=1;");
     }
 
+    @Test
+    @DisplayName("Functional replacement")
+    public void testFunctional() {
+        test("float a=pow(2,1);", "float a=2;");
+        test("float a=pow(3,2);", "float a=3*3;");
+    }
+
+
     private void test(String expression, String expected) {
         Node node = compile(expression);
 

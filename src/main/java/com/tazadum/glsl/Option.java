@@ -4,6 +4,9 @@ public enum Option {
     ShaderToy("shadertoy", "Output ShaderToy compatible shaders.", false),
     SilentOutput("silent", "No output during optimizations.", false),
 
+    ShareFunctionsBetweenShaders("share", "Share all functions except main among the input shaders", false),
+    NoArithmeticSimplifications("no-arithmetic", "Turn off arithmetic optimizations.", false),
+
     NoIdentifierRenaming("no-renaming", "Do not rename any symbols.", false),
     NoPragmaOnce("no-pragma-once", "Do not add #pragma once to the output file.", false),
     PassThrough("no-op", "Do not modify the input.", false),

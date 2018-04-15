@@ -35,5 +35,13 @@ Date	Hours
 2017-01-13 0.75
 
 // TODO: Fix squeeze
+// TODO: Sharing functions between shaders, non colliding identifiers and C-stub for concatenation
+// TODO: Inline functions
+// TODO: More complex arithmetic simplifications
 
-// -- Seems to be bugs in the node finder utils
+// -- Seems to be bugs in the node finder utilsf
+
+2018-03-30  3.0 Doing arithmetic simplification framework during Revision
+2018-03-31  3.0
+2018-04-05  2.0 Fixing junit 5 and more simplifications on the plane to Hong Kong
+2018-04-15  1.0 Rewriting CLI interface and adding more simplifications

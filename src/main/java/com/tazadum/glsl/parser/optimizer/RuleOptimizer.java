@@ -3,6 +3,7 @@ package com.tazadum.glsl.parser.optimizer;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.simplification.Rule;
+import com.tazadum.glsl.simplification.RuleSet;
 
 import java.util.List;
 
@@ -14,6 +15,10 @@ public class RuleOptimizer implements Optimizer {
 
     public RuleOptimizer(List<Rule> ruleSet) {
         this.ruleSet = ruleSet;
+    }
+
+    public RuleOptimizer() {
+        this(new RuleSet().getRules());
     }
 
     @Override
