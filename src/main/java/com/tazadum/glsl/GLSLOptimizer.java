@@ -27,13 +27,12 @@ import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
+import static com.tazadum.glsl.Option.*;
 
 /**
  * Created by Erik on 2016-10-24.
@@ -43,12 +42,9 @@ public class GLSLOptimizer {
     private final OutputProfile outputProfile;
     private final OutputConfig outputConfig;
     private final Output output;
+    private final HashMap<Option, Boolean> optionsMap;
 
     private Pattern pragmaInclude = Pattern.compile("\\s*#pragma\\s+include\\(([^)]+)\\)\\s*");
-
-    private boolean showStatistics = false;
-    private boolean shaderToySupport = false;
-    private Set<Preference> preferences = new HashSet<>();
     private ContextBasedMultiIdentifierShortener identifierShortener;
 
     public GLSLOptimizer(OutputWriter outputWriter, OutputProfile outputProfile) {
@@ -63,10 +59,12 @@ public class GLSLOptimizer {
         this.output = new Output();
 
         this.identifierShortener = new ContextBasedMultiIdentifierShortener(false);
+
+        this.optionsMap = new HashMap<>();
     }
 
-    public void addShaderToySupport() {
-        shaderToySupport = true;
+    public void setOptions(Map<Option, Boolean> options) {
+        optionsMap.putAll(options);
     }
 
     void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
@@ -86,14 +84,6 @@ public class GLSLOptimizer {
         variableRegistry.declare(global, uniform(BuiltInType.FLOAT, "iSampleRate"));
     }
 
-    public void showStatistics() {
-        this.showStatistics = true;
-    }
-
-    public void setPreferences(Set<Preference> preferences) {
-        this.preferences = preferences;
-    }
-
     public void processFiles(List<String> shaderFiles) {
         List<GLSLSource> sources = shaderFiles.stream()
                 .map(filename -> new GLSLSource(filename, null))
@@ -108,10 +98,10 @@ public class GLSLOptimizer {
             contexts.add(execute(source));
         }
 
-        if (preferences.contains(Preference.NO_RENAMING)) {
+        if (option(NoIdentifierRenaming)) {
             outputConfig.setIdentifiers(IdentifierOutput.Original);
         } else {
-            if (!preferences.contains(Preference.PASS_THROUGH)) {
+            if (!option(PassThrough)) {
                 output("--------------------------------------------------\n");
 
                 output("Shortening identifiers\n");
@@ -143,12 +133,12 @@ public class GLSLOptimizer {
     private GLSLOptimizerContext execute(String shaderFilename, String shaderSource) {
         final GLSLOptimizerContext context = new GLSLOptimizerContext(shaderFilename);
 
-        if (shaderToySupport) {
+        if (option(ShaderToy)) {
             addShaderToySupport(context);
         }
 
-        outputConfig.setNewlines(preferences.contains(Preference.LINE_BREAKS));
-        outputConfig.setImplicitConversionToFloat(!preferences.contains(Preference.NO_TYPE_CONVERSION));
+        outputConfig.setNewlines(option(OutputLineBreaks));
+        outputConfig.setImplicitConversionToFloat(true);
 
         if (shaderSource.startsWith("#version")) {
             int firstLine = shaderSource.indexOf("\n");
@@ -171,7 +161,7 @@ public class GLSLOptimizer {
         // perform type checking
         context.typeChecker().check(context.parserContext(), shaderNode);
 
-        if (preferences.contains(Preference.PASS_THROUGH)){
+        if (option(PassThrough)){
             context.setNode(shaderNode);
         } else {
             // optimize the shader
@@ -191,10 +181,10 @@ public class GLSLOptimizer {
         String outputShader = output.render(node, outputConfig).trim();
         int compressedLength = Compressor.compress(outputShader);
 
-        boolean passThrough = preferences.contains(Preference.PASS_THROUGH);
-        boolean bitPack = preferences.contains(Preference.BIT_PACK);
+        boolean passThrough = option(PassThrough);
+        boolean bitPack = option(BitPackSource);
 
-        if (!preferences.contains(Preference.NO_RENAMING)) {
+        if (!option(NoIdentifierRenaming)) {
             // iterate on the symbol allocation
             while (true) {
                 final boolean loop = !passThrough && identifierShortener.permutateIdentifiers();
@@ -264,7 +254,7 @@ public class GLSLOptimizer {
                 if (bitPack) {
                     return new PackedHeaderFileGenerator(shaderFilename, outputConfig, multipleShaders);
                 }
-                return new HeaderFileGenerator(shaderFilename, outputConfig, multipleShaders, preferences.contains(Preference.NO_PRAGMA_ONCE));
+                return new HeaderFileGenerator(shaderFilename, outputConfig, multipleShaders, option(NoPragmaOnce));
         }
         throw new IllegalArgumentException("Unknown OutputProfile!");
     }
@@ -372,9 +362,13 @@ public class GLSLOptimizer {
     }
 
     private void output(String format, Object... args) {
-        if (showStatistics) {
+        if (!option(SilentOutput)) {
             System.out.format(format, args);
         }
+    }
+
+    private boolean option(Option option) {
+        return optionsMap.getOrDefault(option, option.getDefault());
     }
 }
 

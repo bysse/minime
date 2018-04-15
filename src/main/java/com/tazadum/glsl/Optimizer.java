@@ -4,8 +4,9 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -14,17 +15,19 @@ import java.util.stream.Collectors;
 public class Optimizer {
     private static final String OUTPUT_FILE = "o";
     private static final String OUTPUT_FORMAT = "f";
-    private static final String OUTPUT_SHADER_TOY = "t";
-    private static final String OUTPUT_STATISTICS = "s";
-    private static final String OUTPUT_PREFERENCE = "p";
 
     public static void main(String[] args) throws IOException {
         final OptionParser parser = new OptionParser();
         parser.accepts(OUTPUT_FILE, "Output file.").withRequiredArg();
         parser.accepts(OUTPUT_FORMAT, "Format of output [GLSL, C].").withRequiredArg();
-        parser.accepts(OUTPUT_SHADER_TOY, "Output ShaderToy compatible shaders.");
-        parser.accepts(OUTPUT_STATISTICS, "Show statistics during optimization.");
-        parser.accepts(OUTPUT_PREFERENCE, "Set preference flag [NO_MACRO, LINE_BREAKS, NO_TYPE_CONVERSION, PASS_THROUGH, NO_RENAMING]").withRequiredArg();
+
+
+        final Map<Option, Boolean> optionMap = new HashMap<>();
+        for (Option flag : Option.values()) {
+            parser.accepts(flag.getSymbol(), flag.getDescription());
+            optionMap.put(flag, flag.getDefault());
+        }
+
         final OptionSet options = parser.parse(args);
 
         if (options.nonOptionArguments().isEmpty()) {
@@ -44,21 +47,16 @@ public class Optimizer {
             profile = OutputProfile.valueOf(String.valueOf(options.valueOf(OUTPUT_FORMAT)));
         }
 
+        // resolve all flags
+        for (Option flag : Option.values()) {
+            if (options.has(flag.getSymbol())) {
+                optionMap.put(flag, !flag.getDefault());
+            }
+        }
+
         try {
             final GLSLOptimizer optimizer = new GLSLOptimizer(outputFunction, profile);
-            if (options.has(OUTPUT_SHADER_TOY)) {
-                optimizer.addShaderToySupport();
-            }
-            if (options.has(OUTPUT_STATISTICS)) {
-                optimizer.showStatistics();
-            }
-            if (options.has(OUTPUT_PREFERENCE)) {
-                final Set<Preference> preferences = options.valuesOf(OUTPUT_PREFERENCE).stream()
-                    .map(String::valueOf)
-                    .map(Preference::valueOf)
-                    .collect(Collectors.toSet());
-                optimizer.setPreferences(preferences);
-            }
+            optimizer.setOptions(optionMap);
 
             List<GLSLSource> shaderList = options.nonOptionArguments().stream()
                     .map(obj -> new GLSLSource(String.valueOf(obj), null))
