@@ -22,6 +22,11 @@ public class GLSLContextImpl implements GLSLContext {
     }
 
     @Override
+    public boolean isGlobal() {
+        return parent == null;
+    }
+
+    @Override
     public String toString() {
         if (parent == null) {
             return "GlobalContext";

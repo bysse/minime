@@ -155,7 +155,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
         final List<FunctionPrototypeNode> remapped = new ArrayList<>(nodes.size());
         for (FunctionPrototypeNode node : nodes) {
             if (node.getPrototype().isBuiltIn()) {
-                // built in funtion, reuse node
+                // built in function, reuse node
                 remapped.add(node);
             } else {
                 remapped.add(CloneUtils.remap(base, node));

@@ -7,6 +7,8 @@ import com.tazadum.glsl.parser.ParserContext;
  * Created by Erik on 2016-10-20.
  */
 public interface Optimizer {
+    String name();
+
     OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node);
 
     class OptimizerResult {

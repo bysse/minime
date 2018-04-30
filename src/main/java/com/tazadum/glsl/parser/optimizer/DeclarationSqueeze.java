@@ -8,6 +8,11 @@ import com.tazadum.glsl.parser.ParserContext;
  */
 public class DeclarationSqueeze implements Optimizer {
     @Override
+    public String name() {
+        return "declarations squeezes";
+    }
+
+    @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
         final DeclarationSqueezeVisitor visitor = new DeclarationSqueezeVisitor(parserContext);
 

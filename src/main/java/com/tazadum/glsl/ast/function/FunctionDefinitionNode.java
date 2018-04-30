@@ -69,6 +69,11 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
         this.parentContext = parentContext;
     }
 
+    @Override
+    public boolean isGlobal() {
+        return false;
+    }
+
     public void setMutatesGlobalState(boolean value) {
         mutatesGlobalState = value;
     }

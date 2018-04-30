@@ -72,4 +72,9 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
     public void setParent(GLSLContext parentContext) {
         this.parentContext = parentContext;
     }
+
+    @Override
+    public boolean isGlobal() {
+        return false;
+    }
 }

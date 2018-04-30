@@ -22,6 +22,11 @@ public class RuleOptimizer implements Optimizer {
     }
 
     @Override
+    public String name() {
+        return "arithmetic simplifications";
+    }
+
+    @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider decider, Node node) {
         final RuleOptimizerVisitor visitor = new RuleOptimizerVisitor(parserContext, decider, ruleSet);
 

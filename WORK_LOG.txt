@@ -44,4 +44,5 @@ Date	Hours
 2018-03-30  3.0 Doing arithmetic simplification framework during Revision
 2018-03-31  3.0
 2018-04-05  2.0 Fixing junit 5 and more simplifications on the plane to Hong Kong
-2018-04-15  1.0 Rewriting CLI interface and adding more simplifications
+2018-04-15  3.5 Rewriting CLI interface, adding more simplifications and starting on inline functionality on the plane to Bangkok
+2018-04-30  1.0 Refactoring the optimizer instantiation

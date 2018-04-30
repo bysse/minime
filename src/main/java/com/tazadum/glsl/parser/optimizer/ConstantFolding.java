@@ -8,6 +8,11 @@ import com.tazadum.glsl.parser.ParserContext;
  */
 public class ConstantFolding implements Optimizer {
     @Override
+    public String name() {
+        return "constant folding replacements";
+    }
+
+    @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider decider, Node node) {
         final ConstantFoldingVisitor visitor = new ConstantFoldingVisitor(parserContext, decider);
 

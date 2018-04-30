@@ -4,22 +4,21 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 
 /**
- * Created by Erik on 2016-10-23.
+ * Created by Erik on 2016-10-20.
  */
-public class ConstantPropagation implements Optimizer {
+public class FunctionInline implements Optimizer {
     @Override
     public String name() {
-        return "constant propagations";
+        return "function inlines";
     }
 
     @Override
-    public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
-        final ConstantPropagationVisitor visitor = new ConstantPropagationVisitor(parserContext, optimizationDecider);
+    public OptimizerResult run(ParserContext parserContext, OptimizationDecider decider, Node node) {
+        final FunctionInlineVisitor visitor = new FunctionInlineVisitor(parserContext, decider);
 
         int changes, totalChanges = 0;
         do {
             visitor.reset();
-
             Node accept = node.accept(visitor);
             changes = visitor.getChanges();
             totalChanges += changes;

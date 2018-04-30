@@ -4,4 +4,6 @@ public interface GLSLContext {
     GLSLContext getParent();
 
     void setParent(GLSLContext parentContext);
+
+    boolean isGlobal();
 }
