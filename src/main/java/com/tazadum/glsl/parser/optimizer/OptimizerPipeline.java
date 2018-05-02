@@ -7,6 +7,7 @@ import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,6 +21,14 @@ public class OptimizerPipeline {
         this.outputConfig = outputConfig;
         this.output = new Output();
         this.optimizers = Stream.of(types)
+                .map(OptimizerType::instantiate)
+                .collect(Collectors.toList());
+    }
+
+    public OptimizerPipeline(OutputConfig outputConfig, EnumSet<OptimizerType> types) {
+        this.outputConfig = outputConfig;
+        this.output = new Output();
+        this.optimizers = types.stream()
                 .map(OptimizerType::instantiate)
                 .collect(Collectors.toList());
     }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser;
 
+import com.tazadum.glsl.GLSLOptimizerContext;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
@@ -39,6 +40,10 @@ public class TestUtils {
 
     public static GLSLParser parser(CommonTokenStream tokenStream) {
         return new GLSLParser(tokenStream);
+    }
+
+    public static GLSLOptimizerContext optimizerContext(String shaderName) {
+        return new GLSLOptimizerContext(shaderName);
     }
 
     public static ParserContext parserContext() {

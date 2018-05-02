@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser.type;
 
 import com.tazadum.glsl.ast.DefaultASTVisitor;
+import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.conditional.TernaryConditionNode;
@@ -33,7 +34,13 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     public GLSLType visitFieldSelection(FieldSelectionNode node) {
         super.visitFieldSelection(node);
 
-        final GLSLType glslType = node.getExpression().getType();
+        Node expression = node.getExpression();
+        if (expression instanceof ArrayIndexNode) {
+            // Special case if expression is array index node
+            expression = ((ArrayIndexNode) expression).getExpression();
+        }
+
+        final GLSLType glslType = expression.getType();
         if (!(glslType instanceof BuiltInType)) {
             throw ParserException.notSupported("Custom types are not supported");
         }

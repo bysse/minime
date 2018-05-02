@@ -12,6 +12,8 @@ import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -33,6 +35,16 @@ public class TypeCheckerTest {
         parserContext = TestUtils.parserContext();
         typeChecker = new TypeChecker();
     }
+
+    @Test
+    @DisplayName("arrays")
+    public void testArrays() {
+        testOutput("uniform vec2 a[2];" +
+                "void main() {" +
+                "float b = a[1].x;" +
+                "}");
+    }
+
 
     @ParameterizedTest
     @MethodSource("loadShaders")

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser.optimizer;
 
+import com.tazadum.glsl.GLSLOptimizerContext;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.output.IdentifierOutput;
@@ -8,7 +9,6 @@ import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
-import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,17 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class MultiOptimizerTest {
     final private OutputSizeDecider decider = new OutputSizeDecider();
 
-    private ParserContext parserContext;
+    private GLSLOptimizerContext optimizerContext;
     private Output output;
-    private TypeChecker typeChecker;
     private OutputConfig outputConfig;
 
     @BeforeEach
     public void setup() {
-        parserContext = TestUtils.parserContext();
+        optimizerContext = TestUtils.optimizerContext("test");
         output = new Output();
         outputConfig = new OutputConfig();
-        typeChecker = new TypeChecker();
 
         decider.getConfig().setMaxDecimals(3);
     }
@@ -126,9 +124,11 @@ public class MultiOptimizerTest {
         try {
             final CommonTokenStream stream = TestUtils.tokenStream(source);
             final GLSLParser parser = TestUtils.parser(stream);
+            final ParserContext parserContext = optimizerContext.parserContext();
+
             final ContextVisitor visitor = new ContextVisitor(parserContext);
             Node node = parser.translation_unit().accept(visitor);
-            typeChecker.check(parserContext, node);
+            optimizerContext.typeChecker().check(parserContext, node);
 
             Node optimized = optimize(node);
             ContextBasedMultiIdentifierShortener shortener = new ContextBasedMultiIdentifierShortener(true);
@@ -148,54 +148,9 @@ public class MultiOptimizerTest {
     }
 
     private Node optimize(Node shaderNode) {
-        final OutputSizeDecider decider = new OutputSizeDecider();
 
-        // instantiate all the optimizers
-        final DeadCodeElimination deadCodeElimination = new DeadCodeElimination();
-        final ConstantFolding constantFolding = new ConstantFolding();
-        final ConstantPropagation constantPropagation = new ConstantPropagation();
-        final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
-
-        Node node = shaderNode;
-
-        int changes, iteration = 0;
-        do {
-            final int size = output.render(node, outputConfig).length();
-            output("Iteration #%d: %d bytes\n", iteration++, size);
-
-            // apply dead code elimination
-            final Optimizer.OptimizerResult deadCodeResult = deadCodeElimination.run(parserContext, decider, node);
-            changes = deadCodeResult.getChanges();
-            node = deadCodeResult.getNode();
-            if (changes > 0) {
-                output("  - %d dead code eliminations\n", changes);
-            }
-
-            // apply constant folding
-            final Optimizer.OptimizerResult foldResult = constantFolding.run(parserContext, decider, node);
-            changes = foldResult.getChanges();
-            node = foldResult.getNode();
-            if (changes > 0) {
-                output("  - %d constant folding replacements\n", changes);
-            }
-
-            // apply constant propagation
-            final Optimizer.OptimizerResult propagationResult = constantPropagation.run(parserContext, decider, node);
-            changes = propagationResult.getChanges();
-            node = propagationResult.getNode();
-            if (changes > 0) {
-                output("  - %d constant propagation\n", changes);
-            }
-
-            // apply declaration squeeze
-            final Optimizer.OptimizerResult squeezeResult = declarationSqueeze.run(parserContext, decider, node);
-            changes = squeezeResult.getChanges();
-            node = squeezeResult.getNode();
-            if (changes > 0) {
-                output("  - %d declaration squeezes\n", changes);
-            }
-        } while (changes > 0);
-        return node;
+        OptimizerPipeline pipeline = new OptimizerPipeline(outputConfig, OptimizerType.values());
+        return pipeline.optimize(optimizerContext, shaderNode, true);
     }
 
     private void output(String format, Object... args) {

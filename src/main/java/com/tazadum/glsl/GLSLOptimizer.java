@@ -17,8 +17,9 @@ import com.tazadum.glsl.output.generator.PackedHeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PassThroughGenerator;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.optimizer.*;
-import com.tazadum.glsl.parser.optimizer.Optimizer;
+import com.tazadum.glsl.parser.optimizer.ContextBasedMultiIdentifierShortener;
+import com.tazadum.glsl.parser.optimizer.OptimizerPipeline;
+import com.tazadum.glsl.parser.optimizer.OptimizerType;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
@@ -262,68 +263,14 @@ public class GLSLOptimizer {
     private Node optimize(GLSLOptimizerContext optimizerContext, Node shaderNode) {
         final OutputSizeDecider decider = new OutputSizeDecider();
 
-        // instantiate all the optimizers
-        final DeadCodeElimination deadCodeElimination = new DeadCodeElimination();
-        final ConstantFolding constantFolding = new ConstantFolding();
-        final ConstantPropagation constantPropagation = new ConstantPropagation();
-        final DeclarationSqueeze declarationSqueeze = new DeclarationSqueeze();
-        final RuleOptimizer ruleOptimizer = new RuleOptimizer();
+        EnumSet<OptimizerType> optimizerTypes = EnumSet.allOf(OptimizerType.class);
 
-        final ParserContext parserContext = optimizerContext.parserContext();
+        if (option(NoArithmeticSimplifications)) {
+            optimizerTypes.remove(OptimizerType.ArithmeticOptimizerType);
+        }
 
-        boolean useRuleOptimizer = option(NoArithmeticSimplifications);
-
-        Node node = shaderNode;
-
-        int changes, iteration = 0;
-        do {
-            final int size = output.render(node, outputConfig).length();
-            output("Iteration #%d: %d bytes\n", iteration++, size);
-
-            // apply dead code elimination
-            final Optimizer.OptimizerResult deadCodeResult = deadCodeElimination.run(parserContext, decider, node);
-            changes = deadCodeResult.getChanges();
-            node = deadCodeResult.getNode();
-            if (changes > 0) {
-                output("  - %d dead code eliminations\n", changes);
-            }
-
-            // apply constant folding
-            final Optimizer.OptimizerResult foldResult = constantFolding.run(parserContext, decider, node);
-            changes = foldResult.getChanges();
-            node = foldResult.getNode();
-            if (changes > 0) {
-                output("  - %d constant folding replacements\n", changes);
-            }
-
-            // apply constant propagation
-            final Optimizer.OptimizerResult propagationResult = constantPropagation.run(parserContext, decider, node);
-            changes = propagationResult.getChanges();
-            node = propagationResult.getNode();
-            if (changes > 0) {
-                output("  - %d constant propagation\n", changes);
-            }
-
-            // apply declaration squeeze
-            final Optimizer.OptimizerResult squeezeResult = declarationSqueeze.run(parserContext, decider, node);
-            changes = squeezeResult.getChanges();
-            node = squeezeResult.getNode();
-            if (changes > 0) {
-                output("  - %d declaration squeezes\n", changes);
-            }
-
-            if (useRuleOptimizer) {
-                // apply arithmetic rules
-                final Optimizer.OptimizerResult ruleResult = ruleOptimizer.run(parserContext, decider, node);
-                changes = ruleResult.getChanges();
-                node = ruleResult.getNode();
-                if (changes > 0) {
-                    output("  - %d arithmetic optimizer\n", changes);
-                }
-            }
-
-        } while (changes > 0);
-        return node;
+        final OptimizerPipeline pipeline = new OptimizerPipeline(outputConfig, optimizerTypes);
+        return pipeline.optimize(optimizerContext, shaderNode, !option(SilentOutput));
     }
 
     private void shortenIdentifiers(GLSLOptimizerContext context) {
