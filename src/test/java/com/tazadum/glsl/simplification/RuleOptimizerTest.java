@@ -1,13 +1,7 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.output.OutputSizeDecider;
-import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.TestUtils;
-import com.tazadum.glsl.parser.optimizer.Optimizer;
-import com.tazadum.glsl.parser.optimizer.RuleOptimizer;
+import com.tazadum.glsl.parser.optimizer.BaseOptimizerTest;
+import com.tazadum.glsl.parser.optimizer.OptimizerType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,21 +11,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Created by Erik on 2018-03-30.
  */
-public class RuleOptimizerTest {
-    private ParserContext parserContext;
-    private Output output;
-    private OutputConfig config;
-    private RuleOptimizer optimizer;
-    private OutputSizeDecider decider;
+public class RuleOptimizerTest extends BaseOptimizerTest {
+    @Override
+    protected OptimizerType[] getOptimizerTypes() {
+        return new OptimizerType[] {OptimizerType.ArithmeticOptimizerType };
+    }
 
     @BeforeEach
     public void setUp() throws Exception {
-        output = new Output();
-        config = new OutputConfig();
-        optimizer = new RuleOptimizer(new RuleSet().getRules());
-        decider = new OutputSizeDecider();
-
-        parserContext = TestUtils.parserContext();
+        testInit();
     }
 
     @Test
@@ -78,32 +66,7 @@ public class RuleOptimizerTest {
 
 
     private void test(String expression, String expected) {
-        Node node = compile(expression);
-
-        Optimizer.OptimizerResult result;
-        int changes = 0;
-
-        System.out.println("# " + expression);
-
-        do {
-            result = optimizer.run(parserContext, decider, node);
-            changes += result.getChanges();
-            node = result.getNode();
-
-            if (result.getChanges() > 0) {
-                System.out.println("| " + render(node));
-            }
-
-        } while (result.getChanges() > 0);
-
-        assertEquals(expected, render(result.getNode()).trim());
-    }
-
-    private Node compile(String expression) {
-        return TestUtils.parse(parserContext, Node.class, expression);
-    }
-
-    private String render(Node node) {
-        return output.render(node, config);
+        String result = optimize(expression);
+        assertEquals(expected, result.trim());
     }
 }

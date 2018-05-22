@@ -5,8 +5,8 @@ public enum OptimizerType {
     ConstantFoldingType(ConstantFolding.class),
     ConstantPropagationType(ConstantPropagation.class),
     DeclarationSqueezeType(DeclarationSqueeze.class),
-    ArithmeticOptimizerType(RuleOptimizer.class)
-    ;
+    ArithmeticOptimizerType(RuleOptimizer.class),
+    FunctionInline(FunctionInlineOptimizer.class);
 
     private Class<? extends Optimizer> optimizer;
 

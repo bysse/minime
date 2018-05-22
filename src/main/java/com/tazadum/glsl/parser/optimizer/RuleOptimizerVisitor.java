@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class RuleOptimizerVisitor extends ReplacingASTVisitor {
+public class RuleOptimizerVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private final OptimizationDecider decider;
     private final RuleRunner ruleRunner;
     private List<Rule> ruleSet;

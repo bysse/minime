@@ -29,6 +29,7 @@ public class OutputVisitor implements ASTVisitor<String> {
     private String indentation;
 
     public OutputVisitor(OutputConfig config) {
+        assert config != null;
         this.config = config;
         this.indentation = "";
     }

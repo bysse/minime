@@ -18,6 +18,7 @@ public class OptimizerPipeline {
     private final List<Optimizer> optimizers;
 
     public OptimizerPipeline(OutputConfig outputConfig, OptimizerType... types) {
+        assert outputConfig != null;
         this.outputConfig = outputConfig;
         this.output = new Output();
         this.optimizers = Stream.of(types)
@@ -26,6 +27,7 @@ public class OptimizerPipeline {
     }
 
     public OptimizerPipeline(OutputConfig outputConfig, EnumSet<OptimizerType> types) {
+        assert outputConfig != null;
         this.outputConfig = outputConfig;
         this.output = new Output();
         this.optimizers = types.stream()
@@ -45,18 +47,18 @@ public class OptimizerPipeline {
 
             if (showOutput) {
                 final int size = output.render(node, outputConfig).length();
-                System.out.println(String.format("Iteration #%d: %d bytes\n", iteration++, size));
+                System.out.println(String.format("Iteration #%d: %d bytes", iteration++, size));
             }
 
             for (Optimizer optimizer : optimizers) {
                 final Optimizer.OptimizerResult result = optimizer.run(parserContext, decider, node);
                 int changes = result.getChanges();
                 if (changes > 0 ) {
-                    node = result.getNode();
+                    node = result.getBranches().get(0).getNode();
                     iterationChanges += changes;
 
                     if (showOutput) {
-                        System.out.println(String.format("  - %d %s\n", changes, optimizer.name()));
+                        System.out.println(String.format("  - %d %s", changes, optimizer.name()));
                     }
                 }
             }

@@ -1,20 +1,12 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLParser;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
-import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
-import com.tazadum.glsl.parser.visitor.ContextVisitor;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,26 +15,25 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class ConstantFoldingTest {
-    final private OutputSizeDecider decider = new OutputSizeDecider();
+public class ConstantFoldingTest extends BaseOptimizerTest {
+    @Override
+    protected OptimizerType[] getOptimizerTypes() {
+        return new OptimizerType[]{OptimizerType.ConstantFoldingType};
+    }
 
-    private ParserContext parserContext;
-    private Output output;
-    private ConstantFolding constantFolding;
-    private TypeChecker typeChecker;
+    @Override
+    protected ParserRuleContext extractContext(GLSLParser parser) {
+        return parser.expression();
+    }
 
     @BeforeEach
     public void setup() {
-        parserContext = TestUtils.parserContext();
-        output = new Output();
-        constantFolding = new ConstantFolding();
-        typeChecker = new TypeChecker();
-
-        decider.getConfig().setMaxDecimals(3);
+        testInit();
     }
 
     @Test
     public void test_vector_construction_single_arg() throws Exception {
+        ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
@@ -57,6 +48,7 @@ public class ConstantFoldingTest {
 
     @Test
     public void test_vector_construction_parameter_collapsing() throws Exception {
+        ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
@@ -72,6 +64,7 @@ public class ConstantFoldingTest {
 
     @Test
     public void test_field_selection_removal() throws Exception {
+        ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
@@ -122,8 +115,9 @@ public class ConstantFoldingTest {
         assertEquals("-1", optimize("0-1"));
     }
 
-        @Test
+    @Test
     public void test_1_elimination() {
+        ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
@@ -149,6 +143,7 @@ public class ConstantFoldingTest {
 
     @Test
     public void test_folding_adv() {
+        ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
@@ -159,6 +154,7 @@ public class ConstantFoldingTest {
 
     @Test
     public void test_folding_chain() {
+        ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
@@ -166,32 +162,5 @@ public class ConstantFoldingTest {
         assertEquals("2+var", optimize("1 + var + 1"));
         assertEquals("-var", optimize("1 - var - 1"));
         assertEquals("4*var*var", optimize("2 * var * 2 * var"));
-    }
-
-    /*
-    @Test
-    public void test_folding_chain_div() {
-        VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
-
-        assertEquals("var", optimize("2 * var / 2"));
-    }
-    */
-
-    private String optimize(String source) {
-        try {
-            final CommonTokenStream stream = TestUtils.tokenStream(source);
-            final GLSLParser parser = TestUtils.parser(stream);
-            final ContextVisitor visitor = new ContextVisitor(parserContext);
-            Node node = parser.expression().accept(visitor);
-            typeChecker.check(parserContext, node);
-            Optimizer.OptimizerResult result = constantFolding.run(parserContext, decider, node);
-            return output.render(result.getNode(), new OutputConfig());
-        } catch (Exception e) {
-            for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {
-                System.out.println(token);
-            }
-            throw e;
-        }
     }
 }

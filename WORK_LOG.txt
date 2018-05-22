@@ -47,3 +47,4 @@ Date	Hours
 2018-04-15  3.5 Rewriting CLI interface, adding more simplifications and starting on inline functionality on the plane to Bangkok
 2018-04-30  1.0 Refactoring the optimizer instantiation
 2018-05-01  0.5 Applying the optimizer and fixing bug in type checker.
+2018-05-22  2.0 Doing some scaffolding for speculative optimizations

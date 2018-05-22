@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Erik on 2016-10-29.
  */
-public class ConstantPropagationVisitor extends ReplacingASTVisitor {
+public class ConstantPropagationVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private final Logger logger = LoggerFactory.getLogger(ConstantPropagationVisitor.class);
     private final OptimizationDecider decider;
     private int changes = 0;

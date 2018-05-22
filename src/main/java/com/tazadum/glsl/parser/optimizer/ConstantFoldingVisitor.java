@@ -17,7 +17,7 @@ import java.util.Set;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class ConstantFoldingVisitor extends ReplacingASTVisitor {
+public class ConstantFoldingVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private final String[] validSelection = {"xrs", "ygt", "zbp", "waq"};
 
     private final OptimizationDecider decider;
@@ -99,7 +99,8 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor {
         if (functionCall.getChildCount() == 1) {
             Node child = functionCall.getChild(0);
             if (type.equals(child.getType())) {
-                // the argument to the vector constructor has the cSame type
+                // the argument to the vector constructor has the same type
+                changes++;
                 return child;
             }
             if (child instanceof FunctionCallNode) {

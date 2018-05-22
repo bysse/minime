@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * Created by Erik on 2016-10-23.
  */
-public class DeclarationSqueezeVisitor extends ReplacingASTVisitor {
+public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private final Logger logger = LoggerFactory.getLogger(DeclarationSqueezeVisitor.class);
     private final VariableRegistry variableRegistry;
     private int changes = 0;

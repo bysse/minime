@@ -1,17 +1,5 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.ASTCloner;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.language.GLSLParser;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.output.OutputSizeDecider;
-import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.TestUtils;
-import com.tazadum.glsl.parser.type.TypeChecker;
-import com.tazadum.glsl.parser.visitor.ContextVisitor;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,26 +8,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class DeclarationSqueezeTest {
-    final private OutputSizeDecider decider = new OutputSizeDecider();
+public class DeclarationSqueezeTest extends BaseOptimizerTest {
+    @Override
+    protected OptimizerType[] getOptimizerTypes() {
+        return new OptimizerType[] { OptimizerType.DeclarationSqueezeType };
+    }
 
-    private ParserContext parserContext;
-    private Output output;
-    private DeclarationSqueeze declarationSqueeze;
-    private TypeChecker typeChecker;
-    private OutputConfig config;
 
     @BeforeEach
     public void setup() {
-        parserContext = TestUtils.parserContext();
-        output = new Output();
-        declarationSqueeze = new DeclarationSqueeze();
-        typeChecker = new TypeChecker();
-        config = new OutputConfig();
-        config.setNewlines(false);
-        config.setIndentation(0);
-
-        decider.getConfig().setMaxDecimals(3);
+        testInit();
     }
 
     @Test
@@ -96,27 +74,5 @@ public class DeclarationSqueezeTest {
     @Test
     public void test_context_5() {
         assertEquals("uniform float x;float a=2;void main(){float b=x+a;}", optimize("uniform float x;float a=2;void main(){float b=x+a;}"));
-    }
-
-    private String optimize(String source) {
-        try {
-            final CommonTokenStream stream = TestUtils.tokenStream(source);
-            final GLSLParser parser = TestUtils.parser(stream);
-            final ContextVisitor visitor = new ContextVisitor(parserContext);
-            Node node = parser.translation_unit().accept(visitor);
-            typeChecker.check(parserContext, node);
-
-            final ASTCloner astCloner = new ASTCloner(parserContext, node);
-            Optimizer.OptimizerResult result = declarationSqueeze.run(astCloner.getContext(), decider, astCloner.getNode());
-
-            //Optimizer.OptimizerResult result = declarationSqueeze.run(parserContext, decider, node);
-
-            return output.render(result.getNode(), config).trim();
-        } catch (Exception e) {
-            for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {
-                System.out.println(token);
-            }
-            throw e;
-        }
     }
 }

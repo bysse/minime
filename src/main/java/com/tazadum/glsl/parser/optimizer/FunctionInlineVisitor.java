@@ -25,7 +25,7 @@ import java.util.SortedSet;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class FunctionInlineVisitor extends ReplacingASTVisitor {
+public class FunctionInlineVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private IdentifierCreator identifierGenerator = new IdentifierCreator("il");
     private final OptimizationDecider decider;
     private int changes = 0;

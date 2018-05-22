@@ -15,20 +15,6 @@ public class ConstantPropagation implements Optimizer {
     @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
         final ConstantPropagationVisitor visitor = new ConstantPropagationVisitor(parserContext, optimizationDecider);
-
-        int changes, totalChanges = 0;
-        do {
-            visitor.reset();
-
-            Node accept = node.accept(visitor);
-            changes = visitor.getChanges();
-            totalChanges += changes;
-
-            if (accept != null) {
-                node = accept;
-            }
-        } while (changes > 0);
-
-        return new OptimizerResult(totalChanges, node);
+        return runWithOptimizer(visitor, parserContext, node);
     }
 }

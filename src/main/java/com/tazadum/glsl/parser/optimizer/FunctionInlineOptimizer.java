@@ -6,7 +6,7 @@ import com.tazadum.glsl.parser.ParserContext;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class FunctionInline implements Optimizer {
+public class FunctionInlineOptimizer implements Optimizer {
     @Override
     public String name() {
         return "function inlines";
@@ -15,19 +15,6 @@ public class FunctionInline implements Optimizer {
     @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider decider, Node node) {
         final FunctionInlineVisitor visitor = new FunctionInlineVisitor(parserContext, decider);
-
-        int changes, totalChanges = 0;
-        do {
-            visitor.reset();
-            Node accept = node.accept(visitor);
-            changes = visitor.getChanges();
-            totalChanges += changes;
-
-            if (accept != null) {
-                node = accept;
-            }
-        } while (changes > 0);
-
-        return new OptimizerResult(totalChanges, node);
+        return runWithOptimizer(visitor, parserContext, node);
     }
 }

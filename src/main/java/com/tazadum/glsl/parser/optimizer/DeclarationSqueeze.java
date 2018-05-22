@@ -15,20 +15,6 @@ public class DeclarationSqueeze implements Optimizer {
     @Override
     public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
         final DeclarationSqueezeVisitor visitor = new DeclarationSqueezeVisitor(parserContext);
-
-        int changes, totalChanges = 0;
-        do {
-            visitor.reset();
-
-            Node accept = node.accept(visitor);
-            changes = visitor.getChanges();
-            totalChanges += changes;
-
-            if (accept != null) {
-                node = accept;
-            }
-        } while (changes > 0);
-
-        return new OptimizerResult(totalChanges, node);
+        return runWithOptimizer(visitor, parserContext, node);
     }
 }

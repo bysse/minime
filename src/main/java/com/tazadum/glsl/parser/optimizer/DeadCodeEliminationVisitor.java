@@ -15,7 +15,7 @@ import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 /**
  * Created by Erik on 2016-10-29.
  */
-public class DeadCodeEliminationVisitor extends ReplacingASTVisitor {
+public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private final FunctionPrototypeMatcher mainMatcher;
     private final FunctionPrototypeMatcher mainImageMatcher;
     private int changes = 0;
