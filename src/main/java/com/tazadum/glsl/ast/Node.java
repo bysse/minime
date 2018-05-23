@@ -28,4 +28,8 @@ public interface Node extends Comparable<Node> {
     default int compareTo(Node o) {
         return o.getId() - getId();
     }
+
+    default boolean hasEqualId(Node n) {
+        return getId() == n.getId();
+    }
 }

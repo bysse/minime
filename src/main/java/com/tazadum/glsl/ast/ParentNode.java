@@ -70,6 +70,19 @@ public class ParentNode implements Node {
         return null;
     }
 
+    public int indexOf(Node node) {
+        if (node == null) {
+            return -1;
+        }
+        for (int i = 0; i < getChildCount(); i++) {
+            Node child = getChild(i);
+            if (child != null && node.getId() == child.getId()) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public int getChildCount() {
         return childNodes.size();
     }

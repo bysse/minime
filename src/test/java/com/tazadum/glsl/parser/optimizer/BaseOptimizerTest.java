@@ -32,7 +32,7 @@ public abstract class BaseOptimizerTest {
         outputConfig.setNewlines(false);
         outputConfig.setIndentation(0);
 
-        this.pipeline = new OptimizerPipeline(outputConfig, getOptimizerTypes());
+        this.pipeline = new SingleShaderOptimizerPipeline(outputConfig, getOptimizerTypes());
         this.optimizerContext = new GLSLOptimizerContext("test-shader");
         this.output = new Output();
 

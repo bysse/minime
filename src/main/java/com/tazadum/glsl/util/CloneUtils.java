@@ -21,6 +21,17 @@ public class CloneUtils {
         return (T) node.clone(parent);
     }
 
+    public static <T extends Node> T cloneKeepId(T node, ParentNode parent) {
+        T clonedNode = clone(node, parent);
+        if (clonedNode == null) {
+            return null;
+        }
+        if (parent == null) {
+            clonedNode.calculateId(node.getId());
+        }
+        return clonedNode;
+    }
+
     public static <T extends ParentNode> T cloneChildren(T source, T clone) {
         for (int i = 0; i < source.getChildCount(); i++) {
             final Node clonedChild = clone(source.getChild(i), clone);

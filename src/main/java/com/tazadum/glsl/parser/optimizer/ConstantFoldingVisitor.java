@@ -263,6 +263,13 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
         return false;
     }
 
+    /**
+     * Evaluate a numeric operation.
+     * @param node
+     * @param left
+     * @param right
+     * @return
+     */
     private Node evaluate(NumericOperationNode node, Numeric left, Numeric right) {
         final int previousScore = decider.score(node);
 

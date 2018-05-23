@@ -1,6 +1,5 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.simplification.Rule;
 import com.tazadum.glsl.simplification.RuleSet;
@@ -10,7 +9,7 @@ import java.util.List;
 /**
  * Created by Erik on 2016-10-20.
  */
-public class RuleOptimizer implements Optimizer {
+public class RuleOptimizer extends BranchingOptimizer {
     private List<Rule> ruleSet;
 
     public RuleOptimizer(List<Rule> ruleSet) {
@@ -27,8 +26,7 @@ public class RuleOptimizer implements Optimizer {
     }
 
     @Override
-    public OptimizerResult run(ParserContext parserContext, OptimizationDecider decider, Node node) {
-        final RuleOptimizerVisitor visitor = new RuleOptimizerVisitor(parserContext, decider, ruleSet);
-        return runWithOptimizer(visitor, parserContext, node);
+    OptimizerVisitor createVisitor(ParserContext context, OptimizationDecider decider) {
+        return new RuleOptimizerVisitor(context, decider, ruleSet);
     }
 }

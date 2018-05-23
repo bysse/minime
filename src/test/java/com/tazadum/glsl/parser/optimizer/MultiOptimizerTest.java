@@ -149,7 +149,7 @@ public class MultiOptimizerTest {
 
     private Node optimize(Node shaderNode) {
 
-        OptimizerPipeline pipeline = new OptimizerPipeline(outputConfig, OptimizerType.values());
+        OptimizerPipeline pipeline = new SingleShaderOptimizerPipeline(outputConfig, OptimizerType.values());
         return pipeline.optimize(optimizerContext, shaderNode, true);
     }
 

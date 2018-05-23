@@ -58,6 +58,31 @@ public class ReplaceUtil {
         };
         parent.accept(visitor);
         return parent;
-    };
+    }
 
+    public static <T extends ParentNode> T replace(ParserContext context, T parent, Node nodeToRemove, Node replacement) {
+        ReplacingASTVisitor visitor = new ReplacingASTVisitor(context, true) {
+            protected void processParentNode(ParentNode node) {
+                for (int i = 0; i < node.getChildCount(); i++) {
+                    Node child = node.getChild(i);
+                    if (child == null) {
+                        continue;
+                    }
+                    if (nodeToRemove.hasEqualId(child)) {
+                        parserContext.dereferenceTree(child);
+                        if (replacement.equals(REMOVE)) {
+                            node.removeChild(child);
+                            i--;
+                        } else {
+                            node.setChild(i, replacement);
+                        }
+                    } else {
+                        child.accept(this);
+                    }
+                }
+            }
+        };
+        parent.accept(visitor);
+        return parent;
+    }
 }

@@ -14,22 +14,6 @@ public interface Optimizer {
 
     OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node);
 
-    default OptimizerResult runWithOptimizer(OptimizerVisitor visitor, ParserContext parserContext, Node node) {
-        int changes, totalChanges = 0;
-        do {
-            visitor.reset();
-            Node accept = node.accept(visitor);
-            changes = visitor.getChanges();
-            totalChanges += changes;
-
-            if (accept != null) {
-                node = accept;
-            }
-        } while (changes > 0);
-
-        return new OptimizerResult(totalChanges, new OptimizerBranch(parserContext, node));
-    }
-
     class OptimizerResult {
         private int changes = 0;
         private List<OptimizerBranch> branches = new ArrayList<>();
@@ -56,23 +40,4 @@ public interface Optimizer {
             return branches;
         }
     }
-
-    class OptimizerBranch {
-        private ParserContext context;
-        private Node node;
-
-        public OptimizerBranch(ParserContext context, Node node) {
-            this.context = context;
-            this.node = node;
-        }
-
-        public ParserContext getContext() {
-            return context;
-        }
-
-        public Node getNode() {
-            return node;
-        }
-    }
-
 }

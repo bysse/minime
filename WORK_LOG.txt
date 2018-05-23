@@ -34,12 +34,13 @@ Date	Hours
 2017-01-12 1.0
 2017-01-13 0.75
 
-// TODO: Fix squeeze
-// TODO: Sharing functions between shaders, non colliding identifiers and C-stub for concatenation
 // TODO: Inline functions
+// TODO: Fix squeeze
+// TODO: Branching, optimizers needs to mark optimization points so they don't spawn infinite branches
+// TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 // TODO: More complex arithmetic simplifications
 
-// -- Seems to be bugs in the node finder utilsf
+// -- Seems to be bugs in the node finder utils
 
 2018-03-30  3.0 Doing arithmetic simplification framework during Revision
 2018-03-31  3.0
@@ -47,4 +48,5 @@ Date	Hours
 2018-04-15  3.5 Rewriting CLI interface, adding more simplifications and starting on inline functionality on the plane to Bangkok
 2018-04-30  1.0 Refactoring the optimizer instantiation
 2018-05-01  0.5 Applying the optimizer and fixing bug in type checker.
-2018-05-22  2.0 Doing some scaffolding for speculative optimizations
+2018-05-22  4.0 Scaffolding for branching optimizations, continuing with function inline.
+2018-05-23  0.5 Getting basic function inlining to work.

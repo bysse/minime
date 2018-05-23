@@ -1,22 +1,25 @@
 package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
 import com.tazadum.glsl.ast.StatementListNode;
 import com.tazadum.glsl.ast.conditional.ReturnNode;
-import com.tazadum.glsl.ast.expression.AssignmentNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
+import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.finder.NodeFinder;
 import com.tazadum.glsl.parser.finder.VariableFinder;
 import com.tazadum.glsl.parser.function.FunctionRegistry;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
+import com.tazadum.glsl.util.CloneUtils;
 import com.tazadum.glsl.util.IdentifierCreator;
+import com.tazadum.glsl.util.ReplaceUtil;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -47,6 +50,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
     @Override
     public Node visitFunctionDefinition(FunctionDefinitionNode node) {
+        super.visitFunctionDefinition(node);
+
         // try to find out if the function is suitable to inline
 
         if (node.mutatesGlobalState()) {
@@ -69,12 +74,13 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         if (usage.getUsageNodes().size() > 1) {
-            // TODO: check if size optimization is possible
+            // TODO: do a speculative inline
         }
 
+        /*
         // check if all usages are ok to inline
         for (Node usingNode : usage.getUsageNodes()) {
-            NodeFinder.findParent(usingNode, (parent) -> {
+            Node parentNode = NodeFinder.findParent(usingNode, (parent) -> {
                 if (parent instanceof AssignmentNode) {
                     // find all variables on the left side of the equal sign
                     SortedSet<VariableNode> variables = VariableFinder.findVariables(((AssignmentNode) parent).getLeft());
@@ -89,15 +95,20 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 }
                 return false;
             });
+
+            if (parentNode != null) {
+                return null;
+            }
         }
+        */
 
         potentialFunctions.put(node.getFunctionPrototype(), node);
         return null;
     }
 
     @Override
-    public Node visitFunctionCall(FunctionCallNode node) {
-        FunctionPrototypeNode functionPrototype = node.getDeclarationNode();
+    public Node visitFunctionCall(FunctionCallNode functionCall) {
+        FunctionPrototypeNode functionPrototype = functionCall.getDeclarationNode();
         FunctionDefinitionNode definitionNode = potentialFunctions.get(functionPrototype);
 
         // check if the function is on the list
@@ -118,13 +129,44 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         // clone and expression in the return statement of the function
-        Node inlined = ((ReturnNode) returnStatement).getExpression().clone(null);
+        Node expression = ((ReturnNode) returnStatement).getExpression();
+        Node expressionToInline = CloneUtils.cloneKeepId(expression, null);
+
+        // try to find all parameter usage in the expression
+        SortedSet<VariableNode> variables = VariableFinder.findVariables(expression);
+
+        for (VariableNode variable : variables) {
+            boolean singleVariable = variable.getParentNode().hasEqualId(returnStatement);
+
+            final VariableDeclarationNode declarationNode = variable.getDeclarationNode();
+            if (declarationNode instanceof ParameterDeclarationNode) {
+                // Parameter declarations for other functions can't be reached so this
+                // variable is a parameter to the function
+
+                int index = declarationNode.getParentNode().indexOf(declarationNode);
+                if (index >= 0 && index < functionCall.getChildCount()) {
+                    Node clonedParameter = CloneUtils.clone(functionCall.getChild(index), null);
+
+                    if (singleVariable) {
+                        // this will run if the only thing returned from a function is one of the parameters
+                        expressionToInline = clonedParameter;
+                    } else if (expressionToInline instanceof ParentNode) {
+                        ReplaceUtil.replace(parserContext, (ParentNode) expressionToInline, variable, clonedParameter);
+                    } else {
+                        throw new UnsupportedOperationException("The inline state is unknown or not supported");
+                    }
+                } else {
+                    // the parameter index is outside the range of arguments?
+                    throw new IllegalStateException("The parameter index is not within the range of parameters!");
+                }
+            }
+        }
 
         // TODO: remap and replace
         // insert the function node mapping the variables to the new variables
 
         // Replace and dereference the function usage
         changes++;
-        return inlined;
+        return expressionToInline;
     }
 }

@@ -17,9 +17,7 @@ import com.tazadum.glsl.output.generator.PackedHeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PassThroughGenerator;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.optimizer.ContextBasedMultiIdentifierShortener;
-import com.tazadum.glsl.parser.optimizer.OptimizerPipeline;
-import com.tazadum.glsl.parser.optimizer.OptimizerType;
+import com.tazadum.glsl.parser.optimizer.*;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
@@ -269,7 +267,10 @@ public class GLSLOptimizer {
             optimizerTypes.remove(OptimizerType.ArithmeticOptimizerType);
         }
 
-        final OptimizerPipeline pipeline = new OptimizerPipeline(outputConfig, optimizerTypes);
+        //final OptimizerPipeline pipeline = new SingleShaderOptimizerPipeline(outputConfig, optimizerTypes);
+
+        TreePruner pruner = TreePruner.byIterationDepth(2);
+        final OptimizerPipeline pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, optimizerTypes);
         return pipeline.optimize(optimizerContext, shaderNode, !option(SilentOutput));
     }
 

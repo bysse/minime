@@ -25,6 +25,11 @@ public interface FunctionRegistry {
 
     boolean dereference(FunctionPrototypeNode node);
 
+    /**
+     * Remap the function registry after a new Node hierarchy.
+     * @param base
+     * @return
+     */
     FunctionRegistry remap(Node base);
 
     boolean isEmpty();

@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class OptimizerTreePipeline {
+public class BranchingOptimizerPipeline implements OptimizerPipeline {
     private final TreePruner treePruner;
     private final OutputConfig outputConfig;
     private final Output output;
     private final List<Optimizer> optimizers;
 
-    public OptimizerTreePipeline(TreePruner treePruner, OutputConfig outputConfig, OptimizerType... types) {
+    public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, OptimizerType... types) {
         this.treePruner = treePruner;
         this.outputConfig = outputConfig;
         this.output = new Output();
@@ -28,7 +28,7 @@ public class OptimizerTreePipeline {
                 .collect(Collectors.toList());
     }
 
-    public OptimizerTreePipeline(TreePruner treePruner, OutputConfig outputConfig, EnumSet<OptimizerType> types) {
+    public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, EnumSet<OptimizerType> types) {
         this.treePruner = treePruner;
         this.outputConfig = outputConfig;
         this.output = new Output();
@@ -42,13 +42,13 @@ public class OptimizerTreePipeline {
         final ParserContext parserContext = optimizerContext.parserContext();
 
         // create a list of branches to explore
-        List<Optimizer.OptimizerBranch> acceptedBranches = new ArrayList<>();
-        acceptedBranches.add(new Optimizer.OptimizerBranch(parserContext, shaderNode));
+        List<OptimizerBranch> acceptedBranches = new ArrayList<>();
+        acceptedBranches.add(new OptimizerBranch(parserContext, shaderNode));
 
         int minSize = output.render(shaderNode, outputConfig).length();
         int totalChanges, iteration = 0, previousSize = minSize;
         do {
-            List<Optimizer.OptimizerBranch> discoveredBranches = new ArrayList<>();
+            List<OptimizerBranch> discoveredBranches = new ArrayList<>();
             totalChanges = 0;
 
             if (showOutput) {
@@ -58,9 +58,9 @@ public class OptimizerTreePipeline {
             for (Optimizer optimizer : optimizers) {
                 int branchCount = 0;
                 int batchMinSize = Integer.MAX_VALUE;
-                Optimizer.OptimizerBranch batchMinBranch = null;
+                OptimizerBranch batchMinBranch = null;
 
-                for (Optimizer.OptimizerBranch branch : acceptedBranches) {
+                for (OptimizerBranch branch : acceptedBranches) {
                     Node node = branch.getNode();
                     ParserContext context = branch.getContext();
 
@@ -87,13 +87,14 @@ public class OptimizerTreePipeline {
                     }
                     totalChanges += changes;
 
-                    List<Optimizer.OptimizerBranch> branches = result.getBranches();
+                    List<OptimizerBranch> branches = result.getBranches();
                     branchCount += branches.size();
                     discoveredBranches.addAll(branches);
                 }
 
                 if (showOutput) {
-                    System.out.println(String.format("  - %s => %d branches", optimizer.name(), branchCount));
+                    int branches = Math.max(0, branchCount);
+                    System.out.println(String.format("  - %s: %d changes and +%d branches", optimizer.name(), totalChanges, branches));
                 }
 
                 if (batchMinBranch != null) {
@@ -101,8 +102,9 @@ public class OptimizerTreePipeline {
                     discoveredBranches.add(batchMinBranch);
                 }
 
+                // enforce branch uniqueness and add all of them to the list of accepted nodes
                 acceptedBranches.clear();
-                acceptedBranches.addAll(discoveredBranches);
+                acceptedBranches.addAll(OptimizerBranch.unique(discoveredBranches));
             }
 
             previousSize = minSize;
@@ -118,7 +120,7 @@ public class OptimizerTreePipeline {
 
         minSize = Integer.MAX_VALUE;
         Node minNode = null;
-        for (Optimizer.OptimizerBranch branch : acceptedBranches) {
+        for (OptimizerBranch branch : acceptedBranches) {
             int size = output.render(branch.getNode(), outputConfig).length();
 
             if (size < minSize) {

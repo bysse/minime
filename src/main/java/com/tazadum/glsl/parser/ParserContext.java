@@ -20,5 +20,11 @@ public interface ParserContext extends ContextAware {
 
     GLSLContext findContext(Node node);
 
+    /**
+     * Remap the context to another Node hierarchy.
+     *
+     * @param base Base of the Node hierarchy.
+     * @return A new ParserContext implementation.
+     */
     ParserContext remap(Node base);
 }
