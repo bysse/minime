@@ -34,11 +34,12 @@ Date	Hours
 2017-01-12 1.0
 2017-01-13 0.75
 
-// TODO: Inline functions
-// TODO: Fix squeeze
 // TODO: Branching, optimizers needs to mark optimization points so they don't spawn infinite branches
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
-// TODO: More complex arithmetic simplifications
+
+// TODO: Inline functions of multiple lines
+// TODO: Fix squeeze, what is the problem?
+// TODO: Add more complex arithmetic simplifications
 
 // -- Seems to be bugs in the node finder utils
 
@@ -50,4 +51,4 @@ Date	Hours
 2018-05-01  0.5 Applying the optimizer and fixing bug in type checker.
 2018-05-22  4.0 Scaffolding for branching optimizations, continuing with function inline.
 2018-05-23  0.5 Getting basic function inlining to work.
-2018-05-26  1.5 Fix reference problems when creating new variable and function nodes.
+2018-05-26  2.0 Fix reference problems when creating new variable and function nodes.
