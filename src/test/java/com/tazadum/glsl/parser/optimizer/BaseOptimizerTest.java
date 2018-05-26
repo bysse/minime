@@ -21,6 +21,8 @@ public abstract class BaseOptimizerTest {
     protected OutputConfig outputConfig;
     protected OutputSizeDecider decider;
 
+    protected boolean showDebug = false;
+
     protected abstract OptimizerType[] getOptimizerTypes();
 
     protected ParserRuleContext extractContext(GLSLParser parser) {
@@ -38,6 +40,8 @@ public abstract class BaseOptimizerTest {
 
         decider = new OutputSizeDecider();
         decider.getConfig().setMaxDecimals(3);
+
+        this.showDebug = false;
     }
 
     protected String optimize(String source) {
@@ -50,6 +54,7 @@ public abstract class BaseOptimizerTest {
             Node node = extractContext(parser).accept(visitor);
             optimizerContext.typeChecker().check(parserContext, node);
 
+            pipeline.setDebugOutput(showDebug);
             Node result = pipeline.optimize(optimizerContext, node, true);
             return output.render(result, outputConfig).trim();
         } catch (Exception e) {

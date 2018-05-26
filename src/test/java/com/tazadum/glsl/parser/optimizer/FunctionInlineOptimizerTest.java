@@ -26,7 +26,7 @@ public class FunctionInlineOptimizerTest extends BaseOptimizerTest {
 
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.globalContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "blackhole", null, null));
+        registry.declareVariable(parserContext.globalContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "blackhole", null, null));
     }
 
     @Test
@@ -46,9 +46,23 @@ public class FunctionInlineOptimizerTest extends BaseOptimizerTest {
                 optimize("float func(float a){return a;}void main(){blackhole=func(2);}")
         );
 
-       assertEquals(
-               "void main(){blackhole=2*2;}",
+        assertEquals(
+                "void main(){blackhole=2*2;}",
                 optimize("float func(float a){return 2*a;}void main(){blackhole=func(2);}")
+        );
+
+    }
+
+    @Test
+    @DisplayName("Basic inline of terms")
+    public void testBasicTerms() {
+
+        showDebug = true;
+        // This probably fails because of reference errors in usage
+
+        assertEquals(
+                "void main(){float b=1;blackhole=2*(2+b);}",
+                optimize("float func(float a){return 2*a;}void main(){float b=1;blackhole=func(2+b);}")
         );
     }
 }

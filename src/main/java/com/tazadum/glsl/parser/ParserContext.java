@@ -16,8 +16,30 @@ public interface ParserContext extends ContextAware {
 
     FunctionRegistry getFunctionRegistry();
 
+    /**
+     * Dereference all variable / function usages and declarations
+     * that are found in the sub-tree from this context.
+     *
+     * @param node Sub-tree to dereference.
+     */
     void dereferenceTree(Node node);
 
+    /**
+     * Add refernces in the current context for all variable / function
+     * uses and declarations.
+     *
+     * @param node The sub-tree to reference.
+     */
+    void referenceTree(Node node);
+
+    /**
+     * Resolves the context for any given node by searching
+     * through all parent nodes. If no suitable context is found
+     * the global context will be returned.
+     *
+     * @param node Node to find the context for.
+     * @return The context of the node.
+     */
     GLSLContext findContext(Node node);
 
     /**

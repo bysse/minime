@@ -11,8 +11,10 @@ import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.function.FunctionRegistry;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeRegistry;
+import com.tazadum.glsl.parser.type.TypeVisitor;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import com.tazadum.glsl.parser.visitor.DereferenceVisitor;
+import com.tazadum.glsl.parser.visitor.VariableReferenceVisitor;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -47,11 +49,11 @@ public class ParserContextImpl implements ParserContext {
     private void setupVariables() {
         GLSLContext context = currentContext();
 
-        variableRegistry.declare(context, variable(BuiltInType.VEC4, "gl_FragColor"));
-        variableRegistry.declare(context, variable(BuiltInType.VEC4, "gl_FragCoord"));
-        variableRegistry.declare(context, variable(BuiltInType.BOOL, "gl_FrontFacing"));
-        variableRegistry.declare(context, variable(BuiltInType.VEC2, "gl_PointCoord"));
-        variableRegistry.declare(context, variable(BuiltInType.FLOAT, "gl_FragDepth"));
+        variableRegistry.declareVariable(context, variable(BuiltInType.VEC4, "gl_FragColor"));
+        variableRegistry.declareVariable(context, variable(BuiltInType.VEC4, "gl_FragCoord"));
+        variableRegistry.declareVariable(context, variable(BuiltInType.BOOL, "gl_FrontFacing"));
+        variableRegistry.declareVariable(context, variable(BuiltInType.VEC2, "gl_PointCoord"));
+        variableRegistry.declareVariable(context, variable(BuiltInType.FLOAT, "gl_FragDepth"));
     }
 
     private void setupFunctions() {
@@ -199,7 +201,7 @@ public class ParserContextImpl implements ParserContext {
     private void fixedFunction(String identifier, BuiltInType returnType, BuiltInType... parameters) {
         final FunctionPrototypeNode node = new FunctionPrototypeNode(identifier, new FullySpecifiedType(returnType));
         node.setPrototype(new FunctionPrototype(true, returnType, parameters));
-        functionRegistry.declare(node);
+        functionRegistry.declareFunction(node);
     }
 
     private void function(String identifier, Object... parameterTypes) {
@@ -211,7 +213,7 @@ public class ParserContextImpl implements ParserContext {
 
             final FunctionPrototypeNode node = new FunctionPrototypeNode(identifier, new FullySpecifiedType(returnType));
             node.setPrototype(new FunctionPrototype(true, returnType, arguments));
-            functionRegistry.declare(node);
+            functionRegistry.declareFunction(node);
         }
     }
 
@@ -233,6 +235,15 @@ public class ParserContextImpl implements ParserContext {
     @Override
     public void dereferenceTree(Node node) {
         node.accept(dereferenceVisitor);
+    }
+
+    @Override
+    public void referenceTree(Node node) {
+        // add type information to the tree
+        node.accept(new TypeVisitor(this));
+
+        // register all function-calls and variable usages
+        node.accept(new VariableReferenceVisitor(this));
     }
 
     @Override

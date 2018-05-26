@@ -1,4 +1,4 @@
-package com.tazadum.glsl.compresion;
+package com.tazadum.glsl.compression;
 
 import java.nio.charset.StandardCharsets;
 import java.util.zip.Deflater;

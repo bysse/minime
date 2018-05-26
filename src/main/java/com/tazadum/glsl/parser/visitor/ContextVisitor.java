@@ -194,7 +194,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         functionPrototype.setPrototype(prototype);
 
         // register the function
-        parserContext.getFunctionRegistry().declare(functionPrototype);
+        parserContext.getFunctionRegistry().declareFunction(functionPrototype);
 
         return functionPrototype;
     }
@@ -264,7 +264,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         listNode.addChild(node);
 
         // register the declaration and usage of the type to enable easy look up during optimization
-        parserContext.getVariableRegistry().declare(parserContext.currentContext(), node);
+        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), node);
         parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
 
         return listNode;
@@ -371,7 +371,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final ParameterDeclarationNode parameterDeclaration = new ParameterDeclarationNode(type, parameterName, arraySpecifier);
 
         final GLSLContext context = parserContext.currentContext();
-        parserContext.getVariableRegistry().declare(context, parameterDeclaration);
+        parserContext.getVariableRegistry().declareVariable(context, parameterDeclaration);
 
         return parameterDeclaration;
     }
@@ -490,7 +490,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         final VariableDeclarationNode node = new VariableDeclarationNode(false, fullySpecifiedType, identifier, arraySpecifier, initializer);
         // register the declaration and usage of the type to enable easy look up during optimization
-        parserContext.getVariableRegistry().declare(parserContext.currentContext(), node);
+        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), node);
         parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
         return node;
     }
@@ -788,7 +788,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final ResolutionResult result = variableRegistry.resolve(currentContext, variableName, Identifier.Mode.Original);
         final VariableNode node = new VariableNode(result.getDeclaration());
 
-        variableRegistry.usage(currentContext, variableName, node);
+        variableRegistry.registerVariableUsage(currentContext, variableName, node);
 
         return node;
     }

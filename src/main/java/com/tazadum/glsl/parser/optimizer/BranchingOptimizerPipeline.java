@@ -18,6 +18,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
     private final OutputConfig outputConfig;
     private final Output output;
     private final List<Optimizer> optimizers;
+    private boolean debug;
 
     public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, OptimizerType... types) {
         this.treePruner = treePruner;
@@ -92,7 +93,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                     discoveredBranches.addAll(branches);
                 }
 
-                if (showOutput) {
+                if (showOutput || debug) {
                     int branches = Math.max(0, branchCount);
                     System.out.println(String.format("  - %s: %d changes and +%d branches", optimizer.name(), totalChanges, branches));
                 }
@@ -132,4 +133,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         return minNode;
     }
 
+    @Override
+    public void setDebugOutput(boolean showDebug) {
+        debug = showDebug;
+    }
 }

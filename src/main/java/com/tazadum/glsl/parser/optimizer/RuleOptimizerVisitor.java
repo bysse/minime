@@ -33,7 +33,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor implements Optimiz
     private int changes = 0;
 
     public RuleOptimizerVisitor(ParserContext parserContext, OptimizationDecider decider, List<Rule> ruleSet) {
-        super(parserContext, false);
+        super(parserContext, false, true);
         this.decider = decider;
         this.ruleSet = ruleSet;
         this.ruleRunner = new RuleRunner();

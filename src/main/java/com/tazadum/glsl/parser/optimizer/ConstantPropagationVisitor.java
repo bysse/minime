@@ -102,7 +102,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
                 }
 
                 for (NodeUsage usage : newNodeUsage) {
-                    parserContext.getVariableRegistry().usage(usage.context, usage.identifier.original(), usage.node);
+                    parserContext.getVariableRegistry().registerVariableUsage(usage.context, usage.identifier.original(), usage.node);
                 }
 
                 parserContext.getVariableRegistry().dereference(node);

@@ -12,9 +12,29 @@ import java.util.List;
 import java.util.Map;
 
 public interface VariableRegistry {
-    void declare(GLSLContext context, VariableDeclarationNode variableNode);
+    /**
+     * Declares a variables in a context.
+     *
+     * @param context      The context to define the variable in.
+     * @param variableNode The variable to declare.
+     */
+    void declareVariable(GLSLContext context, VariableDeclarationNode variableNode);
 
-    void usage(GLSLContext context, String identifier, Node node);
+    /**
+     * Registers a variable usage in a context.
+     *
+     * @param context    The context in which the variable was used.
+     * @param identifier The identifier of the variable.
+     * @param node       The variable usage node.
+     */
+    void registerVariableUsage(GLSLContext context, String identifier, Node node);
+
+    /**
+     * Register a variable usage from an already resolved VariableNode.
+     *
+     * @param node    The VariableNode.
+     */
+    void registerVariableUsage(VariableNode node);
 
     ResolutionResult resolve(GLSLContext context, String identifier, Identifier.Mode mode);
 

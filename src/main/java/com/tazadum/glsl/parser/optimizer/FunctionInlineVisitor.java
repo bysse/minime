@@ -1,9 +1,7 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
-import com.tazadum.glsl.ast.ReplacingASTVisitor;
-import com.tazadum.glsl.ast.StatementListNode;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.conditional.ReturnNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
@@ -12,6 +10,7 @@ import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.ast.variable.VariableNode;
 import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.NumericOperator;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.finder.VariableFinder;
@@ -36,7 +35,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     private Map<FunctionPrototypeNode, FunctionDefinitionNode> potentialFunctions = new HashMap<>();
 
     public FunctionInlineVisitor(ParserContext parserContext, OptimizationDecider decider) {
-        super(parserContext, true);
+        super(parserContext, true, true);
         this.decider = decider;
     }
 
@@ -136,6 +135,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         SortedSet<VariableNode> variables = VariableFinder.findVariables(expression);
 
         for (VariableNode variable : variables) {
+            // flag that indicates that the only thing returned is a parameter
             boolean singleVariable = variable.getParentNode().hasEqualId(returnStatement);
 
             final VariableDeclarationNode declarationNode = variable.getDeclarationNode();
@@ -146,6 +146,10 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 int index = declarationNode.getParentNode().indexOf(declarationNode);
                 if (index >= 0 && index < functionCall.getChildCount()) {
                     Node clonedParameter = CloneUtils.clone(functionCall.getChild(index), null);
+
+                    if (needWrapping(clonedParameter)) {
+                        clonedParameter = new ParenthesisNode(clonedParameter);
+                    }
 
                     if (singleVariable) {
                         // this will run if the only thing returned from a function is one of the parameters
@@ -162,11 +166,27 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             }
         }
 
+        // check if we need to wrap the expression with parenthesis
+        if (needWrapping(expression)) {
+            expressionToInline = new ParenthesisNode(expressionToInline);
+        }
+
         // TODO: remap and replace
         // insert the function node mapping the variables to the new variables
 
         // Replace and dereference the function usage
         changes++;
         return expressionToInline;
+    }
+
+    /**
+     * Check if the provided node needs to be wrapped with parenthesis
+     */
+    private boolean needWrapping(Node node) {
+        if (node instanceof NumericOperationNode) {
+            NumericOperator operator = ((NumericOperationNode) node).getOperator();
+            return operator == NumericOperator.ADD || operator == NumericOperator.SUB;
+        }
+        return false;
     }
 }

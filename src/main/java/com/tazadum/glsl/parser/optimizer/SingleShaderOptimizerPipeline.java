@@ -16,6 +16,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
     private final OutputConfig outputConfig;
     private final Output output;
     private final List<Optimizer> optimizers;
+    private boolean debug;
 
     public SingleShaderOptimizerPipeline(OutputConfig outputConfig, OptimizerType... types) {
         assert outputConfig != null;
@@ -46,9 +47,14 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
         do {
             iterationChanges = 0;
 
-            if (showOutput) {
-                final int size = output.render(node, outputConfig).length();
+            if (showOutput || debug) {
+                final String source = output.render(node, outputConfig);
+                final int size = source.length();
                 System.out.println(String.format("Iteration #%d: %d bytes", iteration++, size));
+
+                if (debug) {
+                    System.out.println("> SOURCE: " + source);
+                }
             }
 
             for (Optimizer optimizer : optimizers) {
@@ -58,13 +64,22 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
                     node = result.getBranches().get(0).getNode();
                     iterationChanges += changes;
 
-                    if (showOutput) {
+                    if (showOutput || debug) {
                         System.out.println(String.format("  - %d %s", changes, optimizer.name()));
+                        if (debug) {
+                            final String source = output.render(node, outputConfig);
+                            System.out.println("  > SOURCE: " + source);
+                        }
                     }
                 }
             }
 
         } while (iterationChanges > 0);
         return node;
+    }
+
+    @Override
+    public void setDebugOutput(boolean debug) {
+        this.debug = debug;
     }
 }

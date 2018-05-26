@@ -32,12 +32,12 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     }
 
     @Override
-    public void declare(FunctionPrototypeNode node) {
+    public void declareFunction(FunctionPrototypeNode node) {
         functionMap.computeIfAbsent(node.getIdentifier().original(), (identifier) -> new ArrayList<>()).add(node);
     }
 
     @Override
-    public void usage(FunctionPrototypeNode prototypeNode, FunctionCallNode node) {
+    public void registerFunctionCall(FunctionPrototypeNode prototypeNode, FunctionCallNode node) {
         final Usage<FunctionPrototypeNode> usage = usageMap.computeIfAbsent(prototypeNode, Usage::new);
         usage.add(node);
     }

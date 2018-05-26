@@ -85,7 +85,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         }
 
         node.setDeclarationNode(prototypeNode);
-        parserContext.getFunctionRegistry().usage(prototypeNode, node);
+        parserContext.getFunctionRegistry().registerFunctionCall(prototypeNode, node);
 
         return prototypeNode.getReturnType().getType();
     }

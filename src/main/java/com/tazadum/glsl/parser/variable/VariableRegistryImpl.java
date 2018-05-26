@@ -38,13 +38,13 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public void declare(GLSLContext context, VariableDeclarationNode variableNode) {
+    public void declareVariable(GLSLContext context, VariableDeclarationNode variableNode) {
         declarationMap.computeIfAbsent(context, VariableRegistryContext::new).declare(variableNode);
         usageMap.computeIfAbsent(variableNode, Usage::new);
     }
 
     @Override
-    public void usage(GLSLContext context, String identifier, Node node) {
+    public void registerVariableUsage(GLSLContext context, String identifier, Node node) {
         final VariableRegistryContext variableContext = resolveContext(context, identifier, Identifier.Mode.Original);
         if (variableContext == null) {
             throw new VariableException("Unregistered context for identifier " + identifier);
@@ -53,6 +53,16 @@ public class VariableRegistryImpl implements VariableRegistry {
         final VariableDeclarationNode declarationNode = variableContext.resolve(identifier, Identifier.Mode.Original);
         if (declarationNode == null) {
             throw new VariableException("Undeclared identifier " + identifier);
+        }
+
+        usageMap.computeIfAbsent(declarationNode, Usage::new).add(node);
+    }
+
+    @Override
+    public void registerVariableUsage(VariableNode node) {
+        VariableDeclarationNode declarationNode = node.getDeclarationNode();
+        if (declarationNode == null) {
+            throw new IllegalStateException("no declaration was set on the VariableNode");
         }
 
         usageMap.computeIfAbsent(declarationNode, Usage::new).add(node);

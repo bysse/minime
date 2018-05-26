@@ -35,9 +35,9 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     public void test_vector_construction_single_arg() throws Exception {
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
 
         assertEquals("v2", optimize("vec2(v2)"));
         assertEquals("v3", optimize("vec3(v3)"));
@@ -50,9 +50,9 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     public void test_vector_construction_parameter_collapsing() throws Exception {
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
 
         assertEquals("v2.xy", optimize("vec2(v2.x,v2.y)"));
         assertEquals("v3.xyz", optimize("vec3(v3.x,v3.y,v3.z)"));
@@ -66,9 +66,9 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     public void test_field_selection_removal() throws Exception {
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC2), "v2", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
 
         assertEquals("v2=v2", optimize("v2=v2.xy"));
         assertEquals("v3=v3", optimize("v3=v3.xyz"));
@@ -119,7 +119,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     public void test_1_elimination() {
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
         assertEquals("var", optimize("var*1"));
         assertEquals("5", optimize("1*5"));
@@ -145,7 +145,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     public void test_folding_adv() {
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
         assertEquals(".0121", optimize(".11*.11"));
         assertEquals("9", optimize("3*(2+var/var)"));
@@ -156,7 +156,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     public void test_folding_chain() {
         ParserContext parserContext = optimizerContext.parserContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declare(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
+        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
 
         assertEquals("4*var", optimize("2 * var * 2"));
         assertEquals("2+var", optimize("1 + var + 1"));

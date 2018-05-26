@@ -2,7 +2,7 @@ package com.tazadum.glsl;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.compresion.Compressor;
+import com.tazadum.glsl.compression.Compressor;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
@@ -71,16 +71,16 @@ public class GLSLOptimizer {
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
         final GLSLContext global = parserContext.globalContext();
 
-        variableRegistry.declare(global, uniform(BuiltInType.VEC3, "iResolution"));
-        variableRegistry.declare(global, uniform(BuiltInType.FLOAT, "iGlobalTime"));
-        variableRegistry.declare(global, uniform(BuiltInType.FLOAT, "iTimeDelta"));
-        variableRegistry.declare(global, uniform(BuiltInType.INT, "iFrame"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.VEC3, "iResolution"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.FLOAT, "iGlobalTime"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.FLOAT, "iTimeDelta"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.INT, "iFrame"));
         // uniform float     iChannelTime[4];       // channel playback time (in seconds)
         //uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
-        variableRegistry.declare(global, uniform(BuiltInType.VEC4, "iMouse"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.VEC4, "iMouse"));
         //uniform samplerXX iChannel0..3;          // input channel. XX = 2D/Cube
-        variableRegistry.declare(global, uniform(BuiltInType.VEC4, "iDate"));
-        variableRegistry.declare(global, uniform(BuiltInType.FLOAT, "iSampleRate"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.VEC4, "iDate"));
+        variableRegistry.declareVariable(global, uniform(BuiltInType.FLOAT, "iSampleRate"));
     }
 
     public void processFiles(List<String> shaderFiles) {

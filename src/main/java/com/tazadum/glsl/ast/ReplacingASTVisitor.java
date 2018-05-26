@@ -24,10 +24,16 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     protected ParserContext parserContext;
     private boolean dereference;
+    private boolean reference;
 
     public ReplacingASTVisitor(ParserContext parserContext, boolean dereference) {
+        this(parserContext, dereference, false);
+    }
+
+    public ReplacingASTVisitor(ParserContext parserContext, boolean dereference, boolean reference) {
         this.parserContext = parserContext;
         this.dereference = dereference;
+        this.reference = reference;
     }
 
     @Override
@@ -227,6 +233,11 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
                     i--;
                 } else {
                     node.setChild(i, replacement);
+
+                    if (reference) {
+                        // add references to all variables and function calls in the new child
+                        parserContext.referenceTree(replacement);
+                    }
                 }
             }
         }

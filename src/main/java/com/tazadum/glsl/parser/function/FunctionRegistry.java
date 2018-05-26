@@ -9,9 +9,20 @@ import com.tazadum.glsl.parser.Usage;
 import java.util.List;
 
 public interface FunctionRegistry {
-    void declare(FunctionPrototypeNode node);
+    /**
+     * Declares a function in the registry.
+     *
+     * @param node The function prototype node.
+     */
+    void declareFunction(FunctionPrototypeNode node);
 
-    void usage(FunctionPrototypeNode prototypeNode, FunctionCallNode node);
+    /**
+     * Registers a function call.
+     *
+     * @param prototypeNode The prototype which is called.
+     * @param node          The function call node.
+     */
+    void registerFunctionCall(FunctionPrototypeNode prototypeNode, FunctionCallNode node);
 
     FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher);
 
@@ -27,6 +38,7 @@ public interface FunctionRegistry {
 
     /**
      * Remap the function registry after a new Node hierarchy.
+     *
      * @param base
      * @return
      */
