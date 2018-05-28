@@ -12,7 +12,7 @@ public class DeadCodeElimination extends BranchingOptimizer {
     }
 
     @Override
-    OptimizerVisitor createVisitor(BranchRegistry branchRegistry, ParserContext context, OptimizationDecider decider) {
+    OptimizerVisitor createVisitor(ParserContext context, OptimizationDecider decider) {
         return new DeadCodeEliminationVisitor(context);
     }
 }

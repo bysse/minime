@@ -180,7 +180,7 @@ public class ContextBasedMultiIdentifierShortenerTest {
             Node node = parser.translation_unit().accept(visitor);
             typeChecker.check(parserContext, node);
 
-            Optimizer.OptimizerResult result = new ConstantPropagation().run(new BranchRegistry(), parserContext, new OutputSizeDecider(), node);
+            Optimizer.OptimizerResult result = new ConstantPropagation().run(parserContext, new OutputSizeDecider(), node);
 
             identifierShortener.register(parserContext, node, config);
             return node;

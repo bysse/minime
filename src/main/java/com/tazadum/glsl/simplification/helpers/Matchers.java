@@ -3,6 +3,8 @@ package com.tazadum.glsl.simplification.helpers;
 import com.tazadum.glsl.ast.HasNumeric;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ParenthesisNode;
+import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
+import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.language.Numeric;
 import com.tazadum.glsl.language.NumericOperator;
 import com.tazadum.glsl.simplification.*;
@@ -65,4 +67,13 @@ public class Matchers {
     public static Matcher mNumeric() {
         return new NodeMatcher((node) -> node instanceof HasNumeric);
     }
+
+    public static Matcher mInt() {
+        return new NodeMatcher((node) -> node instanceof IntLeafNode);
+    }
+
+    public static Matcher mFloat() {
+        return new NodeMatcher((node) -> node instanceof FloatLeafNode);
+    }
+
 }

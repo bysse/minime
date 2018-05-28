@@ -41,7 +41,6 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
     public Node optimize(GLSLOptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
         final OutputSizeDecider decider = new OutputSizeDecider();
         final ParserContext parserContext = optimizerContext.parserContext();
-        final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
 
         // create a list of branches to explore
         List<OptimizerBranch> acceptedBranches = new ArrayList<>();
@@ -82,7 +81,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                         continue;
                     }
 
-                    final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, context, decider, node);
+                    final Optimizer.OptimizerResult result = optimizer.run(context, decider, node);
                     int changes = result.getChanges();
                     if (changes <= 0) {
                         continue;

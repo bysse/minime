@@ -12,6 +12,8 @@ import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.finder.NodeFinder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -20,20 +22,32 @@ import java.util.Set;
 public class ConstantFoldingVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private final String[] validSelection = {"xrs", "ygt", "zbp", "waq"};
 
+    private final BranchRegistry branchRegistry;
     private final OptimizationDecider decider;
-    private int changes = 0;
+
+    private int changes;
+    private List<OptimizerBranch> branches;
 
     public ConstantFoldingVisitor(ParserContext parserContext, OptimizationDecider decider) {
         super(parserContext, false);
+        this.branchRegistry = parserContext.getBranchRegistry();
         this.decider = decider;
+
+        reset();
     }
 
     public void reset() {
         this.changes = 0;
+        this.branches = new ArrayList<>();
     }
 
     public int getChanges() {
         return changes;
+    }
+
+    @Override
+    public List<OptimizerBranch> getBranches() {
+        return branches;
     }
 
     @Override
@@ -201,7 +215,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
             return evaluate(node, left, right);
         }
 
-        // all simple cases are exhausted, search for down the chain
+        // all simple cases are exhausted, search down the chain
         if (right != null && hasOperation(node.getOperator(), node.getLeft())) {
             Node result = handleOperation(node, (NumericOperationNode) node.getLeft(), left, right);
             if (result != null) {
@@ -223,7 +237,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
         final Numeric childLeft = getNumeric(child.getLeft());
         final Numeric childRight = getNumeric(child.getRight());
 
-        // pull down mAny constant
+        // pull down any constant
         if (childLeft != null) {
             final Node leftClone = child.getLeft().clone(null);
             final Node rightClone = node.getRight().clone(null);
@@ -271,6 +285,11 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
      * @return
      */
     private Node evaluate(NumericOperationNode node, Numeric left, Numeric right) {
+        if (!branchRegistry.claimPoint(node, ConstantFolding.class)) {
+            // this node has already been considered for optimization
+            return null;
+        }
+
         final int previousScore = decider.score(node);
 
         int decimals = 0;
@@ -310,11 +329,20 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
         }
 
         final int score = decider.score(result);
-
         if (score <= previousScore) {
             changes++;
             return result;
         }
+
+        if (score*1.5f <= previousScore) {
+            // the optimization is slightly bigger so let's branch
+            changes++;
+
+            // TODO: Find the root node and clone it
+
+            return result;
+        }
+
         return null;
     }
 

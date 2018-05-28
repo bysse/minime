@@ -8,12 +8,12 @@ import java.util.List;
 
 public abstract class BranchingOptimizer implements Optimizer {
 
-    abstract OptimizerVisitor createVisitor(BranchRegistry branchRegistry, ParserContext context, OptimizationDecider decider);
+    abstract OptimizerVisitor createVisitor(ParserContext context, OptimizationDecider decider);
 
     @Override
-    public OptimizerResult run(BranchRegistry branchRegistry, ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
+    public OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node) {
         List<OptimizerBranch> branches = new ArrayList<>();
-        OptimizerVisitor visitor = createVisitor(branchRegistry, parserContext, optimizationDecider);
+        OptimizerVisitor visitor = createVisitor(parserContext, optimizationDecider);
 
         int changes, totalChanges = 0;
         do {

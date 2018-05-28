@@ -62,6 +62,9 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
     public void testFunctional() {
         test("float a=pow(2,1);", "float a=2;");
         test("float a=pow(3,2);", "float a=3*3;");
+
+        test("float a=abs(2);", "float a=2;");
+        //test("float a=abs(-2);", "float a=2;");
     }
 
 

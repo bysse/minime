@@ -7,11 +7,15 @@ import java.util.HashSet;
 import java.util.Objects;
 
 public class BranchRegistry {
-    private static final int PRE_ALLOC = 10000;
+    private static final int PRE_ALLOC = 1000;
     private HashSet<Location> pointSet;
 
     public BranchRegistry() {
         this.pointSet = new HashSet<>(PRE_ALLOC);
+    }
+
+    public BranchRegistry(HashSet<Location> pointSet) {
+        this.pointSet = pointSet;
     }
 
     /**
@@ -43,6 +47,14 @@ public class BranchRegistry {
      */
     public boolean claimPoint(Node node, String tag) {
         return pointSet.add(new Location(node, tag));
+    }
+
+    /**
+     * Clones the branch registry.
+     */
+    public BranchRegistry remap() {
+        cleanUp();
+        return new BranchRegistry(new HashSet<>(pointSet));
     }
 
     private static class Location {

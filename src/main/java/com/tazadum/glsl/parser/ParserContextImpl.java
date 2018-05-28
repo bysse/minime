@@ -9,6 +9,7 @@ import com.tazadum.glsl.language.GenTypeIterator;
 import com.tazadum.glsl.language.GenTypes;
 import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.function.FunctionRegistry;
+import com.tazadum.glsl.parser.optimizer.BranchRegistry;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.type.TypeRegistry;
 import com.tazadum.glsl.parser.type.TypeVisitor;
@@ -25,15 +26,21 @@ public class ParserContextImpl implements ParserContext {
     private final FunctionRegistry functionRegistry;
     private final DereferenceVisitor dereferenceVisitor;
     private final ContextAware contextAware;
+    private final BranchRegistry branchRegistry;
 
     public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry) {
-        this(typeRegistry, variableRegistry, functionRegistry, new ContextAwareImpl());
+        this(typeRegistry, variableRegistry, functionRegistry, new BranchRegistry(), new ContextAwareImpl());
     }
 
-    public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry, ContextAware contextAware) {
+    public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry, BranchRegistry branchRegistry) {
+        this(typeRegistry, variableRegistry, functionRegistry, branchRegistry, new ContextAwareImpl());
+    }
+
+    public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry, BranchRegistry branchRegistry, ContextAware contextAware) {
         this.typeRegistry = typeRegistry;
         this.variableRegistry = variableRegistry;
         this.functionRegistry = functionRegistry;
+        this.branchRegistry = branchRegistry;
         this.dereferenceVisitor = new DereferenceVisitor(this);
         this.contextAware = contextAware;
 
@@ -233,6 +240,11 @@ public class ParserContextImpl implements ParserContext {
     }
 
     @Override
+    public BranchRegistry getBranchRegistry() {
+        return branchRegistry;
+    }
+
+    @Override
     public void dereferenceTree(Node node) {
         node.accept(dereferenceVisitor);
     }
@@ -264,7 +276,8 @@ public class ParserContextImpl implements ParserContext {
         final ContextAware contextAwareRemap = contextAware.remap(base);
         final VariableRegistry variableRegistryCopy = variableRegistry.remap(base, contextAwareRemap);
         final FunctionRegistry functionRegistryCopy = functionRegistry.remap(base);
-        return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, contextAwareRemap);
+        final BranchRegistry branchRegistryCopy = branchRegistry.remap();
+        return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, branchRegistryCopy, contextAwareRemap);
     }
 
     @Override

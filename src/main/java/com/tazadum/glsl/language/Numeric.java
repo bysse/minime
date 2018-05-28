@@ -70,4 +70,8 @@ public class Numeric implements Comparable<Numeric> {
 
         return new Numeric(value, decimals, true);
     }
+
+    public static Numeric abs(Numeric n) {
+        return new Numeric(Math.abs(n.getValue()), n.getDecimals(), n.isFloat());
+    }
 }

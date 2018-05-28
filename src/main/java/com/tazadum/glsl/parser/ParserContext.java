@@ -2,6 +2,7 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.function.FunctionRegistry;
+import com.tazadum.glsl.parser.optimizer.BranchRegistry;
 import com.tazadum.glsl.parser.type.TypeRegistry;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 
@@ -15,6 +16,8 @@ public interface ParserContext extends ContextAware {
     VariableRegistry getVariableRegistry();
 
     FunctionRegistry getFunctionRegistry();
+
+    BranchRegistry getBranchRegistry();
 
     /**
      * Dereference all variable / function usages and declarations

@@ -4,7 +4,6 @@ import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.ParserContextImpl;
 import com.tazadum.glsl.parser.function.FunctionRegistryImpl;
-import com.tazadum.glsl.parser.optimizer.BranchRegistry;
 import com.tazadum.glsl.parser.type.TypeChecker;
 import com.tazadum.glsl.parser.type.TypeRegistryImpl;
 import com.tazadum.glsl.parser.variable.VariableRegistryImpl;
@@ -17,7 +16,6 @@ public class GLSLOptimizerContext {
     private Node node;
     private String source;
     private String header;
-    private BranchRegistry branchRegistry;
 
     public GLSLOptimizerContext(String shaderName) {
         this.shaderName = shaderName;
@@ -36,13 +34,6 @@ public class GLSLOptimizerContext {
 
     public ParserContext parserContext() {
         return parserContext;
-    }
-
-    public BranchRegistry branchRegistry() {
-        if (branchRegistry == null) {
-            branchRegistry = new BranchRegistry();
-        }
-        return branchRegistry;
     }
 
     public Node getNode() {

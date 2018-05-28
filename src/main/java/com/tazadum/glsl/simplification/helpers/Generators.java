@@ -14,6 +14,10 @@ public class Generators {
         return (storage) -> storage.get(group);
     }
 
+    public static <T extends Node> Function<CaptureGroups, Node> gGroup(int group, Class<T> type, Function<T, T> function) {
+        return (storage) -> function.apply(type.cast(storage.get(group)));
+    }
+
     public static Function<CaptureGroups, Node> gClone(int group) {
         return (storage) -> storage.get(group).clone(null);
     }

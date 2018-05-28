@@ -8,10 +8,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.tazadum.glsl.language.NumericOperator.*;
-import static com.tazadum.glsl.simplification.helpers.Constraints.cSame;
-import static com.tazadum.glsl.simplification.helpers.Constraints.cSameNumeric;
-import static com.tazadum.glsl.simplification.helpers.Constraints.cSameTree;
+import static com.tazadum.glsl.language.NumericOperator.ADD;
+import static com.tazadum.glsl.language.NumericOperator.MUL;
+import static com.tazadum.glsl.simplification.helpers.Constraints.*;
 import static com.tazadum.glsl.simplification.helpers.Generators.*;
 import static com.tazadum.glsl.simplification.helpers.Matchers.*;
 
@@ -102,6 +101,21 @@ public class RuleSet {
                 mFunc("pow", mNumeric(), mLiteral(2f)),
                 gOperation(NumericOperator.MUL, gGroup(0), gClone(0))
                 ));
+
+        // abs(_1) = _1
+        list.add(rule(
+                mFunc("abs", mNumeric()),
+                gGroup(0)
+                ));
+
+        /*
+        // TODO: create matchers for prefix operations
+        // abs(-_1) = _1
+        list.add(rule(
+                mFunc("abs", mInt()),
+                gGroup(0, IntLeafNode.class, n -> new IntLeafNode(Numeric.abs(n.getValue()))
+                )));
+        */
 
         // length(abs(a)) = length(a)
 
