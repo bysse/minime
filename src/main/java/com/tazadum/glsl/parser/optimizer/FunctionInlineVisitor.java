@@ -129,7 +129,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
         // clone and expression in the return statement of the function
         Node expression = ((ReturnNode) returnStatement).getExpression();
-        Node expressionToInline = CloneUtils.cloneKeepId(expression, null);
+        Node expressionToInline = CloneUtils.clone(expression, null);
 
         // try to find all parameter usage in the expression
         SortedSet<VariableNode> variables = VariableFinder.findVariables(expression);

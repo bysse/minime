@@ -40,6 +40,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
     public Node optimize(GLSLOptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
         final OutputSizeDecider decider = new OutputSizeDecider();
         final ParserContext parserContext = optimizerContext.parserContext();
+        final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
 
         Node node = shaderNode;
 
@@ -58,7 +59,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
             }
 
             for (Optimizer optimizer : optimizers) {
-                final Optimizer.OptimizerResult result = optimizer.run(parserContext, decider, node);
+                final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, parserContext, decider, node);
                 int changes = result.getChanges();
                 if (changes > 0 ) {
                     node = result.getBranches().get(0).getNode();

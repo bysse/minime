@@ -43,12 +43,13 @@ Date	Hours
 
 // -- Seems to be bugs in the node finder utils
 
-2018-03-30  3.0 Doing arithmetic simplification framework during Revision
-2018-03-31  3.0
-2018-04-05  2.0 Fixing junit 5 and more simplifications on the plane to Hong Kong
-2018-04-15  3.5 Rewriting CLI interface, adding more simplifications and starting on inline functionality on the plane to Bangkok
-2018-04-30  1.0 Refactoring the optimizer instantiation
+2018-03-30  3.0 Doing arithmetic simplification framework during Revision.
+2018-03-31  3.0 Doing arithmetic simplification framework during Revision.
+2018-04-05  2.0 Fixing junit 5 and more simplifications on the plane to Hong Kong.
+2018-04-15  3.5 Rewriting CLI interface, adding more simplifications and starting on inline functionality on the plane to Bangkok.
+2018-04-30  1.0 Refactoring the optimizer instantiation.
 2018-05-01  0.5 Applying the optimizer and fixing bug in type checker.
 2018-05-22  4.0 Scaffolding for branching optimizations, continuing with function inline.
 2018-05-23  0.5 Getting basic function inlining to work.
 2018-05-26  2.0 Fix reference problems when creating new variable and function nodes.
+2018-05-28  0.5 Fixing a registry for keeping track of optimizations.

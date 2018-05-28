@@ -27,7 +27,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     private boolean reference;
 
     public ReplacingASTVisitor(ParserContext parserContext, boolean dereference) {
-        this(parserContext, dereference, false);
+        this(parserContext, dereference, dereference);
     }
 
     public ReplacingASTVisitor(ParserContext parserContext, boolean dereference, boolean reference) {

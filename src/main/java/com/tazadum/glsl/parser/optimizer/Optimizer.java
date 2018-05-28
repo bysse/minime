@@ -12,7 +12,7 @@ import java.util.List;
 public interface Optimizer {
     String name();
 
-    OptimizerResult run(ParserContext parserContext, OptimizationDecider optimizationDecider, Node node);
+    OptimizerResult run(BranchRegistry branchRegistry, ParserContext parserContext, OptimizationDecider optimizationDecider, Node node);
 
     class OptimizerResult {
         private int changes = 0;

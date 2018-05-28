@@ -18,14 +18,7 @@ public class CloneUtils {
         if (node == null) {
             return null;
         }
-        return (T) node.clone(parent);
-    }
-
-    public static <T extends Node> T cloneKeepId(T node, ParentNode parent) {
-        T clonedNode = clone(node, parent);
-        if (clonedNode == null) {
-            return null;
-        }
+        T clonedNode = (T) node.clone(parent);
         if (parent == null) {
             clonedNode.calculateId(node.getId());
         }

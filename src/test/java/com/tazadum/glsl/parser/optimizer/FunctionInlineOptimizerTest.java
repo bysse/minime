@@ -30,15 +30,6 @@ public class FunctionInlineOptimizerTest extends BaseOptimizerTest {
     }
 
     @Test
-    @DisplayName("Cases that should be ignored")
-    public void testIgnore() {
-        assertEquals(
-                "float func(float a){return 2*a;}float a=func(2);void main(){float a=func(2);}",
-                optimize("float func(float a){return 2*a;}float a=func(2);void main(){float a=func(2);}")
-        );
-    }
-
-    @Test
     @DisplayName("Basic inlining")
     public void testBasic() {
         assertEquals(
