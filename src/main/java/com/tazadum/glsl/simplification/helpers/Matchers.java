@@ -9,6 +9,8 @@ import com.tazadum.glsl.language.Numeric;
 import com.tazadum.glsl.language.NumericOperator;
 import com.tazadum.glsl.simplification.*;
 
+import java.util.function.Function;
+
 /**
  * Created by Erik on 2018-03-31.
  */
@@ -29,8 +31,26 @@ public class Matchers {
         return new OperationMatcher(NumericOperator.SUB, a, b);
     }
 
+    public static <T extends Node> ParentMatcher mParent(Class<T> type, Matcher matcher) {
+        return new ParentMatcher(matcher) {
+            @Override
+            public boolean doMatch(Node node) {
+                return type.isAssignableFrom(type);
+            }
+        };
+    }
+
+    public static <T extends Node> ParentMatcher mParent(Class<T> type, Function<T, Boolean> condition, Matcher matcher) {
+        return new ParentMatcher(matcher) {
+            @Override
+            public boolean doMatch(Node node) {
+                return type.isAssignableFrom(type) && condition.apply(type.cast(node));
+            }
+        };
+    }
+
     public static ParentMatcher mParen(Matcher matcher) {
-        return new ParentMatcher() {
+        return new ParentMatcher(matcher) {
             @Override
             public boolean doMatch(Node node) {
                 return node instanceof ParenthesisNode;

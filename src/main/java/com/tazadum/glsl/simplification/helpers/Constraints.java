@@ -36,6 +36,16 @@ public class Constraints {
         return (groups) -> condition.apply(groups.get(group));
     }
 
+    public static <T extends Node> Function<CaptureGroups, Boolean> cFunc(int group, Class<T> type, Function<T, Boolean> condition) {
+        return (groups) -> {
+            final Node node = groups.get(group);
+            if (type.isAssignableFrom(node.getClass())) {
+                return condition.apply(type.cast(node));
+            }
+            return false;
+        };
+    }
+
     public static Function<CaptureGroups, Boolean> nNumeric(int group, Function<Numeric, Boolean> condition) {
         return cApply(group, (node) -> {
             if (node instanceof HasNumeric) {

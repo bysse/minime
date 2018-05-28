@@ -1,7 +1,9 @@
 package com.tazadum.glsl.simplification;
 
 import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.ast.arithmetic.UnaryOperationNode;
 import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.language.UnaryOperator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -108,14 +110,12 @@ public class RuleSet {
                 gGroup(0)
                 ));
 
-        /*
         // TODO: create matchers for prefix operations
         // abs(-_1) = _1
         list.add(rule(
-                mFunc("abs", mInt()),
-                gGroup(0, IntLeafNode.class, n -> new IntLeafNode(Numeric.abs(n.getValue()))
-                )));
-        */
+                mFunc("abs", mParent(UnaryOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
+                gGroup(0)
+                ));
 
         // length(abs(a)) = length(a)
 

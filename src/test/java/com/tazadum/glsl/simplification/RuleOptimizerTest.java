@@ -64,9 +64,8 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
         test("float a=pow(3,2);", "float a=3*3;");
 
         test("float a=abs(2);", "float a=2;");
-        //test("float a=abs(-2);", "float a=2;");
+        test("float a=abs(-2);", "float a=2;");
     }
-
 
     private void test(String expression, String expected) {
         String result = optimize(expression);

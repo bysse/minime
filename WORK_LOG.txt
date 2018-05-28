@@ -52,4 +52,4 @@ Date	Hours
 2018-05-22  4.0 Scaffolding for branching optimizations, continuing with function inline.
 2018-05-23  0.5 Getting basic function inlining to work.
 2018-05-26  2.0 Fix reference problems when creating new variable and function nodes.
-2018-05-28  1.0 Fixing a registry for keeping track of optimizations.
+2018-05-28  1.5 Fixing a registry for keeping track of optimizations and added ABS optimization.
