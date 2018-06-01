@@ -65,6 +65,9 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
 
         test("float a=abs(2);", "float a=2;");
         test("float a=abs(-2);", "float a=2;");
+
+        test("float a=sin(0);", "float a=0;");
+        test("float a=cos(0);", "float a=1;");
     }
 
     private void test(String expression, String expected) {

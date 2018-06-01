@@ -110,7 +110,6 @@ public class RuleSet {
                 gGroup(0)
                 ));
 
-        // TODO: create matchers for prefix operations
         // abs(-_1) = _1
         list.add(rule(
                 mFunc("abs", mParent(UnaryOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
@@ -121,8 +120,19 @@ public class RuleSet {
 
 
         // sqrt(_1) = _2
+
+
         // sin(0) = 0
+        list.add(rule(
+                mFunc("sin", mLiteral(0f)),
+                gGroup(0)
+            ));
+
         // cos(0) = 1
+        list.add(rule(
+                mFunc("cos", mLiteral(0f)),
+                gNumeric(1)
+        ));
 
         return list;
     }
