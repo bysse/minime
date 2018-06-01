@@ -6,6 +6,7 @@ import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.language.BuiltInField;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.Numeric;
 import com.tazadum.glsl.parser.ParserContext;
@@ -17,8 +18,6 @@ import java.util.List;
  * Created by Erik on 2016-10-20.
  */
 public class ConstantFoldingVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
-    private final String[] validSelection = {"xrs", "ygt", "zbp", "waq"};
-
     private final BranchRegistry branchRegistry;
     private final OptimizationDecider decider;
 
@@ -72,10 +71,9 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
         if (node.getType() == node.getExpression().getType()) {
             // verify the selection order
-            for (int i = 0; i < node.getSelection().length(); i++) {
-                if (validSelection[i].indexOf(node.getSelection().charAt(i)) < 0) {
-                    return null;
-                }
+            final BuiltInField field = new BuiltInField(node.getSelection());
+            if (!field.componentsInOrder()) {
+                return null;
             }
             changes++;
             return node.getExpression();
@@ -96,54 +94,58 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
                 return child;
             }
             if (child instanceof FunctionCallNode) {
+                // check if there are double vector creation ie vec2(vec2(...))
+                String parentFunction = functionCall.getIdentifier().original();
                 String childFunction = ((FunctionCallNode) child).getIdentifier().original();
-                if (functionCall.getIdentifier().original().equals(childFunction)) {
+                if (parentFunction.equals(childFunction)) {
                     changes++;
                     return child;
                 }
             }
         }
-        final int elements = BuiltInType.elements(type);
-        if (functionCall.getChildCount() == elements) {
-            Node target = null;
-            boolean inOrder = true;
-            String replacementSelection = "";
 
-            for (int i = 0; i < elements; i++) {
-                Node child = functionCall.getChild(i);
-                if (child instanceof FieldSelectionNode) {
-                    Node expression = ((FieldSelectionNode) child).getExpression();
-                    if (target == null) {
-                        target = expression;
-                    } else if (!target.equals(expression)) {
-                        return null;
-                    }
+        final int components = BuiltInType.elements(type);
 
-                    String selection = ((FieldSelectionNode) child).getSelection();
-                    if (validSelection[i].contains(selection)) {
-                        replacementSelection += validSelection[i].charAt(0);
-                        continue;
-                    }
-                    // TODO: improve
-                    replacementSelection += selection;
-                    inOrder = false;
-                    continue;
+        Node parameterSource = null;
+        StringBuilder replacementSelection = new StringBuilder();
+
+        // try to find cases where we can optimize vector construction with a swizzle
+        for (int i = 0; i < components; i++) {
+            Node child = functionCall.getChild(i);
+            if (child instanceof FieldSelectionNode) {
+                final Node expression = ((FieldSelectionNode) child).getExpression();
+
+                if (parameterSource == null) {
+                    parameterSource = expression;
+                } else if (!parameterSource.equals(expression)) {
+                    // the source node is different for some of the parameters
+                    return null;
                 }
-                return null;
+
+                replacementSelection.append(((FieldSelectionNode) child).getSelection());
+                continue;
             }
-
-            changes++;
-
-            if (inOrder) {
-                return target;
-            }
-
-            FieldSelectionNode replacement = new FieldSelectionNode(replacementSelection);
-            replacement.setExpression(target);
-            return replacement;
+            return null;
         }
 
-        return null;
+        final BuiltInField field = new BuiltInField(replacementSelection);
+        if (field.components() != components) {
+            // the number of components in the parameters and vector is different
+            // this should not happen with built-in types.
+            return null;
+        }
+
+        changes++;
+
+        if (field.componentsInOrder()) {
+            // components are in order and can be replaced by the parameterSource
+            return parameterSource;
+        }
+
+        final String selection = field.render(0);
+        final FieldSelectionNode replacement = new FieldSelectionNode(selection);
+        replacement.setExpression(parameterSource);
+        return replacement;
     }
 
     @Override
@@ -180,6 +182,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
     /**
      * Evaluate a numeric operation.
+     *
      * @param node
      * @param left
      * @param right
@@ -235,7 +238,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
             return result;
         }
 
-        if (score <= previousScore*1.5f) {
+        if (score <= previousScore * 1.5f) {
             // the optimization is slightly bigger so let's branch
             changes++;
             branches.add(createBranch());

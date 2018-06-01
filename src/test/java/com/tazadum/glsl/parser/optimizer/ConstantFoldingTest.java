@@ -86,7 +86,6 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
         assertEquals("v4=v4.xywz", optimize("v4=v4.xywz)"));
     }
 
-
     @Test
     public void test_parenthesis() {
         assertEquals("1", optimize("(1)"));

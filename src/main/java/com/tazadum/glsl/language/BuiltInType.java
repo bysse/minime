@@ -62,7 +62,7 @@ public enum BuiltInType implements GLSLType, HasToken {
 
         // verify all characters in the component specification
         for (int i = 0; i < field.length(); i++) {
-            if (!isComponent(field.charAt(i))) {
+            if (!BuiltInField.isVectorComponent(field.charAt(i))) {
                 throw TypeException.noSuchField(name(), field);
             }
         }
@@ -113,26 +113,6 @@ public enum BuiltInType implements GLSLType, HasToken {
             throw TypeException.noSuchField(name(), field);
         }
         return types[length - 1];
-    }
-
-    private boolean isComponent(char ch) {
-        switch (ch) {
-            case 'r': // rgba
-            case 'g':
-            case 'b':
-            case 'a':
-            case 's': // stpq
-            case 't':
-            case 'p':
-            case 'q':
-            case 'x': // xyzw
-            case 'y':
-            case 'z':
-            case 'w':
-                return true;
-            default:
-                return false;
-        }
     }
 
     public static int elements(BuiltInType type) {
