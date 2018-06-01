@@ -8,6 +8,7 @@ import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -28,7 +29,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
 
     @BeforeEach
     public void setup() {
-        testInit();
+        testInit(2);
     }
 
     @Test
@@ -54,12 +55,18 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
         registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC3), "v3", null, null));
         registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.VEC4), "v4", null, null));
 
-        assertEquals("v2.xy", optimize("vec2(v2.x,v2.y)"));
-        assertEquals("v3.xyz", optimize("vec3(v3.x,v3.y,v3.z)"));
-        assertEquals("v4.xyzw", optimize("vec4(v4.x,v4.y,v4.z,v4.w)"));
+        assertEquals("v2", optimize("vec2(v2.x,v2.y)"));
+        assertEquals("v3", optimize("vec3(v3.x,v3.y,v3.z)"));
+        assertEquals("v4", optimize("vec4(v4.r,v4.y,v4.z,v4.w)"));
 
-        assertEquals("vec4(v4.x,v4.y,v4.w,v4.z)", optimize("vec4(v4.x,v4.y,v4.w,v4.z)"));
+        assertEquals("v2.yx", optimize("vec2(v2.y,v2.x)"));
+        assertEquals("v3.xxz", optimize("vec3(v3.x,v3.x,v3.z)"));
+        assertEquals("v4.yxzw", optimize("vec4(v4.y,v4.x,v4.z,v4.w)"));
+
         assertEquals("vec4(v2.x,v4.y,v4.z,v4.w)", optimize("vec4(v2.x,v4.y,v4.z,v4.w)"));
+        //assertEquals("vec4(v2.x,v4.yzw)", optimize("vec4(v2.x,v4.y,v4.z,v4.w)"));
+        assertEquals("v4.xywz", optimize("vec4(v4.x,v4.y,v4.w,v4.z)"));
+        assertEquals("v2.xyxy", optimize("vec4(v2.x,v2.y,v2.x,v2.y)"));
     }
 
     @Test
@@ -87,45 +94,6 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     }
 
     @Test
-    public void test_0_elimination_mul() {
-        assertEquals("0", optimize("0*1"));
-        assertEquals("0", optimize("2*0"));
-        assertEquals("0", optimize("0.*1"));
-        assertEquals("0", optimize("0*2."));
-        assertEquals("0", optimize("0.*2."));
-        assertEquals("0", optimize("2.*0."));
-    }
-
-    @Test
-    public void test_0_elimination_div() {
-        assertEquals("1", optimize("2/2"));
-        assertEquals("0", optimize("0/2"));
-        assertEquals("5", optimize("5/1"));
-    }
-
-    @Test
-    public void test_0_elimination_add() {
-        assertEquals("1", optimize("1+0"));
-        assertEquals("1", optimize("0+1"));
-    }
-
-    @Test
-    public void test_0_elimination_sub() {
-        assertEquals("1", optimize("1-0"));
-        assertEquals("-1", optimize("0-1"));
-    }
-
-    @Test
-    public void test_1_elimination() {
-        ParserContext parserContext = optimizerContext.parserContext();
-        VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
-
-        assertEquals("var", optimize("var*1"));
-        assertEquals("5", optimize("1*5"));
-    }
-
-    @Test
     public void test_folding_basic() {
         assertEquals("2", optimize("1+1"));
         assertEquals("4", optimize("2*2"));
@@ -136,31 +104,19 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
         assertEquals("1.1", optimize("1+0.1"));
         assertEquals("1.21", optimize("1.1*1.1"));
         assertEquals("4.29", optimize("9/2.1"));
+    }
 
+    @Test
+    @DisplayName("Optimizations that aren't bigger")
+    public void test_branching() {
         // the result is actually larger than the input
         assertEquals("4/3", optimize("4/3"));
     }
 
     @Test
     public void test_folding_adv() {
-        ParserContext parserContext = optimizerContext.parserContext();
-        VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
-
         assertEquals(".0121", optimize(".11*.11"));
-        assertEquals("9", optimize("3*(2+var/var)"));
-        assertEquals("3", optimize("(1+2)+(0*var)"));
-    }
-
-    @Test
-    public void test_folding_chain() {
-        ParserContext parserContext = optimizerContext.parserContext();
-        VariableRegistry registry = parserContext.getVariableRegistry();
-        registry.declareVariable(parserContext.currentContext(), new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "var", null, null));
-
-        assertEquals("4*var", optimize("2 * var * 2"));
-        assertEquals("2+var", optimize("1 + var + 1"));
-        assertEquals("-var", optimize("1 - var - 1"));
-        assertEquals("4*var*var", optimize("2 * var * 2 * var"));
+        assertEquals("6", optimize("3*2"));
+        assertEquals("3", optimize("(1+2)"));
     }
 }

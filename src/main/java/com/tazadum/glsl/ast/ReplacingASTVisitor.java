@@ -15,6 +15,7 @@ import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.optimizer.OptimizerBranch;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -23,6 +24,8 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     public static final Node REMOVE = new LeafNode();
 
     protected ParserContext parserContext;
+    protected Node firstNode;
+
     private boolean dereference;
     private boolean reference;
 
@@ -36,8 +39,20 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
         this.reference = reference;
     }
 
+    /**
+     * Creates an OptimizerBranch from the first encountered branch and the ParserContext.
+     * @return An instance of OptimizerBranch.
+     */
+    public OptimizerBranch createBranch() {
+        if (firstNode == null) {
+            throw new IllegalStateException("'firstNode' was null, has the visitor been used?");
+        }
+        return OptimizerBranch.remap(parserContext, firstNode);
+    }
+
     @Override
     public Node visitBoolean(BooleanLeafNode node) {
+        processLeafNode(node);
         return null;
     }
 
@@ -55,6 +70,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitVariable(VariableNode node) {
+        processLeafNode(node);
         return null;
     }
 
@@ -72,6 +88,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitPrecision(PrecisionDeclarationNode node) {
+        processLeafNode(node);
         return null;
     }
 
@@ -160,26 +177,31 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitReturn(ReturnNode node) {
+        processLeafNode(node);
         return null;
     }
 
     @Override
     public Node visitDiscard(DiscardLeafNode node) {
+        processLeafNode(node);
         return null;
     }
 
     @Override
     public Node visitContinue(ContinueLeafNode node) {
+        processLeafNode(node);
         return null;
     }
 
     @Override
     public Node visitCondition(ConditionNode node) {
+        processLeafNode(node);
         return null;
     }
 
     @Override
     public Node visitBreak(BreakLeafNode node) {
+        processLeafNode(node);
         return null;
     }
 
@@ -209,15 +231,27 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitInt(IntLeafNode node) {
+        processLeafNode(node);
         return null;
     }
 
     @Override
     public Node visitFloat(FloatLeafNode node) {
+        processLeafNode(node);
         return null;
     }
 
+    protected void processLeafNode(Node node) {
+        if (firstNode == null) {
+            firstNode = node;
+        }
+    }
+
     protected void processParentNode(ParentNode node) {
+        if (firstNode == null) {
+            firstNode = node;
+        }
+
         for (int i = 0; i < node.getChildCount(); i++) {
             Node child = node.getChild(i);
             if (child == null) {

@@ -30,11 +30,20 @@ public abstract class BaseOptimizerTest {
     }
 
     protected void testInit() {
+        testInit(0);
+    }
+
+    protected void testInit(int branchDepth) {
         outputConfig = new OutputConfig();
         outputConfig.setNewlines(false);
         outputConfig.setIndentation(0);
 
-        this.pipeline = new SingleShaderOptimizerPipeline(outputConfig, getOptimizerTypes());
+        if (branchDepth > 0) {
+            TreePruner pruner = TreePruner.byIterationDepth(branchDepth);
+            this.pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, getOptimizerTypes());
+        } else {
+            this.pipeline = new SingleShaderOptimizerPipeline(outputConfig, getOptimizerTypes());
+        }
         this.optimizerContext = new GLSLOptimizerContext("test-shader");
         this.output = new Output();
 
@@ -58,8 +67,9 @@ public abstract class BaseOptimizerTest {
             Node result = pipeline.optimize(optimizerContext, node, true);
             return output.render(result, outputConfig).trim();
         } catch (Exception e) {
+            System.out.println("Dumping source tokens:");
             for (Token token : TestUtils.getTokens(TestUtils.tokenStream(source))) {
-                System.out.println(token);
+                System.out.println("  " + token);
             }
             throw e;
         }

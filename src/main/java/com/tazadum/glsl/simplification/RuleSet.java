@@ -140,12 +140,19 @@ public class RuleSet {
     private Collection<Rule> divisionRules() {
         List<Rule> list = new ArrayList<>();
 
+        // 0 / a = 0
+        list.add(rule(
+                mDiv(mNumeric(), mAny()),
+                gNumeric(0)
+        ));
+
         // _1 / _1 = 1
         list.add(rule(
                 mDiv(mNumeric(), mNumeric()),
                 cSame(0, 1, cSameNumeric()),
                 gNumeric(1)
         ));
+
         // a / a = 1
         list.add(rule(
                 mDiv(mAny(), mAny()),

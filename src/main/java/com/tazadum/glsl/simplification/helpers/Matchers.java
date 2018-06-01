@@ -44,7 +44,7 @@ public class Matchers {
         return new ParentMatcher(matcher) {
             @Override
             public boolean doMatch(Node node) {
-                return type.isAssignableFrom(type) && condition.apply(type.cast(node));
+                return type.isAssignableFrom(node.getClass()) && condition.apply(type.cast(node));
             }
         };
     }

@@ -46,6 +46,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         List<OptimizerBranch> acceptedBranches = new ArrayList<>();
         acceptedBranches.add(new OptimizerBranch(parserContext, shaderNode));
 
+        boolean inputBranch = true;
         int minSize = output.render(shaderNode, outputConfig).length();
         int totalChanges, iteration = 0, previousSize = minSize;
         do {
@@ -65,20 +66,23 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                     Node node = branch.getNode();
                     ParserContext context = branch.getContext();
 
-                    // check the size of this branch
-                    int branchSize = output.render(node, outputConfig).length();
-                    int sizeDifference = branchSize - previousSize;
-                    minSize = Math.min(minSize, branchSize);
+                    // don't act on the input branch
+                    if (!inputBranch) {
+                        // check the size of this branch
+                        int branchSize = output.render(node, outputConfig).length();
+                        int sizeDifference = branchSize - previousSize;
+                        minSize = Math.min(minSize, branchSize);
 
-                    // keep track of the smallest in the batch
-                    if (branchSize < batchMinSize) {
-                        batchMinSize = branchSize;
-                        batchMinBranch = branch;
-                    }
+                        // keep track of the smallest in the batch
+                        if (branchSize < batchMinSize) {
+                            batchMinSize = branchSize;
+                            batchMinBranch = branch;
+                        }
 
-                    if (treePruner.prune(iteration, sizeDifference)) {
-                        // this tree is pruned and excluded from further exploration
-                        continue;
+                        if (treePruner.prune(iteration, sizeDifference)) {
+                            // this tree is pruned and excluded from further exploration
+                            continue;
+                        }
                     }
 
                     final Optimizer.OptimizerResult result = optimizer.run(context, decider, node);
@@ -91,6 +95,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                     List<OptimizerBranch> branches = result.getBranches();
                     branchCount += branches.size();
                     discoveredBranches.addAll(branches);
+
+                    inputBranch = false;
                 }
 
                 if (showOutput || debug) {
@@ -112,7 +118,12 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         } while (totalChanges > 0);
 
         if (acceptedBranches.isEmpty()) {
-            throw new IllegalStateException("No branches found after optimization!");
+            if (!inputBranch) {
+                throw new IllegalStateException("No branches found after optimization!");
+            }
+
+            // the input shader couldn't be optimized further
+            return shaderNode;
         }
 
         if (acceptedBranches.size() == 1) {

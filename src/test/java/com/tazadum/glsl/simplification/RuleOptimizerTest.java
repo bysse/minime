@@ -1,7 +1,15 @@
 package com.tazadum.glsl.simplification;
 
+import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
+import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.Numeric;
+import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.optimizer.BaseOptimizerTest;
 import com.tazadum.glsl.parser.optimizer.OptimizerType;
+import com.tazadum.glsl.parser.type.FullySpecifiedType;
+import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,16 +28,25 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
     @BeforeEach
     public void setUp() throws Exception {
         testInit();
+
+        ParserContext parserContext = optimizerContext.parserContext();
+        GLSLContext global = parserContext.globalContext();
+        VariableRegistry registry = parserContext.getVariableRegistry();
+        registry.declareVariable(global, new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "x", null, new FloatLeafNode(new Numeric(1, 0, true))));
+        registry.declareVariable(global, new VariableDeclarationNode(true, new FullySpecifiedType(BuiltInType.FLOAT), "y", null, new FloatLeafNode(new Numeric(1, 0, true))));
     }
 
     @Test
     @DisplayName("Rearrangement rules")
     public void testReArrangement() {
-        test("float a=1,b=a*2;", "float a=1,b=2*a;");
+        test("float b=x*2;", "float b=2*x;");
+        test("float b=3*x*2;", "float b=2*3*x;");
+        test("float b=x*y*2;", "float b=2*x*y;");
+        test("float b=x*x*2*y*y;", "float b=2*x*x*y*y;");
 
-        test("float a=1,b=2+a;", "float a=1,b=a+2;");
+        test("float b=2+x;", "float b=x+2;");
 
-        test("float a=1,b=(1+a);", "float a=1,b=(a+1);");
+        test("float b=(1+x);", "float b=(x+1);");
     }
 
     @Test
@@ -52,9 +69,10 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
     @Test
     @DisplayName("More advanced optimizations")
     public void testDivision() {
-        test("float a=1,b=a/a;", "float a=1,b=1;");
-        test("float a=1,b=(1+a)/(1+a);", "float a=1,b=1;");
-        test("float a=1,b=(1+a)/(a+1);", "float a=1,b=1;");
+        test("float b=x/x;", "float b=1;");
+        test("float b=0/x;", "float b=0;");
+        test("float b=(1+x)/(1+x);", "float b=1;");
+        test("float b=(1+x)/(x+1);", "float b=1;");
     }
 
     @Test
