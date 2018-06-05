@@ -20,27 +20,31 @@ import com.tazadum.glsl.util.CloneUtils;
 import com.tazadum.glsl.util.IdentifierCreator;
 import com.tazadum.glsl.util.ReplaceUtil;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedSet;
+import java.util.*;
 
 /**
  * Created by Erik on 2016-10-20.
  */
 public class FunctionInlineVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
     private IdentifierCreator identifierGenerator = new IdentifierCreator("il");
+    private final BranchRegistry branchRegistry;
     private final OptimizationDecider decider;
     private int changes = 0;
 
     private Map<FunctionPrototypeNode, FunctionDefinitionNode> potentialFunctions = new HashMap<>();
+    private List<OptimizerBranch> branches;
 
     public FunctionInlineVisitor(ParserContext parserContext, OptimizationDecider decider) {
         super(parserContext, true, true);
+        this.branchRegistry = parserContext.getBranchRegistry();
         this.decider = decider;
+        this.branches = new ArrayList<>();
     }
 
     public void reset() {
+        this.firstNode = null;
         this.changes = 0;
+        this.branches = new ArrayList<>();
     }
 
     public int getChanges() {
@@ -52,8 +56,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         super.visitFunctionDefinition(node);
 
         // try to find out if the function is suitable to inline
-
         if (node.mutatesGlobalState()) {
+            // TODO: is this really a reason?
             // functions that mutates global state are often too complicated to inline
             return null;
         }
@@ -70,10 +74,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         if (usage.getUsageNodes().isEmpty()) {
             // the node will be removed by the dead code eliminator in the next run
             return null;
-        }
-
-        if (usage.getUsageNodes().size() > 1) {
-            // TODO: do a speculative inline
         }
 
         /*
@@ -115,8 +115,26 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return null;
         }
 
+        // check if the inline decision of this function already has been taken
+        if (!branchRegistry.claimPoint(definitionNode, ConstantFolding.class)) {
+            // this node has already been considered for optimization
+            return null;
+        }
+
+        FunctionRegistry functionRegistry = parserContext.getFunctionRegistry();
+        Usage<FunctionPrototypeNode> usage = functionRegistry.resolve(functionPrototype);
         StatementListNode statements = definitionNode.getStatements();
-        if (statements.getChildCount() > 1) {
+
+        final int statementsInFunction = statements.getChildCount();
+        final int functionUsageCount = usage.getUsageNodes().size();
+        final int rowsToInline = functionUsageCount * statementsInFunction;
+
+        if (rowsToInline <= 0) {
+            // no use to inline zero rows
+            return null;
+        }
+
+        if (statementsInFunction > 1) {
             // the current inline logic only works with single line functions.
             return null;
         }
@@ -125,6 +143,11 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         if (!(returnStatement instanceof ReturnNode)) {
             // this is very odd indeed
             return null;
+        }
+
+        if (rowsToInline > 1) {
+            // if we inline more statements, create a branch without any optimizations
+            branches.add(createBranch());
         }
 
         // clone and expression in the return statement of the function
@@ -170,9 +193,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         if (needWrapping(expression)) {
             expressionToInline = new ParenthesisNode(expressionToInline);
         }
-
-        // TODO: remap and replace
-        // insert the function node mapping the variables to the new variables
 
         // Replace and dereference the function usage
         changes++;

@@ -34,10 +34,10 @@ Date	Hours
 2017-01-12 1.0
 2017-01-13 0.75
 
-// TODO: Fix vector creation optimization in ConstantFoldingVisitor
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Inline functions of multiple lines
+// TODO: Inline functions that mutates global state if they are only used once
 // TODO: Fix squeeze, what is the problem?
 // TODO: Add more complex arithmetic simplifications
 
@@ -54,3 +54,4 @@ Date	Hours
 2018-05-26  2.0 Fix reference problems when creating new variable and function nodes.
 2018-05-28  1.5 Fixing a registry for keeping track of optimizations and added ABS optimization.
 2018-06-01  3.0 Adding simplifications and making ConstantFolding use branching optimizations.
+2018-06-05  0.7 Adding branch support to function inline.
