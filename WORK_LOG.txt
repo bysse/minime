@@ -55,3 +55,4 @@ Date	Hours
 2018-05-28  1.5 Fixing a registry for keeping track of optimizations and added ABS optimization.
 2018-06-01  3.0 Adding simplifications and making ConstantFolding use branching optimizations.
 2018-06-05  0.7 Adding branch support to function inline.
+2018-06-06  0.5 More preparation for multiline inline.

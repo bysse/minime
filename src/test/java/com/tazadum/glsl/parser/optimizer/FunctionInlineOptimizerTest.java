@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by Erik on 2016-10-20.
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class FunctionInlineOptimizerTest extends BaseOptimizerTest {
     @Override
     protected OptimizerType[] getOptimizerTypes() {
-        return new OptimizerType[] { OptimizerType.FunctionInline, OptimizerType.DeadCodeEliminationType };
+        return new OptimizerType[]{OptimizerType.FunctionInline, OptimizerType.DeadCodeEliminationType};
     }
 
     @BeforeEach
@@ -31,7 +32,7 @@ public class FunctionInlineOptimizerTest extends BaseOptimizerTest {
 
     @Test
     @DisplayName("Basic inlining")
-    public void testBasic() {
+    public void testBasicSingleLine() {
         assertEquals(
                 "void main(){blackhole=2;}",
                 optimize("float func(float a){return a;}void main(){blackhole=func(2);}")
@@ -42,18 +43,39 @@ public class FunctionInlineOptimizerTest extends BaseOptimizerTest {
                 optimize("float func(float a){return 2*a;}void main(){blackhole=func(2);}")
         );
 
-    }
-
-    @Test
-    @DisplayName("Basic inline of terms")
-    public void testBasicTerms() {
-
-        showDebug = true;
-        // This probably fails because of reference errors in usage
-
         assertEquals(
                 "void main(){float b=1;blackhole=2*(2+b);}",
                 optimize("float func(float a){return 2*a;}void main(){float b=1;blackhole=func(2+b);}")
         );
+    }
+
+
+    @Test
+    @DisplayName("Basic multiline inlinng")
+    public void testBasicMultiLine() {
+        // TODO: use sourceEquals
+        assertEquals(
+                "void main(){float b=1;float c=(2+b)+1;blackhole=c;}",
+                optimize("float func(float a){float c=a+1; return c;}void main(){float b=1;blackhole=func(2+b);}")
+        );
+    }
+
+    private void sourceEquals(String expected, String actual) {
+        if (expected.contains("?")) {
+            if (expected.length() != actual.length()) {
+                assertEquals(expected, actual);
+            }
+
+            for (int i = 0; i < expected.length(); i++) {
+                char ch = expected.charAt(i);
+                if (ch == '?') {
+                    continue;
+                }
+                if (ch != actual.charAt(i)) {
+                    fail("Expected " + expected + " but was " + actual);
+                }
+            }
+        }
+        assertEquals(expected, actual);
     }
 }

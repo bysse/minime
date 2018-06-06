@@ -26,12 +26,19 @@ import java.util.*;
  * Created by Erik on 2016-10-20.
  */
 public class FunctionInlineVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
+    /**
+     * If a function contain more statements than this. Only attempt to inline it
+     * if there's a single usage point.
+     */
+    private static final int FUNCTION_STATEMENT_LIMIT = 5;
+
     private IdentifierCreator identifierGenerator = new IdentifierCreator("il");
     private final BranchRegistry branchRegistry;
     private final OptimizationDecider decider;
     private int changes = 0;
 
     private Map<FunctionPrototypeNode, FunctionDefinitionNode> potentialFunctions = new HashMap<>();
+    private Map<FunctionPrototypeNode, Integer> originalUsageCount = new HashMap<>();
     private List<OptimizerBranch> branches;
 
     public FunctionInlineVisitor(ParserContext parserContext, OptimizationDecider decider) {
@@ -102,6 +109,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         */
 
         potentialFunctions.put(node.getFunctionPrototype(), node);
+        originalUsageCount.put(node.getFunctionPrototype(), usage.getUsageNodes().size());
+
         return null;
     }
 
@@ -121,37 +130,48 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return null;
         }
 
-        FunctionRegistry functionRegistry = parserContext.getFunctionRegistry();
-        Usage<FunctionPrototypeNode> usage = functionRegistry.resolve(functionPrototype);
-        StatementListNode statements = definitionNode.getStatements();
-
+        final StatementListNode statements = definitionNode.getStatements();
         final int statementsInFunction = statements.getChildCount();
-        final int functionUsageCount = usage.getUsageNodes().size();
-        final int rowsToInline = functionUsageCount * statementsInFunction;
+        final int functionUsageCount = originalUsageCount.get(functionPrototype);
 
-        if (rowsToInline <= 0) {
+        if (statementsInFunction <= 0 || functionUsageCount <= 0) {
             // no use to inline zero rows
             return null;
         }
 
-        if (statementsInFunction > 1) {
-            // the current inline logic only works with single line functions.
-            return null;
+        if (statementsInFunction == 1) {
+            if (functionUsageCount > 1) {
+                // if the function is used in more than a single place
+                // then we create an optimizer branch without any modifications
+                branches.add(createBranch());
+            }
+
+            // special case logic for functions with only a single return statement
+            return singleStatementFunction(functionCall, statements);
         }
 
+        if (statementsInFunction > FUNCTION_STATEMENT_LIMIT) {
+            if (functionUsageCount > 1) {
+                // there's a very low probability that this will be smaller after inlining.
+                return null;
+            }
+        }
+
+        // create a branch before without any optimizations
+        branches.add(createBranch());
+
+        return multiStatementFunction(functionCall, statements);
+    }
+
+    private Node singleStatementFunction(FunctionCallNode functionCall, StatementListNode statements) {
         Node returnStatement = statements.getChild(0);
         if (!(returnStatement instanceof ReturnNode)) {
             // this is very odd indeed
             return null;
         }
 
-        if (rowsToInline > 1) {
-            // if we inline more statements, create a branch without any optimizations
-            branches.add(createBranch());
-        }
-
-        // clone and expression in the return statement of the function
-        Node expression = ((ReturnNode) returnStatement).getExpression();
+        // clone the expression in the return statement of the function
+        Node expression = ((ReturnNode)returnStatement).getExpression();
         Node expressionToInline = CloneUtils.clone(expression, null);
 
         // try to find all parameter usage in the expression
@@ -197,6 +217,11 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         // Replace and dereference the function usage
         changes++;
         return expressionToInline;
+    }
+
+    private Node multiStatementFunction(FunctionCallNode functionCall, StatementListNode statements) {
+
+        return null;
     }
 
     /**
