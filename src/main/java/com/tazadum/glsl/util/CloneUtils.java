@@ -1,8 +1,9 @@
 package com.tazadum.glsl.util;
 
-import com.tazadum.glsl.ast.HasMutableType;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
+import com.tazadum.glsl.ast.*;
+import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.language.Numeric;
 import com.tazadum.glsl.parser.ContextAware;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.GLSLContextImpl;
@@ -86,6 +87,73 @@ public class CloneUtils {
         }
 
         throw new IllegalStateException("Unable to remap the GLSLContext");
+    }
+
+    public static boolean equal(Node nodeA, Node nodeB) {
+        return equal(nodeA, nodeB, true);
+    }
+
+    /**
+     * Does a functional comparision between two node trees.
+     */
+    public static boolean equal(Node nodeA, Node nodeB, boolean compareIdentifiers) {
+        if (nodeA == null && nodeB == null) {
+            return true;
+        }
+
+        if (nodeA == null || nodeB == null) {
+            return false;
+        }
+
+        // HasNumeric nodes can be of different class but have the same value
+        if (nodeA instanceof HasNumeric && nodeB instanceof HasNumeric) {
+            Numeric a = ((HasNumeric) nodeA).getValue();
+            Numeric b = ((HasNumeric) nodeB).getValue();
+            return equal(a, b);
+        }
+
+        // not the same class
+        if (!nodeA.getClass().equals(nodeB.getClass())) {
+            return false;
+        }
+
+        if (nodeA instanceof ParentNode && nodeB instanceof ParentNode) {
+            ParentNode parentA = (ParentNode) nodeA;
+            ParentNode parentB = (ParentNode) nodeB;
+
+            if (parentA.getChildCount() != parentB.getChildCount()) {
+                return false;
+            }
+
+            for (int i = 0; i < parentA.getChildCount(); i++) {
+                Node childA = parentA.getChild(i);
+                Node childB = parentB.getChild(i);
+
+                if (!equal(childA, childB, compareIdentifiers)) {
+                    return false;
+                }
+            }
+        }
+
+        if (compareIdentifiers) {
+            if (nodeA instanceof VariableDeclarationNode && nodeB instanceof VariableDeclarationNode) {
+                return equal(((VariableDeclarationNode) nodeA).getIdentifier(), ((VariableDeclarationNode) nodeB).getIdentifier());
+            }
+
+            if (nodeA instanceof VariableNode && nodeB instanceof VariableNode) {
+                return equal(((VariableNode) nodeA).getDeclarationNode(), ((VariableNode) nodeB).getDeclarationNode());
+            }
+        }
+
+        return true;
+    }
+
+    private static boolean equal(Identifier a, Identifier b) {
+        return a.original().equals(b.original());
+    }
+
+    private static boolean equal(Numeric a, Numeric b) {
+        return a.compareTo(b) == 0;
     }
 
 }

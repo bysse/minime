@@ -178,7 +178,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         SortedSet<VariableNode> variables = VariableFinder.findVariables(expression);
 
         for (VariableNode variable : variables) {
-            // flag that indicates that the only thing returned is a parameter
+            // flag that's true if the only thing returned is a parameter
             boolean singleVariable = variable.getParentNode().hasEqualId(returnStatement);
 
             final VariableDeclarationNode declarationNode = variable.getDeclarationNode();
@@ -220,6 +220,15 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     }
 
     private Node multiStatementFunction(FunctionCallNode functionCall, StatementListNode statements) {
+        Node returnStatement = statements.getChild(0);
+        if (!(returnStatement instanceof ReturnNode)) {
+            // this is very odd indeed
+            return null;
+        }
+
+        // TODO: declare variables for each parameter
+
+
 
         return null;
     }

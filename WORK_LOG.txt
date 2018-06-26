@@ -57,3 +57,4 @@ Date	Hours
 2018-06-05  0.7 Adding branch support to function inline.
 2018-06-06  0.5 More preparation for multiline inline.
 2018-06-25  1.0 Fixing a C-stub for single and multiple shader building
+2018-06-26  0.5 Adding new util for comparing node trees.
