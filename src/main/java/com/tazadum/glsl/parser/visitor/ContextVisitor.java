@@ -17,6 +17,8 @@ import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
 import com.tazadum.glsl.exception.ParserException;
 import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.input.FileMapper;
+import com.tazadum.glsl.input.FilePosition;
 import com.tazadum.glsl.language.*;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
@@ -33,9 +35,15 @@ import java.util.List;
 
 public class ContextVisitor extends GLSLBaseVisitor<Node> {
     private ParserContext parserContext;
+    private FileMapper fileMapper;
 
     public ContextVisitor(ParserContext parserContext) {
+        this(parserContext, null);
+    }
+
+    public ContextVisitor(ParserContext parserContext, FileMapper fileMapper) {
         this.parserContext = parserContext;
+        this.fileMapper = fileMapper;
     }
 
     @Override
@@ -182,7 +190,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             final ParameterDeclarationNode parameter = (ParameterDeclarationNode) parameterCtx.accept(this);
 
             if (parameter.getIdentifier().isEmpty() && BuiltInType.VOID == parameter.getFullySpecifiedType().getType()) {
-                // don't mAdd void as a parameter node
+                // don't add void as a parameter node
                 continue;
             }
 
@@ -192,6 +200,15 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         final FunctionPrototype prototype = new FunctionPrototype(false, returnType.getType(), parameterTypes);
         functionPrototype.setPrototype(prototype);
+
+        if (fileMapper != null) {
+            int lineNumber = ctx.getStart().getLine();
+            FilePosition filePosition = fileMapper.map(lineNumber);
+            if (!filePosition.isInRoot()) {
+                // mark the function as potentially being included
+                functionPrototype.setShared(true);
+            }
+        }
 
         // register the function
         parserContext.getFunctionRegistry().declareFunction(functionPrototype);
@@ -221,16 +238,27 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitInit_declarator_list(GLSLParser.Init_declarator_listContext ctx) {
+        boolean isShared = false;
+        if (fileMapper != null) {
+            // check if declaration is in a shared file
+            int lineNumber = ctx.getStart().getLine();
+            FilePosition map = fileMapper.map(lineNumber);
+            isShared = !map.isInRoot();
+        }
+
         if (ctx.single_declaration() != null) {
             final VariableDeclarationNode variableNode = (VariableDeclarationNode) ctx.single_declaration().accept(this);
+            variableNode.setShared(isShared);
 
             // always return a list node
             final VariableDeclarationListNode listNode = new VariableDeclarationListNode(variableNode.getFullySpecifiedType());
+            listNode.setShared(isShared);
             listNode.addChild(variableNode);
             return listNode;
         }
 
         final VariableDeclarationListNode listNode = (VariableDeclarationListNode) ctx.init_declarator_list().accept(this);
+        listNode.setShared(isShared);
 
         FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
         final String identifier = ctx.IDENTIFIER().getText();
@@ -261,6 +289,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         final VariableDeclarationNode node = new VariableDeclarationNode(false, fullySpecifiedType, identifier, arraySpecifier, initializer);
+        node.setShared(isShared);
         listNode.addChild(node);
 
         // register the declaration and usage of the type to enable easy look up during optimization

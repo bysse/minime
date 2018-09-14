@@ -1,6 +1,7 @@
 package com.tazadum.glsl.ast.function;
 
 import com.tazadum.glsl.ast.ASTVisitor;
+import com.tazadum.glsl.ast.HasSharedState;
 import com.tazadum.glsl.ast.Identifier;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.GLSLType;
@@ -9,11 +10,12 @@ import com.tazadum.glsl.parser.function.FunctionPrototype;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class FunctionPrototypeNode extends ParentNode {
+public class FunctionPrototypeNode extends ParentNode implements HasSharedState {
     private Identifier identifier;
     private FullySpecifiedType returnType;
     private FunctionPrototype prototype;
     private GLSLContext context;
+    private boolean shared;
 
     public FunctionPrototypeNode(String functionName, FullySpecifiedType returnType) {
         this.identifier = new Identifier(functionName);
@@ -48,6 +50,15 @@ public class FunctionPrototypeNode extends ParentNode {
 
     public void setPrototype(FunctionPrototype prototype) {
         this.prototype = prototype;
+    }
+
+    @Override
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
     }
 
     @Override

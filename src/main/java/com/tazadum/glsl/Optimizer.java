@@ -1,5 +1,6 @@
 package com.tazadum.glsl;
 
+import com.tazadum.glsl.input.GLSLSource;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 

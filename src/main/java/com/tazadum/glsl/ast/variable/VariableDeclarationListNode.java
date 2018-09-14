@@ -1,13 +1,15 @@
 package com.tazadum.glsl.ast.variable;
 
 import com.tazadum.glsl.ast.ASTVisitor;
+import com.tazadum.glsl.ast.HasSharedState;
 import com.tazadum.glsl.ast.ParentNode;
 import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class VariableDeclarationListNode extends ParentNode {
+public class VariableDeclarationListNode extends ParentNode implements HasSharedState {
     private FullySpecifiedType type;
+    private boolean shared;
 
     public VariableDeclarationListNode(FullySpecifiedType type) {
         this.type = type;
@@ -24,6 +26,15 @@ public class VariableDeclarationListNode extends ParentNode {
 
     public FullySpecifiedType getFullySpecifiedType() {
         return type;
+    }
+
+    @Override
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
     }
 
     @Override

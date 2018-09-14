@@ -3,6 +3,8 @@ package com.tazadum.glsl;
 import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.compression.Compressor;
+import com.tazadum.glsl.input.GLSLSource;
+import com.tazadum.glsl.input.Shader;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLLexer;
 import com.tazadum.glsl.language.GLSLParser;
@@ -10,7 +12,6 @@ import com.tazadum.glsl.language.TypeQualifier;
 import com.tazadum.glsl.output.IdentifierOutput;
 import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.output.generator.FileGenerator;
 import com.tazadum.glsl.output.generator.HeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PackedHeaderFileGenerator;
@@ -24,11 +25,10 @@ import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import java.io.*;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.tazadum.glsl.Option.*;
@@ -43,7 +43,6 @@ public class GLSLOptimizer {
     private final Output output;
     private final HashMap<Option, Boolean> optionsMap;
 
-    private Pattern pragmaInclude = Pattern.compile("\\s*#pragma\\s+include\\(([^)]+)\\)\\s*");
     private ContextBasedMultiIdentifierShortener identifierShortener;
 
     public GLSLOptimizer(OutputWriter outputWriter, OutputProfile outputProfile) {
@@ -66,7 +65,7 @@ public class GLSLOptimizer {
         optionsMap.putAll(options);
     }
 
-    void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
+    private void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
         final ParserContext parserContext = optimizerContext.parserContext();
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
         final GLSLContext global = parserContext.globalContext();
@@ -85,7 +84,8 @@ public class GLSLOptimizer {
 
     public void processFiles(List<String> shaderFiles) {
         List<GLSLSource> sources = shaderFiles.stream()
-                .map(filename -> new GLSLSource(filename, null))
+                .map(Shader::load)
+                .map(Shader::getSource)
                 .collect(Collectors.toList());
         process(sources);
     }
@@ -94,6 +94,11 @@ public class GLSLOptimizer {
         List<GLSLOptimizerContext> contexts = new ArrayList<>();
         for (GLSLSource source : shaderSources) {
             output("--------------------------------------------------\n");
+
+            if (!source.hasContent()) {
+                source = Shader.load(source.getFilename()).getSource();
+            }
+
             contexts.add(execute(source));
         }
 
@@ -120,16 +125,10 @@ public class GLSLOptimizer {
         return new VariableDeclarationNode(false, fst, identifier, null, null);
     }
 
-    private GLSLOptimizerContext execute(GLSLSource source) {
-        if (source.hasContent()) {
-            return execute(source.getFilename(), source.getContent());
-        }
+    private GLSLOptimizerContext execute(GLSLSource glslSource) {
+        String shaderFilename = glslSource.getFilename();
+        String shaderSource = glslSource.getContent();
 
-        String content = loadFile(new File(source.getFilename()), new HashSet<>());
-        return execute(source.getFilename(), content);
-    }
-
-    private GLSLOptimizerContext execute(String shaderFilename, String shaderSource) {
         final GLSLOptimizerContext context = new GLSLOptimizerContext(shaderFilename);
 
         if (option(ShaderToy)) {
@@ -154,7 +153,7 @@ public class GLSLOptimizer {
         output("Input size:   %d bytes\n", sourceSize);
 
         // updateIdentifiers the parser
-        final ContextVisitor visitor = new ContextVisitor(context.parserContext());
+        final ContextVisitor visitor = new ContextVisitor(context.parserContext(), glslSource.getFileMapper());
         final Node shaderNode = parser.translation_unit().accept(visitor);
 
         // perform type checking
@@ -259,8 +258,6 @@ public class GLSLOptimizer {
     }
 
     private Node optimize(GLSLOptimizerContext optimizerContext, Node shaderNode) {
-        final OutputSizeDecider decider = new OutputSizeDecider();
-
         EnumSet<OptimizerType> optimizerTypes = EnumSet.allOf(OptimizerType.class);
 
         if (option(NoArithmeticSimplifications)) {
@@ -288,39 +285,6 @@ public class GLSLOptimizer {
         ANTLRInputStream inputStream = new ANTLRInputStream(source);
         GLSLLexer lexer = new GLSLLexer(inputStream);
         return new CommonTokenStream(lexer);
-    }
-
-    private String loadFile(File file, Set<File> visited) {
-        if (visited.contains(file)) {
-            throw new IllegalArgumentException("Include loop found!");
-        }
-        visited.add(file);
-
-        Path directoryPath = file.toPath().getParent();
-
-        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-            String line;
-            StringBuilder content = new StringBuilder();
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("#pragma")) {
-                    Matcher matcher = pragmaInclude.matcher(line);
-                    if (matcher.matches()) {
-                        String filename = matcher.group(1);
-                        Path includePath = directoryPath.resolve(filename);
-                        content.append(loadFile(includePath.toFile(), visited)).append('\n');
-                        continue;
-                    }
-                }
-                content.append(line).append('\n');
-            }
-            return content.toString();
-        } catch (FileNotFoundException e) {
-            System.err.format("Can't open file : %s\n", file.toString());
-            System.exit(-1);
-            return null;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void output(String format, Object... args) {

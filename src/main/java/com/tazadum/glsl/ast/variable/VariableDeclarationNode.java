@@ -5,11 +5,12 @@ import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.util.CloneUtils;
 
-public class VariableDeclarationNode extends FixedChildParentNode {
+public class VariableDeclarationNode extends FixedChildParentNode implements HasSharedState {
     private boolean builtIn;
     protected final FullySpecifiedType type;
 
     protected Identifier identifier;
+    private boolean shared;
 
     public VariableDeclarationNode(boolean builtIn, FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
         this(null, builtIn, fst, new Identifier(identifier), arraySpecifier, initializer);
@@ -52,6 +53,15 @@ public class VariableDeclarationNode extends FixedChildParentNode {
 
     public FullySpecifiedType getFullySpecifiedType() {
         return type;
+    }
+
+    @Override
+    public boolean isShared() {
+        return shared;
+    }
+
+    public void setShared(boolean shared) {
+        this.shared = shared;
     }
 
     @Override
