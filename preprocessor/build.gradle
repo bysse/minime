@@ -1,7 +1,7 @@
 apply plugin: 'antlr'
 
 ext.antlr = [
-        grammarpackage: "com.tazadum.glsl.parser",
+        grammarpackage: "com.tazadum.glsl.preprocessor.parser",
         antlrSource   : 'src/main/antlr',
         destinationDir: "src/generated-sources/java"
 ]
@@ -21,7 +21,7 @@ configurations {
 
 generateGrammarSource {
 	arguments += ['-package', antlr.grammarpackage, '-visitor']
-	outputDirectory = file("${projectDir}/generated-src/com/tazadum/glsl/parser")
+	outputDirectory = file("${projectDir}/generated-src/com/tazadum/glsl/preprocessor/parser")
 }
 
 task cleanAntlr(type: Delete) {
