@@ -1,1 +1,4 @@
 rootProject.name = 'glsl-optimizer'
+
+include 'parser'
+//include 'optimizer'

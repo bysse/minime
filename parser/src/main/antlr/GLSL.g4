@@ -41,7 +41,6 @@ field_selection
   : IDENTIFIER
   ;
 
-
 integer_expression
   : expression
   ;
@@ -178,6 +177,7 @@ storage_qualifier
   | IN
   | OUT
   | ATTRIBUTE
+  | VARYING
   | CENTROID
   | PATCH
   | SAMPLE

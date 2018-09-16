@@ -1,0 +1,32 @@
+apply plugin: 'antlr'
+
+ext.antlr = [
+        grammarpackage: "com.tazadum.glsl.parser",
+        antlrSource   : 'src/main/antlr',
+        destinationDir: "src/generated-sources/java"
+]
+
+dependencies {
+	compile "org.antlr:antlr4-runtime:${antlrVersion}"
+
+	antlr "org.antlr:antlr4:${antlrVersion}"
+}
+
+// work around for https://github.com/gradle/gradle/issues/820
+configurations {
+	compile {
+		extendsFrom = extendsFrom.findAll { it != configurations.antlr }
+	}
+}
+
+generateGrammarSource {
+	arguments += ['-package', 'com.tazadum.glsl.parser', '-visitor']
+	outputDirectory = file("${projectDir}/generated-src/com/tazadum/glsl/parser")
+}
+
+task cleanAntlr(type: Delete) {
+	delete file("${projectDir}/generated-src")
+}
+clean.dependsOn cleanAntlr
+
+sourceSets.main.java.srcDirs += file("${projectDir}/generated-src")

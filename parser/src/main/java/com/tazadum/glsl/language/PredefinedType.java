@@ -1,0 +1,146 @@
+package com.tazadum.glsl.language;
+
+import com.tazadum.glsl.parser.GLSLParser;
+
+/**
+ * Created by erikb on 2018-09-15.
+ */
+public enum PredefinedType implements HasToken {
+    VOID("void", GLSLParser.VOID),
+    FLOAT("float", GLSLParser.FLOAT),
+    DOUBLE("double", GLSLParser.DOUBLE),
+    INT("int", GLSLParser.INT),
+    UINT("uint", GLSLParser.UINT),
+    BOOL("bool", GLSLParser.BOOL),
+    VEC2("vec2", GLSLParser.VEC2),
+    VEC3("vec3", GLSLParser.VEC3),
+    VEC4("vec4", GLSLParser.VEC4),
+    DVEC2("dvec2", GLSLParser.DVEC2),
+    DVEC3("dvec3", GLSLParser.DVEC3),
+    DVEC4("dvec4", GLSLParser.DVEC4),
+    BVEC2("bvec2", GLSLParser.BVEC2),
+    BVEC3("bvec3", GLSLParser.BVEC3),
+    BVEC4("bvec4", GLSLParser.BVEC4),
+    IVEC2("ivec2", GLSLParser.IVEC2),
+    IVEC3("ivec3", GLSLParser.IVEC3),
+    IVEC4("ivec4", GLSLParser.IVEC4),
+    UVEC2("uvec2", GLSLParser.UVEC2),
+    UVEC3("uvec3", GLSLParser.UVEC3),
+    UVEC4("uvec4", GLSLParser.UVEC4),
+    MAT2("mat2", GLSLParser.MAT2),
+    MAT3("mat3", GLSLParser.MAT3),
+    MAT4("mat4", GLSLParser.MAT4),
+    MAT2X2("mat2x2", GLSLParser.MAT2X2),
+    MAT2X3("mat2x3", GLSLParser.MAT2X3),
+    MAT2X4("mat2x4", GLSLParser.MAT2X4),
+    MAT3X2("mat3x2", GLSLParser.MAT3X2),
+    MAT3X3("mat3x3", GLSLParser.MAT3X3),
+    MAT3X4("mat3x4", GLSLParser.MAT3X4),
+    MAT4X2("mat4x2", GLSLParser.MAT4X2),
+    MAT4X3("mat4x3", GLSLParser.MAT4X3),
+    MAT4X4("mat4x4", GLSLParser.MAT4X4),
+    DMAT2("dmat2", GLSLParser.DMAT2),
+    DMAT3("dmat3", GLSLParser.DMAT3),
+    DMAT4("dmat4", GLSLParser.DMAT4),
+    DMAT2X2("dmat2x2", GLSLParser.DMAT2X2),
+    DMAT2X3("dmat2x3", GLSLParser.DMAT2X3),
+    DMAT2X4("dmat2x4", GLSLParser.DMAT2X4),
+    DMAT3X2("dmat3x2", GLSLParser.DMAT3X2),
+    DMAT3X3("dmat3x3", GLSLParser.DMAT3X3),
+    DMAT3X4("dmat3x4", GLSLParser.DMAT3X4),
+    DMAT4X2("dmat4x2", GLSLParser.DMAT4X2),
+    DMAT4X3("dmat4x3", GLSLParser.DMAT4X3),
+    DMAT4X4("dmat4x4", GLSLParser.DMAT4X4),
+    ATOMIC_UINT("atomic_uint", GLSLParser.ATOMIC_UINT),
+    SAMPLER1D("sampler1D", GLSLParser.SAMPLER1D),
+    SAMPLER2D("sampler2D", GLSLParser.SAMPLER2D),
+    SAMPLER3D("sampler3D", GLSLParser.SAMPLER3D),
+    SAMPLERCUBE("samplerCube", GLSLParser.SAMPLERCUBE),
+    SAMPLER1DSHADOW("sampler1DShadow", GLSLParser.SAMPLER1DSHADOW),
+    SAMPLER2DSHADOW("sampler2DShadow", GLSLParser.SAMPLER2DSHADOW),
+    SAMPLERCUBESHADOW("samplerCubeShadow", GLSLParser.SAMPLERCUBESHADOW),
+    SAMPLER1DARRAY("sampler1DArray", GLSLParser.SAMPLER1DARRAY),
+    SAMPLER2DARRAY("sampler2DArray", GLSLParser.SAMPLER2DARRAY),
+    SAMPLER1DARRAYSHADOW("sampler1DArrayShadow", GLSLParser.SAMPLER1DARRAYSHADOW),
+    SAMPLER2DARRAYSHADOW("sampler2DArrayShadow", GLSLParser.SAMPLER2DARRAYSHADOW),
+    SAMPLERCUBEARRAY("samplerCubeArray", GLSLParser.SAMPLERCUBEARRAY),
+    SAMPLERCUBEARRAYSHADOW("samplerCubeArrayShadow", GLSLParser.SAMPLERCUBEARRAYSHADOW),
+    ISAMPLER1D("isampler1D", GLSLParser.ISAMPLER1D),
+    ISAMPLER2D("isampler2D", GLSLParser.ISAMPLER2D),
+    ISAMPLER3D("isampler3D", GLSLParser.ISAMPLER3D),
+    ISAMPLERCUBE("isamplerCube", GLSLParser.ISAMPLERCUBE),
+    ISAMPLER1DARRAY("isampler1DArray", GLSLParser.ISAMPLER1DARRAY),
+    ISAMPLER2DARRAY("isampler2DArray", GLSLParser.ISAMPLER2DARRAY),
+    ISAMPLERCUBEARRAY("isamplerCubeArray", GLSLParser.ISAMPLERCUBEARRAY),
+    USAMPLER1D("usampler1D", GLSLParser.USAMPLER1D),
+    USAMPLER2D("usampler2D", GLSLParser.USAMPLER2D),
+    USAMPLER3D("usampler3D", GLSLParser.USAMPLER3D),
+    USAMPLERCUBE("usamplerCube", GLSLParser.USAMPLERCUBE),
+    USAMPLER1DARRAY("usampler1DArray", GLSLParser.USAMPLER1DARRAY),
+    USAMPLER2DARRAY("usampler2DArray", GLSLParser.USAMPLER2DARRAY),
+    USAMPLERCUBEARRAY("usamplerCubeArray", GLSLParser.USAMPLERCUBEARRAY),
+    SAMPLER2DRECT("sampler2DRect", GLSLParser.SAMPLER2DRECT),
+    SAMPLER2DRECTSHADOW("sampler2DRectShadow", GLSLParser.SAMPLER2DRECTSHADOW),
+    ISAMPLER2DRECT("isampler2DRect", GLSLParser.ISAMPLER2DRECT),
+    USAMPLER2DRECT("usampler2DRect", GLSLParser.USAMPLER2DRECT),
+    SAMPLERBUFFER("samplerBuffer", GLSLParser.SAMPLERBUFFER),
+    ISAMPLERBUFFER("isamplerBuffer", GLSLParser.ISAMPLERBUFFER),
+    USAMPLERBUFFER("usamplerBuffer", GLSLParser.USAMPLERBUFFER),
+    SAMPLER2DMS("sampler2DMS", GLSLParser.SAMPLER2DMS),
+    ISAMPLER2DMS("isampler2DMS", GLSLParser.ISAMPLER2DMS),
+    USAMPLER2DMS("usampler2DMS", GLSLParser.USAMPLER2DMS),
+    SAMPLER2DMSARRAY("sampler2DMSArray", GLSLParser.SAMPLER2DMSARRAY),
+    ISAMPLER2DMSARRAY("isampler2DMSArray", GLSLParser.ISAMPLER2DMSARRAY),
+    USAMPLER2DMSARRAY("usampler2DMSArray", GLSLParser.USAMPLER2DMSARRAY),
+    IMAGE1D("image1D", GLSLParser.IMAGE1D),
+    IIMAGE1D("iimage1D", GLSLParser.IIMAGE1D),
+    UIMAGE1D("uimage1D", GLSLParser.UIMAGE1D),
+    IMAGE2D("image2D", GLSLParser.IMAGE2D),
+    IIMAGE2D("iimage2D", GLSLParser.IIMAGE2D),
+    UIMAGE2D("uimage2D", GLSLParser.UIMAGE2D),
+    IMAGE3D("image3D", GLSLParser.IMAGE3D),
+    IIMAGE3D("iimage3D", GLSLParser.IIMAGE3D),
+    UIMAGE3D("uimage3D", GLSLParser.UIMAGE3D),
+    IMAGE2DRECT("image2DRect", GLSLParser.IMAGE2DRECT),
+    IIMAGE2DRECT("iimage2DRect", GLSLParser.IIMAGE2DRECT),
+    UIMAGE2DRECT("uimage2DRect", GLSLParser.UIMAGE2DRECT),
+    IMAGECUBE("imageCube", GLSLParser.IMAGECUBE),
+    IIMAGECUBE("iimageCube", GLSLParser.IIMAGECUBE),
+    UIMAGECUBE("uimageCube", GLSLParser.UIMAGECUBE),
+    IMAGEBUFFER("imageBuffer", GLSLParser.IMAGEBUFFER),
+    IIMAGEBUFFER("iimageBuffer", GLSLParser.IIMAGEBUFFER),
+    UIMAGEBUFFER("uimageBuffer", GLSLParser.UIMAGEBUFFER),
+    IMAGE1DARRAY("image1DArray", GLSLParser.IMAGE1DARRAY),
+    IIMAGE1DARRAY("iimage1DArray", GLSLParser.IIMAGE1DARRAY),
+    UIMAGE1DARRAY("uimage1DArray", GLSLParser.UIMAGE1DARRAY),
+    IMAGE2DARRAY("image2DArray", GLSLParser.IMAGE2DARRAY),
+    IIMAGE2DARRAY("iimage2DArray", GLSLParser.IIMAGE2DARRAY),
+    UIMAGE2DARRAY("uimage2DArray", GLSLParser.UIMAGE2DARRAY),
+    IMAGECUBEARRAY("imageCubeArray", GLSLParser.IMAGECUBEARRAY),
+    IIMAGECUBEARRAY("iimageCubeArray", GLSLParser.IIMAGECUBEARRAY),
+    UIMAGECUBEARRAY("uimageCubeArray", GLSLParser.UIMAGECUBEARRAY),
+    IMAGE2DMS("image2DMS", GLSLParser.IMAGE2DMS),
+    IIMAGE2DMS("iimage2DMS", GLSLParser.IIMAGE2DMS),
+    UIMAGE2DMS("uimage2DMS", GLSLParser.UIMAGE2DMS),
+    IMAGE2DMSARRAY("image2DMSArray", GLSLParser.IMAGE2DMSARRAY),
+    IIMAGE2DMSARRAY("iimage2DMSArray", GLSLParser.IIMAGE2DMSARRAY),
+    UIMAGE2DMSARRAY("uimage2DMSArray", GLSLParser.UIMAGE2DMSARRAY);
+
+    private final String token;
+    private final int id;
+
+    PredefinedType(String token, int id) {
+        this.token = token;
+        this.id = id;
+    }
+
+    @Override
+    public String token() {
+        return token;
+    }
+
+    @Override
+    public int tokenId() {
+        return id;
+    }
+}
