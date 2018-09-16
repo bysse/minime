@@ -7,8 +7,7 @@ options {
     language = Java;
 }
 
-
-//
+// Entry point
 declaration
   : extension_declaration
   | version_declaration
@@ -22,11 +21,11 @@ extension_declaration
   ;
 
 version_declaration
-  : VERSION DECIMAL_CONSTANT (CORE | COMPATIBILITY | ES)?
+  : VERSION INTCONSTANT (CORE | COMPATIBILITY | ES)?
   ;
 
 line_declaration
-  : LINE DECIMAL_CONSTANT DECIMAL_CONSTANT
+  : LINE INTCONSTANT INTCONSTANT
   ;
 
 conditional_declaration
@@ -38,20 +37,27 @@ conditional_declaration
   | ENDIF                       # endif_expression
   ;
 
+numeric_expression
+  : INTCONSTANT                                                              # integer_expression
+  | IDENTIFIER                                                               # identifier_expression
+  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                          # defined_expression
+  | (PLUS | DASH | TILDE | BANG) numeric_expression                          # unary_expression
+  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression           # multiplicative_expression
+  | numeric_expression (PLUS | DASH) numeric_expression                      # additive_expression
+  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression         # shift_expression
+  ;
+
+relational_expression
+  : numeric_expression
+  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP  EQ_OP | NE_OP) numeric_expression
+  ;
+
 const_expression
-  : INTCONSTANT                                                             # integer_expression
-  | IDENTIFIER                                                              # identifier_expression
-  | LEFT_PAREN const_expression RIGHT_PAREN                                 # parenthesis_expression
-  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                         # defined_expression
-  | (PLUS | DASH | TILDE | BANG) const_expression                           # unary_expression
-  | const_expression (STAR | SLASH | PERCENT) const_expression              # multiplicative_expression
-  | const_expression (PLUS | DASH) const_expression                         # additive_expression
-  | const_expression (LEFT_SHIFT | RIGHT_SHIFT) const_expression            # shift_expression
-  | const_expression (LT_OP | LE_OP | GE_OP | GT_OP) const_expression       # relational_expression
-  | const_expression (EQ_OP | NE_OP) const_expression                       # relational_expression
-  | const_expression (AMPERSAND | CARET | VERTICAL_BAR) const_expression    # bit_expression
-  | const_expression AND_OP const_expression                                # and_expression
-  | const_expression OR_OP const_expression                                 # op_expression
+  : relational_expression                                                    # bitop_expression_delegate
+  | LEFT_PAREN const_expression RIGHT_PAREN                                  # parenthesis_expression
+  | const_expression AND_OP const_expression                                 # and_expression
+  | const_expression OR_OP const_expression                                  # op_expression
+  | const_expression (AMPERSAND | CARET | VERTICAL_BAR) const_expression     # bit_expression
   ;
 
 macro_declaration
@@ -61,36 +67,6 @@ macro_declaration
 parameter_declaration
   : LEFT_PAREN RIGHT_PAREN
   | LEFT_PAREN IDENTIFIER (COMMA IDENTIFIER)* RIGHT_PAREN
-  ;
-
-// ----------------------------------------------------------------------
-// Identifier
-// ----------------------------------------------------------------------
-
-IDENTIFIER
-  : ('a'..'z'|'A'..'Z'|'_')('a'..'z'|'A'..'Z'|'_'|'0'..'9')*
-  ;
-
-INTCONSTANT
-  : DECIMAL_CONSTANT
-  | OCTAL_CONSTANT
-  | HEXADECIMAL_CONSTANT
-  ;
-
-DECIMAL_CONSTANT
-  : ('1'..'9')('0'..'9')*
-  ;
-
-OCTAL_CONSTANT
-  : '0' ('0'..'7')*
-  ;
-
-HEXADECIMAL_CONSTANT
-  : '0' ('x'|'X') HEXDIGIT+
-  ;
-
-fragment HEXDIGIT
-  : ('0'..'9'|'a'..'f'|'A'..'F')
   ;
 
 // ----------------------------------------------------------------------
@@ -129,6 +105,35 @@ WARN             : 'warn';
 
 
 // ----------------------------------------------------------------------
+// Identifier
+// ----------------------------------------------------------------------
+
+IDENTIFIER
+  : ('a'..'z'|'A'..'Z'|'_')('a'..'z'|'A'..'Z'|'_'|'0'..'9')*
+  ;
+
+INTCONSTANT
+  : DECIMAL_CONSTANT
+  | OCTAL_CONSTANT
+  | HEXADECIMAL_CONSTANT
+  ;
+
+fragment DECIMAL_CONSTANT
+  : ('1'..'9')('0'..'9')*
+  ;
+
+fragment OCTAL_CONSTANT
+  : '0' ('0'..'7')*
+  ;
+
+fragment HEXADECIMAL_CONSTANT
+  : '0' ('x'|'X') HEXDIGIT+
+  ;
+fragment HEXDIGIT
+  : ('0'..'9'|'a'..'f'|'A'..'F')
+  ;
+
+// ----------------------------------------------------------------------
 // Operators & symbols
 // ----------------------------------------------------------------------
 
@@ -158,8 +163,6 @@ STINGIZING       : '##';
 COMMA            : ',';
 COLON            : ':';
 
-WILDCARD         : .+?;
-
 // ----------------------------------------------------------------------
 // Ignored elements
 // ----------------------------------------------------------------------
@@ -175,3 +178,5 @@ COMMENT
 MULTILINE_COMMENT
   : '/*' ( . )*? '*/'  -> skip
   ;
+
+WILDCARD         : .+?;
