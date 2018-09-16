@@ -27,11 +27,15 @@ public class TestUtil {
     }
 
     public static void parse(String source) {
+        if (!source.endsWith("\n")) {
+            source += "\n";
+        }
+
         try {
             final CommonTokenStream stream = TestUtil.tokenStream(source);
             final PPParser parser = TestUtil.parser(stream);
             parser.setErrorHandler(new BailErrorStrategy());
-            parser.declaration();
+            parser.statement();
         } catch (Exception e) {
             System.out.println("# Showing tokens for '" + source + "'");
             for (Token token : TestUtil.getTokens(TestUtil.tokenStream(source))) {

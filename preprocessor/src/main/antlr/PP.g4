@@ -8,6 +8,10 @@ options {
 }
 
 // Entry point
+statement
+  : declaration ('\r' | '\n')
+  ;
+
 declaration
   : extension_declaration
   | version_declaration
@@ -38,26 +42,22 @@ conditional_declaration
   ;
 
 numeric_expression
-  : INTCONSTANT                                                              # integer_expression
-  | IDENTIFIER                                                               # identifier_expression
-  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                          # defined_expression
-  | (PLUS | DASH | TILDE | BANG) numeric_expression                          # unary_expression
-  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression           # multiplicative_expression
-  | numeric_expression (PLUS | DASH) numeric_expression                      # additive_expression
-  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression         # shift_expression
-  ;
-
-relational_expression
-  : numeric_expression
-  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP  EQ_OP | NE_OP) numeric_expression
+  : INTCONSTANT                                                                       # integer_expression
+  | IDENTIFIER                                                                        # identifier_expression
+  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                                   # defined_expression
+  | LEFT_PAREN const_expression RIGHT_PAREN                                           # parenthesis_expression
+  | (PLUS | DASH | TILDE | BANG) numeric_expression                                   # unary_expression
+  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression                    # multiplicative_expression
+  | numeric_expression (PLUS | DASH) numeric_expression                               # additive_expression
+  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression                  # shift_expression
+  | numeric_expression (AMPERSAND | CARET | VERTICAL_BAR) numeric_expression          # bit_expression
   ;
 
 const_expression
-  : relational_expression                                                    # bitop_expression_delegate
-  | LEFT_PAREN const_expression RIGHT_PAREN                                  # parenthesis_expression
-  | const_expression AND_OP const_expression                                 # and_expression
-  | const_expression OR_OP const_expression                                  # op_expression
-  | const_expression (AMPERSAND | CARET | VERTICAL_BAR) const_expression     # bit_expression
+  : numeric_expression                                                                    # numerical_delegate
+  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP  EQ_OP | NE_OP) numeric_expression  # relational_expression
+  | const_expression AND_OP const_expression                                              # and_expression
+  | const_expression OR_OP const_expression                                               # or_expression
   ;
 
 macro_declaration
@@ -168,7 +168,7 @@ COLON            : ':';
 // ----------------------------------------------------------------------
 
 WHITESPACE
-  : ( ' ' | '\t' | '\f' | '\r' | '\n' | '\\n' ) -> skip
+  : ( ' ' | '\t' | '\f' ) -> skip
   ;
 
 COMMENT
