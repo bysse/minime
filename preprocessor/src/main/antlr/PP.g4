@@ -1,5 +1,14 @@
 /**
  * Preprocessor for GLSL 4.40
+ *
+ * Simplified grammar for a line based preprocessor.
+ * The intention is to feed in each # prefixed line into
+ * the parser and not the entire file.
+ * Preprocessor steps:
+ *  1. Read a line from the file keeping line continuations in mind.
+ *  2. Process the line in the parser.
+ *  3. If the line is a '#define' statement look for the actual definition.
+ *  4. Make sure the parser has consumed the entire line before continuing.
  */
 grammar PP;
 
@@ -9,7 +18,7 @@ options {
 
 // Entry point
 statement
-  : declaration ('\r' | '\n')
+  : declaration
   ;
 
 declaration
@@ -39,29 +48,31 @@ conditional_declaration
   | ELSE                        # else_expression
   | ELIF const_expression       # else_if_expression
   | ENDIF                       # endif_expression
+  | UNDEF IDENTIFIER            # undef_expression
   ;
 
 numeric_expression
-  : INTCONSTANT                                                                       # integer_expression
-  | IDENTIFIER                                                                        # identifier_expression
-  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                                   # defined_expression
-  | LEFT_PAREN const_expression RIGHT_PAREN                                           # parenthesis_expression
-  | (PLUS | DASH | TILDE | BANG) numeric_expression                                   # unary_expression
-  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression                    # multiplicative_expression
-  | numeric_expression (PLUS | DASH) numeric_expression                               # additive_expression
-  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression                  # shift_expression
-  | numeric_expression (AMPERSAND | CARET | VERTICAL_BAR) numeric_expression          # bit_expression
+  : INTCONSTANT                                                                           # integer_expression
+  | IDENTIFIER                                                                            # identifier_expression
+  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                                       # defined_expression
+  | LEFT_PAREN const_expression RIGHT_PAREN                                               # parenthesis_expression
+  | (PLUS | DASH | TILDE | BANG) numeric_expression                                       # unary_expression
+  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression                        # multiplicative_expression
+  | numeric_expression (PLUS | DASH) numeric_expression                                   # additive_expression
+  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression                      # shift_expression
+  | numeric_expression (AMPERSAND | CARET | VERTICAL_BAR) numeric_expression              # bit_expression
   ;
 
 const_expression
   : numeric_expression                                                                    # numerical_delegate
-  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP  EQ_OP | NE_OP) numeric_expression  # relational_expression
+  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP | EQ_OP | NE_OP) numeric_expression # relational_expression
   | const_expression AND_OP const_expression                                              # and_expression
   | const_expression OR_OP const_expression                                               # or_expression
   ;
 
+// catch the actual definition with source code
 macro_declaration
-  : DEFINE IDENTIFIER (parameter_declaration)? (WILDCARD)?
+  : DEFINE IDENTIFIER (parameter_declaration)?
   ;
 
 parameter_declaration
@@ -168,7 +179,7 @@ COLON            : ':';
 // ----------------------------------------------------------------------
 
 WHITESPACE
-  : ( ' ' | '\t' | '\f' ) -> skip
+  : ( ' ' | '\t' | '\f' | '\r' | '\n' | '\\n') -> skip
   ;
 
 COMMENT
@@ -178,5 +189,3 @@ COMMENT
 MULTILINE_COMMENT
   : '/*' ( . )*? '*/'  -> skip
   ;
-
-WILDCARD         : .+?;

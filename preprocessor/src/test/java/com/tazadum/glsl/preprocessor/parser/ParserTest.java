@@ -29,18 +29,40 @@ class ParserTest {
             Arguments.of("line-1", "line 100 200"),
 
             Arguments.of("if-1", "if 1"),
-            Arguments.of("if-2", "if SOMETHING"), // this is not supported by the spec
-            Arguments.of("if-3", "if (1)"),
-            Arguments.of("if-4", "if defined MACRO"),
-            Arguments.of("if-5", "if defined(MACRO)"),
-            Arguments.of("if-6", "if +1"),
-            Arguments.of("if-7", "if -1"),
-            Arguments.of("if-8", "if ~1"),
-            Arguments.of("if-9", "if !1"),
-            Arguments.of("elif-1", "elif 10*20%30"),
-            Arguments.of("elif-2", "elif 10+20-0x10"),
-            Arguments.of("elif-2", "elif 10 >> 2 << 1"),
-            Arguments.of("elif-2", "elif 10 >= 2 <= 1"),
+            Arguments.of("ifdef-1", "ifdef MACRO"),
+            Arguments.of("ifndef-1", "ifndef MACRO"),
+            Arguments.of("else-1", "else"),
+            Arguments.of("elif-1", "elif 1"),
+            Arguments.of("endif-1", "endif"),
+            Arguments.of("undef-1", "undef MACRO"),
+
+            // const expressions
+            Arguments.of("expr-1", "if SOMETHING"), // this is not supported by the spec
+            Arguments.of("expr-3", "if (1)"),
+            Arguments.of("expr-4", "if defined MACRO"),
+            Arguments.of("expr-5", "if defined(MACRO)"),
+            Arguments.of("expr-6", "if +1"),
+            Arguments.of("expr-7", "if -1"),
+            Arguments.of("expr-8", "if ~1"),
+            Arguments.of("expr-9", "if !1"),
+            Arguments.of("expr-10", "if 10*20%30"),
+            Arguments.of("expr-11", "if 10+20-0x10"),
+            Arguments.of("expr-12", "if 10 >> 2 << 1"),
+            Arguments.of("expr-13", "if 1 < 2&3"),
+            Arguments.of("expr-14", "if 1 <= 2^3"),
+            Arguments.of("expr-15", "if 2|3 > 1"),
+            Arguments.of("expr-16", "if 2 >= 1"),
+            Arguments.of("expr-17", "if 2 == 1"),
+            Arguments.of("expr-18", "if SOMETHING != 1"),
+
+            // logic
+            Arguments.of("logic-1", "if 1 && 2 || 3"),
+            Arguments.of("logic-2", "if 1 != MACRO && (2<<4 || 3) || 2*SOMETHING >= MACRO"),
+
+            // macro declaration
+            Arguments.of("macro-1", "define PLAIN"),
+            Arguments.of("macro-2", "define PLAIN 1"),
+            Arguments.of("macro-3", "define SUM(x,y,z) x+y+z"),
         };
     }
 }
