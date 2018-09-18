@@ -1,14 +1,16 @@
 /**
  * Preprocessor for GLSL 4.40
  *
- * Simplified grammar for a line based preprocessor.
+ * Simplified grammar for a line based preprocessor with the
+ * extension of detecting "#pragma include(path)" statements.
  * The intention is to feed in each # prefixed line into
  * the parser and not the entire file.
+ *
  * Preprocessor steps:
- *  1. Read a line from the file keeping line continuations in mind.
- *  2. Process the line in the parser.
- *  3. If the line is a '#define' statement look for the actual definition.
- *  4. Make sure the parser has consumed the entire line before continuing.
+ *   1. Read a line from the file keeping line continuations in mind.
+ *   2. Process the line in the parser.
+ *   3. If the line is a '#define' statement look for the actual definition.
+ *   4. Make sure the parser has consumed the entire line before continuing.
  */
 grammar PP;
 
@@ -16,17 +18,21 @@ options {
     language = Java;
 }
 
-// Entry point
-statement
-  : declaration
+preprocessor
+  : HASH (declaration)?
+  ;
+
+end_of_line
+  : ~NL*
   ;
 
 declaration
-  : extension_declaration
-  | version_declaration
-  | line_declaration
-  | conditional_declaration
-  | macro_declaration
+  : extension_declaration (end_of_line)?
+  | version_declaration (end_of_line)?
+  | line_declaration (end_of_line)?
+  | pragma_declaration (end_of_line)?
+  | conditional_declaration (end_of_line)?
+  | macro_declaration (end_of_line)?
   ;
 
 extension_declaration
@@ -41,9 +47,22 @@ line_declaration
   : LINE INTCONSTANT INTCONSTANT
   ;
 
+pragma_declaration
+  : PRAGMA 'include' LEFT_PAREN file_path RIGHT_PAREN       # pragma_include_declaration
+  | PRAGMA                                                  # pragma_unknown_declaration
+  ;
+
+file_path
+  : path_component (SLASH file_path)?
+  ;
+
+path_component
+  : (IDENTIFIER | INTCONSTANT | DOT) (path_component)?
+  ;
+
 conditional_declaration
   : IF const_expression         # if_expression
-  | IFDEF IDENTIFIER            # idef_expression
+  | IFDEF IDENTIFIER            # ifdef_expression
   | IFNDEF IDENTIFIER           # ifndef_expression
   | ELSE                        # else_expression
   | ELIF const_expression       # else_if_expression
@@ -170,9 +189,12 @@ PERCENT          : '%';
 VERTICAL_BAR     : '|';
 CARET            : '^';
 AMPERSAND        : '&';
+HASH             : '#';
 STINGIZING       : '##';
 COMMA            : ',';
 COLON            : ':';
+DOT              : '.';
+NL               : '\r'? '\n' | '\r';
 
 // ----------------------------------------------------------------------
 // Ignored elements

@@ -1,9 +1,6 @@
 package com.tazadum.glsl.preprocessor.parser;
 
-import org.antlr.v4.runtime.BailErrorStrategy;
-import org.antlr.v4.runtime.CharStreams;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +23,7 @@ public class TestUtil {
         return new PPParser(tokenStream);
     }
 
-    public static void parse(String source) {
+    public static ParserRuleContext parse(String source) {
         if (!source.endsWith("\n")) {
             source += "\n";
         }
@@ -35,7 +32,7 @@ public class TestUtil {
             final CommonTokenStream stream = TestUtil.tokenStream(source);
             final PPParser parser = TestUtil.parser(stream);
             parser.setErrorHandler(new BailErrorStrategy());
-            parser.statement();
+            return parser.preprocessor();
         } catch (Exception e) {
             System.out.println("# Showing tokens for '" + source + "'");
             for (Token token : TestUtil.getTokens(TestUtil.tokenStream(source))) {
