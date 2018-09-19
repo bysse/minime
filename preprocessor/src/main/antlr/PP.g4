@@ -76,20 +76,20 @@ numeric_expression
   | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                                       # defined_expression
   | LEFT_PAREN const_expression RIGHT_PAREN                                               # parenthesis_expression
   | (PLUS | DASH | TILDE | BANG) numeric_expression                                       # unary_expression
-  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression                        # multiplicative_expression
-  | numeric_expression (PLUS | DASH) numeric_expression                                   # additive_expression
-  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression                      # shift_expression
-  | numeric_expression (AMPERSAND | CARET | VERTICAL_BAR) numeric_expression              # bit_expression
+  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression                        # binary_expression
+  | numeric_expression (PLUS | DASH) numeric_expression                                   # binary_expression
+  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression                      # binary_expression
+  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP | EQ_OP | NE_OP) numeric_expression # relational_expression
+  | numeric_expression (AMPERSAND | CARET | VERTICAL_BAR) numeric_expression              # binary_expression
   ;
 
 const_expression
   : numeric_expression                                                                    # numerical_delegate
-  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP | EQ_OP | NE_OP) numeric_expression # relational_expression
   | const_expression AND_OP const_expression                                              # and_expression
   | const_expression OR_OP const_expression                                               # or_expression
   ;
 
-// catch the actual definition with source code
+// catch the actual definition with code
 macro_declaration
   : DEFINE IDENTIFIER (parameter_declaration)?
   ;
@@ -201,7 +201,7 @@ NL               : '\r'? '\n' | '\r';
 // ----------------------------------------------------------------------
 
 WHITESPACE
-  : ( ' ' | '\t' | '\f' | '\r' | '\n' | '\\n') -> skip
+  : ( ' ' | '\t' | '\f' | '\r' | '\n' | '\\n') -> channel(HIDDEN)
   ;
 
 COMMENT

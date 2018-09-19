@@ -23,6 +23,13 @@ public class TestUtil {
         return new PPParser(tokenStream);
     }
 
+    public static void printTokens(String source) {
+        System.out.println("# Showing tokens for '" + source + "'");
+        for (Token token : TestUtil.getTokens(TestUtil.tokenStream(source))) {
+            System.out.println(token);
+        }
+    }
+
     public static ParserRuleContext parse(String source) {
         if (!source.endsWith("\n")) {
             source += "\n";
@@ -34,10 +41,7 @@ public class TestUtil {
             parser.setErrorHandler(new BailErrorStrategy());
             return parser.preprocessor();
         } catch (Exception e) {
-            System.out.println("# Showing tokens for '" + source + "'");
-            for (Token token : TestUtil.getTokens(TestUtil.tokenStream(source))) {
-                System.out.println(token);
-            }
+            printTokens(source);
             throw e;
         }
     }

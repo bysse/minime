@@ -57,6 +57,8 @@ class ParserTest {
             Arguments.of("expr-16", "#if 2 >= 1"),
             Arguments.of("expr-17", "#if 2 == 1"),
             Arguments.of("expr-18", "#if SOMETHING != 1"),
+            Arguments.of("expr-19", "#if 0x10"),
+            Arguments.of("expr-20", "#if 0123"),
 
             // logic
             Arguments.of("logic-1", "#if 1 && 2 || 3"),

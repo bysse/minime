@@ -1,14 +1,15 @@
 package com.tazadum.glsl.preprocessor.parser;
 
-import com.tazadum.glsl.preprocesor.PreprocessorException;
-import com.tazadum.glsl.preprocesor.language.Node;
-import com.tazadum.glsl.preprocesor.language.PreprocessorVisitor;
-import com.tazadum.glsl.preprocesor.language.ast.*;
-import com.tazadum.glsl.preprocesor.language.ast.flow.*;
-import com.tazadum.glsl.preprocesor.model.*;
+import com.tazadum.glsl.preprocessor.PreprocessorException;
+import com.tazadum.glsl.preprocessor.language.Node;
+import com.tazadum.glsl.preprocessor.language.PreprocessorVisitor;
+import com.tazadum.glsl.preprocessor.language.ast.*;
+import com.tazadum.glsl.preprocessor.language.ast.flow.*;
+import com.tazadum.glsl.preprocessor.model.*;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +23,7 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#extension")
     public void testExtensionDeclaration() {
         assertThrows(PreprocessorException.class, () ->
             // extra tokens on the line
@@ -41,6 +43,7 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#version")
     public void testVersionDeclaration() {
         assertThrows(PreprocessorException.class, () ->
             // extra tokens on the line
@@ -60,6 +63,7 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#line")
     public void testLineDeclaration() {
         assertThrows(PreprocessorException.class, () ->
             // extra tokens on the line
@@ -79,10 +83,11 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#pragma")
     public void testPragmaDeclaration() {
         PragmaDeclarationNode node1 = parse(PragmaDeclarationNode.class, "#pragma optimizations(1)");
         assertEquals(DeclarationType.PRAGMA, node1.getDeclarationType());
-        assertEquals("optimizations ( 1 )", node1.getDeclaration());
+        assertEquals("optimizations(1)", node1.getDeclaration());
 
         final String filePath = "../shared/shared.glsl";
         PragmaIncludeDeclarationNode node2 = parse(PragmaIncludeDeclarationNode.class, "#pragma include(" + filePath + ")");
@@ -91,6 +96,32 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#define")
+    public void testMacroDeclaration() {
+        MacroDeclarationNode node_1 = parse(MacroDeclarationNode.class, "#define MACRO");
+        assertEquals(DeclarationType.DEFINE, node_1.getDeclarationType());
+        assertEquals("MACRO", node_1.getIdentifier());
+        assertNotNull(node_1.getParameters());
+        assertTrue(node_1.getParameters().isEmpty());
+        assertNull(node_1.getValue());
+
+        MacroDeclarationNode node_2 = parse(MacroDeclarationNode.class, "#define MACRO 1");
+        assertEquals("MACRO", node_2.getIdentifier());
+        assertNotNull(node_2.getParameters());
+        assertTrue(node_2.getParameters().isEmpty());
+        assertEquals("1", node_2.getValue());
+
+        MacroDeclarationNode node_3 = parse(MacroDeclarationNode.class, "#define MACRO(x,y) x* y");
+        assertEquals("MACRO", node_3.getIdentifier());
+        assertNotNull(node_3.getParameters());
+        assertEquals(2, node_3.getParameters().size());
+        assertEquals("x", node_3.getParameters().get(0));
+        assertEquals("y", node_3.getParameters().get(1));
+        assertEquals("x* y", node_3.getValue());
+    }
+
+    @Test
+    @DisplayName("#else and #endif")
     public void testDeclarationWithoutArguments() {
         ElseFlowNode node1 = parse(ElseFlowNode.class, "#else // comment");
         assertEquals(DeclarationType.ELSE, node1.getDeclarationType());
@@ -100,6 +131,7 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#ifdef")
     public void testIfDefined() {
         assertThrows(PreprocessorException.class, () ->
                 // extra tokens on the line
@@ -112,6 +144,7 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#ifndef")
     public void testIfNotDefined() {
         assertThrows(PreprocessorException.class, () ->
                 // extra tokens on the line
@@ -124,6 +157,7 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#undef")
     public void testUndef() {
         assertThrows(PreprocessorException.class, () ->
                 // extra tokens on the line
@@ -135,8 +169,29 @@ class AstParserTest {
         assertEquals("MACRO", node.getIdentifier());
     }
 
+    @Test
+    @DisplayName("#if and #elif")
+    public void testIfAndElseIf() {
+        IfFlowNode node_1 = parse(IfFlowNode.class, "#if 1+(2*3)%4");
+        assertEquals(DeclarationType.IF, node_1.getDeclarationType());
+        assertNotNull(node_1.getExpression());
+
+        IfFlowNode node_2 = parse(IfFlowNode.class, "#if defined(MACRO) || (APA << 2) >= 3^-2");
+        assertEquals(DeclarationType.IF, node_2.getDeclarationType());
+        assertNotNull(node_2.getExpression());
+
+        ElseIfFlowNode node_3 = parse(ElseIfFlowNode.class, "#elif 4/MACRO && (!04 < 1 || ~0x14 >> 2)");
+        assertEquals(DeclarationType.ELSE_IF, node_3.getDeclarationType());
+        assertNotNull(node_3.getExpression());
+
+        ElseIfFlowNode node_4 = parse(ElseIfFlowNode.class, "#elif 1|4 != 3");
+        assertEquals(DeclarationType.ELSE_IF, node_4.getDeclarationType());
+        assertNotNull(node_4.getExpression());
+    }
+
     private <T extends Node> T parse(Class<T> type, String source) {
         ParserRuleContext context = TestUtil.parse(source);
+
         Node node = context.accept(new PreprocessorVisitor());
         assertNotNull(node, "Resulting node should not be null");
 
