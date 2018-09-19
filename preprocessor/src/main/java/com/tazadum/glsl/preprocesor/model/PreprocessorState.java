@@ -3,6 +3,7 @@ package com.tazadum.glsl.preprocesor.model;
 import com.tazadum.glsl.preprocesor.PreprocessorException;
 import com.tazadum.glsl.preprocesor.language.Declaration;
 import com.tazadum.glsl.preprocesor.language.ast.*;
+import com.tazadum.glsl.preprocesor.language.ast.flow.*;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,13 +1,11 @@
-package com.tazadum.glsl.preprocesor.language.ast;
+package com.tazadum.glsl.preprocesor.language.ast.expression;
 
-import com.tazadum.glsl.preprocesor.language.Declaration;
 import com.tazadum.glsl.preprocesor.language.Expression;
-import com.tazadum.glsl.preprocesor.language.Node;
 
 import java.util.Objects;
 
 /**
- * Created by erikb on 2018-09-17.
+ * Node for holding integer values.
  */
 public class IntegerNode implements Expression {
     private int value;

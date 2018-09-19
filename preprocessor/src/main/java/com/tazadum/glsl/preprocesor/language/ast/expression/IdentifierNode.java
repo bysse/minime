@@ -1,9 +1,6 @@
-package com.tazadum.glsl.preprocesor.language.ast;
+package com.tazadum.glsl.preprocesor.language.ast.expression;
 
 import com.tazadum.glsl.preprocesor.language.Expression;
-import com.tazadum.glsl.preprocesor.language.Node;
-
-import java.util.Objects;
 
 /**
  * The only use for this Node is to detect when macro-substitution

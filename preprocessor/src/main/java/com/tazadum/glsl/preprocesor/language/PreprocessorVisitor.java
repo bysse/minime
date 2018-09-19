@@ -2,6 +2,8 @@ package com.tazadum.glsl.preprocesor.language;
 
 import com.tazadum.glsl.preprocesor.PreprocessorException;
 import com.tazadum.glsl.preprocesor.language.ast.*;
+import com.tazadum.glsl.preprocesor.language.ast.expression.IntegerNode;
+import com.tazadum.glsl.preprocesor.language.ast.flow.*;
 import com.tazadum.glsl.preprocesor.model.ExtensionBehavior;
 import com.tazadum.glsl.preprocesor.model.GLSLProfile;
 import com.tazadum.glsl.preprocesor.model.GLSLVersion;

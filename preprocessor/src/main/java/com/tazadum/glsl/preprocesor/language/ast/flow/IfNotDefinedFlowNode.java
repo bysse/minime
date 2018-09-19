@@ -1,4 +1,4 @@
-package com.tazadum.glsl.preprocesor.language.ast;
+package com.tazadum.glsl.preprocesor.language.ast.flow;
 
 import com.tazadum.glsl.preprocesor.language.Flow;
 import com.tazadum.glsl.preprocesor.model.DeclarationType;
@@ -6,16 +6,16 @@ import com.tazadum.glsl.preprocesor.model.DeclarationType;
 /**
  * Created by erikb on 2018-09-17.
  */
-public class IfDefinedFlowNode implements Flow {
+public class IfNotDefinedFlowNode implements Flow {
     private String identifier;
 
-    public IfDefinedFlowNode(String identifier) {
+    public IfNotDefinedFlowNode(String identifier) {
         this.identifier = identifier;
     }
 
     @Override
     public DeclarationType getDeclarationType() {
-        return DeclarationType.IF_DEFINED;
+        return DeclarationType.IF_NOT_DEFINED;
     }
 
     public String getIdentifier() {
@@ -27,6 +27,6 @@ public class IfDefinedFlowNode implements Flow {
     }
 
     public String toString() {
-        return "#ifdef " + identifier;
+        return "#ifndef " + identifier;
     }
 }
