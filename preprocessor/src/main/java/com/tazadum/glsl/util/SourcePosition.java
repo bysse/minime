@@ -9,11 +9,25 @@ public class SourcePosition implements Comparable<SourcePosition> {
     private int line;
     private int column;
 
+    /**
+     * Create a SourcePosition from a parser Token.
+     *
+     * @param token Token that to generate a position from.
+     * @return Returns a SourcePosition.
+     */
     public static SourcePosition from(Token token) {
         return new SourcePosition(token.getLine(), token.getCharPositionInLine());
     }
 
-    public SourcePosition(int line, int column) {
+    public static SourcePosition add(SourcePosition offset, SourcePosition pos) {
+        return new SourcePosition(offset.getLine() + pos.getLine(), offset.getColumn() + pos.getColumn());
+    }
+
+    public static SourcePosition from(int line, int column) {
+        return new SourcePosition(line, column);
+    }
+
+    private SourcePosition(int line, int column) {
         this.line = line;
         this.column = column;
     }
@@ -26,15 +40,15 @@ public class SourcePosition implements Comparable<SourcePosition> {
         return column;
     }
 
-    public String toString() {
-        return line + "(" + column + ")";
-    }
-
     @Override
     public int compareTo(SourcePosition o) {
         if (line == o.line) {
             return Integer.compare(column, o.column);
         }
         return line < o.line ? -1 : 1;
+    }
+
+    public String toString() {
+        return line + "(" + column + ")";
     }
 }

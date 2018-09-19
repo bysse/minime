@@ -1,4 +1,6 @@
-package com.tazadum.glsl.preprocessor.model;
+package com.tazadum.glsl.preprocessor.language;
+
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 /**
  * Until version 3.0, all versions of OpenGL were fully backwards compatible with earlier ones.

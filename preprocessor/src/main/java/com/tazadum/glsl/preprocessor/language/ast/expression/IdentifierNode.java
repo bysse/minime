@@ -1,15 +1,18 @@
 package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
+import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * The only use for this Node is to detect when macro-substitution
  * has failed in an expression.
  */
-public class IdentifierNode implements Expression {
+public class IdentifierNode extends BaseNode implements Expression {
     private String identifier;
 
-    public IdentifierNode(String identifier) {
+    public IdentifierNode(SourcePosition sourcePosition, String identifier) {
+        super(sourcePosition);
         this.identifier = identifier;
     }
 
@@ -18,8 +21,8 @@ public class IdentifierNode implements Expression {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
+    public int accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 
     public String toString() {

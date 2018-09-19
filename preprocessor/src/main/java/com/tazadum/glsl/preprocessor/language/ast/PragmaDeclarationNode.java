@@ -1,20 +1,23 @@
 package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by erikb on 2018-09-17.
  */
-public class PragmaDeclarationNode implements Declaration {
+public class PragmaDeclarationNode extends BaseNode implements Declaration {
     private String declaration;
 
     /**
      * Constructs a PragmaDeclarationNode.
      *
-     * @param declaration The declaration after the word '#pragma'.
+     * @param sourcePosition The source position of the node.
+     * @param declaration    The declaration after the word '#pragma'.
      */
-    public PragmaDeclarationNode(String declaration) {
+    public PragmaDeclarationNode(SourcePosition sourcePosition, String declaration) {
+        super(sourcePosition);
         this.declaration = declaration;
     }
 

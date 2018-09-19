@@ -1,4 +1,4 @@
-package com.tazadum.glsl.preprocessor.model;
+package com.tazadum.glsl.preprocessor.language;
 
 /**
  * All different types of preprocessor declarations

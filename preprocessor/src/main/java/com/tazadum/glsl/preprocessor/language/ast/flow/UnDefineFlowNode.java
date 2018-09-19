@@ -1,16 +1,18 @@
 package com.tazadum.glsl.preprocessor.language.ast.flow;
 
 import com.tazadum.glsl.preprocessor.language.Flow;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
+import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by erikb on 2018-09-17.
  */
-public class UnDefineFlowNode implements Flow {
+public class UnDefineFlowNode extends BaseNode implements Flow {
     private String identifier;
 
-    public UnDefineFlowNode(String identifier) {
-
+    public UnDefineFlowNode(SourcePosition sourcePosition, String identifier) {
+        super(sourcePosition);
         this.identifier = identifier;
     }
 

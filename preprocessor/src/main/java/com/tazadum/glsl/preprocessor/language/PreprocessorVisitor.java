@@ -8,7 +8,6 @@ import com.tazadum.glsl.preprocessor.model.*;
 import com.tazadum.glsl.preprocessor.parser.PPBaseVisitor;
 import com.tazadum.glsl.preprocessor.parser.PPParser;
 import com.tazadum.glsl.util.ANTLRUtils;
-import com.tazadum.glsl.util.FormatUtil;
 import com.tazadum.glsl.util.SourcePosition;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -26,7 +25,9 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitExtension_declaration(PPParser.Extension_declarationContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
+
         final String extension = ctx.IDENTIFIER().getSymbol().getText();
 
         ExtensionBehavior behavior = null;
@@ -39,19 +40,20 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         } else if (ctx.WARN() != null) {
             behavior = ExtensionBehavior.WARN;
         } else {
-            throw new PreprocessorException(FormatUtil.error(ctx, "Unknown extension behavior : %s", ctx.getText()));
+            throw new PreprocessorException(sourcePosition, "Unknown extension behavior : " + ctx.getText());
         }
-        return new ExtensionDeclarationNode(extension, behavior);
+        return new ExtensionDeclarationNode(sourcePosition, extension, behavior);
     }
 
     @Override
     public Node visitVersion_declaration(PPParser.Version_declarationContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
         final String versionString = ctx.INTCONSTANT().getText();
         final GLSLVersion version = HasToken.fromString(versionString, GLSLVersion.values());
 
         if (version == null) {
-            throw new PreprocessorException(FormatUtil.error(ctx, "Unrecognized version : %s", versionString));
+            throw new PreprocessorException(sourcePosition, "Unrecognized version : " + versionString);
         }
 
         GLSLProfile profile = null;
@@ -76,101 +78,117 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
              * If version 300 or 310 is specified, the profile argument is not optional and must be es,
              * or a compile-time error results.
              */
-            throw new PreprocessorException(FormatUtil.error(ctx, "Profile must be 'ES' for version 300 and 310"));
+            throw new PreprocessorException(sourcePosition, "Profile must be 'ES' for version 300 and 310");
         }
 
-        return new VersionDeclarationNode(version, profile);
+        return new VersionDeclarationNode(sourcePosition, version, profile);
     }
 
     @Override
     public Node visitLine_declaration(PPParser.Line_declarationContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
 
         final int line = toInteger(ctx.INTCONSTANT(0));
-        final int sourceLine = toInteger(ctx.INTCONSTANT(1));
+        final TerminalNode sourceLineContext = ctx.INTCONSTANT(1);
+        final int sourceLine = (sourceLineContext != null) ? toInteger(sourceLineContext) : LineDeclarationNode.NO_VALUE;
 
-        return new LineDeclarationNode(line, sourceLine);
+        return new LineDeclarationNode(sourcePosition, line, sourceLine);
     }
 
     @Override
     public Node visitPragma_unknown_declaration(PPParser.Pragma_unknown_declarationContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         if (endOfLine == null || endOfLine.isEmpty()) {
-            throw new PreprocessorException(FormatUtil.error(ctx, "Empty pragma declaration"));
+            throw new PreprocessorException(sourcePosition, "Empty pragma declaration");
         }
-        return new PragmaDeclarationNode(endOfLine);
+        return new PragmaDeclarationNode(sourcePosition, endOfLine);
     }
 
     @Override
     public Node visitPragma_include_declaration(PPParser.Pragma_include_declarationContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
         final String filePath = ANTLRUtils.stringify(ctx.file_path(), "");
-        return new PragmaIncludeDeclarationNode(filePath);
+        return new PragmaIncludeDeclarationNode(sourcePosition, filePath);
     }
 
     @Override
     public Node visitIf_expression(PPParser.If_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         final Expression expression = (Expression) ctx.const_expression().accept(this);
-        return new IfFlowNode(expression);
+        return new IfFlowNode(sourcePosition, expression);
     }
 
     @Override
     public Node visitIfdef_expression(PPParser.Ifdef_expressionContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
         final String identifier = ctx.IDENTIFIER().getText();
-        return new IfDefinedFlowNode(identifier);
+        return new IfDefinedFlowNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitIfndef_expression(PPParser.Ifndef_expressionContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
         final String identifier = ctx.IDENTIFIER().getText();
-        return new IfNotDefinedFlowNode(identifier);
+        return new IfNotDefinedFlowNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitElse_expression(PPParser.Else_expressionContext ctx) {
-        checkForExtraTokens();
-        return new ElseFlowNode();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
+        return new ElseFlowNode(sourcePosition);
     }
 
     @Override
     public Node visitElse_if_expression(PPParser.Else_if_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         final Expression expression = (Expression) ctx.const_expression().accept(this);
-        return new ElseIfFlowNode(expression);
+        return new ElseIfFlowNode(sourcePosition, expression);
     }
 
     @Override
     public Node visitEndif_expression(PPParser.Endif_expressionContext ctx) {
-        checkForExtraTokens();
-        return new EndIfFlowNode();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
+        return new EndIfFlowNode(sourcePosition);
     }
 
     @Override
     public Node visitUndef_expression(PPParser.Undef_expressionContext ctx) {
-        checkForExtraTokens();
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        checkForExtraTokens(sourcePosition);
         final String identifier = ctx.IDENTIFIER().getText();
-        return new UnDefineFlowNode(identifier);
+        return new UnDefineFlowNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitParenthesis_expression(PPParser.Parenthesis_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         final Expression expression = (Expression) ctx.const_expression().accept(this);
-        return new ParenthesisNode(expression);
+        return new ParenthesisNode(sourcePosition, expression);
     }
 
     @Override
     public Node visitDefined_expression(PPParser.Defined_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         final String identifier = ctx.IDENTIFIER().getText();
-        return new DefinedNode(identifier);
+        return new DefinedNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitInteger_expression(PPParser.Integer_expressionContext ctx) {
-        return new IntegerNode(parseInt(ctx.getText()));
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+        return new IntegerNode(sourcePosition, parseInt(ctx.getText()));
     }
 
     @Override
     public Node visitBinary_expression(PPParser.Binary_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+
         BinaryOperator operator;
         if (ctx.STAR() != null) {
             operator = BinaryOperator.MULTIPLY;
@@ -193,22 +211,25 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         } else if (ctx.VERTICAL_BAR() != null) {
             operator = BinaryOperator.BITWISE_AND;
         } else {
-            throw new PreprocessorException(FormatUtil.error(ctx, "Unknown operator in expression: %s", ctx.getText()));
+            throw new PreprocessorException(sourcePosition, "Unknown operator in expression : " + ctx.getText());
         }
 
         Expression left = (Expression) ctx.numeric_expression(0).accept(this);
         Expression right = (Expression) ctx.numeric_expression(1).accept(this);
-        return new BinaryExpressionNode(left, operator, right);
+        return new BinaryExpressionNode(sourcePosition, left, operator, right);
     }
 
     @Override
     public Node visitIdentifier_expression(PPParser.Identifier_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         final String identifier = ctx.IDENTIFIER().getText();
-        return new IdentifierNode(identifier);
+        return new IdentifierNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitUnary_expression(PPParser.Unary_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+
         UnaryOperator operator;
         if (ctx.PLUS() != null) {
             operator = UnaryOperator.PLUS;
@@ -219,30 +240,34 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         } else if (ctx.BANG() != null) {
             operator = UnaryOperator.NOT;
         } else {
-            throw new PreprocessorException(FormatUtil.error(ctx, "Unknown unary operator: %s", ctx.getText()));
+            throw new PreprocessorException(sourcePosition, "Unknown unary operator : " + ctx.getText());
         }
 
         Expression expression = (Expression) ctx.numeric_expression().accept(this);
-        return new UnaryExpressionNode(operator, expression);
+        return new UnaryExpressionNode(sourcePosition, operator, expression);
     }
 
 
     @Override
     public Node visitOr_expression(PPParser.Or_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         Expression left = (Expression) ctx.const_expression(0).accept(this);
         Expression right = (Expression) ctx.const_expression(1).accept(this);
-        return new OrExpressionNode(left, right);
+        return new OrExpressionNode(sourcePosition, left, right);
     }
 
     @Override
     public Node visitAnd_expression(PPParser.And_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         Expression left = (Expression) ctx.const_expression(0).accept(this);
         Expression right = (Expression) ctx.const_expression(1).accept(this);
-        return new AndExpressionNode(left, right);
+        return new AndExpressionNode(sourcePosition, left, right);
     }
 
     @Override
     public Node visitRelational_expression(PPParser.Relational_expressionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
+
         RelationalOperator operator;
         if (ctx.LT_OP() != null) {
             operator = RelationalOperator.LESS_THAN;
@@ -257,16 +282,17 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         } else if (ctx.GE_OP() != null) {
             operator = RelationalOperator.GREATER_THAN_EQUALS;
         } else {
-            throw new PreprocessorException(FormatUtil.error(ctx, "Unknown relational operator: %s", ctx.getText()));
+            throw new PreprocessorException(sourcePosition, "Unknown relational operator : " + ctx.getText());
         }
 
         Expression left = (Expression) ctx.numeric_expression(0).accept(this);
         Expression right = (Expression) ctx.numeric_expression(1).accept(this);
-        return new RelationalExpressionNode(left, operator, right);
+        return new RelationalExpressionNode(sourcePosition, left, operator, right);
     }
 
     @Override
     public Node visitMacro_declaration(PPParser.Macro_declarationContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.from(ctx.getStart());
         String identifier = ctx.IDENTIFIER().getText();
         List<String> parameters = Collections.emptyList();
 
@@ -274,17 +300,17 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         if (parameterContext != null) {
             // get all the parameter names
             parameters = parameterContext.IDENTIFIER().stream()
-                    .map(TerminalNode::getText)
-                    .collect(Collectors.toList());
+                .map(TerminalNode::getText)
+                .collect(Collectors.toList());
         }
 
-        return new MacroDeclarationNode(identifier, parameters, endOfLine);
+        return new MacroDeclarationNode(sourcePosition, identifier, parameters, endOfLine);
     }
 
     @Override
     public Node visitPreprocessor(PPParser.PreprocessorContext ctx) {
         if (ctx.declaration() == null) {
-            return new NoOpDeclarationNode();
+            return new NoOpDeclarationNode(SourcePosition.from(ctx.getStart()));
         }
 
         return ctx.declaration().accept(this);
@@ -315,9 +341,9 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         return null;
     }
 
-    private void checkForExtraTokens() {
+    private void checkForExtraTokens(final SourcePosition sourcePosition) {
         if (!endOfLine.isEmpty()) {
-            throw new PreprocessorException(FormatUtil.error(endOfLinePosition, "Unexpected input : " + endOfLine));
+            throw new PreprocessorException(endOfLinePosition, "Unexpected input : " + endOfLine);
         }
     }
 

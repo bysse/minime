@@ -2,7 +2,6 @@ package com.tazadum.glsl.preprocessor.language;
 
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
 
 /**
  * Created by erikb on 2018-09-17.
@@ -13,7 +12,8 @@ public interface Declaration extends Node {
     void accept(Visitor visitor);
 
     interface Visitor {
-        void visit(NoOpDeclarationNode node);
+        default void visit(NoOpDeclarationNode node) {
+        }
 
         void visit(ExtensionDeclarationNode node);
 

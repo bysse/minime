@@ -1,13 +1,16 @@
 package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
-import com.tazadum.glsl.preprocessor.model.UnaryOperator;
+import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
+import com.tazadum.glsl.preprocessor.language.UnaryOperator;
+import com.tazadum.glsl.util.SourcePosition;
 
-public class UnaryExpressionNode implements Expression {
+public class UnaryExpressionNode extends BaseNode implements Expression {
     private UnaryOperator operator;
     private Expression expression;
 
-    public UnaryExpressionNode(UnaryOperator operator, Expression expression) {
+    public UnaryExpressionNode(SourcePosition sourcePosition, UnaryOperator operator, Expression expression) {
+        super(sourcePosition);
         this.operator = operator;
         this.expression = expression;
     }
@@ -21,8 +24,8 @@ public class UnaryExpressionNode implements Expression {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
+    public int accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 
     public String toString() {

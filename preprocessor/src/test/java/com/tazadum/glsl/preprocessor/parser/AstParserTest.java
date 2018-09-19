@@ -1,8 +1,7 @@
 package com.tazadum.glsl.preprocessor.parser;
 
 import com.tazadum.glsl.preprocessor.PreprocessorException;
-import com.tazadum.glsl.preprocessor.language.Node;
-import com.tazadum.glsl.preprocessor.language.PreprocessorVisitor;
+import com.tazadum.glsl.preprocessor.language.*;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
 import com.tazadum.glsl.preprocessor.model.*;
@@ -75,11 +74,18 @@ class AstParserTest {
             parse(LineDeclarationNode.class, "#line MACRO 10")
         );
 
-        LineDeclarationNode node = parse(LineDeclarationNode.class, "#line 10 100");
+        LineDeclarationNode node_1 = parse(LineDeclarationNode.class, "#line 10 100");
 
-        assertEquals(DeclarationType.LINE, node.getDeclarationType());
-        assertEquals(10, node.getLineNumber());
-        assertEquals(100, node.getSourceLineNumber());
+        assertEquals(DeclarationType.LINE, node_1.getDeclarationType());
+        assertEquals(10, node_1.getLineNumber());
+        assertEquals(100, node_1.getSourceLineNumber());
+
+        LineDeclarationNode node_2 = parse(LineDeclarationNode.class, "#line 10");
+
+        assertEquals(DeclarationType.LINE, node_2.getDeclarationType());
+        assertEquals(10, node_2.getLineNumber());
+        assertEquals(LineDeclarationNode.NO_VALUE, node_2.getSourceLineNumber());
+
     }
 
     @Test

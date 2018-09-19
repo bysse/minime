@@ -3,27 +3,27 @@ package com.tazadum.glsl.preprocessor.language;
 import com.tazadum.glsl.preprocessor.language.ast.expression.*;
 
 public interface Expression extends Node {
-    void accept(Visitor visitor);
+    int accept(Visitor visitor);
 
     interface Visitor {
-        void visit(IntegerNode node);
+        int visit(IntegerNode node);
 
-        void visit(IdentifierNode node);
+        int visit(IdentifierNode node);
 
-        void visit(DefinedNode node);
+        int visit(DefinedNode node);
 
-        void visit(UnaryExpressionNode node);
+        int visit(UnaryExpressionNode node);
 
-        void visit(BinaryExpressionNode node);
+        int visit(BinaryExpressionNode node);
 
-        void visit(RelationalExpressionNode node);
+        int visit(RelationalExpressionNode node);
 
-        void visit(OrExpressionNode node);
+        int visit(OrExpressionNode node);
 
-        void visit(AndExpressionNode node);
+        int visit(AndExpressionNode node);
 
-        default void visit(ParenthesisNode node) {
-            node.getExpression().accept(this);
+        default int visit(ParenthesisNode node) {
+            return node.getExpression().accept(this);
         }
     }
 }

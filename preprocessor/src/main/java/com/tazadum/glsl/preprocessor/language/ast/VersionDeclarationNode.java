@@ -1,18 +1,20 @@
 package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
-import com.tazadum.glsl.preprocessor.model.GLSLProfile;
-import com.tazadum.glsl.preprocessor.model.GLSLVersion;
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
+import com.tazadum.glsl.preprocessor.language.GLSLVersion;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by erikb on 2018-09-17.
  */
-public class VersionDeclarationNode implements Declaration {
+public class VersionDeclarationNode extends BaseNode implements Declaration {
     private GLSLVersion version;
     private GLSLProfile profile;
 
-    public VersionDeclarationNode(GLSLVersion version, GLSLProfile profile) {
+    public VersionDeclarationNode(SourcePosition sourcePosition, GLSLVersion version, GLSLProfile profile) {
+        super(sourcePosition);
         this.version = version;
         this.profile = profile;
     }

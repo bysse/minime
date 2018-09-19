@@ -1,7 +1,8 @@
 package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -9,12 +10,13 @@ import java.util.stream.Collectors;
 /**
  * Created by erikb on 2018-09-17.
  */
-public class MacroDeclarationNode implements Declaration {
+public class MacroDeclarationNode extends BaseNode implements Declaration {
     private String identifier;
     private List<String> parameters;
     private String value;
 
-    public MacroDeclarationNode(String identifier, List<String> parameters, String value) {
+    public MacroDeclarationNode(SourcePosition sourcePosition, String identifier, List<String> parameters, String value) {
+        super(sourcePosition);
         this.identifier = identifier;
         this.parameters = parameters;
 

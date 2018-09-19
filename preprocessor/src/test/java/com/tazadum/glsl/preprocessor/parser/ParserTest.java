@@ -25,7 +25,8 @@ class ParserTest {
             Arguments.of("version-3", "#version 440 compatibility"),
             Arguments.of("version-4", "#version 440 es"),
 
-            Arguments.of("line-1", "#line 100 200"),
+            Arguments.of("line-1", "#line 100"),
+            Arguments.of("line-2", "#line 100 200"),
 
             Arguments.of("pragma-1", "#pragma"),
             Arguments.of("pragma-2", "#pragma include(shared.glsl)"),

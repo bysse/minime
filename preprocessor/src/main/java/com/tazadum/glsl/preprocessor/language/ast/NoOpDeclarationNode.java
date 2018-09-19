@@ -1,14 +1,16 @@
 package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
- * Created by erikb on 2018-09-17.
+ * An empty directive line aka no op.
  */
-public class NoOpDeclarationNode implements Declaration {
+public class NoOpDeclarationNode extends BaseNode implements Declaration {
 
-    public NoOpDeclarationNode() {
+    public NoOpDeclarationNode(SourcePosition sourcePosition) {
+        super(sourcePosition);
     }
 
     @Override

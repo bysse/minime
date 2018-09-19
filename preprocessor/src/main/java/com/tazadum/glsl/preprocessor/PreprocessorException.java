@@ -1,14 +1,24 @@
 package com.tazadum.glsl.preprocessor;
 
+import com.tazadum.glsl.util.SourcePosition;
+
 /**
- * Created by erikb on 2018-09-17.
+ * An exception to rule them all.
  */
 public class PreprocessorException extends RuntimeException {
-    public PreprocessorException(String message) {
+    private SourcePosition position;
+
+    public PreprocessorException(SourcePosition position, String message) {
         super(message);
+        this.position = position;
     }
 
-    public PreprocessorException(String message, Throwable cause) {
-        super(message, cause);
+    public PreprocessorException(SourcePosition position, String message, Throwable t) {
+        super(message, t);
+        this.position = position;
+    }
+
+    public SourcePosition getPosition() {
+        return position;
     }
 }

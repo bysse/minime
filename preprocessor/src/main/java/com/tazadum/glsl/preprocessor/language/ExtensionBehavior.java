@@ -1,4 +1,6 @@
-package com.tazadum.glsl.preprocessor.model;
+package com.tazadum.glsl.preprocessor.language;
+
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 public enum ExtensionBehavior implements HasToken {
     /**

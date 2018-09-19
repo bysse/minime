@@ -1,15 +1,18 @@
 package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
+import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Node for all types of binary numeric expressions.
  */
-public class OrExpressionNode implements Expression {
+public class OrExpressionNode extends BaseNode implements Expression {
     private Expression left;
     private Expression right;
 
-    public OrExpressionNode(Expression left, Expression right) {
+    public OrExpressionNode(SourcePosition sourcePosition, Expression left, Expression right) {
+        super(sourcePosition);
         this.left = left;
         this.right = right;
     }
@@ -23,8 +26,8 @@ public class OrExpressionNode implements Expression {
     }
 
     @Override
-    public void accept(Visitor visitor) {
-        visitor.visit(this);
+    public int accept(Visitor visitor) {
+        return visitor.visit(this);
     }
 
     public String toString() {

@@ -1,21 +1,24 @@
 package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
-import com.tazadum.glsl.preprocessor.model.DeclarationType;
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * This is an implementation specific extension to easily recognize
  * imports of other source files.
  */
-public class PragmaIncludeDeclarationNode implements Declaration {
+public class PragmaIncludeDeclarationNode extends BaseNode implements Declaration {
     private String filePath;
 
     /**
      * Constructs a pragma include.
      *
-     * @param filePath The path to a source file to include.
+     * @param sourcePosition The source position of the node.
+     * @param filePath       The path to a source file to include.
      */
-    public PragmaIncludeDeclarationNode(String filePath) {
+    public PragmaIncludeDeclarationNode(SourcePosition sourcePosition, String filePath) {
+        super(sourcePosition);
         this.filePath = filePath;
     }
 

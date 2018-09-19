@@ -3,11 +3,10 @@ package com.tazadum.glsl.preprocessor;
 import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.Node;
 import com.tazadum.glsl.preprocessor.language.PreprocessorVisitor;
-import com.tazadum.glsl.preprocessor.language.ast.MacroDeclarationNode;
 import com.tazadum.glsl.preprocessor.model.PreprocessorState;
-import com.tazadum.glsl.util.FormatUtil;
 import com.tazadum.glsl.preprocessor.parser.PPLexer;
 import com.tazadum.glsl.preprocessor.parser.PPParser;
+import com.tazadum.glsl.util.SourcePosition;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -31,8 +30,7 @@ public class DefaultPreprocessor implements Preprocessor {
 
     @Override
     public void define(String macro, String value) {
-        Node node = parse("#define " + macro + " " + value);
-        state.accept(1, (MacroDeclarationNode) node);
+        state.getMacroRegistry().define(macro, value);
     }
 
     @Override
@@ -54,54 +52,70 @@ public class DefaultPreprocessor implements Preprocessor {
                 while (line.endsWith("\\\n")) {
                     String part = reader.readLine();
                     if (part == null) {
-                        throw new PreprocessorException(FormatUtil.error(lineNumber, "Bad line continuation"));
+                        throw new PreprocessorException(SourcePosition.from(lineNumber, 0), "Bad line continuation");
                     }
                     line += part;
                     lineNumber++;
                 }
 
-                process(output, line, startOfDeclaration);
+                processLine(output, line, startOfDeclaration);
 
                 lineNumber++;
             }
         }
     }
 
-    private void process(StringBuilder output, String line, int startOfDeclaration) {
+    private void processLine(StringBuilder output, String line, int startOfDeclaration) {
         // do a cheap check if this is a preprocessor declaration
         if (line.trim().startsWith("#")) {
-            final Node node = parse(line);
+
+            // TODO: perform macro substitution
+
+            final Node node = parse(line, startOfDeclaration);
             if (node instanceof Declaration) {
                 state.accept(startOfDeclaration, (Declaration) node);
             } else {
                 throw new UnsupportedOperationException("Only declaration nodes are allowed in the state");
             }
-        } else {
 
-            if (state.skipLines()) {
-                // TODO: do some fancy indentation extraction
-                output.append("// ");
-            }
+            return;
+        }
+
+        if (state.isSectionEnabled()) {
+            // TODO: perform macro substitution
+
+            output.append(line);
+            output.append('\n');
+
+        } else {
+            output.append("// ");
             output.append(line);
             output.append('\n');
         }
     }
 
-    private Node parse(String line) {
+    /**
+     * Parses a source line and creates an AST.
+     *
+     * @param sourceLine         The source line to parse.
+     * @param startOfDeclaration The line offset of the source line.
+     * @return An AST node.
+     */
+    private Node parse(String sourceLine, int startOfDeclaration) {
         try {
-            PPLexer lexer = new PPLexer(CharStreams.fromString(line));
+            PPLexer lexer = new PPLexer(CharStreams.fromString(sourceLine));
             final PPParser parser = new PPParser(new CommonTokenStream(lexer));
 
+            // TODO: make better bail strategy
             parser.setErrorHandler(new BailErrorStrategy());
 
             PreprocessorVisitor visitor = new PreprocessorVisitor();
             PPParser.PreprocessorContext context = parser.preprocessor();
-            Node node = context.accept(visitor);
-
-            // TODO: check that the entire line has been consumed
-            return node;
-        } catch (Exception e) {
-            throw new PreprocessorException("Syntax error", e);
+            return context.accept(visitor);
+        } catch (PreprocessorException e) {
+            SourcePosition local = e.getPosition();
+            SourcePosition mappedPosition = SourcePosition.from(startOfDeclaration + local.getLine(), local.getColumn());
+            throw new PreprocessorException(mappedPosition, "Syntax error", e);
         }
     }
 }

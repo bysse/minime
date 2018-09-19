@@ -44,7 +44,7 @@ version_declaration
   ;
 
 line_declaration
-  : LINE INTCONSTANT INTCONSTANT
+  : LINE INTCONSTANT INTCONSTANT?
   ;
 
 pragma_declaration
