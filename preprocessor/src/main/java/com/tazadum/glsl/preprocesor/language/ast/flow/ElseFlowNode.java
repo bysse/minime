@@ -1,4 +1,4 @@
-package com.tazadum.glsl.preprocesor.language.ast;
+package com.tazadum.glsl.preprocesor.language.ast.flow;
 
 import com.tazadum.glsl.preprocesor.language.Flow;
 import com.tazadum.glsl.preprocesor.model.DeclarationType;
@@ -18,5 +18,9 @@ public class ElseFlowNode implements Flow {
 
     public void accept(Visitor visitor) {
         visitor.visit(this);
+    }
+
+    public String toString() {
+        return "#else";
     }
 }

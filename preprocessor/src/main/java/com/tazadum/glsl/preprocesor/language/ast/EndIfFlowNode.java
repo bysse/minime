@@ -19,4 +19,8 @@ public class EndIfFlowNode implements Flow {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
+
+    public String toString() {
+        return "#endif";
+    }
 }

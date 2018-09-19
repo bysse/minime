@@ -14,6 +14,10 @@ import com.tazadum.glsl.util.SourcePosition;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by erikb on 2018-09-17.
  */
@@ -100,18 +104,8 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
     @Override
     public Node visitPragma_include_declaration(PPParser.Pragma_include_declarationContext ctx) {
         checkForExtraTokens();
-        final String filePath = ANTLRUtils.stringify(ctx.file_path(), " ");
+        final String filePath = ANTLRUtils.stringify(ctx.file_path(), "");
         return new PragmaIncludeDeclarationNode(filePath);
-    }
-
-    @Override
-    public Node visitFile_path(PPParser.File_pathContext ctx) {
-        return super.visitFile_path(ctx);
-    }
-
-    @Override
-    public Node visitPath_component(PPParser.Path_componentContext ctx) {
-        return super.visitPath_component(ctx);
     }
 
     @Override
@@ -121,17 +115,22 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitIfdef_expression(PPParser.Ifdef_expressionContext ctx) {
-        return super.visitIfdef_expression(ctx);
+        checkForExtraTokens();
+        final String identifier = ctx.IDENTIFIER().getText();
+        return new IfDefinedFlowNode(identifier);
     }
 
     @Override
     public Node visitIfndef_expression(PPParser.Ifndef_expressionContext ctx) {
-        return super.visitIfndef_expression(ctx);
+        checkForExtraTokens();
+        final String identifier = ctx.IDENTIFIER().getText();
+        return new IfNotDefinedFlowNode(identifier);
     }
 
     @Override
     public Node visitElse_expression(PPParser.Else_expressionContext ctx) {
-        return super.visitElse_expression(ctx);
+        checkForExtraTokens();
+        return new ElseFlowNode();
     }
 
     @Override
@@ -141,12 +140,15 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitEndif_expression(PPParser.Endif_expressionContext ctx) {
-        return super.visitEndif_expression(ctx);
+        checkForExtraTokens();
+        return new EndIfFlowNode();
     }
 
     @Override
     public Node visitUndef_expression(PPParser.Undef_expressionContext ctx) {
-        return super.visitUndef_expression(ctx);
+        checkForExtraTokens();
+        final String identifier = ctx.IDENTIFIER().getText();
+        return new UnDefineFlowNode(identifier);
     }
 
     @Override
@@ -211,7 +213,18 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitMacro_declaration(PPParser.Macro_declarationContext ctx) {
-        return super.visitMacro_declaration(ctx);
+        String identifier = ctx.IDENTIFIER().getText();
+        List<String> parameters = Collections.emptyList();
+
+        PPParser.Parameter_declarationContext parameterContext = ctx.parameter_declaration();
+        if (parameterContext != null) {
+            // get all the parameter names
+            parameters = parameterContext.IDENTIFIER().stream()
+                    .map(TerminalNode::getText)
+                    .collect(Collectors.toList());
+        }
+
+        return new MacroDeclarationNode(identifier, parameters, endOfLine);
     }
 
     @Override

@@ -87,7 +87,51 @@ class AstParserTest {
         PragmaIncludeDeclarationNode node2 = parse(PragmaIncludeDeclarationNode.class, "#pragma include(" + filePath + ")");
         assertEquals(DeclarationType.PRAGMA_INCLUDE, node2.getDeclarationType());
         assertEquals(filePath, node2.getFilePath());
+    }
 
+    @Test
+    public void testDeclarationWithoutArguments() {
+        ElseFlowNode node1 = parse(ElseFlowNode.class, "#else // comment");
+        assertEquals(DeclarationType.ELSE, node1.getDeclarationType());
+
+        EndIfFlowNode node2 = parse(EndIfFlowNode.class, "#endif");
+        assertEquals(DeclarationType.END_IF, node2.getDeclarationType());
+    }
+
+    @Test
+    public void testIfDefined() {
+        assertThrows(PreprocessorException.class, () ->
+                // extra tokens on the line
+                parse(IfDefinedFlowNode.class, "#ifdef MACRO FAIL")
+        );
+
+        IfDefinedFlowNode node = parse(IfDefinedFlowNode.class, "#ifdef MACRO");
+        assertEquals(DeclarationType.IF_DEFINED, node.getDeclarationType());
+        assertEquals("MACRO", node.getIdentifier());
+    }
+
+    @Test
+    public void testIfNotDefined() {
+        assertThrows(PreprocessorException.class, () ->
+                // extra tokens on the line
+                parse(IfNotDefinedFlowNode.class, "#ifndef MACRO FAIL")
+        );
+
+        IfNotDefinedFlowNode node = parse(IfNotDefinedFlowNode.class, "#ifndef MACRO");
+        assertEquals(DeclarationType.IF_NOT_DEFINED, node.getDeclarationType());
+        assertEquals("MACRO", node.getIdentifier());
+    }
+
+    @Test
+    public void testUndef() {
+        assertThrows(PreprocessorException.class, () ->
+                // extra tokens on the line
+                parse(UnDefineFlowNode.class, "#undef MACRO FAIL")
+        );
+
+        UnDefineFlowNode node = parse(UnDefineFlowNode.class, "#undef MACRO");
+        assertEquals(DeclarationType.UNDEF, node.getDeclarationType());
+        assertEquals("MACRO", node.getIdentifier());
     }
 
     private <T extends Node> T parse(Class<T> type, String source) {

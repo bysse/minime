@@ -28,7 +28,7 @@ public class PragmaIncludeDeclarationNode implements Declaration {
 
     @Override
     public DeclarationType getDeclarationType() {
-        return DeclarationType.PRAGMA;
+        return DeclarationType.PRAGMA_INCLUDE;
     }
 
     public void accept(Visitor visitor) {
