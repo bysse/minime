@@ -48,6 +48,10 @@ Date    Hours
 2018-06-25	1.0	Fixing a C-stub for single and multiple shader building
 2018-06-26	0.5 Adding new util for comparing node trees.
 2018-09-14  1.0 Marking functions and declarations as included.
+2018-09-17	4.0	Starting to write a preprocessor
+2018-09-18	4.0	Getting grammar and initial AST in place
+2018-09-19	6.0	Fixing AST and processor
+2018-09-24	2.0	Starting with macro expansion.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
