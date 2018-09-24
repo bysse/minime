@@ -8,6 +8,7 @@ import java.util.Map;
  */
 public class MacroRegistry {
     private Map<String, MacroDefinition> map;
+    private String[] macroNames = null;
 
     public MacroRegistry() {
         this.map = new HashMap<>();
@@ -34,7 +35,12 @@ public class MacroRegistry {
         if (template != null && template.isEmpty()) {
             template = null;
         }
-        map.put(name, new MacroDefinition(parameters, template));
+        MacroDefinition previous = map.put(name, new MacroDefinition(parameters, template));
+
+        if (previous == null) {
+            // only invalidate the cache if the macro name is new ie don't allocate on re-defines.
+            macroNames = null;
+        }
     }
 
     /**
@@ -53,6 +59,26 @@ public class MacroRegistry {
      * @param name The name of the macro to remove.
      */
     public void undefine(String name) {
+        macroNames = null;
         map.remove(name);
+    }
+
+    /**
+     * Returns a cached array of all defined macro names.
+     */
+    public String[] getMacroNames() {
+        if (macroNames == null) {
+            macroNames = map.keySet().toArray(new String[map.size()]);
+        }
+        return macroNames;
+    }
+
+    /**
+     * Returns the definition of a macro.
+     *
+     * @param name The name of the macro.
+     */
+    public MacroDefinition getDefinition(String name) {
+        return map.get(name);
     }
 }

@@ -9,5 +9,7 @@ import java.io.InputStream;
 public interface Preprocessor {
     void define(String macro, String value);
 
-    void process(InputStream inputStream) throws IOException;
+    String process(String source) throws IOException;
+
+    String process(InputStream inputStream) throws IOException;
 }

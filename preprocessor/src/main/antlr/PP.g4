@@ -36,7 +36,7 @@ declaration
   ;
 
 extension_declaration
-  : EXTENTION IDENTIFIER COLON (REQUIRE | ENABLE | DISABLE | WARN)
+  : EXTENSION IDENTIFIER COLON (REQUIRE | ENABLE | DISABLE | WARN)
   ;
 
 version_declaration
@@ -119,7 +119,7 @@ ELSE             : 'else';
 ENDIF            : 'endif';
 ERROR            : 'error';
 ES               : 'es';
-EXTENTION        : 'extension';
+EXTENSION        : 'extension';
 IF               : 'if';
 IFDEF            : 'ifdef';
 IFNDEF           : 'ifndef';
@@ -190,7 +190,7 @@ VERTICAL_BAR     : '|';
 CARET            : '^';
 AMPERSAND        : '&';
 HASH             : '#';
-STINGIZING       : '##';
+STRINGIZING      : '##';
 COMMA            : ',';
 COLON            : ':';
 DOT              : '.';
