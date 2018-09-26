@@ -53,6 +53,8 @@ Date    Hours
 2018-09-19	6.0	Fixing AST and processor
 2018-09-24	2.0	Starting with macro expansion.
 
+2018-09-25  1.0 Realizing that the preprocessor needs to be more complicated.
+2018-09-26  2.0 Doing most of the line continuation stage.
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Inline functions of multiple lines

@@ -74,7 +74,7 @@ public class DefaultPreprocessor implements Preprocessor {
                 while (line.endsWith("\\\n")) {
                     String part = reader.readLine();
                     if (part == null) {
-                        throw new PreprocessorException(SourcePosition.from(lineNumber, 0), "Bad line continuation");
+                        throw new PreprocessorException(SourcePosition.create(lineNumber, 0), "Bad line continuation");
                     }
                     line += part;
                     lineNumber++;
@@ -208,7 +208,7 @@ public class DefaultPreprocessor implements Preprocessor {
             return context.accept(visitor);
         } catch (PreprocessorException e) {
             SourcePosition local = e.getPosition();
-            SourcePosition mappedPosition = SourcePosition.from(startOfDeclaration + local.getLine(), local.getColumn());
+            SourcePosition mappedPosition = SourcePosition.create(startOfDeclaration + local.getLine(), local.getColumn());
             throw new PreprocessorException(mappedPosition, "Syntax error", e);
         }
     }
