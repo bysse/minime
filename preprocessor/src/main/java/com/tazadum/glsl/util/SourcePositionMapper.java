@@ -4,31 +4,42 @@ import java.util.Map;
 import java.util.TreeMap;
 
 public class SourcePositionMapper {
+    private SourcePositionMapper sourceMapper;
     private TreeMap<SourcePosition, SourcePosition> tree;
     private TreeMap<SourcePosition, SourcePosition> aggregate;
 
     public SourcePositionMapper() {
+        this(null);
+    }
+
+    public SourcePositionMapper(SourcePositionMapper sourceMapper) {
+        this.sourceMapper = sourceMapper;
         this.tree = new TreeMap<>();
         this.aggregate = new TreeMap<>();
     }
 
     public SourcePosition map(SourcePosition position) {
-        Map.Entry<SourcePosition, SourcePosition> entry = aggregate.floorEntry(position);
-        if (entry == null) {
+        SourcePosition sourcePosition = internalMap(position);
+        if (sourceMapper != null) {
+            return sourceMapper.map(sourcePosition);
+        }
+        return sourcePosition;
+    }
+
+    public SourcePosition internalMap(SourcePosition position) {
+        SourcePosition key = aggregate.floorKey(position);
+        if (key == null) {
             return position;
         }
 
-        final SourcePosition key = entry.getKey();
-        final SourcePosition value = entry.getValue();
+        final SourcePosition delta = aggregate.get(key);
 
+        int column = position.getColumn();
         if (position.getLine() == key.getLine()) {
-            final int sourceDiff = position.getColumn() - key.getColumn();
-            return SourcePosition.create(value.getLine(), sourceDiff + value.getColumn());
+            column = position.getColumn() - key.getColumn();
         }
 
-        // different lines
-        final int lineDiff = value.getLine() - key.getLine();
-        return SourcePosition.add(position, lineDiff, value.getColumn());
+        return SourcePosition.create(position.getLine() + delta.getLine(), column);
     }
 
     /**
@@ -49,7 +60,7 @@ public class SourcePositionMapper {
 
         final SourcePosition fromTarget = aggregate.floorKey(from);
         if (fromTarget == null) {
-            aggregate.put(from, target);
+            rebuildAggregate();
             return;
         }
 
@@ -65,32 +76,43 @@ public class SourcePositionMapper {
         aggregate.clear();
 
         int previousSourceLine = -1;
+        int previousTargetLine = -1;
+
         SourcePosition delta = null;
         for (Map.Entry<SourcePosition, SourcePosition> entry : tree.entrySet()) {
             final SourcePosition key = entry.getKey();
             final SourcePosition value = entry.getValue();
 
             int lineDiff = value.getLine() - key.getLine();
-            int colDiff = Math.max(0, value.getColumn() - key.getColumn());
+            int colDiff = value.getColumn() - key.getColumn();
 
             if (previousSourceLine == key.getLine()) {
-                lineDiff = 0;
+                // if we're adding a re-mapping on the same line
+                // remove the previous delta from the diff
+                lineDiff -= previousTargetLine - previousSourceLine;
             }
+
             previousSourceLine = key.getLine();
+            previousTargetLine = value.getLine();
 
             if (delta == null) {
+                // no previous delta to add to this remap
                 delta = SourcePosition.create(lineDiff, colDiff);
-                aggregate.put(key, value);
+                aggregate.put(key, delta);
+
                 continue;
             }
 
-            if (lineDiff == 0) {
-                delta = SourcePosition.add(delta, 0, colDiff);
-            } else {
+            // update the delta
+            if (lineDiff > 0) {
+                // don't aggregate column delta over multiple lines
                 delta = SourcePosition.create(delta.getLine() + lineDiff, colDiff);
+            } else {
+                delta = SourcePosition.add(delta, lineDiff, colDiff);
             }
 
-            aggregate.put(key, SourcePosition.add(value, delta));
+            // record the delta point
+            aggregate.put(key, delta);
         }
     }
 }

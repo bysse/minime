@@ -108,7 +108,7 @@ public class DefaultPreprocessor implements Preprocessor {
                     line = expandMacros(line, matcher.end());
                 }
 
-                line = applyStringizing(line, matcher.end());
+                line = applyConcatenation(line, matcher.end());
 
                 final Node node = parse(line, startOfDeclaration);
                 if (node instanceof Declaration) {
@@ -124,7 +124,7 @@ public class DefaultPreprocessor implements Preprocessor {
         if (state.isSectionEnabled()) {
             // Perform macro expansion
             line = expandMacros(line, 0);
-            line = applyStringizing(line, 0);
+            line = applyConcatenation(line, 0);
         } else {
             output.append("// ");
         }
@@ -133,12 +133,12 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     /**
-     * Apply the stringizing operator.
+     * Apply the concatenation operator.
      *
      * @param line       The line to operate on.
      * @param startIndex The index to start searching from.
      */
-    private String applyStringizing(String line, int startIndex) {
+    private String applyConcatenation(String line, int startIndex) {
         if (line.indexOf("##", startIndex) < 0) {
             return line;
         }
