@@ -11,6 +11,10 @@ import static com.tazadum.glsl.util.StringUtils.cut;
 import static com.tazadum.glsl.util.StringUtils.rtrim;
 
 public class ContinuationAndCommentStage implements Stage {
+    private static final char SPACE = ' ';
+    private static final char SLASH = '/';
+    private static final char STAR = '*';
+
     @Override
     public StageResult process(SourcePositionMapper sourceMapper, LogKeeper logKeeper, String source) {
         boolean inComment = false;
@@ -44,30 +48,74 @@ public class ContinuationAndCommentStage implements Stage {
                 break;
             }
 
+            boolean inString = false;
+            char previous = '\n';
+            for (int i = 0; i < line.length(); i++) {
+                char ch = line.charAt(i);
 
-            if (inComment) {
-                // replace all characters with whitespace
-                for (int i = 0; i < line.length(); i++) {
-                    builder.append(' ');
-                }
-                builder.append('\n');
-                continue;
-            } else {
-                int index = indexOfLineComment(line);
-                if (index >= 0) {
-                    builder.append(line.substring(0, index));
-                    for (int i = index; i < line.length(); i++) {
-                        builder.append(' ');
-                    }
-                    builder.append('\n');
+                if (!inComment && previous != '\\' && (ch == '"' || ch == '\'')) {
+                    inString = !inString;
+                    builder.append(ch);
+                    previous = ch;
                     continue;
                 }
+
+                if (inString) {
+                    builder.append(ch);
+                    previous = ch;
+                    continue;
+                }
+
+                if (inComment) {
+                    builder.append(SPACE);
+                    if (previous == STAR && ch == SLASH) {
+                        inComment = false;
+                        previous = 0; // don't let other clauses act on this slash
+                    } else {
+                        previous = ch;
+                    }
+                    continue;
+                } else {
+                    if (previous == SLASH) {
+                        if (ch == STAR) {
+                            builder.append(SPACE).append(SPACE);
+                            inComment = true;
+                            previous = ch;
+                            continue;
+                        } else if (ch == SLASH) {
+                            previous = 0;
+                            appendWhitespace(builder, line.length() - i + 1);
+                            break;
+                        } else {
+                            builder.append(SLASH);
+                        }
+                    }
+
+                    if (ch == SLASH) {
+                        // don't append slashes, we need to look ahead first
+                        previous = ch;
+                        continue;
+                    }
+                }
+
+                builder.append(ch);
+                previous = ch;
             }
 
-            builder.append(line).append('\n');
+            if (previous == SLASH) {
+                builder.append(SLASH);
+            }
+
+            builder.append('\n');
         }
 
         return new StageResult(builder.toString(), mapper);
+    }
+
+    private void appendWhitespace(StringBuilder builder, int whitespaces) {
+        for (int i = 0; i < whitespaces; i++) {
+            builder.append(' ');
+        }
     }
 
     private boolean hasLineContinuation(String line, LogKeeper logKeeper, int lineNumber) {
@@ -86,34 +134,5 @@ public class ContinuationAndCommentStage implements Stage {
         }
 
         return true;
-    }
-
-    private int indexOfLineComment(String line) {
-        boolean string = false;
-        int i = 0, comment = 0;
-        for (char ch : line.toCharArray()) {
-            switch (ch) {
-                default:
-                case '\\':
-                    comment = 0;
-                    break;
-                case '\'':
-                case '"':
-                    string = !string;
-                    comment = 0;
-                    break;
-                case '/':
-                    if (!string) {
-                        comment++;
-                    }
-                    break;
-            }
-
-            if (comment == 2) {
-                return i - 1;
-            }
-            i++;
-        }
-        return -1;
     }
 }

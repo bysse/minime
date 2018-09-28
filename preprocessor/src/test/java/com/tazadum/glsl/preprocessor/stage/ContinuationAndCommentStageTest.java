@@ -68,7 +68,31 @@ class ContinuationAndCommentStageTest {
 
         result = stage.process(mapper, logKeeper, "a/ /");
         assertEquals("a/ /\n", result.getSource());
-
     }
 
+    @Test
+    @DisplayName("Test multi line comments")
+    public void test_multi_comment_1() {
+        StageResult result = stage.process(mapper, logKeeper, "a/*b*/c");
+        assertEquals("a     c\n", result.getSource());
+
+        result = stage.process(mapper, logKeeper, "a/*b*/");
+        assertEquals("a     \n", result.getSource());
+
+        result = stage.process(mapper, logKeeper, "a/*b\nc*/d");
+        assertEquals("a   \n   d\n", result.getSource());
+
+        result = stage.process(mapper, logKeeper, "a/*b\nc\nd\ne*/f");
+        assertEquals("a   \n \n \n   f\n", result.getSource());
+
+        result = stage.process(mapper, logKeeper, "a\"/*\"b*/");
+        assertEquals("a\"/*\"b*/\n", result.getSource());
+    }
+
+    @Test
+    @DisplayName("Nested comments and strings")
+    public void test_multi_comment_2() {
+        StageResult result = stage.process(mapper, logKeeper, "a/*b\"*/\"c");
+        assertEquals("a      \"c\n", result.getSource());
+    }
 }
