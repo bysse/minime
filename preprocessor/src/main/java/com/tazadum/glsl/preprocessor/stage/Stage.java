@@ -1,8 +1,8 @@
 package com.tazadum.glsl.preprocessor.stage;
 
-import com.tazadum.glsl.preprocessor.LogKeeper;
 import com.tazadum.glsl.util.SourcePositionMapper;
+import com.tazadum.glsl.util.io.Source;
 
-public interface Stage {
-    StageResult process(SourcePositionMapper mapper, LogKeeper logKeeper, String source);
+public interface Stage extends Source {
+    SourcePositionMapper getSourcePositionMapper();
 }

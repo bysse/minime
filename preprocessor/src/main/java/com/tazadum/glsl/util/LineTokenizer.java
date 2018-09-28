@@ -17,6 +17,9 @@ public class LineTokenizer implements Iterable<String>, Iterator<String> {
     }
 
     public String getLine() {
+        if (source == null) {
+            return null;
+        }
         final int length = source.length();
 
         if (offset >= length) {

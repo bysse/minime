@@ -7,6 +7,8 @@ import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.StringUtils;
 
+import java.io.IOException;
+
 import static com.tazadum.glsl.util.StringUtils.cut;
 import static com.tazadum.glsl.util.StringUtils.rtrim;
 
@@ -15,7 +17,24 @@ public class ContinuationAndCommentStage implements Stage {
     private static final char SLASH = '/';
     private static final char STAR = '*';
 
+    private int lineNumber;
+    private SourcePositionMapper mapper;
+
     @Override
+    public String getSourceId() {
+        return "stage-1";
+    }
+
+    @Override
+    public int getLineNumber() {
+        return lineNumber;
+    }
+
+    @Override
+    public String readLine() throws IOException {
+        return null;
+    }
+
     public StageResult process(SourcePositionMapper sourceMapper, LogKeeper logKeeper, String source) {
         boolean inComment = false;
 
@@ -134,5 +153,10 @@ public class ContinuationAndCommentStage implements Stage {
         }
 
         return true;
+    }
+
+    @Override
+    public SourcePositionMapper getSourcePositionMapper() {
+        return mapper;
     }
 }
