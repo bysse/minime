@@ -21,8 +21,10 @@ public class LineContinuationStage implements Stage {
     public LineContinuationStage(Source source, LogKeeper logKeeper) {
         this.source = source;
         this.logKeeper = logKeeper;
-        this.mapper = new SourcePositionMapper();
         this.lineNumber = 0;
+        this.mapper = new SourcePositionMapper();
+        this.mapper.remap(source.getSourceId(), SourcePosition.TOP, SourcePosition.TOP);
+
     }
 
     @Override
@@ -53,6 +55,7 @@ public class LineContinuationStage implements Stage {
             if (hasLineContinuation(part, logKeeper, startingRow)) {
                 // remap the line number
                 mapper.remap(
+                    source.getSourceId(),
                     SourcePosition.create(startingRow, line.length()),
                     SourcePosition.create(currentRow, 0)
                 );

@@ -8,6 +8,8 @@ import java.util.Objects;
  * Created by erikb on 2018-09-18.
  */
 public class SourcePosition implements Comparable<SourcePosition> {
+    public static final SourcePosition TOP = SourcePosition.create(0, 0);
+
     private int line;
     private int column;
 
@@ -50,8 +52,8 @@ public class SourcePosition implements Comparable<SourcePosition> {
         return column;
     }
 
-    public boolean isAfter(SourcePosition sourcePosition) {
-        return compareTo(sourcePosition) > 0;
+    public boolean isAfterOrEqual(SourcePosition sourcePosition) {
+        return compareTo(sourcePosition) >= 0;
     }
 
     @Override
