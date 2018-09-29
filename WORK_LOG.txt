@@ -55,6 +55,9 @@ Date    Hours
 
 2018-09-25  1.0 Realizing that the preprocessor needs to be more complicated.
 2018-09-26  2.0 Doing most of the line continuation stage.
+2018-09-27  2.0 Handling line continuations and eol comments.
+2018-09-28  3.0 Finalizing line continuations and comments then converting them to stream processors.
+2018-09-29  1.0 Adding source id to the mapper to support localized error messages and a correct __FILE__ macro.
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Inline functions of multiple lines
