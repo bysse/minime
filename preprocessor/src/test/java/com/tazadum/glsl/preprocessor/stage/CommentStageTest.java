@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 /**
  * Created by erikb on 2018-09-27.
  */
-class ContinuationAndCommentStageTest {
+class CommentStageTest {
     private CommentStage stage;
     private LogKeeper logKeeper;
 
@@ -27,23 +27,24 @@ class ContinuationAndCommentStageTest {
     @DisplayName("Test end of line comments")
     public void test_eol_comment() throws IOException {
         Stage stage = process("//123");
-        assertEquals("     \n", stage.readLine());
+        assertEquals("     ", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("ab//123");
-        assertEquals("ab     \n", stage.readLine());
+        assertEquals("ab     ", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("ab // 123");
-        assertEquals("ab       \n", stage.readLine());
+        assertEquals("ab       ", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("ab\n\"//\"123");
-        assertEquals("ab\n\"//\"123\n", stage.readLine());
+        assertEquals("ab", stage.readLine());
+        assertEquals("\"//\"123", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("a/ /");
-        assertEquals("a/ /\\n", stage.readLine());
+        assertEquals("a/ /", stage.readLine());
         assertNull(stage.readLine());
     }
 
@@ -51,23 +52,23 @@ class ContinuationAndCommentStageTest {
     @DisplayName("Test inline comments")
     public void test_inline_comment() throws IOException {
         Stage stage = process("a/*b*/c");
-        assertEquals("a     c\n", stage.readLine());
+        assertEquals("a     c", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("a/*b\nc*/d");
-        assertEquals("a   \n", stage.readLine());
-        assertEquals("   d\n", stage.readLine());
+        assertEquals("a   ", stage.readLine());
+        assertEquals("   d", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("a/*b\nc\nd\ne*/f");
-        assertEquals("a   \n", stage.readLine());
-        assertEquals(" \n", stage.readLine());
-        assertEquals(" \n", stage.readLine());
-        assertEquals("   f\n", stage.readLine());
+        assertEquals("a   ", stage.readLine());
+        assertEquals(" ", stage.readLine());
+        assertEquals(" ", stage.readLine());
+        assertEquals("   f", stage.readLine());
         assertNull(stage.readLine());
 
         stage = process("a\"/*\"b*/");
-        assertEquals("a\"/*\"b*/\n", stage.readLine());
+        assertEquals("a\"/*\"b*/", stage.readLine());
         assertNull(stage.readLine());
     }
 

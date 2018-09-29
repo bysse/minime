@@ -62,7 +62,7 @@ public class LineContinuationStage implements Stage {
                 continue;
             }
 
-            return line + part + '\n';
+            return line + part;
         }
     }
 

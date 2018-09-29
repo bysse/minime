@@ -35,7 +35,7 @@ class LineContinuationStageTest {
     @DisplayName("Test empty source")
     public void test_empty() throws IOException {
         Stage stage = process("");
-        assertEquals("\n", stage.readLine());
+        assertEquals("", stage.readLine());
         assertNull(stage.readLine());
     }
 
@@ -44,8 +44,8 @@ class LineContinuationStageTest {
     public void test_continuation() throws IOException {
         Stage stage = process("line 1\\\nmore line 1\nline 2");
 
-        assertEquals("line 1more line 1\n", stage.readLine());
-        assertEquals("line 2\n", stage.readLine());
+        assertEquals("line 1more line 1", stage.readLine());
+        assertEquals("line 2", stage.readLine());
         assertNull(stage.readLine());
 
         final Stream<String> warnings = logKeeper.getWarnings();
@@ -57,7 +57,7 @@ class LineContinuationStageTest {
     public void test_continuation_warning() throws IOException {
         Stage stage = process("line 1\\ \nmore line 1");
 
-        assertEquals("line 1more line 1\n", stage.readLine());
+        assertEquals("line 1more line 1", stage.readLine());
         assertNull(stage.readLine());
 
         final Stream<String> warnings = logKeeper.getWarnings();

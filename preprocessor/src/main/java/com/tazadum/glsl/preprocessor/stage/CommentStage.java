@@ -37,9 +37,12 @@ public class CommentStage implements Stage {
 
     @Override
     public String readLine() throws IOException {
-        final StringBuilder builder = new StringBuilder();
+        final String line = source.readLine();
+        if (line == null) {
+            return null;
+        }
 
-        String line = source.readLine();
+        final StringBuilder builder = new StringBuilder();
         boolean inString = false;
         char previous = '\n';
 
@@ -98,8 +101,6 @@ public class CommentStage implements Stage {
         if (previous == SLASH) {
             builder.append(SLASH);
         }
-
-        builder.append('\n');
 
         return builder.toString();
     }
