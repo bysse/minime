@@ -22,6 +22,7 @@ public class LineContinuationStage implements Stage {
         this.source = source;
         this.logKeeper = logKeeper;
         this.lineNumber = 0;
+
         this.mapper = new SourcePositionMapper();
         this.mapper.remap(source.getSourceId(), SourcePosition.TOP, SourcePosition.TOP);
 
@@ -70,7 +71,7 @@ public class LineContinuationStage implements Stage {
     }
 
     @Override
-    public SourcePositionMapper getSourcePositionMapper() {
+    public SourcePositionMapper getMapper() {
         return mapper;
     }
 

@@ -1,6 +1,7 @@
 package com.tazadum.glsl.preprocessor;
 
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
+import com.tazadum.glsl.util.io.StringSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -26,7 +27,7 @@ class DefaultPreprocessorTest {
     @ParameterizedTest(name = "{index}: {0}")
     @MethodSource("getSourceLines")
     public void test(String source, String result) throws IOException {
-        assertEquals(result, preprocessor.process(source));
+        assertEquals(result, preprocessor.process(new StringSource("test", source)));
     }
 
     private static Arguments[] getSourceLines() {

@@ -2,7 +2,6 @@ package com.tazadum.glsl.preprocessor.stage;
 
 import com.tazadum.glsl.preprocessor.LogKeeper;
 import com.tazadum.glsl.util.io.StringSource;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -15,14 +14,6 @@ import static org.junit.jupiter.api.Assertions.assertNull;
  * Created by erikb on 2018-09-27.
  */
 class CommentStageTest {
-    private CommentStage stage;
-    private LogKeeper logKeeper;
-
-    @BeforeEach
-    public void setup() {
-        logKeeper = new LogKeeper();
-    }
-
     @Test
     @DisplayName("Test end of line comments")
     public void test_eol_comment() throws IOException {
@@ -73,8 +64,7 @@ class CommentStageTest {
     }
 
     private Stage process(String source) {
-        logKeeper.reset();
-        LineContinuationStage stage1 = new LineContinuationStage(new StringSource("test", source), logKeeper);
-        return new CommentStage(stage1, logKeeper);
+        LineContinuationStage stage1 = new LineContinuationStage(new StringSource("test", source), new LogKeeper());
+        return new CommentStage(stage1);
     }
 }

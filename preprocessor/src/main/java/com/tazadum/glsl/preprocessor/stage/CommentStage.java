@@ -1,6 +1,6 @@
 package com.tazadum.glsl.preprocessor.stage;
 
-import com.tazadum.glsl.preprocessor.LogKeeper;
+import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 
@@ -12,17 +12,22 @@ public class CommentStage implements Stage {
     private static final char STAR = '*';
 
     private final Source source;
-    private final LogKeeper logKeeper;
     private final SourcePositionMapper mapper;
 
     private int lineNumber;
     private boolean inComment = false;
 
-    public CommentStage(Source source, LogKeeper logKeeper) {
+    public CommentStage(Source source) {
         this.source = source;
-        this.logKeeper = logKeeper;
         this.mapper = new SourcePositionMapper();
         this.lineNumber = 0;
+    }
+
+    public CommentStage(Stage stage) {
+        this.source = stage;
+        this.lineNumber = 0;
+        this.mapper = new SourcePositionMapper(stage.getMapper());
+        this.mapper.remap(source.getSourceId(), SourcePosition.TOP, SourcePosition.TOP);
     }
 
     @Override
@@ -112,7 +117,7 @@ public class CommentStage implements Stage {
     }
 
     @Override
-    public SourcePositionMapper getSourcePositionMapper() {
+    public SourcePositionMapper getMapper() {
         return mapper;
     }
 }

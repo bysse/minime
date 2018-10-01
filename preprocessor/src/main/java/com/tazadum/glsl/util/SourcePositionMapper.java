@@ -1,7 +1,6 @@
 package com.tazadum.glsl.util;
 
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class SourcePositionMapper {
     private SourcePositionMapper sourceMapper;
@@ -55,10 +54,6 @@ public class SourcePositionMapper {
      * @param sourcePosition The position in the source file.
      */
     public void remap(String sourceId, SourcePosition targetPosition, SourcePosition sourcePosition) {
-        if (!sourcePosition.isAfterOrEqual(targetPosition)) {
-            throw new IllegalArgumentException("The 'source' position must be after 'target' position");
-        }
-
         tree.put(targetPosition, SourcePositionId.create(sourceId, sourcePosition));
 
         final SourcePosition fromTarget = aggregate.floorKey(targetPosition);

@@ -132,7 +132,19 @@ class SourcePositionMapperTest {
         assertEquals(expect(9, 0), mapper.map(create(7, 0)));
     }
 
-    SourcePositionId expect(int line, int col) {
+    @Test
+    @DisplayName("Backwards mapping")
+    void testBackwards() {
+        mapper.remap("test", create(5, 5), create(1, 0));
+        mapper.remap("test", create(10, 0), create(6, 0));
+
+        assertEquals(expect(1, 0), mapper.map(create(1, 0)));
+        assertEquals(expect(1, 5), mapper.map(create(5, 10)));
+        assertEquals(expect(2, 0), mapper.map(create(6, 0)));
+        assertEquals(expect(6, 0), mapper.map(create(10, 0)));
+    }
+
+    private SourcePositionId expect(int line, int col) {
         return SourcePositionId.create(TEST, line, col);
     }
 }

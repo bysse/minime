@@ -9,13 +9,16 @@ import com.tazadum.glsl.preprocessor.model.MacroRegistry;
 import com.tazadum.glsl.preprocessor.model.PreprocessorState;
 import com.tazadum.glsl.preprocessor.parser.PPLexer;
 import com.tazadum.glsl.preprocessor.parser.PPParser;
+import com.tazadum.glsl.preprocessor.stage.CommentStage;
+import com.tazadum.glsl.preprocessor.stage.LineContinuationStage;
 import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.io.Source;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,11 +29,11 @@ import java.util.regex.Pattern;
 public class DefaultPreprocessor implements Preprocessor {
     private GLSLVersion languageVersion;
     private Pattern declarationPattern;
-    private Pattern stringizingPattern;
+    private Pattern concatPattern;
     private volatile boolean used;
 
-    private int lineNumber = 1;
     private PreprocessorState state = new PreprocessorState();
+    private LogKeeper logKeeper;
 
     /**
      * @param languageVersion The version of the parser that will parse the preprocessed file.
@@ -38,7 +41,7 @@ public class DefaultPreprocessor implements Preprocessor {
     public DefaultPreprocessor(GLSLVersion languageVersion) {
         this.languageVersion = languageVersion;
         this.declarationPattern = Pattern.compile("^\\s*#\\s*([a-zA-Z9]+)\\s*");
-        this.stringizingPattern = Pattern.compile("\\s+##\\s+");
+        this.concatPattern = Pattern.compile("\\s+##\\s+");
         this.used = false;
     }
 
@@ -48,48 +51,36 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     @Override
-    public String process(String source) throws IOException {
-        byte[] bytes = source.getBytes(StandardCharsets.UTF_8);
-        return process(new ByteArrayInputStream(bytes));
-    }
-
-    @Override
-    public String process(InputStream inputStream) throws IOException {
+    public String process(Source source) throws IOException {
         if (used) {
             throw new IllegalStateException("The preprocessor is stateful and can only be used once!");
         }
         used = true;
+        logKeeper = new LogKeeper();
+
+        final LineContinuationStage stage1 = new LineContinuationStage(source, logKeeper);
+        final CommentStage stage2 = new CommentStage(stage1);
 
         define("__VERSION__", Objects.toString(languageVersion.getVersionCode()));
 
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
-            StringBuilder output = new StringBuilder();
+        StringBuilder output = new StringBuilder();
 
-            String line;
-
-            while (null != (line = reader.readLine())) {
-                int startOfDeclaration = lineNumber;
-
-                // continue to read rows while they end with a continuation
-                while (line.endsWith("\\\n")) {
-                    String part = reader.readLine();
-                    if (part == null) {
-                        throw new PreprocessorException(SourcePosition.create(lineNumber, 0), "Bad line continuation");
-                    }
-                    line += part;
-                    lineNumber++;
-                }
-
-                // set some built-in macros
-                define("__LINE__", Objects.toString(lineNumber + 1));
-                define("__FILE__", Objects.toString(lineNumber + 1));
-
-                processLine(output, line, startOfDeclaration);
-
-                lineNumber++;
+        for (; ; ) {
+            int lineNumber = stage2.getLineNumber();
+            String line = stage2.readLine();
+            if (line == null) {
+                break;
             }
-            return output.toString();
+
+            final SourcePositionId sourceId = stage2.getMapper().map(SourcePosition.create(lineNumber, 0));
+
+            // set some built-in macros
+            define("__LINE__", Objects.toString(lineNumber));
+            define("__FILE__", Objects.toString(sourceId.getPosition().getLine()));
+
+            processLine(output, line, lineNumber);
         }
+        return output.toString();
     }
 
     private void processLine(StringBuilder output, String line, int startOfDeclaration) {
@@ -144,12 +135,12 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         if (startIndex == 0) {
-            return stringizingPattern.matcher(line).replaceAll("");
+            return concatPattern.matcher(line).replaceAll("");
         }
 
         final String prefix = line.substring(0, startIndex);
         final String value = line.substring(startIndex);
-        return prefix + stringizingPattern.matcher(value).replaceAll("");
+        return prefix + concatPattern.matcher(value).replaceAll("");
     }
 
     /**

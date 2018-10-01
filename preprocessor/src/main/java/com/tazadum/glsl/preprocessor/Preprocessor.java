@@ -1,7 +1,8 @@
 package com.tazadum.glsl.preprocessor;
 
+import com.tazadum.glsl.util.io.Source;
+
 import java.io.IOException;
-import java.io.InputStream;
 
 /**
  * Class for handling the preprocessing of a GLSL source file.
@@ -9,7 +10,5 @@ import java.io.InputStream;
 public interface Preprocessor {
     void define(String macro, String value);
 
-    String process(String source) throws IOException;
-
-    String process(InputStream inputStream) throws IOException;
+    String process(Source source) throws IOException;
 }
