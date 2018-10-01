@@ -15,6 +15,10 @@ public class SourcePositionId {
         return new SourcePositionId(id, SourcePosition.create(line, column));
     }
 
+    public static SourcePositionId add(SourcePositionId target, int line, int column) {
+        return new SourcePositionId(target.id, SourcePosition.add(target.position, line, column));
+    }
+
     private SourcePositionId(String id, SourcePosition position) {
         this.id = id;
         this.position = position;

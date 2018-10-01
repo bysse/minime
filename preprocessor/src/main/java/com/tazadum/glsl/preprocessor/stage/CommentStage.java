@@ -1,6 +1,7 @@
 package com.tazadum.glsl.preprocessor.stage;
 
 import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 
@@ -27,7 +28,7 @@ public class CommentStage implements Stage {
         this.source = stage;
         this.lineNumber = 0;
         this.mapper = new SourcePositionMapper(stage.getMapper());
-        this.mapper.remap(source.getSourceId(), SourcePosition.TOP, SourcePosition.TOP);
+        this.mapper.remap(SourcePosition.TOP, SourcePositionId.create(source.getSourceId(), SourcePosition.TOP));
     }
 
     @Override

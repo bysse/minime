@@ -3,6 +3,7 @@ package com.tazadum.glsl.preprocessor.stage;
 import com.tazadum.glsl.preprocessor.LogKeeper;
 import com.tazadum.glsl.preprocessor.Message;
 import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.StringUtils;
 import com.tazadum.glsl.util.io.Source;
@@ -24,7 +25,7 @@ public class LineContinuationStage implements Stage {
         this.lineNumber = 0;
 
         this.mapper = new SourcePositionMapper();
-        this.mapper.remap(source.getSourceId(), SourcePosition.TOP, SourcePosition.TOP);
+        this.mapper.remap(SourcePosition.TOP, SourcePositionId.create(source.getSourceId(), SourcePosition.TOP));
 
     }
 
@@ -56,9 +57,8 @@ public class LineContinuationStage implements Stage {
             if (hasLineContinuation(part, logKeeper, startingRow)) {
                 // remap the line number
                 mapper.remap(
-                    source.getSourceId(),
                     SourcePosition.create(startingRow, line.length()),
-                    SourcePosition.create(currentRow, 0)
+                    SourcePositionId.create(source.getSourceId(), currentRow, 0)
                 );
 
                 // clean the line and append to the rest of the continuation
