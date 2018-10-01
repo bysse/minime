@@ -108,8 +108,8 @@ public class DefaultPreprocessor implements Preprocessor {
 
                 // check if we need to perform macro expansion, ignore #pragma, #extension, #version
                 if (!declaration.equals("pragma") &&
-                    !declaration.equals("extension") &&
-                    !declaration.equals("version")) {
+                        !declaration.equals("extension") &&
+                        !declaration.equals("version")) {
                     line = applyOps(lineNumber, line, matcher.end());
                 } else {
                     line = applyConcatOp(line, matcher.end());
@@ -206,13 +206,10 @@ public class DefaultPreprocessor implements Preprocessor {
                         throw new PreprocessorException(SourcePositionId.create(lineNumber, index), Message.Error.MACRO_ARG_MISMATCH);
                     }
 
-                    // TODO: replace all parameter symbols with the arguments
+                    // replace all parameter symbols with the provided arguments
                     int i = 0;
                     for (String argument : arguments) {
-                        String parameter = parameters[i++];
-
-                        // TODO: super naive implementation
-                        template = template.replaceAll(parameter, argument);
+                        template = replaceToken(template, parameters[i++], argument);
                     }
 
                     line = replace(line, index, endIndex, template);
@@ -224,6 +221,26 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         return line;
+    }
+
+    String replaceToken(String template, String token, String replacement) {
+        int index, offset = 0, tokenLength = token.length();
+
+        while ((index = template.indexOf(token, offset)) >= 0) {
+            final int length = template.length();
+
+            boolean startOk = index == 0 || !isAlphaNumeric(template.charAt(index - 1));
+            boolean endOk = index + tokenLength == length || !isAlphaNumeric(template.charAt(index + tokenLength));
+
+            if (startOk && endOk) {
+                template = replace(template, index, index + tokenLength, replacement);
+                offset += replacement.length() - tokenLength;
+            } else {
+                offset++;
+            }
+        }
+
+        return template;
     }
 
     private String replace(String source, int start, int end, String replacement) {
