@@ -10,5 +10,7 @@ import java.io.IOException;
 public interface Preprocessor {
     void define(String macro, String value);
 
+    void define(String macro, String[] parameters, String template);
+
     String process(Source source) throws IOException;
 }

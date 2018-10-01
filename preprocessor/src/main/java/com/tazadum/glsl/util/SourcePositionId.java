@@ -4,8 +4,13 @@ package com.tazadum.glsl.util;
  * Created by erikb on 2018-09-18.
  */
 public class SourcePositionId {
+    private static final String DEFAULT = "default";
     private final String id;
     private final SourcePosition position;
+
+    public static SourcePositionId create(int line, int column) {
+        return create(DEFAULT, line, column);
+    }
 
     public static SourcePositionId create(String sourceId, SourcePosition position) {
         return new SourcePositionId(sourceId, position);

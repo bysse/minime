@@ -53,7 +53,7 @@ public class MacroDeclarationNode extends BaseNode implements Declaration {
 
     public String toString() {
         String params = "";
-        if (!parameters.isEmpty()) {
+        if (parameters != null) {
             params = parameters.stream().collect(
                     Collectors.joining("(", ", ", ")")
             );

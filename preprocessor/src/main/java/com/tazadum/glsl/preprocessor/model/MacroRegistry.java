@@ -21,7 +21,7 @@ public class MacroRegistry {
      * @param template The value / template of the macro.
      */
     public void define(String name, String template) {
-        define(name, new String[0], template);
+        define(name, null, template);
     }
 
     /**

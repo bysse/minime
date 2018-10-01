@@ -11,85 +11,32 @@ options {
 }
 
 preprocessor
-  : HASH (declaration)?
+  : macro_call
+  | token preprocessor
   ;
 
-end_of_line
-  : ~NL*
+macro_call
+  : IDENTIFIER LEFT_PAREN RIGHT_PAREN
+  | IDENTIFIER argument_list
   ;
 
-declaration
-  : extension_declaration (end_of_line)?
-  | version_declaration (end_of_line)?
-  | line_declaration (end_of_line)?
-  | pragma_declaration (end_of_line)?
-  | conditional_declaration (end_of_line)?
-  | macro_declaration (end_of_line)?
+argument_list
+  : LEFT_PAREN argument (COMMA argument)* RIGHT_PAREN
   ;
 
-extension_declaration
-  : EXTENSION IDENTIFIER COLON (REQUIRE | ENABLE | DISABLE | WARN)
+argument
+  : LEFT_PAREN argument RIGHT_PAREN
+  | token
   ;
 
-version_declaration
-  : VERSION INTCONSTANT (CORE | COMPATIBILITY | ES)?
+token
+  : IDENTIFIER | STRING | INTCONSTANT | WHITESPACE
+  | COMMA
+  | PUNCTUATOR
   ;
 
-line_declaration
-  : LINE INTCONSTANT INTCONSTANT?
-  ;
-
-pragma_declaration
-  : PRAGMA 'include' LEFT_PAREN file_path RIGHT_PAREN       # pragma_include_declaration
-  | PRAGMA                                                  # pragma_unknown_declaration
-  ;
-
-file_path
-  : path_component (SLASH file_path)?
-  ;
-
-path_component
-  : (IDENTIFIER | INTCONSTANT | DOT) (path_component)?
-  ;
-
-conditional_declaration
-  : IF const_expression         # if_expression
-  | IFDEF IDENTIFIER            # ifdef_expression
-  | IFNDEF IDENTIFIER           # ifndef_expression
-  | ELSE                        # else_expression
-  | ELIF const_expression       # else_if_expression
-  | ENDIF                       # endif_expression
-  | UNDEF IDENTIFIER            # undef_expression
-  ;
-
-numeric_expression
-  : INTCONSTANT                                                                           # integer_expression
-  | IDENTIFIER                                                                            # identifier_expression
-  | DEFINED (LEFT_PAREN)? IDENTIFIER (RIGHT_PAREN)?                                       # defined_expression
-  | LEFT_PAREN const_expression RIGHT_PAREN                                               # parenthesis_expression
-  | (PLUS | DASH | TILDE | BANG) numeric_expression                                       # unary_expression
-  | numeric_expression (STAR | SLASH | PERCENT) numeric_expression                        # binary_expression
-  | numeric_expression (PLUS | DASH) numeric_expression                                   # binary_expression
-  | numeric_expression (LEFT_SHIFT | RIGHT_SHIFT) numeric_expression                      # binary_expression
-  | numeric_expression (LT_OP | LE_OP | GE_OP | GT_OP | EQ_OP | NE_OP) numeric_expression # relational_expression
-  | numeric_expression (AMPERSAND | CARET | VERTICAL_BAR) numeric_expression              # binary_expression
-  ;
-
-const_expression
-  : numeric_expression                                                                    # numerical_delegate
-  | const_expression AND_OP const_expression                                              # and_expression
-  | const_expression OR_OP const_expression                                               # or_expression
-  ;
-
-// catch the actual definition with code
-macro_declaration
-  : DEFINE IDENTIFIER (parameter_declaration)?
-  ;
-
-parameter_declaration
-  : LEFT_PAREN RIGHT_PAREN
-  | LEFT_PAREN IDENTIFIER (COMMA IDENTIFIER)* RIGHT_PAREN
-  ;
+ints
+  : INTCONSTANT | 'apan';
 
 // GLSL specifci keywords
 CORE             : 'core';
@@ -118,19 +65,60 @@ VERSION          : 'version';
 
 
 // ----------------------------------------------------------------------
-// Identifier
+// Tokens
 // ----------------------------------------------------------------------
 
-IDENTIFIER          : ('a'..'z'|'A'..'Z'|'_')('a'..'z'|'A'..'Z'|'_'|'0'..'9')*;
+IDENTIFIER          : LETTER (LETTER|DIGIT)*;
+/*
+ * String literals are string constants, character constants, and header file names (the argument of ‘#include’).
+ * String constants and character constants are straightforward: "…" or '…'. In either case embedded quotes should be
+ * escaped with a backslash: '\'' is the character constant for ‘'’. There is no limit on the length of a character
+ * constant, but the value of a character constant that contains more than one character is implementation-defined.
+ * No string literal may extend past the end of a line. You may use continued lines instead, or string constant
+ * concatenation.
+ */
+STRING              : '"'  ('\\' [btnr0"\\]|.)*? '"'
+                    | '\'' ('\\' [btnr0'\\]|.)*? '\''
+                    ;
 
-STRING              : '"' (STRING_ESC|.)*? '"';
+/*
+ * A preprocessing number has a rather bizarre definition. The category includes all the normal integer and floating
+ * point constants one expects of C, but also a number of other things one might not initially recognize as a number.
+ * Formally, preprocessing numbers begin with an optional period, a required decimal digit, and then continue with any
+ * sequence of letters, digits, underscores, periods, and exponents. Exponents are the two-character sequences ‘e+’,
+ * ‘e-’, ‘E+’, ‘E-’, ‘p+’, ‘p-’, ‘P+’, and ‘P-’. (The exponents that begin with ‘p’ or ‘P’ are used for hexadecimal
+ * floating-point constants.)
+ */
+INTCONSTANT         : PERIOD? DIGIT (LETTER | DIGIT | EXPONENT | PERIOD)*;
 
-INTCONSTANT         : [0-9]+;
-COMMENT_SINGLE      : '//' (~('\n'|'\r'))*;
-COMMENT_MULTILINE   : '/*' ( . )*? '*/';
-WHITESPACE          : ( ' ' | '\t' | '\f' | '\r' | '\n' | '\\n');
+/*
+ * Punctuators are all the usual bits of punctuation which are meaningful to C and C++. All but three of the
+ * punctuation characters in ASCII are C punctuators. The exceptions are ‘@’, ‘$’, and ‘`’. In addition, all the
+ * two- and three-character operators are punctuators. There are also six digraphs, which the C++ standard calls
+ * alternative tokens, which are merely alternate ways to spell other punctuators. This is a second attempt to work
+ * around missing punctuation in obsolete systems. It has no negative side effects, unlike trigraphs, but does not
+ * cover as much ground.
+ */
+LEFT_PAREN          : '(';
+RIGHT_PAREN         : ')';
+COMMA               : ',';
+PUNCTUATOR          : [!"#%&'+-/:;<=>?[\]\\_{|}~]
+                    | '*' | '.' | '^' | '##' | '<%' | '%>' | '<:' | ':>' | '%:' | '%:%:'
+                    ;
 
-fragment LETTER     : [a-zA-Z_];
+WHITESPACE          : ( ' ' | '\t' | '\f');
+
+/*
+ * Any other single character is considered “other”. It is passed on to the preprocessor’s output unmolested.
+ * The C compiler will almost certainly reject source code containing “other” tokens. In ASCII, the only other
+ * characters are ‘@’, ‘$’, ‘`’, and control characters other than NUL.
+ */
+OTHER               : . ;
+
+fragment PERIOD     : '.';
+fragment EXPONENT   : [eEpP][+-];
+fragment LETTER     : [a-zA-Z_$];
+fragment DIGIT      : [0-9];
 fragment STRING_ESC : '\\' [btnr0"\\];
 fragment NL         : '\r'? '\n' | '\r';
 fragment NOT_NL     : ~[\r\n];

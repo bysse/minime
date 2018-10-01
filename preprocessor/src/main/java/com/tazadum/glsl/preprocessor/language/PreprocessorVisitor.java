@@ -4,7 +4,7 @@ import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.expression.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
-import com.tazadum.glsl.preprocessor.model.*;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.preprocessor.parser.PPBaseVisitor;
 import com.tazadum.glsl.preprocessor.parser.PPParser;
 import com.tazadum.glsl.util.ANTLRUtils;
@@ -12,7 +12,6 @@ import com.tazadum.glsl.util.SourcePosition;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -291,18 +290,22 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitMacro_declaration(PPParser.Macro_declarationContext ctx) {
+    public Node visitMacro_declaration_object(PPParser.Macro_declaration_objectContext ctx) {
         final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
-        String identifier = ctx.IDENTIFIER().getText();
-        List<String> parameters = Collections.emptyList();
+        final String identifier = ctx.IDENTIFIER().getText();
 
-        PPParser.Parameter_declarationContext parameterContext = ctx.parameter_declaration();
-        if (parameterContext != null) {
-            // get all the parameter names
-            parameters = parameterContext.IDENTIFIER().stream()
-                .map(TerminalNode::getText)
-                .collect(Collectors.toList());
-        }
+        return new MacroDeclarationNode(sourcePosition, identifier, null, endOfLine);
+    }
+
+    @Override
+    public Node visitMacro_declaration_function(PPParser.Macro_declaration_functionContext ctx) {
+        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final String identifier = ctx.IDENTIFIER().getText();
+
+        // get all the parameter names
+        final List<String> parameters = ctx.parameter_declaration().IDENTIFIER().stream()
+            .map(TerminalNode::getText)
+            .collect(Collectors.toList());
 
         return new MacroDeclarationNode(sourcePosition, identifier, parameters, endOfLine);
     }

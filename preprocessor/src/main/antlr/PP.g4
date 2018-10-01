@@ -91,7 +91,8 @@ const_expression
 
 // catch the actual definition with code
 macro_declaration
-  : DEFINE IDENTIFIER (parameter_declaration)?
+  : DEFINE IDENTIFIER                                                                     # macro_declaration_object
+  | DEFINE IDENTIFIER parameter_declaration                                               # macro_declaration_function
   ;
 
 parameter_declaration

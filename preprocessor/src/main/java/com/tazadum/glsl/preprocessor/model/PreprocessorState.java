@@ -1,11 +1,13 @@
 package com.tazadum.glsl.preprocessor.model;
 
+import com.tazadum.glsl.preprocessor.Message;
 import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.Stack;
 
@@ -52,7 +54,7 @@ public class PreprocessorState {
 
     public void accept(int lineNumber, Declaration declaration) {
         if (lineNumber > 1 && declaration instanceof VersionDeclarationNode) {
-            throw new PreprocessorException(null, "The #version directive must occur in a shader before anything else, except for comments and white space.");
+            throw new PreprocessorException(SourcePosition.create(lineNumber, 0), Message.Error.VERSION_NOT_FIRST);
         }
         declaration.accept(stateVisitor);
     }

@@ -19,6 +19,8 @@ import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -34,6 +36,7 @@ public class DefaultPreprocessor implements Preprocessor {
 
     private PreprocessorState state = new PreprocessorState();
     private LogKeeper logKeeper;
+    private List<String> arguments = new ArrayList<>();
 
     /**
      * @param languageVersion The version of the parser that will parse the preprocessed file.
@@ -48,6 +51,11 @@ public class DefaultPreprocessor implements Preprocessor {
     @Override
     public void define(String macro, String value) {
         state.getMacroRegistry().define(macro, value);
+    }
+
+    @Override
+    public void define(String macro, String[] parameters, String template) {
+        state.getMacroRegistry().define(macro, parameters, template);
     }
 
     @Override
@@ -78,12 +86,18 @@ public class DefaultPreprocessor implements Preprocessor {
             define("__LINE__", Objects.toString(lineNumber));
             define("__FILE__", Objects.toString(sourceId.getPosition().getLine()));
 
-            processLine(output, line, lineNumber);
+            try {
+                processLine(lineNumber, output, line, stage2);
+            } catch (PreprocessorException e) {
+                // catch any exception and remap it to the correct source position
+                SourcePositionId position = stage2.getMapper().map(e.getSourcePosition().getPosition());
+                throw new PreprocessorException(position, e.getMessage(), e);
+            }
         }
         return output.toString();
     }
 
-    private void processLine(StringBuilder output, String line, int startOfDeclaration) {
+    private void processLine(int lineNumber, StringBuilder output, String line, Source source) {
         // do a cheap check if this is a preprocessor declaration
         if (line.trim().startsWith("#")) {
             // then do a bit more expensive test for which declaration we have
@@ -96,14 +110,14 @@ public class DefaultPreprocessor implements Preprocessor {
                 if (!declaration.equals("pragma") &&
                     !declaration.equals("extension") &&
                     !declaration.equals("version")) {
-                    line = expandMacros(line, matcher.end());
+                    line = applyOps(lineNumber, line, matcher.end());
+                } else {
+                    line = applyConcatOp(line, matcher.end());
                 }
 
-                line = applyConcatenation(line, matcher.end());
-
-                final Node node = parse(line, startOfDeclaration);
+                final Node node = parse(line, lineNumber);
                 if (node instanceof Declaration) {
-                    state.accept(startOfDeclaration, (Declaration) node);
+                    state.accept(lineNumber, (Declaration) node);
                 } else {
                     throw new UnsupportedOperationException("Only declaration nodes are allowed in the state");
                 }
@@ -113,14 +127,24 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         if (state.isSectionEnabled()) {
-            // Perform macro expansion
-            line = expandMacros(line, 0);
-            line = applyConcatenation(line, 0);
+            line = applyOps(lineNumber, line, 0);
         } else {
             output.append("// ");
         }
 
         output.append(line);
+    }
+
+    private String applyOps(int lineNumber, String line, int startIndex) {
+
+        String previous;
+        do {
+            previous = line;
+            line = expandMacros(lineNumber, line, startIndex);
+            line = applyConcatOp(line, startIndex);
+        } while (!previous.equals(line));
+
+        return line;
     }
 
     /**
@@ -129,7 +153,7 @@ public class DefaultPreprocessor implements Preprocessor {
      * @param line       The line to operate on.
      * @param startIndex The index to start searching from.
      */
-    private String applyConcatenation(String line, int startIndex) {
+    private String applyConcatOp(String line, int startIndex) {
         if (line.indexOf("##", startIndex) < 0) {
             return line;
         }
@@ -146,10 +170,11 @@ public class DefaultPreprocessor implements Preprocessor {
     /**
      * Expand macros found on the source line.
      *
+     * @param lineNumber The line number that is being processed.
      * @param line       The line to expand in.
      * @param startIndex The starting index for expansion.
      */
-    private String expandMacros(String line, int startIndex) {
+    private String expandMacros(int lineNumber, String line, int startIndex) {
         final MacroRegistry registry = state.getMacroRegistry();
         for (String macro : registry.getMacroNames()) {
             int index = line.indexOf(macro, startIndex);
@@ -160,23 +185,95 @@ public class DefaultPreprocessor implements Preprocessor {
             int length = macro.length();
 
             // verify that the macro is surrounded by whitespaces before doing an expansion.
-            boolean startOk = (index == startIndex) || isNotIdentifier(line.charAt(index - 1));
-            boolean endOk = (index + length == line.length()) || isNotIdentifier(line.charAt(index + length));
+            final boolean startOk = (index == startIndex) || isNotIdentifier(line.charAt(index - 1));
+            if (!startOk) {
+                continue;
+            }
 
-            // TODO: add check for parameters
+            final MacroDefinition definition = registry.getDefinition(macro);
+            String template = definition.getTemplate();
 
-            if (startOk && endOk) {
-                // expand the macro
-                MacroDefinition definition = registry.getDefinition(macro);
+            if (definition.isFunctionLike()) {
+                final String[] parameters = definition.getParameters();
+                final int endIndex = getMacroParameters(arguments, line, index + length);
 
-                String prefix = line.substring(0, index);
-                String suffix = line.substring(index + length);
+                if (arguments.isEmpty() && parameters.length == 0) {
+                    // a function like macro without any arguments
+                    line = replace(line, index, endIndex, template);
+                } else {
+                    // verify that argument length is the same as the one expected
+                    if (arguments.size() != parameters.length) {
+                        throw new PreprocessorException(SourcePositionId.create(lineNumber, index), Message.Error.MACRO_ARG_MISMATCH);
+                    }
 
-                line = prefix + definition.getTemplate() + suffix;
+                    // TODO: replace all parameter symbols with the arguments
+                    int i = 0;
+                    for (String argument : arguments) {
+                        String parameter = parameters[i++];
+
+                        // TODO: super naive implementation
+                        template = template.replaceAll(parameter, argument);
+                    }
+
+                    line = replace(line, index, endIndex, template);
+                }
+            } else if ((index + length == line.length()) || isNotIdentifier(line.charAt(index + length))) {
+                // expand the object-like macro
+                line = replace(line, index, index + length, template);
             }
         }
 
         return line;
+    }
+
+    private String replace(String source, int start, int end, String replacement) {
+        final String prefix = source.substring(0, start);
+        final String suffix = source.substring(end);
+        return prefix + replacement + suffix;
+    }
+
+    int getMacroParameters(List<String> arguments, String line, int index) {
+        int length = line.length();
+        int depth = 0;
+        boolean inString = false;
+        char previous = '(';
+
+        if (line.charAt(index) != '(') {
+            return index;
+        }
+        index++;
+
+        arguments.clear();
+
+        int argStartIndex = index;
+        while (index < length) {
+            char ch = line.charAt(index);
+
+            if (previous != '\\' && (ch == '"' || ch == '\'')) {
+                inString = !inString;
+            } else if (!inString) {
+                if (ch == '(') {
+                    depth++;
+                } else if (ch == ')') {
+                    depth--;
+                    if (depth < 0) {
+                        if (argStartIndex != index) {
+                            arguments.add(line.substring(argStartIndex, index));
+                        }
+                        return index + 1;
+                    }
+                } else if (ch == ',' && depth == 0) {
+                    arguments.add(line.substring(argStartIndex, index));
+                    argStartIndex = index + 1;
+                }
+            }
+
+            previous = ch;
+            index++;
+        }
+
+        arguments.clear();
+        return index;
     }
 
     /**
@@ -186,6 +283,7 @@ public class DefaultPreprocessor implements Preprocessor {
      * @param startOfDeclaration The line offset of the source line.
      * @return An AST node.
      */
+
     private Node parse(String sourceLine, int startOfDeclaration) {
         try {
             PPLexer lexer = new PPLexer(CharStreams.fromString(sourceLine));
@@ -198,9 +296,9 @@ public class DefaultPreprocessor implements Preprocessor {
             PPParser.PreprocessorContext context = parser.preprocessor();
             return context.accept(visitor);
         } catch (PreprocessorException e) {
-            SourcePosition local = e.getPosition();
-            SourcePosition mappedPosition = SourcePosition.create(startOfDeclaration + local.getLine(), local.getColumn());
-            throw new PreprocessorException(mappedPosition, "Syntax error", e);
+            SourcePosition local = e.getSourcePosition().getPosition();
+            SourcePositionId position = SourcePositionId.create(startOfDeclaration + local.getLine(), local.getColumn());
+            throw new PreprocessorException(position, "Syntax error", e);
         }
     }
 
