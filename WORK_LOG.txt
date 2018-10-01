@@ -58,9 +58,13 @@ Date    Hours
 2018-09-27  2.0 Handling line continuations and eol comments.
 2018-09-28  3.0 Finalizing line continuations and comments then converting them to stream processors.
 2018-09-29  1.0 Adding source id to the mapper to support localized error messages and a correct __FILE__ macro.
+2018-09-30  1.0 Tying the stages into the preprocessor.
+2018-10-01  3.5 Making SourcePositionMapper map backwards and fixing initial macro expansion.
+
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Inline functions of multiple lines
 // TODO: Inline functions that mutates global state if they are only used once
 // TODO: Fix squeeze, what is the problem?
 // TODO: Add more complex arithmetic simplifications
+
