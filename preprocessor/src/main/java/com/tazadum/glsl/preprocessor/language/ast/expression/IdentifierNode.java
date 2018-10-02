@@ -2,7 +2,7 @@ package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
 import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * The only use for this Node is to detect when macro-substitution
@@ -11,7 +11,7 @@ import com.tazadum.glsl.util.SourcePosition;
 public class IdentifierNode extends BaseNode implements Expression {
     private String identifier;
 
-    public IdentifierNode(SourcePosition sourcePosition, String identifier) {
+    public IdentifierNode(SourcePositionId sourcePosition, String identifier) {
         super(sourcePosition);
         this.identifier = identifier;
     }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.preprocessor.model;
 
+import com.tazadum.glsl.preprocessor.LogKeeper;
 import com.tazadum.glsl.preprocessor.Message;
 import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.preprocessor.language.Declaration;
@@ -8,6 +9,7 @@ import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
 import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.io.SourceReader;
 
 import java.util.Stack;
 
@@ -17,19 +19,20 @@ import static com.tazadum.glsl.preprocessor.model.BoolIntLogic.isTrue;
  * Created by erikb on 2018-09-17.
  */
 public class PreprocessorState {
+    private final LogKeeper logKeeper;
+    private final MacroRegistry registry;
+    private final StateVisitor stateVisitor;
+    private final ExpressionEvaluator evaluator;
+    private final Stack<Boolean> enabledSection;
+
     private GLSLVersion version;
     private GLSLProfile profile;
-
-    private MacroRegistry registry;
-    private StateVisitor stateVisitor;
-    private ExpressionEvaluator evaluator;
-
-    private Stack<Boolean> enabledSection;
 
     public PreprocessorState() {
         version = GLSLVersion.OpenGL20;
         profile = null;
 
+        logKeeper = new LogKeeper();
         registry = new MacroRegistry();
         evaluator = new ExpressionEvaluator(registry);
         stateVisitor = new StateVisitor();
@@ -52,32 +55,36 @@ public class PreprocessorState {
         return enabledSection.peek();
     }
 
-    public void accept(int lineNumber, Declaration declaration) {
+    public void accept(SourceReader sourceReader, int lineNumber, Declaration declaration) {
         if (lineNumber > 1 && declaration instanceof VersionDeclarationNode) {
             throw new PreprocessorException(SourcePosition.create(lineNumber, 0), Message.Error.VERSION_NOT_FIRST);
         }
         declaration.accept(stateVisitor);
     }
 
+    public LogKeeper getLogKeeper() {
+        return logKeeper;
+    }
+
     private class StateVisitor implements Declaration.Visitor {
         @Override
         public void visit(ExtensionDeclarationNode node) {
             if (isSectionEnabled()) {
-
+                // TODO: store the shit
             }
         }
 
         @Override
         public void visit(LineDeclarationNode node) {
             if (isSectionEnabled()) {
-
+                logKeeper.addWarning(node.getSourcePosition(), Message.Warning.LINE_NOT_SUPPORTED);
             }
         }
 
         @Override
         public void visit(PragmaDeclarationNode node) {
             if (isSectionEnabled()) {
-
+                logKeeper.addWarning(node.getSourcePosition(), Message.Warning.UNRECOGNIZED_PRAGMA, node.toString());
             }
         }
 

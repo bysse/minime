@@ -2,7 +2,7 @@ package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.DeclarationType;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * This is an implementation specific extension to easily recognize
@@ -17,7 +17,7 @@ public class PragmaIncludeDeclarationNode extends BaseNode implements Declaratio
      * @param sourcePosition The source position of the node.
      * @param filePath       The path to a source file to include.
      */
-    public PragmaIncludeDeclarationNode(SourcePosition sourcePosition, String filePath) {
+    public PragmaIncludeDeclarationNode(SourcePositionId sourcePosition, String filePath) {
         super(sourcePosition);
         this.filePath = filePath;
     }

@@ -5,6 +5,8 @@ import com.tazadum.glsl.preprocessor.language.*;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
 import com.tazadum.glsl.preprocessor.model.*;
+import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.ParseCancellationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,14 +109,12 @@ class AstParserTest {
         MacroDeclarationNode node_1 = parse(MacroDeclarationNode.class, "#define MACRO");
         assertEquals(DeclarationType.DEFINE, node_1.getDeclarationType());
         assertEquals("MACRO", node_1.getIdentifier());
-        assertNotNull(node_1.getParameters());
-        assertTrue(node_1.getParameters().isEmpty());
+        assertNull(node_1.getParameters());
         assertNull(node_1.getValue());
 
         MacroDeclarationNode node_2 = parse(MacroDeclarationNode.class, "#define MACRO 1");
         assertEquals("MACRO", node_2.getIdentifier());
-        assertNotNull(node_2.getParameters());
-        assertTrue(node_2.getParameters().isEmpty());
+        assertNull(node_2.getParameters());
         assertEquals("1", node_2.getValue());
 
         MacroDeclarationNode node_3 = parse(MacroDeclarationNode.class, "#define MACRO(x,y) x* y");
@@ -198,7 +198,7 @@ class AstParserTest {
     private <T extends Node> T parse(Class<T> type, String source) {
         ParserRuleContext context = TestUtil.parse(source);
 
-        Node node = context.accept(new PreprocessorVisitor());
+        Node node = context.accept(new PreprocessorVisitor(SourcePositionId.create("test", SourcePosition.TOP)));
         assertNotNull(node, "Resulting node should not be null");
 
         if (!type.isAssignableFrom(node.getClass())) {

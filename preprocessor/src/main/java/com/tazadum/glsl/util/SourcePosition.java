@@ -78,7 +78,11 @@ public class SourcePosition implements Comparable<SourcePosition> {
         return Objects.hash(line, column);
     }
 
-    public String toString() {
+    public String format() {
         return line + "(" + column + ")";
+    }
+
+    public String toString() {
+        return format();
     }
 }

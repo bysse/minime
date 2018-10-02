@@ -1,6 +1,6 @@
 package com.tazadum.glsl.preprocessor;
 
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,13 +17,8 @@ public class LogKeeper {
         warnings.clear();
     }
 
-    public void addWarning(int line, int column, String format, Object... args) {
-        addWarning(SourcePosition.create(line, column), format, args);
-    }
-
-    public void addWarning(SourcePosition sourcePosition, String format, Object... args) {
-        final String position = sourcePosition.getLine() + "(" + sourcePosition.getColumn() + ")";
-        warnings.add(position + " " + String.format(format, args));
+    public void addWarning(SourcePositionId sourcePosition, String format, Object... args) {
+        warnings.add(sourcePosition.format() + " " + String.format(format, args));
     }
 
     public Stream<String> getWarnings() {

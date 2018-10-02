@@ -1,17 +1,17 @@
 package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Node;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class BaseNode implements Node {
-    private SourcePosition sourcePosition;
+    private SourcePositionId sourcePosition;
 
-    public BaseNode(SourcePosition sourcePosition) {
+    public BaseNode(SourcePositionId sourcePosition) {
         this.sourcePosition = sourcePosition;
     }
 
     @Override
-    public SourcePosition getSourcePosition() {
+    public SourcePositionId getSourcePosition() {
         return sourcePosition;
     }
 }

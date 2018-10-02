@@ -1,10 +1,10 @@
 package com.tazadum.glsl.preprocessor.language.ast.flow;
 
+import com.tazadum.glsl.preprocessor.language.DeclarationType;
 import com.tazadum.glsl.preprocessor.language.Expression;
 import com.tazadum.glsl.preprocessor.language.Flow;
 import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
-import com.tazadum.glsl.preprocessor.language.DeclarationType;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Created by erikb on 2018-09-17.
@@ -12,7 +12,7 @@ import com.tazadum.glsl.util.SourcePosition;
 public class ElseIfFlowNode extends BaseNode implements Flow {
     private Expression expression;
 
-    public ElseIfFlowNode(SourcePosition sourcePosition, Expression expression) {
+    public ElseIfFlowNode(SourcePositionId sourcePosition, Expression expression) {
         super(sourcePosition);
         this.expression = expression;
     }

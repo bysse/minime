@@ -14,6 +14,7 @@ import com.tazadum.glsl.preprocessor.stage.LineContinuationStage;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.io.Source;
+import com.tazadum.glsl.util.io.SourceReader;
 import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -34,8 +35,7 @@ public class DefaultPreprocessor implements Preprocessor {
     private Pattern concatPattern;
     private volatile boolean used;
 
-    private PreprocessorState state = new PreprocessorState();
-    private LogKeeper logKeeper;
+    private PreprocessorState state;
     private List<String> arguments = new ArrayList<>();
 
     /**
@@ -46,6 +46,7 @@ public class DefaultPreprocessor implements Preprocessor {
         this.declarationPattern = Pattern.compile("^\\s*#\\s*([a-zA-Z9]+)\\s*");
         this.concatPattern = Pattern.compile("\\s+##\\s+");
         this.used = false;
+        this.state = new PreprocessorState();
     }
 
     @Override
@@ -64,40 +65,44 @@ public class DefaultPreprocessor implements Preprocessor {
             throw new IllegalStateException("The preprocessor is stateful and can only be used once!");
         }
         used = true;
-        logKeeper = new LogKeeper();
 
-        final LineContinuationStage stage1 = new LineContinuationStage(source, logKeeper);
-        final CommentStage stage2 = new CommentStage(stage1);
+        // setup the sources
+        final SourceReader sourceReader = new SourceReader(source);
+        final LineContinuationStage continuationStage = new LineContinuationStage(sourceReader, state.getLogKeeper());
+        final CommentStage commentStage = new CommentStage(continuationStage);
 
         define("__VERSION__", Objects.toString(languageVersion.getVersionCode()));
 
         StringBuilder output = new StringBuilder();
 
         for (; ; ) {
-            int lineNumber = stage2.getLineNumber();
-            String line = stage2.readLine();
+            int lineNumber = commentStage.getLineNumber();
+            String line = commentStage.readLine();
             if (line == null) {
                 break;
             }
 
-            final SourcePositionId sourceId = stage2.getMapper().map(SourcePosition.create(lineNumber, 0));
+            final SourcePositionId sourceId = commentStage.getMapper().map(SourcePosition.create(lineNumber, 0));
 
             // set some built-in macros
             define("__LINE__", Objects.toString(lineNumber));
             define("__FILE__", Objects.toString(sourceId.getPosition().getLine()));
 
             try {
-                processLine(lineNumber, output, line, stage2);
+                processLine(lineNumber, output, line, sourceReader, sourceId);
             } catch (PreprocessorException e) {
                 // catch any exception and remap it to the correct source position
-                SourcePositionId position = stage2.getMapper().map(e.getSourcePosition().getPosition());
+                SourcePositionId position = commentStage.getMapper().map(e.getSourcePosition().getPosition());
                 throw new PreprocessorException(position, e.getMessage(), e);
             }
         }
+
+        // TODO: what about all the warnings?
+
         return output.toString();
     }
 
-    private void processLine(int lineNumber, StringBuilder output, String line, Source source) {
+    private void processLine(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
         // do a cheap check if this is a preprocessor declaration
         if (line.trim().startsWith("#")) {
             // then do a bit more expensive test for which declaration we have
@@ -106,18 +111,15 @@ public class DefaultPreprocessor implements Preprocessor {
             if (matcher.find()) {
                 final String declaration = matcher.group(1);
 
-                // check if we need to perform macro expansion, ignore #pragma, #extension, #version
-                if (!declaration.equals("pragma") &&
-                        !declaration.equals("extension") &&
-                        !declaration.equals("version")) {
+                // ignore macro expansion on #pragma, #extension, #version
+                if (!declaration.equals("pragma") && !declaration.equals("extension") && !declaration.equals("version")) {
+                    // apply macro expansion
                     line = applyOps(lineNumber, line, matcher.end());
-                } else {
-                    line = applyConcatOp(line, matcher.end());
                 }
 
-                final Node node = parse(line, lineNumber);
+                final Node node = parse(line, lineNumber, sourceId);
                 if (node instanceof Declaration) {
-                    state.accept(lineNumber, (Declaration) node);
+                    state.accept(sourceReader, lineNumber, (Declaration) node);
                 } else {
                     throw new UnsupportedOperationException("Only declaration nodes are allowed in the state");
                 }
@@ -136,7 +138,6 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     private String applyOps(int lineNumber, String line, int startIndex) {
-
         String previous;
         do {
             previous = line;
@@ -298,10 +299,11 @@ public class DefaultPreprocessor implements Preprocessor {
      *
      * @param sourceLine         The source line to parse.
      * @param startOfDeclaration The line offset of the source line.
+     * @param sourceId           The source position id of the line.
      * @return An AST node.
      */
 
-    private Node parse(String sourceLine, int startOfDeclaration) {
+    private Node parse(String sourceLine, int startOfDeclaration, SourcePositionId sourceId) {
         try {
             PPLexer lexer = new PPLexer(CharStreams.fromString(sourceLine));
             final PPParser parser = new PPParser(new CommonTokenStream(lexer));
@@ -309,7 +311,7 @@ public class DefaultPreprocessor implements Preprocessor {
             // TODO: make better bail strategy
             parser.setErrorHandler(new BailErrorStrategy());
 
-            PreprocessorVisitor visitor = new PreprocessorVisitor();
+            PreprocessorVisitor visitor = new PreprocessorVisitor(sourceId);
             PPParser.PreprocessorContext context = parser.preprocessor();
             return context.accept(visitor);
         } catch (PreprocessorException e) {

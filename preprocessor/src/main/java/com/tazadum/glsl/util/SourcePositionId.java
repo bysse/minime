@@ -1,5 +1,7 @@
 package com.tazadum.glsl.util;
 
+import org.antlr.v4.runtime.Token;
+
 /**
  * Created by erikb on 2018-09-18.
  */
@@ -7,6 +9,10 @@ public class SourcePositionId {
     private static final String DEFAULT = "default";
     private final String id;
     private final SourcePosition position;
+
+    public static SourcePositionId create(SourcePositionId base, Token token) {
+        return add(base, token.getLine(), token.getCharPositionInLine());
+    }
 
     public static SourcePositionId create(int line, int column) {
         return create(DEFAULT, line, column);
@@ -55,7 +61,11 @@ public class SourcePositionId {
         return result;
     }
 
+    public String format() {
+        return id + ":" + position.format();
+    }
+
     public String toString() {
-        return id + ":" + position;
+        return format();
     }
 }

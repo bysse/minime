@@ -2,7 +2,7 @@ package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
 import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 import java.util.Objects;
 
@@ -12,7 +12,7 @@ import java.util.Objects;
 public class IntegerNode extends BaseNode implements Expression {
     private int value;
 
-    public IntegerNode(SourcePosition sourcePosition, int value) {
+    public IntegerNode(SourcePositionId sourcePosition, int value) {
         super(sourcePosition);
         this.value = value;
     }

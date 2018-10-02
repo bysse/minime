@@ -1,9 +1,9 @@
 package com.tazadum.glsl.preprocessor.language.ast.expression;
 
+import com.tazadum.glsl.preprocessor.language.BinaryOperator;
 import com.tazadum.glsl.preprocessor.language.Expression;
 import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
-import com.tazadum.glsl.preprocessor.language.BinaryOperator;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Node for all types of binary numeric expressions.
@@ -13,7 +13,7 @@ public class BinaryExpressionNode extends BaseNode implements Expression {
     private BinaryOperator operator;
     private Expression right;
 
-    public BinaryExpressionNode(SourcePosition sourcePosition, Expression left, BinaryOperator operator, Expression right) {
+    public BinaryExpressionNode(SourcePositionId sourcePosition, Expression left, BinaryOperator operator, Expression right) {
         super(sourcePosition);
         this.left = left;
         this.operator = operator;

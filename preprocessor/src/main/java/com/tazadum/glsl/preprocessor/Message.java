@@ -3,6 +3,8 @@ package com.tazadum.glsl.preprocessor;
 public interface Message {
     interface Warning {
         String LINE_CONTINUATION = "Line continuation has trailing whitespace, this is likely an error.";
+        String UNRECOGNIZED_PRAGMA = "Unrecognized pragma directive : %s";
+        String LINE_NOT_SUPPORTED = "The line directive is not supported and will have no effect.";
     }
 
     interface Error {

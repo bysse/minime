@@ -5,6 +5,8 @@ import com.tazadum.glsl.preprocessor.language.ast.flow.IfFlowNode;
 import com.tazadum.glsl.preprocessor.model.ExpressionEvaluator;
 import com.tazadum.glsl.preprocessor.model.MacroRegistry;
 import com.tazadum.glsl.preprocessor.parser.TestUtil;
+import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -62,7 +64,7 @@ class ExpressionEvaluatorTest {
     private <T extends Node> T parse(Class<T> type, String source) {
         ParserRuleContext context = TestUtil.parse(source);
 
-        Node node = context.accept(new PreprocessorVisitor());
+        Node node = context.accept(new PreprocessorVisitor(SourcePositionId.create("test", SourcePosition.TOP)));
         assertNotNull(node, "Resulting node should not be null");
 
         if (!type.isAssignableFrom(node.getClass())) {

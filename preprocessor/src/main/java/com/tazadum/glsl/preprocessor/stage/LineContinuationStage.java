@@ -90,7 +90,8 @@ public class LineContinuationStage implements Stage {
 
         if (index != line.length() - 1) {
             // trailing whitespaces after the line continuation can be a problem
-            logKeeper.addWarning(lineNumber, 0, Message.Warning.LINE_CONTINUATION);
+            SourcePositionId positionId = mapper.map(SourcePosition.create(lineNumber, index));
+            logKeeper.addWarning(positionId, Message.Warning.LINE_CONTINUATION);
         }
 
         return true;

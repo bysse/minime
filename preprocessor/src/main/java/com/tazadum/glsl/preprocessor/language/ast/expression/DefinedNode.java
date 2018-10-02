@@ -2,12 +2,12 @@ package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
 import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class DefinedNode extends BaseNode implements Expression {
     private String identifier;
 
-    public DefinedNode(SourcePosition sourcePosition, String identifier) {
+    public DefinedNode(SourcePositionId sourcePosition, String identifier) {
         super(sourcePosition);
         this.identifier = identifier;
     }

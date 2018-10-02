@@ -3,7 +3,7 @@ package com.tazadum.glsl.preprocessor.language.ast;
 import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.DeclarationType;
 import com.tazadum.glsl.preprocessor.language.ExtensionBehavior;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Created by erikb on 2018-09-17.
@@ -12,7 +12,7 @@ public class ExtensionDeclarationNode extends BaseNode implements Declaration {
     private String extension;
     private ExtensionBehavior behavior;
 
-    public ExtensionDeclarationNode(SourcePosition sourcePosition, String extension, ExtensionBehavior behavior) {
+    public ExtensionDeclarationNode(SourcePositionId sourcePosition, String extension, ExtensionBehavior behavior) {
         super(sourcePosition);
         this.extension = extension;
         this.behavior = behavior;

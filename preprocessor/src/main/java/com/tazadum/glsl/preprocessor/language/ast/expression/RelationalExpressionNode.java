@@ -1,9 +1,9 @@
 package com.tazadum.glsl.preprocessor.language.ast.expression;
 
 import com.tazadum.glsl.preprocessor.language.Expression;
-import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
 import com.tazadum.glsl.preprocessor.language.RelationalOperator;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Node for all types of relational expressions.
@@ -13,7 +13,7 @@ public class RelationalExpressionNode extends BaseNode implements Expression {
     private RelationalOperator operator;
     private Expression right;
 
-    public RelationalExpressionNode(SourcePosition sourcePosition, Expression left, RelationalOperator operator, Expression right) {
+    public RelationalExpressionNode(SourcePositionId sourcePosition, Expression left, RelationalOperator operator, Expression right) {
         super(sourcePosition);
         this.left = left;
         this.operator = operator;

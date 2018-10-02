@@ -8,7 +8,7 @@ import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.preprocessor.parser.PPBaseVisitor;
 import com.tazadum.glsl.preprocessor.parser.PPParser;
 import com.tazadum.glsl.util.ANTLRUtils;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
@@ -19,12 +19,18 @@ import java.util.stream.Collectors;
  * Created by erikb on 2018-09-17.
  */
 public class PreprocessorVisitor extends PPBaseVisitor<Node> {
+    private final SourcePositionId sourceId;
+
     private String endOfLine;
-    private SourcePosition endOfLinePosition;
+    private SourcePositionId endOfLinePosition;
+
+    public PreprocessorVisitor(SourcePositionId sourceId) {
+        this.sourceId = sourceId;
+    }
 
     @Override
     public Node visitExtension_declaration(PPParser.Extension_declarationContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
 
         final String extension = ctx.IDENTIFIER().getSymbol().getText();
@@ -46,7 +52,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitVersion_declaration(PPParser.Version_declarationContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         final String versionString = ctx.INTCONSTANT().getText();
         final GLSLVersion version = HasToken.fromString(versionString, GLSLVersion.values());
@@ -85,7 +91,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitLine_declaration(PPParser.Line_declarationContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
 
         final int line = toInteger(ctx.INTCONSTANT(0));
@@ -97,7 +103,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitPragma_unknown_declaration(PPParser.Pragma_unknown_declarationContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         if (endOfLine == null || endOfLine.isEmpty()) {
             throw new PreprocessorException(sourcePosition, "Empty pragma declaration");
         }
@@ -106,7 +112,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitPragma_include_declaration(PPParser.Pragma_include_declarationContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         final String filePath = ANTLRUtils.stringify(ctx.file_path(), "");
         return new PragmaIncludeDeclarationNode(sourcePosition, filePath);
@@ -114,14 +120,14 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitIf_expression(PPParser.If_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final Expression expression = (Expression) ctx.const_expression().accept(this);
         return new IfFlowNode(sourcePosition, expression);
     }
 
     @Override
     public Node visitIfdef_expression(PPParser.Ifdef_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         final String identifier = ctx.IDENTIFIER().getText();
         return new IfDefinedFlowNode(sourcePosition, identifier);
@@ -129,7 +135,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitIfndef_expression(PPParser.Ifndef_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         final String identifier = ctx.IDENTIFIER().getText();
         return new IfNotDefinedFlowNode(sourcePosition, identifier);
@@ -137,28 +143,28 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitElse_expression(PPParser.Else_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         return new ElseFlowNode(sourcePosition);
     }
 
     @Override
     public Node visitElse_if_expression(PPParser.Else_if_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final Expression expression = (Expression) ctx.const_expression().accept(this);
         return new ElseIfFlowNode(sourcePosition, expression);
     }
 
     @Override
     public Node visitEndif_expression(PPParser.Endif_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         return new EndIfFlowNode(sourcePosition);
     }
 
     @Override
     public Node visitUndef_expression(PPParser.Undef_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         checkForExtraTokens(sourcePosition);
         final String identifier = ctx.IDENTIFIER().getText();
         return new UnDefineFlowNode(sourcePosition, identifier);
@@ -166,27 +172,27 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitParenthesis_expression(PPParser.Parenthesis_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final Expression expression = (Expression) ctx.const_expression().accept(this);
         return new ParenthesisNode(sourcePosition, expression);
     }
 
     @Override
     public Node visitDefined_expression(PPParser.Defined_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final String identifier = ctx.IDENTIFIER().getText();
         return new DefinedNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitInteger_expression(PPParser.Integer_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         return new IntegerNode(sourcePosition, parseInt(ctx.getText()));
     }
 
     @Override
     public Node visitBinary_expression(PPParser.Binary_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
 
         BinaryOperator operator;
         if (ctx.STAR() != null) {
@@ -220,14 +226,14 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitIdentifier_expression(PPParser.Identifier_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final String identifier = ctx.IDENTIFIER().getText();
         return new IdentifierNode(sourcePosition, identifier);
     }
 
     @Override
     public Node visitUnary_expression(PPParser.Unary_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
 
         UnaryOperator operator;
         if (ctx.PLUS() != null) {
@@ -249,7 +255,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitOr_expression(PPParser.Or_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         Expression left = (Expression) ctx.const_expression(0).accept(this);
         Expression right = (Expression) ctx.const_expression(1).accept(this);
         return new OrExpressionNode(sourcePosition, left, right);
@@ -257,7 +263,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitAnd_expression(PPParser.And_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         Expression left = (Expression) ctx.const_expression(0).accept(this);
         Expression right = (Expression) ctx.const_expression(1).accept(this);
         return new AndExpressionNode(sourcePosition, left, right);
@@ -265,7 +271,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitRelational_expression(PPParser.Relational_expressionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
 
         RelationalOperator operator;
         if (ctx.LT_OP() != null) {
@@ -291,7 +297,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitMacro_declaration_object(PPParser.Macro_declaration_objectContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final String identifier = ctx.IDENTIFIER().getText();
 
         return new MacroDeclarationNode(sourcePosition, identifier, null, endOfLine);
@@ -299,7 +305,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitMacro_declaration_function(PPParser.Macro_declaration_functionContext ctx) {
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.getStart());
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
         final String identifier = ctx.IDENTIFIER().getText();
 
         // get all the parameter names
@@ -313,7 +319,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
     @Override
     public Node visitPreprocessor(PPParser.PreprocessorContext ctx) {
         if (ctx.declaration() == null) {
-            return new NoOpDeclarationNode(SourcePosition.create(ctx.getStart()));
+            return new NoOpDeclarationNode(SourcePositionId.create(sourceId, ctx.getStart()));
         }
 
         return ctx.declaration().accept(this);
@@ -333,7 +339,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
     @Override
     public Node visitEnd_of_line(PPParser.End_of_lineContext ctx) {
-        endOfLinePosition = SourcePosition.create(ctx.getStart());
+        endOfLinePosition = SourcePositionId.create(sourceId, ctx.getStart());
 
         if (ctx.getChildCount() <= 1) {
             endOfLine = ctx.getText();
@@ -344,7 +350,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         return null;
     }
 
-    private void checkForExtraTokens(final SourcePosition sourcePosition) {
+    private void checkForExtraTokens(final SourcePositionId sourcePosition) {
         if (!endOfLine.isEmpty()) {
             throw new PreprocessorException(endOfLinePosition, "Unexpected input : " + endOfLine);
         }

@@ -2,7 +2,7 @@ package com.tazadum.glsl.preprocessor.language.ast;
 
 import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.DeclarationType;
-import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Created by erikb on 2018-09-17.
@@ -13,7 +13,7 @@ public class LineDeclarationNode extends BaseNode implements Declaration {
     private int lineNumber;
     private int sourceLineNumber;
 
-    public LineDeclarationNode(SourcePosition sourcePosition, int lineNumber, int sourceLineNumber) {
+    public LineDeclarationNode(SourcePositionId sourcePosition, int lineNumber, int sourceLineNumber) {
         super(sourcePosition);
         this.lineNumber = lineNumber;
         this.sourceLineNumber = sourceLineNumber;
