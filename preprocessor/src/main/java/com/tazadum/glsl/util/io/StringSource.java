@@ -30,4 +30,9 @@ public class StringSource implements Source {
     public String readLine() throws IOException {
         return tokenizer.getLine();
     }
+
+    @Override
+    public Source resolve(String filePath) {
+        return null;
+    }
 }

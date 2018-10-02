@@ -111,6 +111,11 @@ public class CommentStage implements Stage {
         return builder.toString();
     }
 
+    @Override
+    public Source resolve(String filePath) throws IOException {
+        return source.resolve(filePath);
+    }
+
     private void appendWhitespace(StringBuilder builder, int whitespaces) {
         for (int i = 0; i < whitespaces; i++) {
             builder.append(' ');

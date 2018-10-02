@@ -93,7 +93,7 @@ public class DefaultPreprocessor implements Preprocessor {
             } catch (PreprocessorException e) {
                 // catch any exception and remap it to the correct source position
                 SourcePositionId position = commentStage.getMapper().map(e.getSourcePosition().getPosition());
-                throw new PreprocessorException(position, e.getMessage(), e);
+                throw new PreprocessorException(position, e, e.getMessage());
             }
         }
 
@@ -118,6 +118,10 @@ public class DefaultPreprocessor implements Preprocessor {
                 }
 
                 final Node node = parse(line, lineNumber, sourceId);
+
+                // append a commented version of the line to the output
+                output.append("// ").append(line).append('\n');
+
                 if (node instanceof Declaration) {
                     state.accept(sourceReader, lineNumber, (Declaration) node);
                 } else {
@@ -135,6 +139,7 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         output.append(line);
+        output.append('\n');
     }
 
     private String applyOps(int lineNumber, String line, int startIndex) {
@@ -317,7 +322,7 @@ public class DefaultPreprocessor implements Preprocessor {
         } catch (PreprocessorException e) {
             SourcePosition local = e.getSourcePosition().getPosition();
             SourcePositionId position = SourcePositionId.create(startOfDeclaration + local.getLine(), local.getColumn());
-            throw new PreprocessorException(position, "Syntax error", e);
+            throw new PreprocessorException(position, e, "Syntax error");
         }
     }
 

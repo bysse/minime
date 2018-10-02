@@ -9,18 +9,18 @@ import com.tazadum.glsl.util.SourcePositionId;
 public class PreprocessorException extends RuntimeException {
     private SourcePositionId position;
 
-    public PreprocessorException(SourcePosition position, String message) {
-        super(message);
+    public PreprocessorException(SourcePosition position, String format, Object... args) {
+        super(String.format(format, args));
         this.position = SourcePositionId.create(position.getLine(), position.getColumn());
     }
 
-    public PreprocessorException(SourcePositionId position, String message) {
-        super(message);
+    public PreprocessorException(SourcePositionId position, String format, Object... args) {
+        super(String.format(format, args));
         this.position = position;
     }
 
-    public PreprocessorException(SourcePositionId position, String message, Throwable t) {
-        super(message, t);
+    public PreprocessorException(SourcePositionId position, Throwable t, String format, Object... args) {
+        super(String.format(format, args), t);
         this.position = position;
     }
 

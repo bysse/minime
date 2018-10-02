@@ -11,4 +11,6 @@ public interface Source {
     int getLineNumber();
 
     String readLine() throws IOException;
+
+    Source resolve(String filePath) throws IOException;
 }

@@ -30,6 +30,10 @@ public class SourceReader implements Source {
         }
     }
 
+    public Source getActiveSource() {
+        return activeSource;
+    }
+
     @Override
     public String getSourceId() {
         return activeSource.getSourceId();
@@ -53,17 +57,21 @@ public class SourceReader implements Source {
         lineNumber++;
         String line = activeSource.readLine();
         while (line == null) {
-            sources.pop();
-
-            if (sources.isEmpty()) {
+            if (sources.size() <= 1) {
                 // the stack is empty, end of file reached
                 return null;
             }
+
             // read a line from the new source
-            activeSource = sources.peek();
+            pop();
             line = activeSource.readLine();
         }
         return line;
+    }
+
+    @Override
+    public Source resolve(String filePath) throws IOException {
+        return activeSource.resolve(filePath);
     }
 
     public String toString() {

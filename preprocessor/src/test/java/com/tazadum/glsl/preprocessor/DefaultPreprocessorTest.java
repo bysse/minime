@@ -34,18 +34,26 @@ class DefaultPreprocessorTest {
 
     @ParameterizedTest(name = "{index}: {0}")
     @MethodSource("getSourceLines")
-    void test(String source, String result) throws IOException {
-        assertEquals(result, preprocessor.process(new StringSource("test", source)));
+    void test(String source, String expected) throws IOException {
+        assertEquals(expected + '\n', preprocessor.process(new StringSource("test", source)));
     }
 
     private static Arguments[] getSourceLines() {
         return new Arguments[]{
-                Arguments.of("A MACRO B", "A expanded B"),
-                Arguments.of("A MACRO MACRO B", "A expanded expanded B"),
-                Arguments.of("A MACRO.B", "A MACRO.B"),
-                Arguments.of("A OPT() B", "A opt B"),
-                Arguments.of("A FUNC(1,2) B", "A 1+2 B"),
-                Arguments.of("A F(1+1) B", "A 1+1+1+1 B"),
+            Arguments.of("A MACRO B", "A expanded B"),
+            Arguments.of("A MACRO MACRO B", "A expanded expanded B"),
+            Arguments.of("A MACRO.B", "A MACRO.B"),
+            Arguments.of("A OPT() B", "A opt B"),
+            Arguments.of("A FUNC(1,2) B", "A 1+2 B"),
+            Arguments.of("A F(1+1) B", "A 1+1+1+1 B"),
+            Arguments.of(
+                "A\n#if 1\nB\n#endif\nC",
+                "A\n// #if 1\nB\n// #endif\nC"
+            ),
+            Arguments.of(
+                "A\n#if 0\nB\n#endif\nC",
+                "A\n// #if 0\n// B\n// #endif\nC"
+            ),
         };
     }
 

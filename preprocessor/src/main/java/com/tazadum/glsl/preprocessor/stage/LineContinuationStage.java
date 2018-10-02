@@ -71,6 +71,11 @@ public class LineContinuationStage implements Stage {
     }
 
     @Override
+    public Source resolve(String filePath) throws IOException {
+        return source.resolve(filePath);
+    }
+
+    @Override
     public SourcePositionMapper getMapper() {
         return mapper;
     }

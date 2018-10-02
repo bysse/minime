@@ -9,8 +9,11 @@ import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
 import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.io.Source;
 import com.tazadum.glsl.util.io.SourceReader;
 
+import java.io.IOException;
 import java.util.Stack;
 
 import static com.tazadum.glsl.preprocessor.model.BoolIntLogic.isTrue;
@@ -27,6 +30,7 @@ public class PreprocessorState {
 
     private GLSLVersion version;
     private GLSLProfile profile;
+    private SourceReader sourceReader;
 
     public PreprocessorState() {
         version = GLSLVersion.OpenGL20;
@@ -56,6 +60,7 @@ public class PreprocessorState {
     }
 
     public void accept(SourceReader sourceReader, int lineNumber, Declaration declaration) {
+        this.sourceReader = sourceReader;
         if (lineNumber > 1 && declaration instanceof VersionDeclarationNode) {
             throw new PreprocessorException(SourcePosition.create(lineNumber, 0), Message.Error.VERSION_NOT_FIRST);
         }
@@ -64,6 +69,19 @@ public class PreprocessorState {
 
     public LogKeeper getLogKeeper() {
         return logKeeper;
+    }
+
+    private void include(SourcePositionId sourcePosition, String filePath) {
+        try {
+            Source source = sourceReader.resolve(filePath);
+            if (source == null) {
+                throw new PreprocessorException(sourcePosition, Message.Error.FILE_NOT_FOUND, filePath);
+            }
+
+            sourceReader.push(source);
+        } catch (IOException e) {
+            throw new PreprocessorException(sourcePosition, e, Message.Error.FILE_NOT_OPEN, filePath);
+        }
     }
 
     private class StateVisitor implements Declaration.Visitor {
@@ -91,7 +109,7 @@ public class PreprocessorState {
         @Override
         public void visit(PragmaIncludeDeclarationNode node) {
             if (isSectionEnabled()) {
-
+                include(node.getSourcePosition(), node.getFilePath());
             }
         }
 
@@ -179,5 +197,6 @@ public class PreprocessorState {
             }
             return enabled;
         }
+
     }
 }

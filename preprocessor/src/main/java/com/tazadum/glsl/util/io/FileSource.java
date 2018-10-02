@@ -1,21 +1,25 @@
 package com.tazadum.glsl.util.io;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.io.Reader;
+import java.nio.file.Path;
 
 /**
  * Created by erikb on 2018-09-28.
  */
-public class ReaderSource implements Source {
+public class FileSource implements Source {
     private final String id;
     private final BufferedReader reader;
 
     private int lineNumber = 0;
+    private Path path;
 
-    public ReaderSource(String id, Reader reader) {
-        this.id = id;
-        this.reader = new BufferedReader(reader);
+    public FileSource(Path path) throws FileNotFoundException {
+        this.path = path;
+        this.id = path.toString();
+        this.reader = new BufferedReader(new FileReader(path.toFile()));
     }
 
     @Override
@@ -35,8 +39,8 @@ public class ReaderSource implements Source {
     }
 
     @Override
-    public Source resolve(String filePath) {
-        return null;
+    public Source resolve(String filePath) throws FileNotFoundException {
+        return new FileSource(path.getParent().resolve(filePath));
     }
 
     public String toString() {
