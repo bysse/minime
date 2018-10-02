@@ -29,6 +29,7 @@ end_of_line
 declaration
   : extension_declaration (end_of_line)?
   | version_declaration (end_of_line)?
+  | error_declaration (end_of_line)?
   | line_declaration (end_of_line)?
   | pragma_declaration (end_of_line)?
   | conditional_declaration (end_of_line)?
@@ -43,21 +44,17 @@ version_declaration
   : VERSION INTCONSTANT (CORE | COMPATIBILITY | ES)?
   ;
 
+error_declaration
+  : ERROR
+  ;
+
 line_declaration
   : LINE INTCONSTANT INTCONSTANT?
   ;
 
 pragma_declaration
-  : PRAGMA 'include' LEFT_PAREN file_path RIGHT_PAREN       # pragma_include_declaration
-  | PRAGMA                                                  # pragma_unknown_declaration
-  ;
-
-file_path
-  : path_component (SLASH file_path)?
-  ;
-
-path_component
-  : (IDENTIFIER | INTCONSTANT | DOT) (path_component)?
+  : PRAGMA 'include' LEFT_PAREN # pragma_include_declaration
+  | PRAGMA                      # pragma_unknown_declaration
   ;
 
 conditional_declaration
@@ -196,6 +193,7 @@ COMMA            : ',';
 COLON            : ':';
 DOT              : '.';
 NL               : '\r'? '\n' | '\r';
+QUOTE            : '"';
 
 // ----------------------------------------------------------------------
 // Ignored elements

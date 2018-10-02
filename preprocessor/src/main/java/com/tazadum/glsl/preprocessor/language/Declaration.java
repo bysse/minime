@@ -40,5 +40,7 @@ public interface Declaration extends Node {
         void visit(EndIfFlowNode node);
 
         void visit(UnDefineFlowNode node);
+
+        void visit(ErrorDeclarationNode node);
     }
 }

@@ -30,6 +30,8 @@ import java.util.regex.Pattern;
  * Default implementation of Preprocessor.
  */
 public class DefaultPreprocessor implements Preprocessor {
+    private static final int MAX_NESTED_MACROS = 50;
+
     private GLSLVersion languageVersion;
     private Pattern declarationPattern;
     private Pattern concatPattern;
@@ -110,9 +112,14 @@ public class DefaultPreprocessor implements Preprocessor {
             final Matcher matcher = declarationPattern.matcher(line);
             if (matcher.find()) {
                 final String declaration = matcher.group(1);
+                final String originalLine = line;
 
-                // ignore macro expansion on #pragma, #extension, #version
-                if (!declaration.equals("pragma") && !declaration.equals("extension") && !declaration.equals("version")) {
+                // ignore macro expansion on these directives
+                if (!declaration.equals("pragma") &&
+                    !declaration.equals("error") &&
+                    !declaration.equals("extension") &&
+                    !declaration.equals("version") &&
+                    !declaration.equals("define")) {
                     // apply macro expansion
                     line = applyOps(lineNumber, line, matcher.end());
                 }
@@ -120,7 +127,7 @@ public class DefaultPreprocessor implements Preprocessor {
                 final Node node = parse(line, lineNumber, sourceId);
 
                 // append a commented version of the line to the output
-                output.append("// ").append(line).append('\n');
+                output.append("// ").append(originalLine).append('\n');
 
                 if (node instanceof Declaration) {
                     state.accept(sourceReader, lineNumber, (Declaration) node);
@@ -144,11 +151,14 @@ public class DefaultPreprocessor implements Preprocessor {
 
     private String applyOps(int lineNumber, String line, int startIndex) {
         String previous;
-        do {
+        for (int i = 0; i < MAX_NESTED_MACROS; i++) {
             previous = line;
             line = expandMacros(lineNumber, line, startIndex);
             line = applyConcatOp(line, startIndex);
-        } while (!previous.equals(line));
+            if (previous.equals(line)) {
+                break;
+            }
+        }
 
         return line;
     }
@@ -198,6 +208,10 @@ public class DefaultPreprocessor implements Preprocessor {
 
             final MacroDefinition definition = registry.getDefinition(macro);
             String template = definition.getTemplate();
+
+            if (template == null) {
+                continue;
+            }
 
             if (definition.isFunctionLike()) {
                 final String[] parameters = definition.getParameters();
@@ -316,7 +330,7 @@ public class DefaultPreprocessor implements Preprocessor {
             // TODO: make better bail strategy
             parser.setErrorHandler(new BailErrorStrategy());
 
-            PreprocessorVisitor visitor = new PreprocessorVisitor(sourceId);
+            PreprocessorVisitor visitor = new PreprocessorVisitor(sourceId, state.getLogKeeper());
             PPParser.PreprocessorContext context = parser.preprocessor();
             return context.accept(visitor);
         } catch (PreprocessorException e) {

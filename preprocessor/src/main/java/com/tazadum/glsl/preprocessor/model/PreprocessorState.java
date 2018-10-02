@@ -22,11 +22,15 @@ import static com.tazadum.glsl.preprocessor.model.BoolIntLogic.isTrue;
  * Created by erikb on 2018-09-17.
  */
 public class PreprocessorState {
+    public static final int MAX_INCLUDE_DEPTH = 30;
+
     private final LogKeeper logKeeper;
     private final MacroRegistry registry;
     private final StateVisitor stateVisitor;
     private final ExpressionEvaluator evaluator;
     private final Stack<Boolean> enabledSection;
+
+    private int disableDepth = -1;
 
     private GLSLVersion version;
     private GLSLProfile profile;
@@ -72,6 +76,10 @@ public class PreprocessorState {
     }
 
     private void include(SourcePositionId sourcePosition, String filePath) {
+        if (sourceReader.getDepth() >= MAX_INCLUDE_DEPTH) {
+            throw new PreprocessorException(sourcePosition, Message.Error.INCLUDE_RECURSION);
+        }
+
         try {
             Source source = sourceReader.resolve(filePath);
             if (source == null) {
@@ -118,56 +126,82 @@ public class PreprocessorState {
             if (isSectionEnabled()) {
                 // only do macro declarations in enabled sections
                 final MacroRegistry registry = getMacroRegistry();
-                String[] parameters = node.getParameters().toArray(new String[node.getParameters().size()]);
-                registry.define(node.getIdentifier(), parameters, node.getValue());
+
+                if (node.getParameters() == null) {
+                    // object like macro
+                    registry.define(node.getIdentifier(), node.getValue());
+                } else {
+                    // function like macro
+                    String[] parameters = node.getParameters().toArray(new String[0]);
+                    registry.define(node.getIdentifier(), parameters, node.getValue());
+                }
             }
         }
 
         @Override
         public void visit(IfFlowNode node) {
-            if (isEnabled()) {
-                enabledSection.push(isTrue(node.getExpression().accept(evaluator)));
+            if (isSectionEnabled()) {
+                startOfSection(isTrue(node.getExpression().accept(evaluator)));
+            } else {
+                enabledSection.push(Boolean.FALSE);
             }
         }
 
         @Override
         public void visit(IfDefinedFlowNode node) {
-            if (isEnabled()) {
-                enabledSection.push(registry.isDefined(node.getIdentifier()));
+            if (isSectionEnabled()) {
+                startOfSection(registry.isDefined(node.getIdentifier()));
+            } else {
+                enabledSection.push(Boolean.FALSE);
             }
         }
 
         @Override
         public void visit(IfNotDefinedFlowNode node) {
-            if (isEnabled()) {
-                enabledSection.push(!registry.isDefined(node.getIdentifier()));
+            if (isSectionEnabled()) {
+                startOfSection(!registry.isDefined(node.getIdentifier()));
+            } else {
+                enabledSection.push(Boolean.FALSE);
             }
         }
 
         @Override
         public void visit(ElseFlowNode node) {
-            if (isSectionEnabled()) {
-                if (enabledSection.isEmpty()) {
-                    throw new PreprocessorException(node.getSourcePosition(), "Found '#else' with any corresponding #if, #ifdef or #ifndef.");
-                }
+            if (enabledSection.isEmpty()) {
+                throw new PreprocessorException(node.getSourcePosition(), "Found '#else' with any corresponding #if, #ifdef or #ifndef.");
+            }
+
+            if (endOfSection()) {
                 enabledSection.push(!enabledSection.pop());
+            } else {
+                enabledSection.pop();
+                enabledSection.push(Boolean.FALSE);
             }
         }
 
         @Override
         public void visit(ElseIfFlowNode node) {
-            if (isSectionEnabled()) {
-                if (enabledSection.isEmpty()) {
-                    throw new PreprocessorException(node.getSourcePosition(), "Found '#elif' with any corresponding #if, #ifdef or #ifndef.");
-                }
+            if (enabledSection.isEmpty()) {
+                throw new PreprocessorException(node.getSourcePosition(), "Found '#elif' with any corresponding #if, #ifdef or #ifndef.");
+            }
+
+            if (endOfSection()) {
                 enabledSection.pop();
-                enabledSection.push(isTrue(node.getExpression().accept(evaluator)));
+                startOfSection(isTrue(node.getExpression().accept(evaluator)));
+            } else {
+                enabledSection.pop();
+                enabledSection.push(Boolean.FALSE);
             }
         }
 
         @Override
         public void visit(EndIfFlowNode node) {
+            if (endOfSection()) {
+                disableDepth = -1;
+            }
+
             enabledSection.pop();
+
             if (enabledSection.isEmpty()) {
                 throw new PreprocessorException(node.getSourcePosition(), "Found '#endif' with any corresponding #if, #ifdef or #ifndef.");
             }
@@ -181,22 +215,27 @@ public class PreprocessorState {
         }
 
         @Override
+        public void visit(ErrorDeclarationNode node) {
+            if (isSectionEnabled()) {
+                throw new PreprocessorException(node.getSourcePosition(), node.getMessage());
+            }
+        }
+
+        @Override
         public void visit(VersionDeclarationNode node) {
             version = node.getVersion();
             profile = node.getProfile();
         }
 
-        /**
-         * Check if the section if enabled. If not false is pushed on the stack.
-         */
-        private boolean isEnabled() {
-            boolean enabled = enabledSection.peek();
+        private void startOfSection(boolean enabled) {
+            enabledSection.push(enabled);
             if (!enabled) {
-                // nested elements are also false
-                enabledSection.push(Boolean.FALSE);
+                disableDepth = enabledSection.size();
             }
-            return enabled;
         }
 
+        private boolean endOfSection() {
+            return isSectionEnabled() || disableDepth == enabledSection.size();
+        }
     }
 }

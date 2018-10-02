@@ -137,6 +137,19 @@ class AstParserTest {
     }
 
     @Test
+    @DisplayName("#error")
+    public void testError() {
+        assertThrows(PreprocessorException.class, () ->
+            // no extra tokens on the line
+            parse(ErrorDeclarationNode.class, "#error")
+        );
+
+        ErrorDeclarationNode node = parse(ErrorDeclarationNode.class, "#error ok");
+        assertEquals(DeclarationType.ERROR, node.getDeclarationType());
+        assertEquals("ok", node.getMessage());
+    }
+
+    @Test
     @DisplayName("#ifdef")
     public void testIfDefined() {
         assertThrows(PreprocessorException.class, () ->
@@ -198,7 +211,7 @@ class AstParserTest {
     private <T extends Node> T parse(Class<T> type, String source) {
         ParserRuleContext context = TestUtil.parse(source);
 
-        Node node = context.accept(new PreprocessorVisitor(SourcePositionId.create("test", SourcePosition.TOP)));
+        Node node = context.accept(new PreprocessorVisitor(SourcePositionId.create("test", SourcePosition.TOP), state.getLogKeeper()));
         assertNotNull(node, "Resulting node should not be null");
 
         if (!type.isAssignableFrom(node.getClass())) {

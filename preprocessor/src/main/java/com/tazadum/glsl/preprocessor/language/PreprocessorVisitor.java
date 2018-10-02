@@ -1,5 +1,7 @@
 package com.tazadum.glsl.preprocessor.language;
 
+import com.tazadum.glsl.preprocessor.LogKeeper;
+import com.tazadum.glsl.preprocessor.Message;
 import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.expression.*;
@@ -20,12 +22,14 @@ import java.util.stream.Collectors;
  */
 public class PreprocessorVisitor extends PPBaseVisitor<Node> {
     private final SourcePositionId sourceId;
+    private final LogKeeper logKeeper;
 
     private String endOfLine;
     private SourcePositionId endOfLinePosition;
 
-    public PreprocessorVisitor(SourcePositionId sourceId) {
+    public PreprocessorVisitor(SourcePositionId sourceId, LogKeeper logKeeper) {
         this.sourceId = sourceId;
+        this.logKeeper = logKeeper;
     }
 
     @Override
@@ -113,9 +117,26 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
     @Override
     public Node visitPragma_include_declaration(PPParser.Pragma_include_declarationContext ctx) {
         final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
-        checkForExtraTokens(sourcePosition);
-        final String filePath = ANTLRUtils.stringify(ctx.file_path(), "");
-        return new PragmaIncludeDeclarationNode(sourcePosition, filePath);
+
+        String filePath = endOfLine.trim();
+        if (filePath.isEmpty() || !filePath.endsWith(")")) {
+            logKeeper.addWarning(sourcePosition, Message.Warning.INCLUDE_MALFORMATTED);
+            return new NoOpDeclarationNode(sourcePosition);
+        }
+
+        return new PragmaIncludeDeclarationNode(sourcePosition, filePath.substring(0, filePath.length() - 1));
+    }
+
+    @Override
+    public Node visitError_declaration(PPParser.Error_declarationContext ctx) {
+        final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
+        final String message = endOfLine.trim();
+
+        if (message.isEmpty()) {
+            throw new PreprocessorException(sourcePosition, Message.Error.EXPECTING_ERROR_MESSAGE);
+        }
+
+        return new ErrorDeclarationNode(sourcePosition, endOfLine);
     }
 
     @Override

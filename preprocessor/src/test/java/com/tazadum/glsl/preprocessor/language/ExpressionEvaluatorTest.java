@@ -1,5 +1,6 @@
 package com.tazadum.glsl.preprocessor.language;
 
+import com.tazadum.glsl.preprocessor.LogKeeper;
 import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.preprocessor.language.ast.flow.IfFlowNode;
 import com.tazadum.glsl.preprocessor.model.ExpressionEvaluator;
@@ -64,7 +65,7 @@ class ExpressionEvaluatorTest {
     private <T extends Node> T parse(Class<T> type, String source) {
         ParserRuleContext context = TestUtil.parse(source);
 
-        Node node = context.accept(new PreprocessorVisitor(SourcePositionId.create("test", SourcePosition.TOP)));
+        Node node = context.accept(new PreprocessorVisitor(SourcePositionId.create("test", SourcePosition.TOP), new LogKeeper()));
         assertNotNull(node, "Resulting node should not be null");
 
         if (!type.isAssignableFrom(node.getClass())) {

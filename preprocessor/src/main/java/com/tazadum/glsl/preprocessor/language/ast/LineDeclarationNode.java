@@ -35,4 +35,8 @@ public class LineDeclarationNode extends BaseNode implements Declaration {
     public void accept(Visitor visitor) {
         visitor.visit(this);
     }
+
+    public String toString() {
+        return "#line " + lineNumber + " " + sourceLineNumber;
+    }
 }

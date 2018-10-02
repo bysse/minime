@@ -13,8 +13,13 @@ public class SourceReader implements Source {
 
     public SourceReader(Source source) {
         this.sources = new Stack<>();
+        this.sources.push(source);
         this.activeSource = source;
         this.lineNumber = 0;
+    }
+
+    public int getDepth() {
+        return sources.size();
     }
 
     public void push(Source source) {

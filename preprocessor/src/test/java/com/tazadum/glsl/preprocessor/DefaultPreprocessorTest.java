@@ -1,6 +1,7 @@
 package com.tazadum.glsl.preprocessor;
 
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
+import com.tazadum.glsl.util.io.FileSource;
 import com.tazadum.glsl.util.io.StringSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,11 +11,15 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by erikb on 2018-09-19.
@@ -54,6 +59,40 @@ class DefaultPreprocessorTest {
                 "A\n#if 0\nB\n#endif\nC",
                 "A\n// #if 0\n// B\n// #endif\nC"
             ),
+        };
+    }
+
+    @ParameterizedTest(name = "{index}: {0}")
+    @MethodSource("getTestFiles")
+    void testFiles(String input, String expectedFile, boolean shouldWork) throws IOException {
+        try {
+            final Path parent = Paths.get("src/test/resources/files");
+            final FileSource inputSource = new FileSource(parent.resolve(input));
+            final String result = preprocessor.process(inputSource);
+
+            if (shouldWork) {
+                String expected = new String(Files.readAllBytes(parent.resolve(expectedFile)));
+                assertEquals(expected, result);
+            } else {
+                fail("The test should fail");
+            }
+        } catch (PreprocessorException e) {
+            if (shouldWork) {
+                throw e;
+            }
+        }
+    }
+
+    private static Arguments[] getTestFiles() {
+        return new Arguments[]{
+            Arguments.of("concat_1.input", "concat_1.expected", true),
+            Arguments.of("nested_1.input", "nested_1.expected", true),
+            Arguments.of("test_1.input", "test_1.expected", true),
+            Arguments.of("test_2.input", "test_2.expected", true),
+            Arguments.of("ifdef_1.input", "ifdef_1.expected", true),
+            Arguments.of("ifndef_1.input", "ifndef_1.expected", true),
+            Arguments.of("fail_1.input", null, false),
+            Arguments.of("fail_2.input", null, false)
         };
     }
 

@@ -17,5 +17,5 @@ public enum DeclarationType {
     ELSE_IF,
     END_IF,
     UNDEF,
-    DEFINE,;
+    DEFINE, ERROR;
 }
