@@ -39,7 +39,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
         final String extension = ctx.IDENTIFIER().getSymbol().getText();
 
-        ExtensionBehavior behavior = null;
+        ExtensionBehavior behavior;
         if (ctx.REQUIRE() != null) {
             behavior = ExtensionBehavior.REQUIRE;
         } else if (ctx.ENABLE() != null) {

@@ -15,14 +15,8 @@ public class CommentStage implements Stage {
     private final Source source;
     private final SourcePositionMapper mapper;
 
-    private int lineNumber;
+    private final int lineNumber;
     private boolean inComment = false;
-
-    public CommentStage(Source source) {
-        this.source = source;
-        this.mapper = new SourcePositionMapper();
-        this.lineNumber = 0;
-    }
 
     public CommentStage(Stage stage) {
         this.source = stage;

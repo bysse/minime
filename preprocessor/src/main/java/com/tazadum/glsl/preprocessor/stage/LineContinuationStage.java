@@ -17,7 +17,7 @@ public class LineContinuationStage implements Stage {
     private final Source source;
     private final LogKeeper logKeeper;
     private final SourcePositionMapper mapper;
-    private int lineNumber;
+    private final int lineNumber;
 
     public LineContinuationStage(Source source, LogKeeper logKeeper) {
         this.source = source;

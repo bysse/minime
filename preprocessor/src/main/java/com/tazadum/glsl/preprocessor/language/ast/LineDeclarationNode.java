@@ -10,8 +10,8 @@ import com.tazadum.glsl.util.SourcePositionId;
 public class LineDeclarationNode extends BaseNode implements Declaration {
     public static final int NO_VALUE = -1;
 
-    private int lineNumber;
-    private int sourceLineNumber;
+    private final int lineNumber;
+    private final int sourceLineNumber;
 
     public LineDeclarationNode(SourcePositionId sourcePosition, int lineNumber, int sourceLineNumber) {
         super(sourcePosition);

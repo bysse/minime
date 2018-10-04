@@ -9,7 +9,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * has failed in an expression.
  */
 public class IdentifierNode extends BaseNode implements Expression {
-    private String identifier;
+    private final String identifier;
 
     public IdentifierNode(SourcePositionId sourcePosition, String identifier) {
         super(sourcePosition);

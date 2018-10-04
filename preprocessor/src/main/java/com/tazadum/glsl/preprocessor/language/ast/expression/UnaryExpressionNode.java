@@ -6,8 +6,8 @@ import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
 import com.tazadum.glsl.util.SourcePositionId;
 
 public class UnaryExpressionNode extends BaseNode implements Expression {
-    private UnaryOperator operator;
-    private Expression expression;
+    private final UnaryOperator operator;
+    private final Expression expression;
 
     public UnaryExpressionNode(SourcePositionId sourcePosition, UnaryOperator operator, Expression expression) {
         super(sourcePosition);

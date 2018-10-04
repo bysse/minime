@@ -4,8 +4,8 @@ package com.tazadum.glsl.preprocessor.model;
  * Created by erikb on 2018-09-17.
  */
 public class MacroDefinition {
-    private String[] parameters;
-    private String template;
+    private final String[] parameters;
+    private final String template;
 
     public static MacroDefinition objectLike(String template) {
         return new MacroDefinition(null, template);

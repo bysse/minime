@@ -10,8 +10,8 @@ import java.util.Objects;
 public class SourcePosition implements Comparable<SourcePosition> {
     public static final SourcePosition TOP = SourcePosition.create(0, 0);
 
-    private int line;
-    private int column;
+    private final int line;
+    private final int column;
 
     /**
      * Create a SourcePosition from a parser Token.

@@ -126,14 +126,23 @@ public class PreprocessorState {
             if (isSectionEnabled()) {
                 // only do macro declarations in enabled sections
                 final MacroRegistry registry = getMacroRegistry();
+                final String name = node.getIdentifier();
+
+                if (name.startsWith("__")) {
+                    logKeeper.addWarning(node.getSourcePosition(), Message.Warning.RESERVED_MACRO_NAME);
+                }
+
+                if (name.startsWith("GL_")) {
+                    throw new PreprocessorException(node.getSourcePosition(), Message.Error.RESERVED_MACRO_NAME);
+                }
 
                 if (node.getParameters() == null) {
                     // object like macro
-                    registry.define(node.getIdentifier(), node.getValue());
+                    registry.define(name, node.getValue());
                 } else {
                     // function like macro
                     String[] parameters = node.getParameters().toArray(new String[0]);
-                    registry.define(node.getIdentifier(), parameters, node.getValue());
+                    registry.define(name, parameters, node.getValue());
                 }
             }
         }

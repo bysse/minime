@@ -3,8 +3,8 @@ package com.tazadum.glsl.preprocessor.stage;
 import com.tazadum.glsl.util.SourcePositionMapper;
 
 public class StageResult {
-    private String source;
-    private SourcePositionMapper mapper;
+    private final String source;
+    private final SourcePositionMapper mapper;
 
     public StageResult(String source, SourcePositionMapper mapper) {
         this.source = source;

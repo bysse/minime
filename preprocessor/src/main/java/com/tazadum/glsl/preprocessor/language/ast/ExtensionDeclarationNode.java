@@ -9,8 +9,8 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Created by erikb on 2018-09-17.
  */
 public class ExtensionDeclarationNode extends BaseNode implements Declaration {
-    private String extension;
-    private ExtensionBehavior behavior;
+    private final String extension;
+    private final ExtensionBehavior behavior;
 
     public ExtensionDeclarationNode(SourcePositionId sourcePosition, String extension, ExtensionBehavior behavior) {
         super(sourcePosition);

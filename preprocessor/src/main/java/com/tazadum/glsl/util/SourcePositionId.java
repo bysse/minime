@@ -50,8 +50,7 @@ public class SourcePositionId {
 
         SourcePositionId that = (SourcePositionId) o;
 
-        if (!id.equals(that.id)) return false;
-        return position.equals(that.position);
+        return id.equals(that.id) && position.equals(that.position);
     }
 
     @Override

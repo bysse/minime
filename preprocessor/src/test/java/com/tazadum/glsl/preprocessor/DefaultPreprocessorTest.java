@@ -17,9 +17,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Created by erikb on 2018-09-19.
@@ -40,7 +38,7 @@ class DefaultPreprocessorTest {
     @ParameterizedTest(name = "{index}: {0}")
     @MethodSource("getSourceLines")
     void test(String source, String expected) throws IOException {
-        assertEquals(expected + '\n', preprocessor.process(new StringSource("test", source)));
+        assertEquals(expected + '\n', preprocessor.process(new StringSource("test", source)).getSource());
     }
 
     private static Arguments[] getSourceLines() {
@@ -68,11 +66,11 @@ class DefaultPreprocessorTest {
         try {
             final Path parent = Paths.get("src/test/resources/files");
             final FileSource inputSource = new FileSource(parent.resolve(input));
-            final String result = preprocessor.process(inputSource);
+            final Preprocessor.Result result = preprocessor.process(inputSource);
 
             if (shouldWork) {
                 String expected = new String(Files.readAllBytes(parent.resolve(expectedFile)));
-                assertEquals(expected, result);
+                assertEquals(expected, result.getSource());
             } else {
                 fail("The test should fail");
             }

@@ -32,16 +32,18 @@ import java.util.regex.Pattern;
 public class DefaultPreprocessor implements Preprocessor {
     private static final int MAX_NESTED_MACROS = 50;
 
-    private GLSLVersion languageVersion;
-    private Pattern declarationPattern;
-    private Pattern concatPattern;
+    private final GLSLVersion languageVersion;
+    private final Pattern declarationPattern;
+    private final Pattern concatPattern;
     private volatile boolean used;
 
-    private PreprocessorState state;
-    private List<String> arguments = new ArrayList<>();
+    private final PreprocessorState state;
+    private final List<String> arguments = new ArrayList<>();
 
     /**
-     * @param languageVersion The version of the parser that will parse the preprocessed file.
+     * Creates an instance of the preprocessor.
+     *
+     * @param languageVersion The version of the parser that later will parse the preprocessed file.
      */
     public DefaultPreprocessor(GLSLVersion languageVersion) {
         this.languageVersion = languageVersion;
@@ -62,7 +64,7 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     @Override
-    public String process(Source source) throws IOException {
+    public Result process(Source source) throws IOException {
         if (used) {
             throw new IllegalStateException("The preprocessor is stateful and can only be used once!");
         }
@@ -94,14 +96,15 @@ public class DefaultPreprocessor implements Preprocessor {
                 processLine(lineNumber, output, line, sourceReader, sourceId);
             } catch (PreprocessorException e) {
                 // catch any exception and remap it to the correct source position
-                SourcePositionId position = commentStage.getMapper().map(e.getSourcePosition().getPosition());
-                throw new PreprocessorException(position, e, e.getMessage());
+                final SourcePositionId position = commentStage.getMapper().map(e.getSourcePosition().getPosition());
+                final String message = position.format() + " " + e.getMessage();
+
+                throw new PreprocessorException(position, e, message);
             }
         }
 
-        // TODO: what about all the warnings?
-
-        return output.toString();
+        List<String> warnings = state.getLogKeeper().getWarnings();
+        return new DefaultResult(output.toString(), warnings);
     }
 
     private void processLine(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
@@ -350,5 +353,25 @@ public class DefaultPreprocessor implements Preprocessor {
 
     private boolean isNotIdentifier(char ch) {
         return isWhitespace(ch) && !isAlphaNumeric(ch);
+    }
+
+    public static class DefaultResult implements Result {
+        private final String source;
+        private final List<String> warnings;
+
+        public DefaultResult(String source, List<String> warnings) {
+            this.source = source;
+            this.warnings = new ArrayList<>(warnings);
+        }
+
+        @Override
+        public String getSource() {
+            return source;
+        }
+
+        @Override
+        public List<String> getWarnings() {
+            return warnings;
+        }
     }
 }

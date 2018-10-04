@@ -8,8 +8,8 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Node for all types of binary numeric expressions.
  */
 public class AndExpressionNode extends BaseNode implements Expression {
-    private Expression left;
-    private Expression right;
+    private final Expression left;
+    private final Expression right;
 
     public AndExpressionNode(SourcePositionId sourcePosition, Expression left, Expression right) {
         super(sourcePosition);

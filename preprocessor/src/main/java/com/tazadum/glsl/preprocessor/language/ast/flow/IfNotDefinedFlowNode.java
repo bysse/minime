@@ -9,7 +9,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Created by erikb on 2018-09-17.
  */
 public class IfNotDefinedFlowNode extends BaseNode implements Flow {
-    private String identifier;
+    private final String identifier;
 
     public IfNotDefinedFlowNode(SourcePositionId sourcePosition, String identifier) {
         super(sourcePosition);

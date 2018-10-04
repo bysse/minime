@@ -10,8 +10,8 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Created by erikb on 2018-09-17.
  */
 public class VersionDeclarationNode extends BaseNode implements Declaration {
-    private GLSLVersion version;
-    private GLSLProfile profile;
+    private final GLSLVersion version;
+    private final GLSLProfile profile;
 
     public VersionDeclarationNode(SourcePositionId sourcePosition, GLSLVersion version, GLSLProfile profile) {
         super(sourcePosition);

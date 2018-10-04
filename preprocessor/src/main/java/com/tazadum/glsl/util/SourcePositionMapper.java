@@ -3,8 +3,8 @@ package com.tazadum.glsl.util;
 import java.util.*;
 
 public class SourcePositionMapper {
-    private SourcePositionMapper sourceMapper;
-    private TreeMap<SourcePosition, SourcePositionId> tree;
+    private final SourcePositionMapper sourceMapper;
+    private final TreeMap<SourcePosition, SourcePositionId> tree;
 
     public SourcePositionMapper() {
         this(null);

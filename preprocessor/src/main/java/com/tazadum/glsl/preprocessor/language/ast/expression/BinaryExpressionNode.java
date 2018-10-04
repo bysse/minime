@@ -9,9 +9,9 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Node for all types of binary numeric expressions.
  */
 public class BinaryExpressionNode extends BaseNode implements Expression {
-    private Expression left;
-    private BinaryOperator operator;
-    private Expression right;
+    private final Expression left;
+    private final BinaryOperator operator;
+    private final Expression right;
 
     public BinaryExpressionNode(SourcePositionId sourcePosition, Expression left, BinaryOperator operator, Expression right) {
         super(sourcePosition);

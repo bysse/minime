@@ -10,7 +10,7 @@ import static com.tazadum.glsl.preprocessor.model.BoolIntLogic.*;
  * Evaluates an expression assuming all macro substitutions already has been made.
  */
 public class ExpressionEvaluator implements Expression.Visitor {
-    private MacroRegistry registry;
+    private final MacroRegistry registry;
 
     public ExpressionEvaluator(MacroRegistry registry) {
         this.registry = registry;

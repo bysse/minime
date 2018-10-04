@@ -4,10 +4,12 @@ import com.tazadum.glsl.util.SourcePositionId;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
+/**
+ * Class for storing and format warnings.
+ */
 public class LogKeeper {
-    private List<String> warnings;
+    private final List<String> warnings;
 
     public LogKeeper() {
         this.warnings = new ArrayList<>(1000);
@@ -21,7 +23,7 @@ public class LogKeeper {
         warnings.add(sourcePosition.format() + " " + String.format(format, args));
     }
 
-    public Stream<String> getWarnings() {
-        return warnings.stream();
+    public List<String> getWarnings() {
+        return warnings;
     }
 }

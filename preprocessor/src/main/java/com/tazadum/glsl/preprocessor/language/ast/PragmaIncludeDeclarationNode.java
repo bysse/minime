@@ -9,7 +9,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * imports of other source files.
  */
 public class PragmaIncludeDeclarationNode extends BaseNode implements Declaration {
-    private String filePath;
+    private final String filePath;
 
     /**
      * Constructs a pragma include.

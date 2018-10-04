@@ -8,7 +8,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Created by erikb on 2018-10-02.
  */
 public class ErrorDeclarationNode extends BaseNode implements Declaration {
-    private String message;
+    private final String message;
 
     public ErrorDeclarationNode(SourcePositionId sourcePosition, String message) {
         super(sourcePosition);

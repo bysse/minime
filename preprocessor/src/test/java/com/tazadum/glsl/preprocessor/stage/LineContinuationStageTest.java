@@ -7,7 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.stream.Stream;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -48,8 +48,8 @@ class LineContinuationStageTest {
         assertEquals("line 2", stage.readLine());
         assertNull(stage.readLine());
 
-        final Stream<String> warnings = logKeeper.getWarnings();
-        assertEquals(0, warnings.count());
+        final List<String> warnings = logKeeper.getWarnings();
+        assertEquals(0, warnings.size());
     }
 
     @Test
@@ -60,8 +60,8 @@ class LineContinuationStageTest {
         assertEquals("line 1more line 1", stage.readLine());
         assertNull(stage.readLine());
 
-        final Stream<String> warnings = logKeeper.getWarnings();
-        assertEquals(1, warnings.count());
+        final List<String> warnings = logKeeper.getWarnings();
+        assertEquals(1, warnings.size());
     }
 
     private Stage process(String source) {

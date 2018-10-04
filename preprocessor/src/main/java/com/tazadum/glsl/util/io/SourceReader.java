@@ -7,7 +7,7 @@ import java.util.Stack;
  * Created by erikb on 2018-09-28.
  */
 public class SourceReader implements Source {
-    private Stack<Source> sources;
+    private final Stack<Source> sources;
     private Source activeSource;
     private int lineNumber;
 
@@ -35,10 +35,6 @@ public class SourceReader implements Source {
         }
     }
 
-    public Source getActiveSource() {
-        return activeSource;
-    }
-
     @Override
     public String getSourceId() {
         return activeSource.getSourceId();
@@ -58,6 +54,9 @@ public class SourceReader implements Source {
         return activeSource.getLineNumber();
     }
 
+    /**
+     * Read a line from the active Source. If the EOF is reached for all Sources null will be returned.
+     */
     public String readLine() throws IOException {
         lineNumber++;
         String line = activeSource.readLine();

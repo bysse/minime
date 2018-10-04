@@ -1,16 +1,9 @@
 /**
- * Preprocessor for GLSL 4.40
+ * Preprocessor for GLSL
  *
- * Simplified grammar for a line based preprocessor with the
- * extension of detecting "#pragma include(path)" statements.
- * The intention is to feed in each # prefixed line into
- * the parser and not the entire file.
- *
- * Preprocessor steps:
- *   1. Read a line from the file keeping line continuations in mind.
- *   2. Process the line in the parser.
- *   3. If the line is a '#define' statement look for the actual definition.
- *   4. Make sure the parser has consumed the entire line before continuing.
+ * Simplified grammar for a preprocessor with the extension of detecting "#pragma include(path)" statements.
+ * The tokenization if not done according to praxis which means that some logic has been moved to the classes
+ * using the parser.
  */
 grammar PP;
 

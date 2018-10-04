@@ -7,7 +7,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * An exception to rule them all.
  */
 public class PreprocessorException extends RuntimeException {
-    private SourcePositionId position;
+    private final SourcePositionId position;
 
     public PreprocessorException(SourcePosition position, String format, Object... args) {
         super(String.format(format, args));

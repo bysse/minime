@@ -10,7 +10,7 @@ import java.util.Objects;
  * Node for holding integer values.
  */
 public class IntegerNode extends BaseNode implements Expression {
-    private int value;
+    private final int value;
 
     public IntegerNode(SourcePositionId sourcePosition, int value) {
         super(sourcePosition);

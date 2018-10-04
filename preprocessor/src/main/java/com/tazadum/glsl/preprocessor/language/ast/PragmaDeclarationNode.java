@@ -8,7 +8,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Created by erikb on 2018-09-17.
  */
 public class PragmaDeclarationNode extends BaseNode implements Declaration {
-    private String declaration;
+    private final String declaration;
 
     /**
      * Constructs a PragmaDeclarationNode.

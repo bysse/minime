@@ -11,11 +11,6 @@ public class LineTokenizer implements Iterable<String>, Iterator<String> {
         this.source = source;
     }
 
-    public String getLine(String eol) {
-        String line = getLine();
-        return line == null ? eol : line;
-    }
-
     public String getLine() {
         if (source == null) {
             return null;

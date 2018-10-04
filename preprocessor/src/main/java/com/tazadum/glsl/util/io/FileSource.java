@@ -14,7 +14,7 @@ public class FileSource implements Source {
     private final BufferedReader reader;
 
     private int lineNumber = 0;
-    private Path path;
+    private final Path path;
 
     public FileSource(Path path) throws FileNotFoundException {
         this.path = path;

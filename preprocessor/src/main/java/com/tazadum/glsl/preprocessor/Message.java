@@ -8,10 +8,12 @@ public interface Message {
         String UNRECOGNIZED_PRAGMA = "Unrecognized pragma directive : %s";
         String LINE_NOT_SUPPORTED = "The line directive is not supported and will have no effect.";
         String INCLUDE_MALFORMATTED = "Include statement is malformatted";
+        String RESERVED_MACRO_NAME = "Macro names prefixed with '__' are not recommended and may result in undefined problems.";
     }
 
     interface Error {
         String MACRO_ARG_MISMATCH = "Number of arguments does not match the macro definition.";
+        String RESERVED_MACRO_NAME = "Macro names prefixed with 'GL_' are reserved.";
         String VERSION_NOT_FIRST = "The #version directive must occur in a shader before anything else, except for comments and white space.";
         String FILE_NOT_FOUND = "File could not be found : %s";
         String FILE_NOT_OPEN = "File could not be opened : %s";

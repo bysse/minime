@@ -4,7 +4,7 @@ import com.tazadum.glsl.preprocessor.language.Node;
 import com.tazadum.glsl.util.SourcePositionId;
 
 public class BaseNode implements Node {
-    private SourcePositionId sourcePosition;
+    private final SourcePositionId sourcePosition;
 
     public BaseNode(SourcePositionId sourcePosition) {
         this.sourcePosition = sourcePosition;

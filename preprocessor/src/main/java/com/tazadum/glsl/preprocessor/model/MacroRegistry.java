@@ -7,7 +7,7 @@ import java.util.Map;
  * Contains all macros
  */
 public class MacroRegistry {
-    private Map<String, MacroDefinition> map;
+    private final Map<String, MacroDefinition> map;
     private String[] macroNames = null;
 
     public MacroRegistry() {

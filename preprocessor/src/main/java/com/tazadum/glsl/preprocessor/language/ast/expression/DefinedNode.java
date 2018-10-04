@@ -5,7 +5,7 @@ import com.tazadum.glsl.preprocessor.language.ast.BaseNode;
 import com.tazadum.glsl.util.SourcePositionId;
 
 public class DefinedNode extends BaseNode implements Expression {
-    private String identifier;
+    private final String identifier;
 
     public DefinedNode(SourcePositionId sourcePosition, String identifier) {
         super(sourcePosition);

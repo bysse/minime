@@ -11,9 +11,9 @@ import java.util.stream.Collectors;
  * Created by erikb on 2018-09-17.
  */
 public class MacroDeclarationNode extends BaseNode implements Declaration {
-    private String identifier;
-    private List<String> parameters;
-    private String value;
+    private final String identifier;
+    private final List<String> parameters;
+    private final String value;
 
     public MacroDeclarationNode(SourcePositionId sourcePosition, String identifier, List<String> parameters, String value) {
         super(sourcePosition);

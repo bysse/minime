@@ -10,7 +10,7 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Created by erikb on 2018-09-17.
  */
 public class ElseIfFlowNode extends BaseNode implements Flow {
-    private Expression expression;
+    private final Expression expression;
 
     public ElseIfFlowNode(SourcePositionId sourcePosition, Expression expression) {
         super(sourcePosition);

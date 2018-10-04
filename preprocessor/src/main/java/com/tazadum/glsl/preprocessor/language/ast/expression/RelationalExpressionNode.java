@@ -9,9 +9,9 @@ import com.tazadum.glsl.util.SourcePositionId;
  * Node for all types of relational expressions.
  */
 public class RelationalExpressionNode extends BaseNode implements Expression {
-    private Expression left;
-    private RelationalOperator operator;
-    private Expression right;
+    private final Expression left;
+    private final RelationalOperator operator;
+    private final Expression right;
 
     public RelationalExpressionNode(SourcePositionId sourcePosition, Expression left, RelationalOperator operator, Expression right) {
         super(sourcePosition);

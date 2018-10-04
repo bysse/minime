@@ -19,7 +19,7 @@ public enum GLSLProfile implements HasToken {
     COMPATIBILITY("compatibility"),
     ES("es");
 
-    private String token;
+    private final String token;
 
     GLSLProfile(String token) {
         this.token = token;
