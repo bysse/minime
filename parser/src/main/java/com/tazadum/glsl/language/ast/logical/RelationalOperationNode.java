@@ -8,6 +8,7 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Created by Erik on 2016-10-10.
@@ -15,12 +16,12 @@ import com.tazadum.glsl.language.type.PredefinedType;
 public class RelationalOperationNode extends FixedChildParentNode {
     private RelationalOperator operator;
 
-    public RelationalOperationNode(RelationalOperator operator) {
-        this(null, operator);
+    public RelationalOperationNode(SourcePositionId position, RelationalOperator operator) {
+        this(position, null, operator);
     }
 
-    public RelationalOperationNode(ParentNode parentNode, RelationalOperator operator) {
-        super(2, parentNode);
+    public RelationalOperationNode(SourcePositionId position, ParentNode parentNode, RelationalOperator operator) {
+        super(position, 2, parentNode);
         this.operator = operator;
     }
 
@@ -46,7 +47,7 @@ public class RelationalOperationNode extends FixedChildParentNode {
 
     @Override
     public RelationalOperationNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new RelationalOperationNode(newParent, operator));
+        return CloneUtils.cloneChildren(this, new RelationalOperationNode(getSourcePositionId(), newParent, operator));
     }
 
     @Override

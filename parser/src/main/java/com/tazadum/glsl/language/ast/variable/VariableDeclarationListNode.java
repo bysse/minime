@@ -6,17 +6,19 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class VariableDeclarationListNode extends ParentNode implements HasSharedState {
     private FullySpecifiedType type;
     private boolean shared;
 
-    public VariableDeclarationListNode(FullySpecifiedType type) {
+    public VariableDeclarationListNode(SourcePositionId position, FullySpecifiedType type) {
+        super(position);
         this.type = type;
     }
 
-    public VariableDeclarationListNode(ParentNode parentNode, FullySpecifiedType type) {
-        super(parentNode);
+    public VariableDeclarationListNode(SourcePositionId position, ParentNode parentNode, FullySpecifiedType type) {
+        super(position, parentNode);
         this.type = type;
     }
 
@@ -39,7 +41,7 @@ public class VariableDeclarationListNode extends ParentNode implements HasShared
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(type));
+        return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(getSourcePositionId(), type));
     }
 
     @Override

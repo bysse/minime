@@ -5,16 +5,17 @@ import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class BooleanLeafNode extends LeafNode {
     private final boolean value;
 
-    public BooleanLeafNode(boolean value) {
-        this(null, value);
+    public BooleanLeafNode(SourcePositionId position, boolean value) {
+        this(position, null, value);
     }
 
-    public BooleanLeafNode(ParentNode parentNode, boolean value) {
-        super(parentNode);
+    public BooleanLeafNode(SourcePositionId position, ParentNode parentNode, boolean value) {
+        super(position, parentNode);
         this.value = value;
     }
 
@@ -24,7 +25,7 @@ public class BooleanLeafNode extends LeafNode {
 
     @Override
     public LeafNode clone(ParentNode newParent) {
-        return new BooleanLeafNode(newParent, value);
+        return new BooleanLeafNode(getSourcePositionId(), newParent, value);
     }
 
     @Override

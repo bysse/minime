@@ -6,17 +6,18 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Created by Erik on 2016-10-07.
  */
 public class ConditionNode extends FixedChildParentNode {
-    public ConditionNode(Node condition, Node thenNode, Node elseNode) {
-        this(null, condition, thenNode, elseNode);
+    public ConditionNode(SourcePositionId position, Node condition, Node thenNode, Node elseNode) {
+        this(position, null, condition, thenNode, elseNode);
     }
 
-    public ConditionNode(ParentNode parentNode, Node condition, Node thenNode, Node elseNode) {
-        super(3, parentNode);
+    public ConditionNode(SourcePositionId position, ParentNode parentNode, Node condition, Node thenNode, Node elseNode) {
+        super(position, 3, parentNode);
         setChild(0, condition);
         setChild(1, thenNode);
         setChild(2, elseNode);
@@ -36,7 +37,7 @@ public class ConditionNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final ConditionNode node = new ConditionNode(newParent, null, null, null);
+        final ConditionNode node = new ConditionNode(getSourcePositionId(), newParent, null, null, null);
         return CloneUtils.cloneChildren(this, node);
     }
 

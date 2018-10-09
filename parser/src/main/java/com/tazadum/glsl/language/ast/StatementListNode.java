@@ -2,14 +2,16 @@ package com.tazadum.glsl.language.ast;
 
 
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class StatementListNode extends ParentNode {
-    public StatementListNode() {
+    public StatementListNode(SourcePositionId position) {
+        super(position);
     }
 
     @Override
     public StatementListNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new StatementListNode());
+        return CloneUtils.cloneChildren(this, new StatementListNode(getSourcePositionId()));
     }
 
     @Override

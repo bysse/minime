@@ -1,14 +1,16 @@
 package com.tazadum.glsl.language.ast;
 
+import com.tazadum.glsl.util.SourcePositionId;
+
 public class FixedChildParentNode extends ParentNode {
     protected final Node[] nodes;
 
-    public FixedChildParentNode(int children) {
-        this(children, null);
+    public FixedChildParentNode(SourcePositionId position, int children) {
+        this(position, children, null);
     }
 
-    public FixedChildParentNode(int children, ParentNode parentNode) {
-        super(parentNode);
+    public FixedChildParentNode(SourcePositionId position, int children, ParentNode parentNode) {
+        super(position, parentNode);
         this.nodes = new Node[children];
     }
 

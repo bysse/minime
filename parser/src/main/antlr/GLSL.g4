@@ -184,12 +184,15 @@ storage_qualifier
   | UNIFORM
   | BUFFER
   | SHARED
-  | COHERENT
+  | SUBROUTINE (LEFT_PAREN type_name_list RIGHT_PAREN)?
+  ;
+
+memory_qualifier
+  : COHERENT
   | VOLATILE
   | RESTRICT
   | READONLY
   | WRITEONLY
-  | SUBROUTINE (LEFT_PAREN type_name_list RIGHT_PAREN)?
   ;
 
 layout_qualifier
@@ -232,6 +235,7 @@ type_qualifier
 
 single_type_qualifier
   : storage_qualifier
+  | memory_qualifier
   | layout_qualifier
   | precision_qualifier
   | interpolation_qualifier

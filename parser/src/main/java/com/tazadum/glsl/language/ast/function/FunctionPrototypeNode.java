@@ -9,6 +9,7 @@ import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.model.FunctionPrototype;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class FunctionPrototypeNode extends ParentNode implements HasSharedState {
     private Identifier identifier;
@@ -17,13 +18,14 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     private GLSLContext context;
     private boolean shared;
 
-    public FunctionPrototypeNode(String functionName, FullySpecifiedType returnType) {
+    public FunctionPrototypeNode(SourcePositionId position, String functionName, FullySpecifiedType returnType) {
+        super(position);
         this.identifier = new Identifier(functionName);
         this.returnType = returnType;
     }
 
-    public FunctionPrototypeNode(ParentNode parentNode, Identifier identifier, FullySpecifiedType returnType) {
-        super(parentNode);
+    public FunctionPrototypeNode(SourcePositionId position, ParentNode parentNode, Identifier identifier, FullySpecifiedType returnType) {
+        super(position, parentNode);
         this.identifier = identifier;
         this.returnType = returnType;
     }
@@ -63,7 +65,7 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final FunctionPrototypeNode prototypeNode = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(newParent, identifier, returnType));
+        final FunctionPrototypeNode prototypeNode = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(getSourcePositionId(), newParent, identifier, returnType));
 
         if (newParent instanceof GLSLContext) {
             prototypeNode.setContext((GLSLContext) newParent);

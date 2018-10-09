@@ -1,22 +1,23 @@
 package com.tazadum.glsl.language.ast.variable;
 
-import com.tazadum.glsl.language.PrecisionQualifier;
 import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.model.PrecisionQualifier;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class PrecisionDeclarationNode extends LeafNode {
     private final PrecisionQualifier qualifier;
     private final PredefinedType builtInType;
 
-    public PrecisionDeclarationNode(PrecisionQualifier qualifier, PredefinedType builtInType) {
-        this(null, qualifier, builtInType);
+    public PrecisionDeclarationNode(SourcePositionId position, PrecisionQualifier qualifier, PredefinedType builtInType) {
+        this(position, null, qualifier, builtInType);
     }
 
-    public PrecisionDeclarationNode(ParentNode newParent, PrecisionQualifier qualifier, PredefinedType builtInType) {
-        super(newParent);
+    public PrecisionDeclarationNode(SourcePositionId position, ParentNode newParent, PrecisionQualifier qualifier, PredefinedType builtInType) {
+        super(position, newParent);
         this.qualifier = qualifier;
         this.builtInType = builtInType;
     }
@@ -31,7 +32,7 @@ public class PrecisionDeclarationNode extends LeafNode {
 
     @Override
     public PrecisionDeclarationNode clone(ParentNode newParent) {
-        return new PrecisionDeclarationNode(newParent, qualifier, builtInType);
+        return new PrecisionDeclarationNode(getSourcePositionId(), newParent, qualifier, builtInType);
     }
 
     @Override

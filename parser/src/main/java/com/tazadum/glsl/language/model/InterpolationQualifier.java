@@ -1,12 +1,13 @@
-package com.tazadum.glsl.language;
+package com.tazadum.glsl.language.model;
 
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
 /**
  * Inputs and outputs that could be interpolated can be further qualified by at most one of the following
  * interpolation qualifiers
  */
-public enum InterpolationQualifier implements HasToken {
+public enum InterpolationQualifier implements TypeQualifier, HasToken {
     /**
      * perspective correct interpolation
      */
@@ -36,5 +37,10 @@ public enum InterpolationQualifier implements HasToken {
     @Override
     public int tokenId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return token();
     }
 }

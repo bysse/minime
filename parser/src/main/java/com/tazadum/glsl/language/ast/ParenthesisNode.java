@@ -2,15 +2,16 @@ package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class ParenthesisNode extends FixedChildParentNode {
-    public ParenthesisNode(Node node) {
-        super(1);
+    public ParenthesisNode(SourcePositionId position, Node node) {
+        super(position, 1);
         setChild(0, node);
     }
 
-    private ParenthesisNode(ParentNode parentNode, Node node) {
-        super(1, parentNode);
+    private ParenthesisNode(SourcePositionId position, ParentNode parentNode, Node node) {
+        super(position, 1, parentNode);
         setChild(0, node);
     }
 
@@ -24,7 +25,7 @@ public class ParenthesisNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        ParenthesisNode node = new ParenthesisNode(newParent, null);
+        ParenthesisNode node = new ParenthesisNode(getSourcePositionId(), newParent, null);
         node.setExpression(CloneUtils.clone(getExpression(), node));
         return node;
     }

@@ -1,11 +1,11 @@
 package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.TypeException;
-import com.tazadum.glsl.language.PrecisionQualifier;
-import com.tazadum.glsl.language.TypeQualifier;
+import com.tazadum.glsl.language.model.PrecisionQualifier;
+import com.tazadum.glsl.language.model.TypeQualifierList;
 
 public class FullySpecifiedType {
-    private TypeQualifier qualifier;
+    private TypeQualifierList qualifiers;
     private PrecisionQualifier precision;
     private GLSLType type;
 
@@ -17,8 +17,8 @@ public class FullySpecifiedType {
         this(null, precision, type);
     }
 
-    public FullySpecifiedType(TypeQualifier qualifier, PrecisionQualifier precision, GLSLType type) {
-        this.qualifier = qualifier;
+    public FullySpecifiedType(TypeQualifierList qualifiers, PrecisionQualifier precision, GLSLType type) {
+        this.qualifiers = qualifiers;
         this.precision = precision;
         this.type = type;
 
@@ -26,11 +26,11 @@ public class FullySpecifiedType {
             throw TypeException.missingType();
         }
 
-        // TODO: mAdd some lightweight sanity checks, such as bool can't have precision
+        // TODO: add some lightweight sanity checks, such as bool can't have precision
     }
 
-    public TypeQualifier getQualifier() {
-        return qualifier;
+    public TypeQualifierList getQualifiers() {
+        return qualifiers;
     }
 
     public PrecisionQualifier getPrecision() {
@@ -48,14 +48,14 @@ public class FullySpecifiedType {
 
         FullySpecifiedType that = (FullySpecifiedType) o;
 
-        if (qualifier != that.qualifier) return false;
+        if (qualifiers != that.qualifiers) return false;
         if (precision != that.precision) return false;
         return type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
-        int result = qualifier != null ? qualifier.hashCode() : 0;
+        int result = qualifiers != null ? qualifiers.hashCode() : 0;
         result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + type.hashCode();
         return result;
@@ -63,7 +63,7 @@ public class FullySpecifiedType {
 
     @Override
     public String toString() {
-        return (qualifier == null ? "" : qualifier.token() + " ") +
+        return (qualifiers == null ? "" : qualifiers + " ") +
             (precision == null ? "" : precision.token() + " ") +
             type.token();
     }

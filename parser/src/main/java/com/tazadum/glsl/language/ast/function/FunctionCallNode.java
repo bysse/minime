@@ -5,17 +5,19 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class FunctionCallNode extends ParentNode {
     private Identifier identifier;
     private FunctionPrototypeNode declarationNode;
 
-    public FunctionCallNode(String functionName) {
+    public FunctionCallNode(SourcePositionId position, String functionName) {
+        super(position);
         this.identifier = new Identifier(functionName);
     }
 
-    public FunctionCallNode(ParentNode parentNode, Identifier identifier) {
-        super(parentNode);
+    public FunctionCallNode(SourcePositionId position, ParentNode parentNode, Identifier identifier) {
+        super(position, parentNode);
         this.identifier = identifier;
     }
 
@@ -41,7 +43,7 @@ public class FunctionCallNode extends ParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(newParent, identifier));
+        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(getSourcePositionId(), newParent, identifier));
         // we don't clone the declaration here
         clone.setDeclarationNode(declarationNode);
         return clone;

@@ -4,20 +4,21 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class ContinueLeafNode extends LeafNode {
 
-    public ContinueLeafNode() {
-        this(null);
+    public ContinueLeafNode(SourcePositionId position) {
+        this(position, null);
     }
 
-    public ContinueLeafNode(ParentNode parentNode) {
-        super(parentNode);
+    public ContinueLeafNode(SourcePositionId position, ParentNode parentNode) {
+        super(position, parentNode);
     }
 
     @Override
     public LeafNode clone(ParentNode newParent) {
-        return new ContinueLeafNode(newParent);
+        return new ContinueLeafNode(getSourcePositionId(), newParent);
     }
 
     @Override

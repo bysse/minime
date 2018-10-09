@@ -6,17 +6,18 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 /**
  * Created by Erik on 2016-10-11.
  */
 public class ConstantExpressionNode extends FixedChildParentNode {
-    public ConstantExpressionNode(Node expression) {
-        this(null, expression);
+    public ConstantExpressionNode(SourcePositionId position, Node expression) {
+        this(position, null, expression);
     }
 
-    public ConstantExpressionNode(ParentNode parentNode, Node expression) {
-        super(1, parentNode);
+    public ConstantExpressionNode(SourcePositionId position, ParentNode parentNode, Node expression) {
+        super(position, 1, parentNode);
         setChild(0, expression);
     }
 
@@ -26,7 +27,7 @@ public class ConstantExpressionNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final ConstantExpressionNode node = new ConstantExpressionNode(newParent, null);
+        final ConstantExpressionNode node = new ConstantExpressionNode(getSourcePositionId(), newParent, null);
         node.setChild(0, CloneUtils.clone(getExpression(), node));
         return node;
     }

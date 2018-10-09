@@ -7,15 +7,16 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.util.SourcePositionId;
 
 public class ReturnNode extends FixedChildParentNode {
 
-    public ReturnNode() {
-        this(null);
+    public ReturnNode(SourcePositionId position) {
+        this(position, null);
     }
 
-    public ReturnNode(ParentNode parentNode) {
-        super(1, parentNode);
+    public ReturnNode(SourcePositionId position, ParentNode parentNode) {
+        super(position, 1, parentNode);
     }
 
     public void setExpression(Node expression) {
@@ -32,7 +33,7 @@ public class ReturnNode extends FixedChildParentNode {
 
     @Override
     public ReturnNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new ReturnNode(newParent));
+        return CloneUtils.cloneChildren(this, new ReturnNode(getSourcePositionId(), newParent));
     }
 
     @Override

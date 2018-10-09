@@ -1,11 +1,12 @@
-package com.tazadum.glsl.language;
+package com.tazadum.glsl.language.model;
 
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
 /**
  * Variable declarations may have at most one storage qualifier specified in front of the type.
  */
-public enum StorageQualifier implements HasToken {
+public enum StorageQualifier implements TypeQualifier, HasToken {
     /**
      * a variable whose value cannot be changed
      */
@@ -72,5 +73,10 @@ public enum StorageQualifier implements HasToken {
     @Override
     public int tokenId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return token();
     }
 }
