@@ -1,9 +1,9 @@
 package com.tazadum.glsl.language.type;
 
 /**
- * Created by erikb on 2018-10-09.
+ * An enum to simplify things in the PredefinedType enum.
  */
-public enum TypeBase {
+enum BaseType {
     FLOAT,
     DOUBLE,
     INT,

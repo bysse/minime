@@ -1,22 +1,22 @@
 package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * @author erikb
  * @since 2016-07-31
  */
 public class LeafNode implements Node {
-    private SourcePositionId position;
+    private SourcePosition position;
     private ParentNode parentNode;
     private int cachedId = -1;
 
-    public LeafNode(SourcePositionId position) {
+    public LeafNode(SourcePosition position) {
         this(position, null);
     }
 
-    public LeafNode(SourcePositionId position, ParentNode parentNode) {
+    public LeafNode(SourcePosition position, ParentNode parentNode) {
         this.position = position;
         this.parentNode = parentNode;
     }
@@ -72,7 +72,7 @@ public class LeafNode implements Node {
     }
 
     @Override
-    public SourcePositionId getSourcePositionId() {
+    public SourcePosition getSourcePosition() {
         return position;
     }
 }

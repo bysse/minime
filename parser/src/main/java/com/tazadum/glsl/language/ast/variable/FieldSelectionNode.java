@@ -3,7 +3,7 @@ package com.tazadum.glsl.language.ast.variable;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-07.
@@ -12,11 +12,11 @@ public class FieldSelectionNode extends FixedChildParentNode implements HasMutab
     private String selection;
     private GLSLType type;
 
-    public FieldSelectionNode(SourcePositionId position, String selection) {
+    public FieldSelectionNode(SourcePosition position, String selection) {
         this(position, null, selection);
     }
 
-    public FieldSelectionNode(SourcePositionId position, ParentNode parentNode, String selection) {
+    public FieldSelectionNode(SourcePosition position, ParentNode parentNode, String selection) {
         super(position, 1, parentNode);
         this.selection = selection;
     }
@@ -35,7 +35,7 @@ public class FieldSelectionNode extends FixedChildParentNode implements HasMutab
 
     @Override
     public FieldSelectionNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new FieldSelectionNode(getSourcePositionId(), newParent, selection));
+        return CloneUtils.cloneChildren(this, new FieldSelectionNode(getSourcePosition(), newParent, selection));
     }
 
     @Override

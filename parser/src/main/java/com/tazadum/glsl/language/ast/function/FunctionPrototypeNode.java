@@ -6,10 +6,10 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.context.GLSLContext;
-import com.tazadum.glsl.language.model.FunctionPrototype;
+import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class FunctionPrototypeNode extends ParentNode implements HasSharedState {
     private Identifier identifier;
@@ -18,13 +18,13 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     private GLSLContext context;
     private boolean shared;
 
-    public FunctionPrototypeNode(SourcePositionId position, String functionName, FullySpecifiedType returnType) {
+    public FunctionPrototypeNode(SourcePosition position, String functionName, FullySpecifiedType returnType) {
         super(position);
         this.identifier = new Identifier(functionName);
         this.returnType = returnType;
     }
 
-    public FunctionPrototypeNode(SourcePositionId position, ParentNode parentNode, Identifier identifier, FullySpecifiedType returnType) {
+    public FunctionPrototypeNode(SourcePosition position, ParentNode parentNode, Identifier identifier, FullySpecifiedType returnType) {
         super(position, parentNode);
         this.identifier = identifier;
         this.returnType = returnType;
@@ -65,7 +65,7 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final FunctionPrototypeNode prototypeNode = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(getSourcePositionId(), newParent, identifier, returnType));
+        final FunctionPrototypeNode prototypeNode = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(getSourcePosition(), newParent, identifier, returnType));
 
         if (newParent instanceof GLSLContext) {
             prototypeNode.setContext((GLSLContext) newParent);

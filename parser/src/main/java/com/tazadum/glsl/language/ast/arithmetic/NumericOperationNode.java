@@ -1,10 +1,10 @@
 package com.tazadum.glsl.language.ast.arithmetic;
 
-import com.tazadum.glsl.language.NumericOperator;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.model.NumericOperator;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-10.
@@ -13,17 +13,17 @@ public class NumericOperationNode extends FixedChildParentNode implements HasMut
     private NumericOperator operator;
     private GLSLType type;
 
-    public NumericOperationNode(SourcePositionId position, NumericOperator operator) {
+    public NumericOperationNode(SourcePosition position, NumericOperator operator) {
         this(position, null, operator);
     }
 
-    public NumericOperationNode(SourcePositionId position, NumericOperator operator, Node left, Node right) {
+    public NumericOperationNode(SourcePosition position, NumericOperator operator, Node left, Node right) {
         this(position, null, operator);
         setLeft(left);
         setRight(right);
     }
 
-    public NumericOperationNode(SourcePositionId position, ParentNode parentNode, NumericOperator operator) {
+    public NumericOperationNode(SourcePosition position, ParentNode parentNode, NumericOperator operator) {
         super(position, 2, parentNode);
         this.operator = operator;
     }
@@ -50,7 +50,7 @@ public class NumericOperationNode extends FixedChildParentNode implements HasMut
 
     @Override
     public NumericOperationNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new NumericOperationNode(getSourcePositionId(), newParent, operator));
+        return CloneUtils.cloneChildren(this, new NumericOperationNode(getSourcePosition(), newParent, operator));
     }
 
     @Override

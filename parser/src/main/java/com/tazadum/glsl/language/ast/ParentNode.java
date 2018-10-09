@@ -2,7 +2,7 @@ package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,15 +14,15 @@ import java.util.List;
 public class ParentNode implements Node {
     private ParentNode parentNode;
     private List<Node> childNodes;
-    private SourcePositionId position;
+    private SourcePosition position;
 
     private int cachedId = -1;
 
-    public ParentNode(SourcePositionId position) {
+    public ParentNode(SourcePosition position) {
         this(position, null);
     }
 
-    public ParentNode(SourcePositionId position, ParentNode parentNode) {
+    public ParentNode(SourcePosition position, ParentNode parentNode) {
         this.parentNode = parentNode;
         this.childNodes = new ArrayList<>();
         this.position = position;
@@ -165,7 +165,7 @@ public class ParentNode implements Node {
     }
 
     @Override
-    public SourcePositionId getSourcePositionId() {
+    public SourcePosition getSourcePosition() {
         return position;
     }
 

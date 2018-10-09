@@ -2,7 +2,6 @@ package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.model.PrecisionQualifier;
-import com.tazadum.glsl.language.model.TypeQualifierList;
 
 public class FullySpecifiedType {
     private TypeQualifierList qualifiers;

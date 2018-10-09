@@ -1,17 +1,17 @@
-package com.tazadum.glsl.language;
+package com.tazadum.glsl.language.model;
 
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
-public enum NumericOperator implements HasToken {
-    MUL("*", GLSLParser.STAR),
-    DIV("/", GLSLParser.SLASH),
-    ADD("+", GLSLParser.PLUS),
-    SUB("-", GLSLParser.DASH),;
+public enum LogicalOperator implements HasToken {
+    AND("&&", GLSLParser.AND_OP),
+    XOR("^^", GLSLParser.XOR_OP),
+    OR("||", GLSLParser.OR_OP),;
 
     private final String token;
     private final int tokenId;
 
-    NumericOperator(String token, int tokenId) {
+    LogicalOperator(String token, int tokenId) {
         this.token = token;
         this.tokenId = tokenId;
     }
@@ -20,7 +20,6 @@ public enum NumericOperator implements HasToken {
     public String token() {
         return token;
     }
-
 
     @Override
     public int tokenId() {

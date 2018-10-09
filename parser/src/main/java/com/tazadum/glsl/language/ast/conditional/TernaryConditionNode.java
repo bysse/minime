@@ -6,17 +6,17 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-07.
  */
 public class TernaryConditionNode extends FixedChildParentNode {
-    public TernaryConditionNode(SourcePositionId position, Node condition, Node thenNode, Node elseNode) {
+    public TernaryConditionNode(SourcePosition position, Node condition, Node thenNode, Node elseNode) {
         this(position, null, condition, thenNode, elseNode);
     }
 
-    public TernaryConditionNode(SourcePositionId position, ParentNode parentNode, Node condition, Node thenNode, Node elseNode) {
+    public TernaryConditionNode(SourcePosition position, ParentNode parentNode, Node condition, Node thenNode, Node elseNode) {
         super(position, 3, parentNode);
         setChild(0, condition);
         setChild(1, thenNode);
@@ -37,7 +37,7 @@ public class TernaryConditionNode extends FixedChildParentNode {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final TernaryConditionNode node = new TernaryConditionNode(getSourcePositionId(), newParent, null, null, null);
+        final TernaryConditionNode node = new TernaryConditionNode(getSourcePosition(), newParent, null, null, null);
         for (int i = 0; i < 3; i++) {
             node.setChild(i, CloneUtils.clone(getChild(i), node));
         }

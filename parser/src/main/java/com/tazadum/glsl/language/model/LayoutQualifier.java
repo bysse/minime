@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.model;
 
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.type.TypeQualifier;
 
 import java.util.ArrayList;
 import java.util.Collections;

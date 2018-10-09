@@ -1,5 +1,6 @@
-package com.tazadum.glsl.language;
+package com.tazadum.glsl.language.model;
 
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
 /**

@@ -1,14 +1,14 @@
 package com.tazadum.glsl.language.ast.logical;
 
-import com.tazadum.glsl.language.LogicalOperator;
 import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.model.LogicalOperator;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-10.
@@ -16,11 +16,11 @@ import com.tazadum.glsl.util.SourcePositionId;
 public class LogicalOperationNode extends FixedChildParentNode {
     private LogicalOperator operator;
 
-    public LogicalOperationNode(SourcePositionId position, LogicalOperator operator) {
+    public LogicalOperationNode(SourcePosition position, LogicalOperator operator) {
         this(position, null, operator);
     }
 
-    public LogicalOperationNode(SourcePositionId position, ParentNode parentNode, LogicalOperator operator) {
+    public LogicalOperationNode(SourcePosition position, ParentNode parentNode, LogicalOperator operator) {
         super(position, 2, parentNode);
         this.operator = operator;
     }
@@ -47,7 +47,7 @@ public class LogicalOperationNode extends FixedChildParentNode {
 
     @Override
     public LogicalOperationNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new LogicalOperationNode(getSourcePositionId(), newParent, operator));
+        return CloneUtils.cloneChildren(this, new LogicalOperationNode(getSourcePosition(), newParent, operator));
     }
 
     @Override

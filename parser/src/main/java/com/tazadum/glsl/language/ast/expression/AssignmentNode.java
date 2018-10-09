@@ -1,19 +1,19 @@
 package com.tazadum.glsl.language.ast.expression;
 
-import com.tazadum.glsl.language.AssignmentOperator;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.model.AssignmentOperator;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class AssignmentNode extends FixedChildParentNode implements MutatingOperation {
     private final AssignmentOperator operator;
 
-    public AssignmentNode(SourcePositionId position, Node lparam, AssignmentOperator operator, Node rparam) {
+    public AssignmentNode(SourcePosition position, Node lparam, AssignmentOperator operator, Node rparam) {
         this(position, null, lparam, operator, rparam);
     }
 
-    public AssignmentNode(SourcePositionId position, ParentNode parent, Node lparam, AssignmentOperator operator, Node rparam) {
+    public AssignmentNode(SourcePosition position, ParentNode parent, Node lparam, AssignmentOperator operator, Node rparam) {
         super(position, 2, parent);
         this.operator = operator;
         setChild(0, lparam);
@@ -34,7 +34,7 @@ public class AssignmentNode extends FixedChildParentNode implements MutatingOper
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final AssignmentNode node = new AssignmentNode(getSourcePositionId(), newParent, null, operator, null);
+        final AssignmentNode node = new AssignmentNode(getSourcePosition(), newParent, null, operator, null);
         return CloneUtils.cloneChildren(this, node);
     }
 

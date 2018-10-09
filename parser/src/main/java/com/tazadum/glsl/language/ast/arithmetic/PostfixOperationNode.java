@@ -1,10 +1,10 @@
 package com.tazadum.glsl.language.ast.arithmetic;
 
-import com.tazadum.glsl.language.UnaryOperator;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.model.UnaryOperator;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-07.
@@ -12,11 +12,11 @@ import com.tazadum.glsl.util.SourcePositionId;
 public class PostfixOperationNode extends FixedChildParentNode implements MutatingOperation {
     private UnaryOperator operator;
 
-    public PostfixOperationNode(SourcePositionId position, UnaryOperator operator) {
+    public PostfixOperationNode(SourcePosition position, UnaryOperator operator) {
         this(position, null, operator);
     }
 
-    public PostfixOperationNode(SourcePositionId position, ParentNode parentNode, UnaryOperator operator) {
+    public PostfixOperationNode(SourcePosition position, ParentNode parentNode, UnaryOperator operator) {
         super(position, 1, parentNode);
         this.operator = operator;
     }
@@ -35,7 +35,7 @@ public class PostfixOperationNode extends FixedChildParentNode implements Mutati
 
     @Override
     public PostfixOperationNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new PostfixOperationNode(getSourcePositionId(), newParent, operator));
+        return CloneUtils.cloneChildren(this, new PostfixOperationNode(getSourcePosition(), newParent, operator));
     }
 
     @Override

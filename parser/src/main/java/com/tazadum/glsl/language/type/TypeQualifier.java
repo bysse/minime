@@ -1,4 +1,4 @@
-package com.tazadum.glsl.language.model;
+package com.tazadum.glsl.language.type;
 
 /**
  * Marker interface for type qualifiers

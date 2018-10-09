@@ -4,16 +4,16 @@ import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class ForIterationNode extends FixedChildParentNode implements IterationNode, GLSLContext {
     private GLSLContext parentContext;
 
-    public ForIterationNode(SourcePositionId position) {
+    public ForIterationNode(SourcePosition position) {
         this(position, null);
     }
 
-    public ForIterationNode(SourcePositionId position, ParentNode parentNode) {
+    public ForIterationNode(SourcePosition position, ParentNode parentNode) {
         super(position, 4, parentNode);
     }
 
@@ -51,7 +51,7 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new ForIterationNode(getSourcePositionId(), newParent));
+        return CloneUtils.cloneChildren(this, new ForIterationNode(getSourcePosition(), newParent));
     }
 
     @Override

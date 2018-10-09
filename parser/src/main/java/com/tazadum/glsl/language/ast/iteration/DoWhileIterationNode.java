@@ -3,14 +3,14 @@ package com.tazadum.glsl.language.ast.iteration;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class DoWhileIterationNode extends FixedChildParentNode implements IterationNode {
-    public DoWhileIterationNode(SourcePositionId position) {
+    public DoWhileIterationNode(SourcePosition position) {
         this(position, null);
     }
 
-    public DoWhileIterationNode(SourcePositionId position, ParentNode parentNode) {
+    public DoWhileIterationNode(SourcePosition position, ParentNode parentNode) {
         super(position, 2, parentNode);
     }
 
@@ -32,7 +32,7 @@ public class DoWhileIterationNode extends FixedChildParentNode implements Iterat
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new DoWhileIterationNode(getSourcePositionId(), newParent));
+        return CloneUtils.cloneChildren(this, new DoWhileIterationNode(getSourcePosition(), newParent));
     }
 
     @Override

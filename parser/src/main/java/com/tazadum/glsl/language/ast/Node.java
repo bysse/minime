@@ -1,7 +1,7 @@
 package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * @author erikb
@@ -17,7 +17,7 @@ public interface Node extends Comparable<Node> {
     /**
      * Returns the source position of the node.
      */
-    SourcePositionId getSourcePositionId();
+    SourcePosition getSourcePosition();
 
     ParentNode getParentNode();
 

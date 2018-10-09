@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.model;
 
 import com.tazadum.glsl.language.HasToken;
+import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLParser;
 
 /**
@@ -55,7 +56,11 @@ public enum StorageQualifier implements TypeQualifier, HasToken {
     /**
      * per-tessellation-patch attributes
      */
-    PATCH("patch", GLSLParser.PATCH);
+    PATCH("patch", GLSLParser.PATCH),
+    /**
+     * subroutine
+     */
+    SUBROUTINE("subroutine", GLSLParser.SUBROUTINE),;
 
     private final String token;
     private final int id;

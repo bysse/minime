@@ -1,15 +1,17 @@
 package com.tazadum.glsl.exception;
 
+import com.tazadum.glsl.util.SourcePosition;
+
 public class ParserException extends RuntimeException {
-    public static ParserException notSupported(String feature) {
-        return new ParserException(String.format("'%s' is not supported", feature));
-    }
+    private SourcePosition sourcePosition;
 
-    public ParserException(String message) {
+    public ParserException(SourcePosition sourcePosition, String message) {
         super(message);
+        this.sourcePosition = sourcePosition;
     }
 
-    public ParserException(String message, Throwable cause) {
+    public ParserException(SourcePosition sourcePosition, String message, Throwable cause) {
         super(message, cause);
+        this.sourcePosition = sourcePosition;
     }
 }

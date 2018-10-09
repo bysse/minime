@@ -3,7 +3,7 @@ package com.tazadum.glsl.language.ast.variable;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-07.
@@ -11,11 +11,11 @@ import com.tazadum.glsl.util.SourcePositionId;
 public class ArrayIndexNode extends FixedChildParentNode implements HasMutableType {
     private GLSLType type;
 
-    public ArrayIndexNode(SourcePositionId position, Node expression, Node index) {
+    public ArrayIndexNode(SourcePosition position, Node expression, Node index) {
         this(position, null, expression, index);
     }
 
-    public ArrayIndexNode(SourcePositionId position, ParentNode parent, Node expression, Node index) {
+    public ArrayIndexNode(SourcePosition position, ParentNode parent, Node expression, Node index) {
         super(position, 2, parent);
         setChild(0, expression);
         setChild(1, index);
@@ -39,7 +39,7 @@ public class ArrayIndexNode extends FixedChildParentNode implements HasMutableTy
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final ArrayIndexNode node = new ArrayIndexNode(getSourcePositionId(), newParent, null, null);
+        final ArrayIndexNode node = new ArrayIndexNode(getSourcePosition(), newParent, null, null);
         node.setExpression(CloneUtils.clone(getExpression(), node));
         node.setIndex(CloneUtils.clone(getIndex(), node));
         return node;

@@ -4,7 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class VariableNode extends LeafNode {
     /**
@@ -13,7 +13,7 @@ public class VariableNode extends LeafNode {
      */
     private VariableDeclarationNode declarationNode;
 
-    public VariableNode(SourcePositionId position, VariableDeclarationNode declarationNode) {
+    public VariableNode(SourcePosition position, VariableDeclarationNode declarationNode) {
         super(position);
         this.declarationNode = declarationNode;
     }
@@ -44,7 +44,7 @@ public class VariableNode extends LeafNode {
     @Override
     public LeafNode clone(ParentNode newParent) {
         // Note that the declaration node is not resolved at this time
-        return new VariableNode(getSourcePositionId(), this.declarationNode);
+        return new VariableNode(getSourcePosition(), this.declarationNode);
     }
 
     @Override

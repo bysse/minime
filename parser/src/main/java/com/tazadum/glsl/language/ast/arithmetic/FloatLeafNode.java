@@ -7,16 +7,16 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.language.type.PredefinedType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class FloatLeafNode extends LeafNode implements HasNumeric {
     private final Numeric value;
 
-    public FloatLeafNode(SourcePositionId position, Numeric value) {
+    public FloatLeafNode(SourcePosition position, Numeric value) {
         this(position, null, value);
     }
 
-    public FloatLeafNode(SourcePositionId position, ParentNode parentNode, Numeric value) {
+    public FloatLeafNode(SourcePosition position, ParentNode parentNode, Numeric value) {
         super(position, parentNode);
         this.value = value;
     }
@@ -27,7 +27,7 @@ public class FloatLeafNode extends LeafNode implements HasNumeric {
 
     @Override
     public LeafNode clone(ParentNode newParent) {
-        return new FloatLeafNode(getSourcePositionId(), newParent, value);
+        return new FloatLeafNode(getSourcePosition(), newParent, value);
     }
 
     @Override

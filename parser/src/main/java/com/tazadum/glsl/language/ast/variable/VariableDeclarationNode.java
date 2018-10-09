@@ -4,7 +4,7 @@ import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class VariableDeclarationNode extends FixedChildParentNode implements HasSharedState {
     private boolean builtIn;
@@ -13,11 +13,11 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     protected Identifier identifier;
     private boolean shared;
 
-    public VariableDeclarationNode(SourcePositionId position, boolean builtIn, FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
+    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
         this(position, null, builtIn, fst, new Identifier(identifier), arraySpecifier, initializer);
     }
 
-    protected VariableDeclarationNode(SourcePositionId position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
+    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
         super(position, 2, newParent);
 
         this.builtIn = builtIn;
@@ -67,7 +67,7 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePositionId(), newParent, builtIn, type, identifier, null, null);
+        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, null, null);
         node.setArraySpecifier(CloneUtils.clone(getArraySpecifier(), node));
         node.setInitializer(CloneUtils.clone(getInitializer(), node));
         return node;

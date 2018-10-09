@@ -7,18 +7,18 @@ import com.tazadum.glsl.language.ast.StatementListNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class FunctionDefinitionNode extends FixedChildParentNode implements GLSLContext {
     private GLSLContext parentContext;
     private boolean mutatesGlobalState = false;
     private boolean usesGlobalState = true;
 
-    public FunctionDefinitionNode(SourcePositionId position, FunctionPrototypeNode prototype, StatementListNode statementList) {
+    public FunctionDefinitionNode(SourcePosition position, FunctionPrototypeNode prototype, StatementListNode statementList) {
         this(position, null, prototype, statementList);
     }
 
-    public FunctionDefinitionNode(SourcePositionId position, ParentNode parent, FunctionPrototypeNode prototype, StatementListNode statementList) {
+    public FunctionDefinitionNode(SourcePosition position, ParentNode parent, FunctionPrototypeNode prototype, StatementListNode statementList) {
         super(position, 2, parent);
         setChild(0, prototype);
         setChild(1, statementList);
@@ -42,7 +42,7 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final FunctionDefinitionNode node = new FunctionDefinitionNode(getSourcePositionId(), newParent, null, null);
+        final FunctionDefinitionNode node = new FunctionDefinitionNode(getSourcePosition(), newParent, null, null);
         node.setMutatesGlobalState(mutatesGlobalState);
         node.setUsesGlobalState(usesGlobalState);
         node.setFunctionPrototype(CloneUtils.clone(getFunctionPrototype(), node));
