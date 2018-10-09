@@ -1,5 +1,6 @@
 package com.tazadum.glsl.preprocessor;
 
+import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 
 import java.io.IOException;
@@ -48,5 +49,12 @@ public interface Preprocessor {
          * @return A non-null string.
          */
         List<String> getWarnings();
+
+        /**
+         * Returns the SourcePositionMapper that is used for mapping errors to their source file.
+         *
+         * @return A non-null SourcePositionMapper instance.
+         */
+        SourcePositionMapper getMapper();
     }
 }

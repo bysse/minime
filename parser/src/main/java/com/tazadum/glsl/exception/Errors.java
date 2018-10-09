@@ -1,0 +1,24 @@
+package com.tazadum.glsl.exception;
+
+import java.util.Objects;
+
+import static java.lang.String.format;
+
+/**
+ * Created by erikb on 2018-10-09.
+ */
+public class Errors {
+    public static class Type {
+        public static String UNKNOWN_TYPE_ERROR(String details) {
+            return "Unknown type error : " + details;
+        }
+
+        public static String NO_SUCH_FIELD(String fieldName, String typeName) {
+            return format("Can't find field '%s' in type '%s'", fieldName, typeName);
+        }
+
+        public static String ILLEGAL_SWIZZLE(char component) {
+            return format("Illegal component '%s' in swizzle", Objects.toString(component));
+        }
+    }
+}

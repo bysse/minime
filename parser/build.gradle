@@ -8,6 +8,7 @@ ext.antlr = [
 
 dependencies {
 	compile "org.antlr:antlr4-runtime:${antlrVersion}"
+    compile project(':preprocessor')
 
 	antlr "org.antlr:antlr4:${antlrVersion}"
 }

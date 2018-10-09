@@ -13,6 +13,7 @@ import com.tazadum.glsl.preprocessor.stage.CommentStage;
 import com.tazadum.glsl.preprocessor.stage.LineContinuationStage;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 import com.tazadum.glsl.util.io.SourceReader;
 import org.antlr.v4.runtime.BailErrorStrategy;
@@ -104,7 +105,7 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         List<String> warnings = state.getLogKeeper().getWarnings();
-        return new DefaultResult(output.toString(), warnings);
+        return new DefaultResult(commentStage.getMapper(), output.toString(), warnings);
     }
 
     private void processLine(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
@@ -356,10 +357,12 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     public static class DefaultResult implements Result {
+        private final SourcePositionMapper mapper;
         private final String source;
         private final List<String> warnings;
 
-        public DefaultResult(String source, List<String> warnings) {
+        public DefaultResult(SourcePositionMapper mapper, String source, List<String> warnings) {
+            this.mapper = mapper;
             this.source = source;
             this.warnings = new ArrayList<>(warnings);
         }
@@ -372,6 +375,11 @@ public class DefaultPreprocessor implements Preprocessor {
         @Override
         public List<String> getWarnings() {
             return warnings;
+        }
+
+        @Override
+        public SourcePositionMapper getMapper() {
+            return mapper;
         }
     }
 }
