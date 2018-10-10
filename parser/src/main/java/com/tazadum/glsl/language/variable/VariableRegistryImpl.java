@@ -44,7 +44,7 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public void registerVariableUsage(GLSLContext context, String identifier, Node node) {
+    public void registerVariableUsage(GLSLContext context, String identifier, Node node) throws VariableException {
         final VariableRegistryContext variableContext = resolveContext(context, identifier, Identifier.Mode.Original);
         if (variableContext == null) {
             throw new VariableException("Unregistered context for identifier " + identifier);
@@ -69,7 +69,7 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public ResolutionResult resolve(GLSLContext context, String identifier, Identifier.Mode mode) {
+    public ResolutionResult resolve(GLSLContext context, String identifier, Identifier.Mode mode) throws VariableException {
         final VariableRegistryContext variableContext = resolveContext(context, identifier, mode);
         if (variableContext == null) {
             throw new VariableException("Unregistered context for identifier " + identifier);

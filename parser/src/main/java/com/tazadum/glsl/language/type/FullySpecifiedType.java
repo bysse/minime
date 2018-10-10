@@ -1,6 +1,5 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.model.PrecisionQualifier;
 
 public class FullySpecifiedType {
@@ -22,7 +21,8 @@ public class FullySpecifiedType {
         this.type = type;
 
         if (type == null) {
-            throw TypeException.missingType();
+            //throw TypeException.missingType();
+            assert false : "Do something here";
         }
 
         // TODO: add some lightweight sanity checks, such as bool can't have precision

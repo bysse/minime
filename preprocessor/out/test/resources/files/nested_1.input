@@ -1,0 +1,13 @@
+#define A 1
+#if A > 2
+A
+#if A < 2
+aA
+#else
+aB
+#endif
+#elif A + 1 == 2
+B
+#else
+C
+#endif

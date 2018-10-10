@@ -315,12 +315,12 @@ struct_specifier
   ;
 
 struct_declaration_list
-  : (struct_declaration)+
+  : struct_declaration
+  | struct_declaration_list struct_declaration
   ;
 
 struct_declaration
-  : type_specifier struct_declarator_list SEMICOLON
-  | type_qualifier type_specifier struct_declaration_list SEMICOLON
+  : (type_qualifier)? type_specifier struct_declarator_list SEMICOLON
   ;
 
 struct_declarator_list
@@ -328,12 +328,12 @@ struct_declarator_list
   ;
 
 struct_declarator
-  : IDENTIFIER (LEFT_BRACKET constant_expression RIGHT_BRACKET)?
+  : IDENTIFIER (array_specifier)?
   ;
 
 initializer
   : assignment_expression
-  | LEFT_BRACE initializer (COMMA initializer)* COMMA? RIGHT_PAREN
+  | LEFT_BRACE initializer (COMMA initializer)* COMMA? RIGHT_BRACE
   ;
 
 statement_no_new_scope

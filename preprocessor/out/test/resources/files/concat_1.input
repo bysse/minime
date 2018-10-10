@@ -1,0 +1,7 @@
+#define sum(x,y) x + y
+#define con(x,y) x ## y
+#if sum(1,2) < con(1,2)
+A
+#else
+B
+#endif

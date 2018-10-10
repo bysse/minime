@@ -1,10 +1,10 @@
 package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.NoSuchFieldException;
-import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
+import static com.tazadum.glsl.exception.Errors.Type.NO_SUCH_FIELD;
 import static com.tazadum.glsl.exception.Errors.Type.UNKNOWN_TYPE_ERROR;
 
 /**
@@ -176,15 +176,15 @@ public enum PredefinedType implements GLSLType, HasToken {
     }
 
     @Override
-    public GLSLType fieldType(String fieldName) {
+    public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
         if (category != TypeCategory.Vector) {
-            throw new NoSuchFieldException(fieldName, token);
+            throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName, token));
         }
 
         // verify all characters in the field selection
         for (int i = 0; i < fieldName.length(); i++) {
             if (!VectorField.isVectorComponent(fieldName.charAt(i))) {
-                throw TypeException.noSuchField(name(), fieldName);
+                throw new NoSuchFieldException(NO_SUCH_FIELD(name(), fieldName));
             }
         }
 
@@ -215,7 +215,7 @@ public enum PredefinedType implements GLSLType, HasToken {
                 return typeSwizzle(fieldName, UINT, UVEC2, UVEC3, UVEC4);
         }
 
-        throw new TypeException(UNKNOWN_TYPE_ERROR("bad implementation of type " + name()));
+        throw new UnsupportedOperationException(UNKNOWN_TYPE_ERROR("bad implementation of type " + name()));
     }
 
     @Override
@@ -329,10 +329,10 @@ public enum PredefinedType implements GLSLType, HasToken {
     /**
      * Returns the appropriate type based on the swizzle length.
      */
-    private PredefinedType typeSwizzle(String fieldName, PredefinedType... types) {
+    private PredefinedType typeSwizzle(String fieldName, PredefinedType... types) throws NoSuchFieldException {
         final int length = fieldName.length();
         if (length > types.length) {
-            throw new NoSuchFieldException(fieldName, token);
+            throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName, token));
         }
         return types[length - 1];
     }

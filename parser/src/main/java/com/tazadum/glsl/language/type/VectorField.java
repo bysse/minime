@@ -1,7 +1,5 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.exception.TypeException;
-
 import static com.tazadum.glsl.exception.Errors.Type.ILLEGAL_SWIZZLE;
 
 public class VectorField {
@@ -10,11 +8,11 @@ public class VectorField {
     private int[] field;
     private boolean inOrder;
 
-    public VectorField(StringBuilder builder) {
+    public VectorField(StringBuilder builder) throws NoSuchFieldException {
         this(builder.toString());
     }
 
-    public VectorField(String selection) {
+    public VectorField(String selection) throws NoSuchFieldException {
         field = new int[selection.length()];
         inOrder = true;
 
@@ -22,7 +20,7 @@ public class VectorField {
             final int index = vectorComponentIndex(selection.charAt(i));
 
             if (index < 0) {
-                throw new TypeException(ILLEGAL_SWIZZLE(selection.charAt(i)));
+                throw new NoSuchFieldException(ILLEGAL_SWIZZLE(selection.charAt(i)));
             }
 
             if (i != index) {

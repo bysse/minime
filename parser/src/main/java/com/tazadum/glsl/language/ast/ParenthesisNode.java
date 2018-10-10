@@ -2,6 +2,7 @@ package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class ParenthesisNode extends FixedChildParentNode {
     public ParenthesisNode(SourcePosition position, Node node) {

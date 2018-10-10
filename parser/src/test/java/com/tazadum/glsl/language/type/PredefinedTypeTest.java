@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class PredefinedTypeTest {
     @Test
     @DisplayName("Test swizzle types")
-    public void testSwizzle() {
+    public void testSwizzle() throws NoSuchFieldException {
         assertEquals(FLOAT, VEC3.fieldType("x"));
         assertEquals(VEC2, VEC2.fieldType("xy"));
         assertEquals(VEC3, VEC4.fieldType("xyz"));

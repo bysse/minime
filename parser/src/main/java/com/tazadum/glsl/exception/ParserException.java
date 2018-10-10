@@ -1,17 +1,15 @@
 package com.tazadum.glsl.exception;
 
-import com.tazadum.glsl.util.SourcePosition;
-
-public class ParserException extends RuntimeException {
-    private SourcePosition sourcePosition;
-
-    public ParserException(SourcePosition sourcePosition, String message) {
+/**
+ * A checked exception that should be used whenever it's not convenient or makes sense to
+ * pass a SourcePosition to an exception.
+ */
+public class ParserException extends Exception {
+    public ParserException(String message) {
         super(message);
-        this.sourcePosition = sourcePosition;
     }
 
-    public ParserException(SourcePosition sourcePosition, String message, Throwable cause) {
+    public ParserException(String message, Throwable cause) {
         super(message, cause);
-        this.sourcePosition = sourcePosition;
     }
 }

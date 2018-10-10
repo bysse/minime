@@ -1,5 +1,6 @@
 package com.tazadum.glsl.language.variable;
 
+import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
@@ -27,7 +28,7 @@ public interface VariableRegistry {
      * @param identifier The identifier of the variable.
      * @param node       The variable usage node.
      */
-    void registerVariableUsage(GLSLContext context, String identifier, Node node);
+    void registerVariableUsage(GLSLContext context, String identifier, Node node) throws VariableException;
 
     /**
      * Register a variable usage from an already resolved VariableNode.
@@ -36,7 +37,7 @@ public interface VariableRegistry {
      */
     void registerVariableUsage(VariableNode node);
 
-    ResolutionResult resolve(GLSLContext context, String identifier, Identifier.Mode mode);
+    ResolutionResult resolve(GLSLContext context, String identifier, Identifier.Mode mode) throws VariableException;
 
     Usage<VariableDeclarationNode> resolve(VariableDeclarationNode declarationNode);
 

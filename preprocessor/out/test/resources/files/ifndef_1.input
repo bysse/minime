@@ -1,0 +1,6 @@
+#define APA
+#ifndef APA
+A
+#else
+B
+#endif

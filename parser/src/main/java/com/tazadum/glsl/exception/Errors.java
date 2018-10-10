@@ -13,6 +13,10 @@ public class Errors {
             return "Unknown type error : " + details;
         }
 
+        public static String NON_INTEGER_ARRAY_LENGTH() {
+            return "Array size must be expressed as an integer.";
+        }
+
         public static String NO_SUCH_FIELD(String fieldName, String typeName) {
             return format("Can't find field '%s' in type '%s'", fieldName, typeName);
         }
