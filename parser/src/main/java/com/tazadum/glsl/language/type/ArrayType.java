@@ -1,10 +1,12 @@
 package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.language.HasToken;
+import com.tazadum.glsl.language.ast.Node;
 
 public class ArrayType implements GLSLType, HasToken {
     public static final int UNKNOWN_LENGTH = -1;
     private final GLSLType type;
+    private Node arraySpecifier;
     private final int length;
 
     public ArrayType(GLSLType type, int length) {
@@ -12,9 +14,19 @@ public class ArrayType implements GLSLType, HasToken {
         this.length = length;
     }
 
+    public ArrayType(GLSLType type, Node arraySpecifier) {
+        this.type = type;
+        this.arraySpecifier = arraySpecifier;
+        this.length = UNKNOWN_LENGTH;
+    }
+
     @Override
     public GLSLType fieldType(String name) {
         return type;
+    }
+
+    public Node getArraySpecifier() {
+        return arraySpecifier;
     }
 
     @Override

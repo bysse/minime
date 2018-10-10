@@ -5,17 +5,42 @@ import com.tazadum.glsl.language.type.GLSLType;
 
 import java.util.Arrays;
 
+/**
+ * A class that matches which overloaded function a specific call is meant for.
+ */
 public class FunctionPrototypeMatcher {
     public static final GLSLType ANY = null;
 
     private final GLSLType returnType;
     private final GLSLType[] parameterTypes;
 
+    /**
+     * Creates a matcher.
+     *
+     * @param returnType     The return type of the target function.
+     * @param parameterTypes The parameter types of the target function.
+     */
     public FunctionPrototypeMatcher(GLSLType returnType, GLSLType... parameterTypes) {
         this.returnType = returnType;
         this.parameterTypes = parameterTypes;
     }
 
+    /**
+     * Creates a matcher.
+     *
+     * @param prototype The prototype to use as the template.
+     */
+    public FunctionPrototypeMatcher(FunctionPrototype prototype) {
+        this.returnType = prototype.getReturnType();
+        this.parameterTypes = prototype.getParameterTypes();
+    }
+
+    /**
+     * Tests if a function prototype/call matches.
+     *
+     * @param prototype The prototype/call to test.
+     * @return True if the prototype/call matches.
+     */
     public boolean matches(FunctionPrototype prototype) {
         GLSLType[] parameters = prototype.getParameterTypes();
 
@@ -30,7 +55,6 @@ public class FunctionPrototypeMatcher {
             if (this.parameterTypes[i] == ANY) {
                 continue;
             }
-
             if (!parameters[i].isAssignableBy(parameterTypes[i])) {
                 return false;
             }

@@ -64,7 +64,7 @@ Date    Hours
 2018-10-03  0.5 Cleaning up the preprocessor.
 
 2018-10-09  4.0 Importing the ast and refactoring the predefined types.
-2018-10-10  2.0 Fixing tests for the generated parser.
+2018-10-10  3.5 Fixing tests for the generated parser.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

@@ -1,8 +1,10 @@
 package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.exception.Errors;
-import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.language.HasToken;
+import com.tazadum.glsl.language.ast.arithmetic.*;
+import com.tazadum.glsl.language.ast.conditional.*;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
@@ -14,8 +16,11 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
+import com.tazadum.glsl.language.model.*;
+import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.GLSLBaseVisitor;
@@ -52,7 +57,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     public Node visitArray_specifier(GLSLParser.Array_specifierContext ctx) {
         final Node arraySpecifier = ctx.constant_expression().accept(this);
         if (arraySpecifier instanceof FloatLeafNode) {
-            throw new TypeException(Errors.Type.NON_INTEGER_ARRAY_LENGTH());
+            throw new SourcePositionException(SourcePosition.create(ctx.start), Errors.Type.NON_INTEGER_ARRAY_LENGTH());
         }
         return arraySpecifier;
     }
@@ -68,7 +73,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             return ctx.expression().accept(this);
         }
 
-        final FullySpecifiedType fullySpecifiedType = TypeHelper.parseFullySpecifiedType(ctx.fully_specified_type());
+        final FullySpecifiedType fullySpecifiedType = TypeParserHelper.parseFullySpecifiedType(this, ctx.fully_specified_type());
         final String identifier = ctx.IDENTIFIER().getText();
         final Node initializer = ctx.initializer().accept(this);
         return new VariableDeclarationNode(SourcePosition.create(ctx.start), false, fullySpecifiedType, identifier, null, initializer);
@@ -184,7 +189,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
 
         // parse the return type
-        final FullySpecifiedType returnType = TypeHelper.parseFullySpecifiedType(functionHeader.fully_specified_type());
+        final FullySpecifiedType returnType = TypeParserHelper.parseFullySpecifiedType(this, functionHeader.fully_specified_type());
         final FunctionPrototypeNode functionPrototype = new FunctionPrototypeNode(sourcePosition, functionName, returnType);
 
         // function declarations are in the global context
@@ -293,7 +298,9 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final String parameterName = ctx.IDENTIFIER() == null ? null : ctx.IDENTIFIER().getText();
 
         // parse the type
-        final FullySpecifiedType type = TypeHelper.parseFullySpecifiedType(ctx);
+
+
+        final FullySpecifiedType type = TypeParserHelper.parseFullySpecifiedType(this, ctx);
 
         // parse the array specifier
         Node arraySpecifier = null;
@@ -501,7 +508,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         final String identifier = ctx.IDENTIFIER().getText();
-        final FullySpecifiedType fullySpecifiedType = TypeHelper.parseFullySpecifiedType(ctx.fully_specified_type());
+        final FullySpecifiedType fullySpecifiedType = TypeParserHelper.parseFullySpecifiedType(this, ctx.fully_specified_type());
 
         Node arraySpecifier = null;
         Node initializer = null;
@@ -841,68 +848,5 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
         final SourcePositionId sourcePositionId = mapper.map(sourcePosition);
         return !sourcePositionId.isDefaultFile();
-    }
-
-
-    /**
-     * Special Node type used for passing data through the visitor.
-     */
-    public static class DataNode<T> implements Node {
-        private SourcePosition sourcePosition;
-        private T data;
-
-        public DataNode(SourcePosition sourcePosition, T data) {
-            this.sourcePosition = sourcePosition;
-            this.data = data;
-        }
-
-        public T getData() {
-            return data;
-        }
-
-        @Override
-        public int getId() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public int calculateId(int id) {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public SourcePosition getSourcePosition() {
-            return sourcePosition;
-        }
-
-        @Override
-        public ParentNode getParentNode() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public void setParentNode(ParentNode parentNode) {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Node clone(ParentNode newParent) {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public <T> T accept(ASTVisitor<T> visitor) {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public GLSLType getType() {
-            throw new UnsupportedOperationException("Not implemented");
-        }
-
-        @Override
-        public Node find(int id) {
-            throw new UnsupportedOperationException("Not implemented");
-        }
     }
 }

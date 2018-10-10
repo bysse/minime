@@ -1,39 +1,24 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.language.model.PrecisionQualifier;
-
 public class FullySpecifiedType {
     private TypeQualifierList qualifiers;
-    private PrecisionQualifier precision;
     private GLSLType type;
 
     public FullySpecifiedType(GLSLType type) {
-        this(null, null, type);
+        this(null, type);
     }
 
-    public FullySpecifiedType(PrecisionQualifier precision, GLSLType type) {
-        this(null, precision, type);
-    }
-
-    public FullySpecifiedType(TypeQualifierList qualifiers, PrecisionQualifier precision, GLSLType type) {
+    public FullySpecifiedType(TypeQualifierList qualifiers, GLSLType type) {
         this.qualifiers = qualifiers;
-        this.precision = precision;
         this.type = type;
 
-        if (type == null) {
-            //throw TypeException.missingType();
-            assert false : "Do something here";
-        }
+        assert type != null : "Provided type is null";
 
         // TODO: add some lightweight sanity checks, such as bool can't have precision
     }
 
     public TypeQualifierList getQualifiers() {
         return qualifiers;
-    }
-
-    public PrecisionQualifier getPrecision() {
-        return precision;
     }
 
     public GLSLType getType() {
@@ -48,14 +33,12 @@ public class FullySpecifiedType {
         FullySpecifiedType that = (FullySpecifiedType) o;
 
         if (qualifiers != that.qualifiers) return false;
-        if (precision != that.precision) return false;
         return type.equals(that.type);
     }
 
     @Override
     public int hashCode() {
         int result = qualifiers != null ? qualifiers.hashCode() : 0;
-        result = 31 * result + (precision != null ? precision.hashCode() : 0);
         result = 31 * result + type.hashCode();
         return result;
     }
@@ -63,7 +46,6 @@ public class FullySpecifiedType {
     @Override
     public String toString() {
         return (qualifiers == null ? "" : qualifiers + " ") +
-            (precision == null ? "" : precision.token() + " ") +
             type.token();
     }
 }

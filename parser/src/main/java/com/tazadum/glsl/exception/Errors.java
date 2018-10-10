@@ -24,5 +24,9 @@ public class Errors {
         public static String ILLEGAL_SWIZZLE(char component) {
             return format("Illegal component '%s' in swizzle", Objects.toString(component));
         }
+
+        public static String CUSTOM_TYPE_NOT_RESOLVED(String typeName) {
+            return format("The custom type %s has not been resolved yet", typeName);
+        }
     }
 }
