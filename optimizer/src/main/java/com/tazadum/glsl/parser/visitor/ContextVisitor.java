@@ -15,7 +15,7 @@ import com.tazadum.glsl.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.ast.variable.*;
-import com.tazadum.glsl.exception.ParserException;
+import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.input.FileMapper;
 import com.tazadum.glsl.input.FilePosition;
@@ -61,7 +61,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitAssignment_operator(GLSLParser.Assignment_operatorContext ctx) {
-        throw ParserException.notSupported("AssignmentOperator are handled by HasToken::match");
+        throw SourcePositionException.notSupported("AssignmentOperator are handled by HasToken::match");
     }
 
     @Override
@@ -97,7 +97,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitConstructor_identifier(GLSLParser.Constructor_identifierContext ctx) {
-        throw ParserException.notSupported("constructor_identifier is handled in function_call");
+        throw SourcePositionException.notSupported("constructor_identifier is handled in function_call");
     }
 
     @Override
@@ -123,7 +123,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitField_selection(GLSLParser.Field_selectionContext ctx) {
-        throw ParserException.notSupported("field_selection is handled in postfix_expression");
+        throw SourcePositionException.notSupported("field_selection is handled in postfix_expression");
     }
 
     @Override
@@ -136,7 +136,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFor_rest_statement(GLSLParser.For_rest_statementContext ctx) {
-        throw ParserException.notSupported("for_rest_statement is handled in ForIterationStatement");
+        throw SourcePositionException.notSupported("for_rest_statement is handled in ForIterationStatement");
     }
 
     @Override
@@ -164,12 +164,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
-        throw ParserException.notSupported("Can't visit FullySpecifiedType. Please use TypeHelper::parseFullySpecifiedType");
+        throw SourcePositionException.notSupported("Can't visit FullySpecifiedType. Please use TypeHelper::parseFullySpecifiedType");
     }
 
     @Override
     public Node visitFunction_call_header(GLSLParser.Function_call_headerContext ctx) {
-        throw ParserException.notSupported("This should be handled by function_call");
+        throw SourcePositionException.notSupported("This should be handled by function_call");
     }
 
     @Override
@@ -218,12 +218,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_header(GLSLParser.Function_headerContext ctx) {
-        throw ParserException.notSupported("Should be handled in function_declarator");
+        throw SourcePositionException.notSupported("Should be handled in function_declarator");
     }
 
     @Override
     public Node visitFunction_identifier(GLSLParser.Function_identifierContext ctx) {
-        throw ParserException.notSupported("This should be handled by function_call");
+        throw SourcePositionException.notSupported("This should be handled by function_call");
     }
 
     @Override
@@ -407,7 +407,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitParameter_qualifier(GLSLParser.Parameter_qualifierContext ctx) {
-        throw ParserException.notSupported("Not supported");
+        throw SourcePositionException.notSupported("Not supported");
     }
 
     @Override
@@ -451,7 +451,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitPrecision_qualifier(GLSLParser.Precision_qualifierContext ctx) {
-        throw ParserException.notSupported("Not implemented");
+        throw SourcePositionException.notSupported("Not implemented");
     }
 
     @Override
@@ -460,7 +460,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         BuiltInType builtInType = HasToken.match(ctx.type_specifier_no_prec(), BuiltInType.values());
 
         if (builtInType == null) {
-            throw ParserException.notSupported("Precision for custom types are not supported");
+            throw SourcePositionException.notSupported("Precision for custom types are not supported");
         }
 
         return new PrecisionDeclarationNode(qualifier, builtInType);
@@ -496,12 +496,12 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
         if (ctx.INVARIANT() != null) {
-            throw ParserException.notSupported("invariant");
+            throw SourcePositionException.notSupported("invariant");
         }
 
         if (ctx.IDENTIFIER() == null) {
             // early type declaration
-            throw ParserException.notSupported("early type declaration");
+            throw SourcePositionException.notSupported("early type declaration");
         }
 
         final String identifier = ctx.IDENTIFIER().getText();
@@ -544,27 +544,27 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitStruct_declaration(GLSLParser.Struct_declarationContext ctx) {
-        throw ParserException.notSupported("Structs are not supported");
+        throw SourcePositionException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_declaration_list(GLSLParser.Struct_declaration_listContext ctx) {
-        throw ParserException.notSupported("Structs are not supported");
+        throw SourcePositionException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_declarator(GLSLParser.Struct_declaratorContext ctx) {
-        throw ParserException.notSupported("Structs are not supported");
+        throw SourcePositionException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_declarator_list(GLSLParser.Struct_declarator_listContext ctx) {
-        throw ParserException.notSupported("Structs are not supported");
+        throw SourcePositionException.notSupported("Structs are not supported");
     }
 
     @Override
     public Node visitStruct_specifier(GLSLParser.Struct_specifierContext ctx) {
-        throw ParserException.notSupported("Structs are not supported");
+        throw SourcePositionException.notSupported("Structs are not supported");
     }
 
     @Override
@@ -628,7 +628,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitUnary_operator(GLSLParser.Unary_operatorContext ctx) {
-        throw ParserException.notSupported("UnaryOperator should be parsed with HasToken::match");
+        throw SourcePositionException.notSupported("UnaryOperator should be parsed with HasToken::match");
     }
 
     @Override
@@ -638,7 +638,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitVariable_identifier(GLSLParser.Variable_identifierContext ctx) {
-        throw ParserException.notSupported("Variable identifiers are handled in visitPrimary_expression");
+        throw SourcePositionException.notSupported("Variable identifiers are handled in visitPrimary_expression");
     }
 
     @Override

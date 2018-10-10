@@ -1,6 +1,7 @@
 package com.tazadum.glsl.util;
 
-import java.util.*;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class SourcePositionMapper {
     private final SourcePositionMapper sourceMapper;
@@ -15,6 +16,11 @@ public class SourcePositionMapper {
         this.tree = new TreeMap<>();
     }
 
+    /**
+     * Map a SourcePosition to the position of the original file.
+     *
+     * @param position The position to map.
+     */
     public SourcePositionId map(SourcePosition position) {
         SourcePositionId sourcePosition = internalMap(position);
         if (sourceMapper != null) {
@@ -23,7 +29,7 @@ public class SourcePositionMapper {
         return sourcePosition;
     }
 
-    public SourcePositionId internalMap(SourcePosition position) {
+    private SourcePositionId internalMap(SourcePosition position) {
         Map.Entry<SourcePosition, SourcePositionId> entry = tree.floorEntry(position);
         if (entry == null) {
             if (tree.isEmpty()) {

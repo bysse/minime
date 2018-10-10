@@ -10,7 +10,7 @@ import com.tazadum.glsl.ast.function.FunctionCallNode;
 import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.ast.variable.*;
-import com.tazadum.glsl.exception.ParserException;
+import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLType;
@@ -42,7 +42,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
         final GLSLType glslType = expression.getType();
         if (!(glslType instanceof BuiltInType)) {
-            throw ParserException.notSupported("Custom types are not supported");
+            throw SourcePositionException.notSupported("Custom types are not supported");
         }
 
         final BuiltInType type = (BuiltInType) glslType;

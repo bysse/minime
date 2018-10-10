@@ -3,7 +3,7 @@ package com.tazadum.glsl.exception;
 import com.tazadum.glsl.language.GLSLType;
 import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 
-public class TypeException extends ParserException {
+public class TypeException extends SourcePositionException {
     public static TypeException unknownError(String details) {
         return new TypeException("Unknown type error : " + details);
     }

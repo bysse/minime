@@ -12,7 +12,7 @@ import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.function.FunctionRegistry;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.language.variable.VariableRegistry;
-import com.tazadum.glsl.util.SourcePositionId;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -193,11 +193,11 @@ public class ParserContextImpl implements ParserContext {
     }
 
     private VariableDeclarationNode variable(PredefinedType type, String identifier) {
-        return new VariableDeclarationNode(SourcePositionId.DEFAULT, true, new FullySpecifiedType(type), identifier, null, null);
+        return new VariableDeclarationNode(SourcePosition.TOP, true, new FullySpecifiedType(type), identifier, null, null);
     }
 
     private void fixedFunction(String identifier, PredefinedType returnType, PredefinedType... parameters) {
-        final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePositionId.DEFAULT, identifier, new FullySpecifiedType(returnType));
+        final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePosition.TOP, identifier, new FullySpecifiedType(returnType));
         node.setPrototype(new FunctionPrototype(true, returnType, parameters));
         functionRegistry.declareFunction(node);
     }
@@ -209,7 +209,7 @@ public class ParserContextImpl implements ParserContext {
             final PredefinedType returnType = parameters[0];
             final PredefinedType[] arguments = Arrays.copyOfRange(parameters, 1, parameters.length);
 
-            final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePositionId.DEFAULT, identifier, new FullySpecifiedType(returnType));
+            final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePosition.TOP, identifier, new FullySpecifiedType(returnType));
             node.setPrototype(new FunctionPrototype(true, returnType, arguments));
             functionRegistry.declareFunction(node);
         }

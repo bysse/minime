@@ -2,6 +2,7 @@ package com.tazadum.glsl.language.ast;
 
 
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.util.SourcePosition;
 
 public class StatementListNode extends ParentNode {
     public StatementListNode(SourcePosition position) {

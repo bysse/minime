@@ -2,25 +2,25 @@ package com.tazadum.glsl.language.ast;
 
 import org.junit.jupiter.api.Test;
 
-import static com.tazadum.glsl.util.SourcePositionId.DEFAULT;
+import static com.tazadum.glsl.util.SourcePosition.TOP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ParentNodeTest {
     @Test
     public void testId() {
-        ParentNode root = new ParentNode(DEFAULT);
+        ParentNode root = new ParentNode(TOP);
 
-        Node a = new LeafNode(DEFAULT, root);
-        Node b = new LeafNode(DEFAULT, root);
-        Node c = new LeafNode(DEFAULT, root);
+        Node a = new LeafNode(TOP, root);
+        Node b = new LeafNode(TOP, root);
+        Node c = new LeafNode(TOP, root);
 
-        ParentNode child = new ParentNode(DEFAULT, root);
-        Node d = new LeafNode(DEFAULT, child);
-        Node e = new LeafNode(DEFAULT, child);
+        ParentNode child = new ParentNode(TOP, root);
+        Node d = new LeafNode(TOP, child);
+        Node e = new LeafNode(TOP, child);
 
-        ParentNode child2 = new ParentNode(DEFAULT, root);
-        Node f = new LeafNode(DEFAULT, child2);
-        Node g = new LeafNode(DEFAULT, child2);
+        ParentNode child2 = new ParentNode(TOP, root);
+        Node f = new LeafNode(TOP, child2);
+        Node g = new LeafNode(TOP, child2);
 
         root.addChild(a)
             .addChild(b)
@@ -44,7 +44,7 @@ public class ParentNodeTest {
         assertEquals(6, e.getId());
         assertEquals(10, c.getId());
 
-        Node h = new LeafNode(DEFAULT, root);
+        Node h = new LeafNode(TOP, root);
         root.setChild(0, h);
 
         assertEquals(10, c.getId());
@@ -54,8 +54,8 @@ public class ParentNodeTest {
 
     @Test
     public void testId_2() {
-        ParentNode root = new ParentNode(DEFAULT), child1 = new ParentNode(DEFAULT), child2 = new ParentNode(DEFAULT);
-        Node a = new LeafNode(DEFAULT), b = new LeafNode(DEFAULT), c = new LeafNode(DEFAULT), d = new LeafNode(DEFAULT);
+        ParentNode root = new ParentNode(TOP), child1 = new ParentNode(TOP), child2 = new ParentNode(TOP);
+        Node a = new LeafNode(TOP), b = new LeafNode(TOP), c = new LeafNode(TOP), d = new LeafNode(TOP);
 
         root.addChild(child1);
         root.addChild(child2);
