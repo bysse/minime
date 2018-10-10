@@ -6,7 +6,9 @@ import org.antlr.v4.runtime.Token;
  * Created by erikb on 2018-09-18.
  */
 public class SourcePositionId {
-    private static final String DEFAULT = "default";
+    private static final String DEFAULT_FILE = "default";
+    public static final SourcePositionId DEFAULT = create(DEFAULT_FILE, SourcePosition.TOP);
+
     private final String id;
     private final SourcePosition position;
 
@@ -15,7 +17,7 @@ public class SourcePositionId {
     }
 
     public static SourcePositionId create(int line, int column) {
-        return create(DEFAULT, line, column);
+        return create(DEFAULT_FILE, line, column);
     }
 
     public static SourcePositionId create(String sourceId, SourcePosition position) {
