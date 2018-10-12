@@ -193,7 +193,7 @@ public class ParserContextImpl implements ParserContext {
     }
 
     private VariableDeclarationNode variable(PredefinedType type, String identifier) {
-        return new VariableDeclarationNode(SourcePosition.TOP, true, new FullySpecifiedType(type), identifier, null, null);
+        return new VariableDeclarationNode(SourcePosition.TOP, true, new FullySpecifiedType(type), identifier, null);
     }
 
     private void fixedFunction(String identifier, PredefinedType returnType, PredefinedType... parameters) {

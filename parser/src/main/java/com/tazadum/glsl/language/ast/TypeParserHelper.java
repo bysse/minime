@@ -16,49 +16,56 @@ import java.util.stream.Collectors;
 public class TypeParserHelper {
     public static FullySpecifiedType parseFullySpecifiedType(ContextVisitor contextVisitor, GLSLParser.Fully_specified_typeContext ctx) {
         final TypeQualifierList typeQualifier = parseTypeQualifier(contextVisitor, ctx.type_qualifier());
-        final GLSLParser.Type_specifierContext specifierContext = ctx.type_specifier();
-
-        // handle the type specifier
-        GLSLType type = null;
-        GLSLParser.Type_specifier_no_arrayContext typeSpecifier = specifierContext.type_specifier_no_array();
-        if (typeSpecifier.IDENTIFIER() != null) {
-            // this is a custom type, most likely a struct
-            type = new UnresolvedType(typeSpecifier.IDENTIFIER().getText());
-        } else if (typeSpecifier.struct_specifier() != null) {
-            DataNode<StructType> node = DataNode.cast(StructType.class, typeSpecifier.struct_specifier().accept(contextVisitor));
-            type = node.getData();
-        } else {
-            type = HasToken.fromToken(typeSpecifier, PredefinedType.values());
-        }
-
-        // handle the array specifier
-        Node arraySpecifier = null;
-        if (specifierContext.array_specifier() != null) {
-            arraySpecifier = specifierContext.array_specifier().accept(contextVisitor);
-            type = new ArrayType(type, arraySpecifier);
-        }
-
+        final GLSLType type = parseTypeSpecifier(contextVisitor, ctx.type_specifier());
         return new FullySpecifiedType(typeQualifier, type);
     }
 
     public static FullySpecifiedType parseFullySpecifiedType(ContextVisitor contextVisitor, GLSLParser.Parameter_declarationContext ctx) {
         final TypeQualifierList typeQualifier = parseTypeQualifier(contextVisitor, ctx.type_qualifier());
+        GLSLType type = parseTypeSpecifier(contextVisitor, ctx.type_specifier());
 
-        final BuiltInType builtInType = HasToken.match(ctx.type_specifier(), BuiltInType.values());
-
-        if (builtInType == null) {
-            // TODO: we found a custom type and can have an anonymous type
-            throw new UnsupportedOperationException("Custom types not supported!");
+        if (ctx.array_specifier() == null) {
+            return new FullySpecifiedType(typeQualifier, type);
         }
 
-        return new FullySpecifiedType(typeQualifier, null, builtInType);
+        // parameters can have an additional array specifier
+        final Node node = ctx.array_specifier().accept(contextVisitor);
+        return new FullySpecifiedType(typeQualifier, new ArrayType(type, node));
     }
 
+    /**
+     * Translates the results of the 'type_specifier' rule to the AST model.
+     */
+    public static GLSLType parseTypeSpecifier(ContextVisitor contextVisitor, GLSLParser.Type_specifierContext ctx) {
+        final GLSLParser.Type_specifier_no_arrayContext typeCtx = ctx.type_specifier_no_array();
+
+        GLSLType type;
+        if (typeCtx.IDENTIFIER() != null) {
+            // this is a custom type, most likely a struct
+            type = new UnresolvedType(typeCtx.IDENTIFIER().getText());
+        } else if (typeCtx.struct_specifier() != null) {
+            DataNode<StructType> node = DataNode.cast(StructType.class, typeCtx.struct_specifier().accept(contextVisitor));
+            type = node.getData();
+        } else {
+            type = HasToken.fromToken(ctx, PredefinedType.values());
+        }
+
+        if (ctx.array_specifier() == null) {
+            return type;
+        }
+
+        final Node node = ctx.array_specifier().accept(contextVisitor);
+        return new ArrayType(type, node);
+    }
 
     /**
      * Translates the results of the rule 'type_qualifier' to the AST model.
      */
     public static TypeQualifierList parseTypeQualifier(ContextVisitor contextVisitor, GLSLParser.Type_qualifierContext qualifierContext) {
+        if (qualifierContext == null) {
+            return null;
+        }
+
         TypeQualifierList list = (qualifierContext.type_qualifier() != null) ? parseTypeQualifier(contextVisitor, qualifierContext.type_qualifier()) : new TypeQualifierList();
 
         final GLSLParser.Single_type_qualifierContext context = qualifierContext.single_type_qualifier();

@@ -13,18 +13,17 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     protected Identifier identifier;
     private boolean shared;
 
-    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, Node arraySpecifier, Node initializer) {
-        this(position, null, builtIn, fst, new Identifier(identifier), arraySpecifier, initializer);
+    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, Node initializer) {
+        this(position, null, builtIn, fst, new Identifier(identifier), initializer);
     }
 
-    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
+    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, Node initializer) {
         super(position, 2, newParent);
 
         this.builtIn = builtIn;
         this.type = fst;
         this.identifier = identifier;
 
-        setArraySpecifier(arraySpecifier);
         setInitializer(initializer);
     }
 
@@ -34,10 +33,6 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
     public Node getArraySpecifier() {
         return getChild(0);
-    }
-
-    public void setArraySpecifier(Node arraySpecifier) {
-        setChild(0, arraySpecifier);
     }
 
     public Identifier getIdentifier() {
@@ -67,8 +62,7 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, null, null);
-        node.setArraySpecifier(CloneUtils.clone(getArraySpecifier(), node));
+        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, null);
         node.setInitializer(CloneUtils.clone(getInitializer(), node));
         return node;
     }

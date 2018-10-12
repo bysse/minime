@@ -9,21 +9,19 @@ import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.util.SourcePosition;
 
 public class ParameterDeclarationNode extends VariableDeclarationNode {
-    public ParameterDeclarationNode(SourcePosition position, FullySpecifiedType fst, String identifier, Node arraySpecifier) {
-        super(position, false, fst, identifier, arraySpecifier, null);
+    public ParameterDeclarationNode(SourcePosition position, FullySpecifiedType fst, String identifier) {
+        super(position, false, fst, identifier, null);
     }
 
-    protected ParameterDeclarationNode(SourcePosition position, ParentNode newParent, FullySpecifiedType fst, Identifier identifier, Node arraySpecifier, Node initializer) {
-        super(position, newParent, false, fst, identifier, arraySpecifier, initializer);
+    protected ParameterDeclarationNode(SourcePosition position, ParentNode newParent, FullySpecifiedType fst, Identifier identifier, Node initializer) {
+        super(position, newParent, false, fst, identifier, initializer);
     }
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final ParameterDeclarationNode node = new ParameterDeclarationNode(getSourcePosition(), newParent, type, identifier, null, null);
-        node.setArraySpecifier(CloneUtils.clone(getArraySpecifier(), node));
+        final ParameterDeclarationNode node = new ParameterDeclarationNode(getSourcePosition(), newParent, type, identifier, null);
         node.setInitializer(CloneUtils.clone(getInitializer(), node));
         return node;
-
     }
 
     @Override

@@ -29,4 +29,10 @@ public class Errors {
             return format("The custom type %s has not been resolved yet", typeName);
         }
     }
+
+    public static class Syntax {
+        public static String TYPE_DOES_NOT_SUPPORT_PRECISION(String typeName) {
+            return format("The type '%s' does not support precision declarations", typeName);
+        }
+    }
 }
