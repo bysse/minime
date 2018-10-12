@@ -3,12 +3,14 @@ package com.tazadum.glsl.language.type;
 public class Numeric implements Comparable<Numeric> {
     private double value;
     private int decimals;
-    private boolean isFloat;
+    private PredefinedType type;
 
-    public Numeric(double value, int decimals, boolean isFloat) {
+    public Numeric(double value, int decimals, PredefinedType type) {
         this.value = value;
         this.decimals = decimals;
-        this.isFloat = isFloat;
+        this.type = type;
+
+        assert type.category() == TypeCategory.Scalar : "Non scalar type passed to constructor";
     }
 
     public boolean hasFraction() {
@@ -24,7 +26,11 @@ public class Numeric implements Comparable<Numeric> {
     }
 
     public boolean isFloat() {
-        return isFloat;
+        return type == PredefinedType.FLOAT || type == PredefinedType.DOUBLE;
+    }
+
+    public PredefinedType getType() {
+        return type;
     }
 
     @Override
@@ -40,7 +46,6 @@ public class Numeric implements Comparable<Numeric> {
         Numeric numeric = (Numeric) o;
 
         return Double.compare(numeric.value, value) == 0;
-
     }
 
     @Override
@@ -50,15 +55,40 @@ public class Numeric implements Comparable<Numeric> {
     }
 
     public static Numeric create(String number) {
+        int length = number.length();
+        char last = number.charAt(--length);
+
+        // check for type suffixes
+        if (last == 'u' || last == 'U') {
+            // no need for special float handling since this is an unsigned int
+            double value = Double.parseDouble(number.substring(0, length));
+            return new Numeric(value, 0, PredefinedType.UINT);
+        }
+
+        PredefinedType type = PredefinedType.INT;
+        if (last == 'f' || last == 'F') {
+            type = PredefinedType.FLOAT;
+            char prev = number.charAt(length - 1);
+            if (prev == 'l' || prev == 'L') {
+                type = PredefinedType.DOUBLE;
+                length--;
+            }
+            number = number.substring(0, length);
+        }
+
         final double value = Double.parseDouble(number);
 
-        int decimals = 0;
         int index = number.indexOf('.');
-
         if (index < 0) {
-            return new Numeric(value, 0, false);
+            // no dot found so this value has no decimals
+            return new Numeric(value, 0, type);
         }
-        decimals = number.length() - index - 1;
+
+        if (type == PredefinedType.INT) {
+            type = PredefinedType.FLOAT;
+        }
+
+        int decimals = number.length() - index - 1;
 
         // remove trailing zeroes
         for (int i = number.length() - 1; i > index; i--) {
@@ -68,10 +98,10 @@ public class Numeric implements Comparable<Numeric> {
             decimals--;
         }
 
-        return new Numeric(value, decimals, true);
+        return new Numeric(value, decimals, type);
     }
 
     public static Numeric abs(Numeric n) {
-        return new Numeric(Math.abs(n.getValue()), n.getDecimals(), n.isFloat());
+        return new Numeric(Math.abs(n.getValue()), n.getDecimals(), n.getType());
     }
 }

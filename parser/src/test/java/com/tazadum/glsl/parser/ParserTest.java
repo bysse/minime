@@ -1,14 +1,29 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.TestUtil;
+import com.tazadum.glsl.language.ast.Node;
+import org.antlr.v4.runtime.ParserRuleContext;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 class ParserTest {
+    @DisplayName("Test Generated Parser")
     @ParameterizedTest(name = "test {index}: {0}")
     @MethodSource("getSourceLines")
     void testParsing(String source) {
         TestUtil.parse(source);
+    }
+
+    @DisplayName("Test AST Conversion")
+    @ParameterizedTest(name = "test {index}: {0}")
+    @MethodSource("getSourceLines")
+    void testAST(String source) {
+        ParserRuleContext context = TestUtil.parse(source);
+        Node node = TestUtil.ast(context);
+        assertNotNull(node);
     }
 
     private static String[] getSourceLines() {

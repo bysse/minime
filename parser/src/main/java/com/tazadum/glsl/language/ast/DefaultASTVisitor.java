@@ -13,6 +13,7 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.TypeDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 
 /**
@@ -209,6 +210,36 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     @Override
     public T visitFloat(FloatLeafNode node) {
         visitLeafNode(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeDeclaration(TypeDeclarationNode node) {
+        visitLeafNode(node);
+        return null;
+    }
+
+    @Override
+    public T visitBitOperation(BitOperationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitSwitch(SwitchNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitSwitchCase(CaseNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitSwitchDefault(DefaultCaseNode node) {
+        visitChildren(node);
         return null;
     }
 

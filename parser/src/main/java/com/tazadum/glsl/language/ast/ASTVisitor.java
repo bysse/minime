@@ -13,6 +13,7 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.TypeDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 
 /**
@@ -82,4 +83,14 @@ public interface ASTVisitor<T> {
     T visitInt(IntLeafNode node);
 
     T visitFloat(FloatLeafNode node);
+
+    T visitTypeDeclaration(TypeDeclarationNode node);
+
+    T visitBitOperation(BitOperationNode node);
+
+    T visitSwitch(SwitchNode node);
+
+    T visitSwitchCase(CaseNode node);
+
+    T visitSwitchDefault(DefaultCaseNode node);
 }

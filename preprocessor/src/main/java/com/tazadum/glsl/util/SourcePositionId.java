@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.Token;
  * Created by erikb on 2018-09-18.
  */
 public class SourcePositionId {
-    private static final String DEFAULT_FILE = "default";
+    public static final String DEFAULT_FILE = "default";
     public static final SourcePositionId DEFAULT = create(DEFAULT_FILE, SourcePosition.TOP);
 
     private final String id;
@@ -49,13 +49,6 @@ public class SourcePositionId {
      */
     public SourcePosition getPosition() {
         return position;
-    }
-
-    /**
-     * Returns true if the position is in the default file ie 'DEFAULT' as id.
-     */
-    public boolean isDefaultFile() {
-        return DEFAULT.equals(id);
     }
 
     @Override

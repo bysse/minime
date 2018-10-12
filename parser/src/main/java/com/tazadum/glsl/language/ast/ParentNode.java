@@ -146,7 +146,7 @@ public class ParentNode implements Node {
 
     @Override
     public int getId() {
-        if (cachedId < 0) {
+        if (cachedId < 0 && parentNode != null) {
             parentNode.invalidateId();
         }
         return cachedId;

@@ -49,7 +49,7 @@ function_call
   : function_call_header
     (
         (VOID)?
-      | assignment_expression (COMMA assignment_expression)*
+        | assignment_expression (COMMA assignment_expression)*
     )
     RIGHT_PAREN
   ;
@@ -58,7 +58,6 @@ function_call_header
   : function_identifier LEFT_PAREN
   ;
 
-// Note: subroutines array calls are not supported. Constructors are catched through this rule as well.
 function_identifier
   : type_specifier
   ;

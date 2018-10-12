@@ -17,6 +17,16 @@ public class SourcePositionMapper {
     }
 
     /**
+     * Returns the ID of the top row which is considered to be the default file.
+     */
+    public String getDefaultId() {
+        if (tree.isEmpty()) {
+            return SourcePositionId.DEFAULT_FILE;
+        }
+        return tree.firstEntry().getValue().getId();
+    }
+
+    /**
      * Map a SourcePosition to the position of the original file.
      *
      * @param position The position to map.

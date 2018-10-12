@@ -6,7 +6,6 @@ import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.Numeric;
-import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.util.SourcePosition;
 
 public class FloatLeafNode extends LeafNode implements HasNumeric {
@@ -37,6 +36,6 @@ public class FloatLeafNode extends LeafNode implements HasNumeric {
 
     @Override
     public GLSLType getType() {
-        return PredefinedType.FLOAT;
+        return value.getType();
     }
 }

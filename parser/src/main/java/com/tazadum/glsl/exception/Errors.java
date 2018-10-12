@@ -25,6 +25,10 @@ public class Errors {
             return format("Illegal component '%s' in swizzle", Objects.toString(component));
         }
 
+        public static String UNKNOWN_TYPE(String type) {
+            return "Unknown type '" + type + "'";
+        }
+
         public static String CUSTOM_TYPE_NOT_RESOLVED(String typeName) {
             return format("The custom type %s has not been resolved yet", typeName);
         }

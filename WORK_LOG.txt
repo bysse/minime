@@ -65,6 +65,7 @@ Date    Hours
 
 2018-10-09  4.0 Importing the ast and refactoring the predefined types.
 2018-10-10  3.5 Fixing tests for the generated parser.
+2018-10-12  3.6 The parser project compiles and switch statements are in the AST.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -74,5 +75,6 @@ Date    Hours
 // TODO: Add more complex arithmetic simplifications
 
 
-// TODO: Add SourcePosition to the parser AST;
-// TODO: Evaluate the length of arrays
+// TODO: Evaluate the length of arrays after conversion to AST
+// TODO: Add struct support in the AST.
+

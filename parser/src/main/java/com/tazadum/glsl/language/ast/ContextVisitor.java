@@ -17,6 +17,7 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.TypeDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
@@ -279,7 +280,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         // register the declaration and usage of the type to enable easy look up during optimization
         parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), node);
-        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
+        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getNonArrayType(), node);
 
         return listNode;
     }
@@ -301,8 +302,9 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
         final ParameterDeclarationNode parameterDeclaration = new ParameterDeclarationNode(SourcePosition.create(ctx.start), fullySpecifiedType, parameterName);
 
-        final GLSLContext context = parserContext.currentContext();
-        parserContext.getVariableRegistry().declareVariable(context, parameterDeclaration);
+        // register the declaration and usage of the type to enable easy look up during optimization
+        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), parameterDeclaration);
+        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getNonArrayType(), parameterDeclaration);
 
         return parameterDeclaration;
     }
@@ -310,11 +312,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitInitializer(GLSLParser.InitializerContext ctx) {
         return ctx.assignment_expression().accept(this);
-    }
-
-    @Override
-    public Node visitInteger_expression(GLSLParser.Integer_expressionContext ctx) {
-        return ctx.expression().accept(this);
     }
 
     @Override
@@ -481,13 +478,15 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+
+        FullySpecifiedType fullySpecifiedType = TypeParserHelper.parseFullySpecifiedType(this, ctx.fully_specified_type());
         if (ctx.IDENTIFIER() == null) {
-            // TODO: early type declaration, add specific node for it
-            throw new UnsupportedOperationException("early type declaration");
+            // early type declaration
+            return new TypeDeclarationNode(position, fullySpecifiedType);
         }
 
         final String identifier = ctx.IDENTIFIER().getText();
-        FullySpecifiedType fullySpecifiedType = TypeParserHelper.parseFullySpecifiedType(this, ctx.fully_specified_type());
 
         if (ctx.array_specifier() != null) {
             // the declaration has an array specifier, modify the type to reflect that
@@ -501,12 +500,11 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             initializer = ctx.initializer().accept(this);
         }
 
-        final SourcePosition position = SourcePosition.create(ctx.start);
         final VariableDeclarationNode node = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, initializer);
 
         // register the declaration and usage of the type to enable easy look up during optimization
         parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), node);
-        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), node);
+        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getNonArrayType(), node);
         return node;
     }
 
@@ -781,6 +779,61 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         return result;
     }
 
+    @Override
+    public Node visitShift_expression(GLSLParser.Shift_expressionContext ctx) {
+        final BitOperator op = ctx.LEFT_OP() != null ? BitOperator.SHIFT_LEFT : BitOperator.SHIFT_RIGHT;
+        final BitOperationNode node = new BitOperationNode(SourcePosition.create(ctx.start), op);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
+    }
+
+    @Override
+    public Node visitBit_op_expression(GLSLParser.Bit_op_expressionContext ctx) {
+        BitOperator op;
+
+        if (ctx.AMPERSAND() != null) {
+            op = BitOperator.AND;
+        } else if (ctx.VERTICAL_BAR() != null) {
+            op = BitOperator.OR;
+        } else if (ctx.CARET() != null) {
+            op = BitOperator.XOR;
+        } else {
+            throw new UnsupportedOperationException("The rule 'bit_op_expressoin' is not implemented correctly.");
+        }
+
+        final BitOperationNode node = new BitOperationNode(SourcePosition.create(ctx.start), op);
+        node.setLeft(ctx.logical_expression(0).accept(this));
+        node.setRight(ctx.logical_expression(1).accept(this));
+        return node;
+    }
+
+    @Override
+    public Node visitSwitch_statement(GLSLParser.Switch_statementContext ctx) {
+        final Node selector = ctx.expression().accept(this);
+        SwitchNode node = new SwitchNode(SourcePosition.create(ctx.start), selector);
+
+        for (GLSLParser.Switch_case_statementContext childCtx : ctx.switch_case_statement()) {
+            node.addChild(childCtx.accept(this));
+        }
+
+        return node;
+    }
+
+    @Override
+    public Node visitSwitch_case_statement(GLSLParser.Switch_case_statementContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+
+        if (ctx.DEFAULT() != null) {
+            final Node statements = ctx.statement_with_scope().accept(this);
+            return new DefaultCaseNode(position, statements);
+        }
+
+        final Node label = ctx.expression().accept(this);
+        final Node statements = ctx.statement_with_scope().accept(this);
+        return new CaseNode(position, label, statements);
+    }
+
     /**
      * Check if the provided SourcePosition originates from an included file.
      * This requires that the SourcePositionMapper from the preprocessor is passed to the visitor during construction.
@@ -790,6 +843,14 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             return false;
         }
         final SourcePositionId sourcePositionId = mapper.map(sourcePosition);
-        return !sourcePositionId.isDefaultFile();
+        return !mapper.getDefaultId().equals(sourcePositionId.getId());
+    }
+
+    @Override
+    protected Node aggregateResult(Node aggregate, Node nextResult) {
+        if (nextResult == null) {
+            return aggregate;
+        }
+        return nextResult;
     }
 }
