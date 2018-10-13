@@ -6,8 +6,6 @@ import com.tazadum.glsl.exception.NoSuchFieldException;
  * Created by erikb on 2018-10-10.
  */
 public class StructType implements GLSLType {
-
-
     @Override
     public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
         return null;

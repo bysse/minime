@@ -1,6 +1,9 @@
 package com.tazadum.glsl.language.ast.arithmetic;
 
-import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.ASTVisitor;
+import com.tazadum.glsl.language.ast.FixedChildParentNode;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.model.BitOperator;
 import com.tazadum.glsl.language.type.GLSLType;
@@ -9,7 +12,7 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2018-10-12.
  */
-public class BitOperationNode extends FixedChildParentNode implements HasMutableType {
+public class BitOperationNode extends FixedChildParentNode {
     private BitOperator operator;
     private GLSLType type;
 
@@ -61,10 +64,5 @@ public class BitOperationNode extends FixedChildParentNode implements HasMutable
     @Override
     public GLSLType getType() {
         return type;
-    }
-
-    @Override
-    public void setType(GLSLType type) {
-        this.type = type;
     }
 }

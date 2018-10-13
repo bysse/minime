@@ -29,7 +29,7 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
     }
 
     public FunctionPrototypeNode getFunctionPrototype() {
-        return getChild(0, FunctionPrototypeNode.class);
+        return getChildAs(0);
     }
 
     public void setStatements(StatementListNode node) {
@@ -37,7 +37,7 @@ public class FunctionDefinitionNode extends FixedChildParentNode implements GLSL
     }
 
     public StatementListNode getStatements() {
-        return getChild(1, StatementListNode.class);
+        return getChildAs(1);
     }
 
     @Override

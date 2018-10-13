@@ -69,6 +69,7 @@ class ParserTest {
             "lowp ivec2 foo(lowp mat3);",
 
             "float myfunc (float f, out float g);",
+            "int[] a(int[3] a[2]) {}"
         };
     }
 }

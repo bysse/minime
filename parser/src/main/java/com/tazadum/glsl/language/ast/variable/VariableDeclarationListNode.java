@@ -1,8 +1,8 @@
 package com.tazadum.glsl.language.ast.variable;
 
 import com.tazadum.glsl.language.ast.ASTVisitor;
-import com.tazadum.glsl.language.ast.HasSharedState;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;

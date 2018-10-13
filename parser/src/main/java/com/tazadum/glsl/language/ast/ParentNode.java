@@ -94,7 +94,7 @@ public class ParentNode implements Node {
         return childNodes.get(index);
     }
 
-    public <T extends Node> T getChild(int index, Class<T> type) {
+    public <T extends Node> T getChildAs(int index) {
         return (T) getChild(index);
     }
 

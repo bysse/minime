@@ -1,6 +1,10 @@
 package com.tazadum.glsl.language.ast.util;
 
-import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasMutableType;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.ContextAware;

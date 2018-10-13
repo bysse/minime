@@ -65,14 +65,7 @@ function_identifier
 unary_expression
   : postfix_expression
   | (INC_OP | DEC_OP) unary_expression
-  | unary_operator unary_expression
-  ;
-
-unary_operator
-  : PLUS
-  | DASH
-  | BANG
-  | TILDE
+  | (PLUS | DASH | BANG | TILDE) unary_expression
   ;
 
 numeric_expression

@@ -1,9 +1,9 @@
 package com.tazadum.glsl.language.ast.function;
 
 import com.tazadum.glsl.language.ast.ASTVisitor;
-import com.tazadum.glsl.language.ast.HasSharedState;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;

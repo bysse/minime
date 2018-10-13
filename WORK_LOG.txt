@@ -66,6 +66,7 @@ Date    Hours
 2018-10-09  4.0 Importing the ast and refactoring the predefined types.
 2018-10-10  3.5 Fixing tests for the generated parser.
 2018-10-12  3.6 The parser project compiles and switch statements are in the AST.
+2018-10-13  4.5 Realizing that i need to split ContextVisitor into two passes.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

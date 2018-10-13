@@ -42,8 +42,7 @@ public class FullySpecifiedType {
 
         FullySpecifiedType that = (FullySpecifiedType) o;
 
-        if (qualifiers != that.qualifiers) return false;
-        return type.equals(that.type);
+        return qualifiers == that.qualifiers && type.equals(that.type);
     }
 
     @Override

@@ -8,6 +8,7 @@ import org.antlr.v4.runtime.ParserRuleContext;
  */
 public interface HasToken {
     int NO_TOKEN_ID = -1;
+
     /**
      * Returns the token associated with the symbol.
      */
@@ -71,5 +72,22 @@ public interface HasToken {
      */
     static <T extends HasToken> T fromToken(ParserRuleContext ctx, T... values) {
         return fromTokenId(ctx.getStart().getType(), values);
+    }
+
+    /**
+     * Does a linear search through the list of provided token looking for one that are not null in the context.
+     *
+     * @param ctx    ANTLR rule context to parse.
+     * @param values The values to search through.
+     * @param <T>    Subtype to HasToken.
+     * @return The matched value or null if no value matched the token.
+     */
+    static <T extends HasToken> T fromContext(ParserRuleContext ctx, T... values) {
+        for (T value : values) {
+            if (ctx.getToken(value.tokenId(), 0) != null) {
+                return value;
+            }
+        }
+        return null;
     }
 }

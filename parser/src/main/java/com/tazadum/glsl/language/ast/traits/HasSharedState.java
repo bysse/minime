@@ -1,4 +1,4 @@
-package com.tazadum.glsl.language.ast;
+package com.tazadum.glsl.language.ast.traits;
 
 /**
  * Created by erikb on 2018-09-14.

@@ -1,6 +1,6 @@
 package com.tazadum.glsl;
 
-import com.tazadum.glsl.language.ast.ContextVisitor;
+import com.tazadum.glsl.language.ast.ASTConverter;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.function.FunctionRegistryImpl;
 import com.tazadum.glsl.language.type.TypeRegistryImpl;
@@ -63,12 +63,9 @@ public class TestUtil {
             return null;
         }
         try {
-            ParserContext parserContext = parserContext();
             SourcePositionMapper mapper = new SourcePositionMapper();
             mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
-
-            ContextVisitor contextVisitor = new ContextVisitor(parserContext, mapper);
-            return context.accept(contextVisitor);
+            return context.accept(new ASTConverter(mapper));
         } catch (Exception e) {
             throw e;
         }

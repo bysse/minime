@@ -1,8 +1,6 @@
 package com.tazadum.glsl.language.ast;
 
-import com.tazadum.glsl.exception.Errors;
-import com.tazadum.glsl.exception.SourcePositionException;
-import com.tazadum.glsl.exception.VariableException;
+import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
@@ -10,27 +8,23 @@ import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
-import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.iteration.DoWhileIterationNode;
-import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
-import com.tazadum.glsl.language.ast.type.ArraySpecifierNode;
-import com.tazadum.glsl.language.ast.type.TypeNode;
-import com.tazadum.glsl.language.ast.type.TypeParserHelper;
-import com.tazadum.glsl.language.ast.variable.*;
-import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
+import com.tazadum.glsl.language.ast.type.*;
+import com.tazadum.glsl.language.ast.unresolved.*;
+import com.tazadum.glsl.language.ast.util.NodeUtil;
+import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
+import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.language.ast.variable.InitializerListNode;
 import com.tazadum.glsl.language.model.*;
-import com.tazadum.glsl.language.type.*;
-import com.tazadum.glsl.language.variable.ResolutionResult;
-import com.tazadum.glsl.language.variable.VariableRegistry;
+import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.parser.GLSLBaseVisitor;
 import com.tazadum.glsl.parser.GLSLParser;
-import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -40,18 +34,37 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ContextVisitor extends GLSLBaseVisitor<Node> {
-    private ParserContext parserContext;
+public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
 
-    public ContextVisitor(ParserContext parserContext, SourcePositionMapper mapper) {
-        this.parserContext = parserContext;
+    public ASTConverter(SourcePositionMapper mapper) {
         this.mapper = mapper;
     }
 
     @Override
-    public Node visitAdditive_expression(GLSLParser.Additive_expressionContext ctx) {
-        final NumericOperator op = ctx.PLUS() != null ? NumericOperator.ADD : NumericOperator.SUB;
+    public Node visitUnary_expression(GLSLParser.Unary_expressionContext ctx) {
+        if (ctx.postfix_expression() != null) {
+            return ctx.postfix_expression().accept(this);
+        }
+
+        final UnaryOperator op = HasToken.fromContext(ctx, UnaryOperator.values());
+        assert op != null : "Bad implementation";
+
+        final Node expression = ctx.unary_expression().accept(this);
+        final UnaryOperationNode node = new UnaryOperationNode(SourcePosition.create(ctx.start), op);
+        node.setExpression(expression);
+        return node;
+    }
+
+    @Override
+    public Node visitMultiplicative_expression(GLSLParser.Multiplicative_expressionContext ctx) {
+        final NumericOperator op = HasToken.fromContext(ctx,
+            NumericOperator.MUL,
+            NumericOperator.DIV,
+            NumericOperator.MOD
+        );
+        assert op != null : "Bad implementation";
+
         final NumericOperationNode node = new NumericOperationNode(SourcePosition.create(ctx.start), op);
         node.setLeft(ctx.numeric_expression(0).accept(this));
         node.setRight(ctx.numeric_expression(1).accept(this));
@@ -59,8 +72,31 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitAssignment_operator(GLSLParser.Assignment_operatorContext ctx) {
-        throw new UnsupportedOperationException("Not implemented");
+    public Node visitAdditive_expression(GLSLParser.Additive_expressionContext ctx) {
+        final NumericOperator op = HasToken.fromContext(ctx,
+            NumericOperator.ADD,
+            NumericOperator.SUB
+        );
+        assert op != null : "Bad implementation";
+
+        final NumericOperationNode node = new NumericOperationNode(SourcePosition.create(ctx.start), op);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
+    }
+
+    @Override
+    public Node visitShift_expression(GLSLParser.Shift_expressionContext ctx) {
+        final BitOperator op = HasToken.fromContext(ctx,
+            BitOperator.SHIFT_LEFT,
+            BitOperator.SHIFT_RIGHT
+        );
+        assert op != null : "Bad implementation";
+
+        final BitOperationNode node = new BitOperationNode(SourcePosition.create(ctx.start), op);
+        node.setLeft(ctx.numeric_expression(0).accept(this));
+        node.setRight(ctx.numeric_expression(1).accept(this));
+        return node;
     }
 
     @Override
@@ -72,6 +108,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         final TypeNode typeNode = (TypeNode) ctx.fully_specified_type().accept(this);
         final String identifier = ctx.IDENTIFIER().getText();
         final Node initializer = ctx.initializer().accept(this);
+        // TODO: implement
         //return new VariableDeclarationNode(SourcePosition.create(ctx.start), false, typeNode, identifier, null, initializer);
         return null;
     }
@@ -96,25 +133,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitMultiplicative_expression(GLSLParser.Multiplicative_expressionContext ctx) {
-        NumericOperator op = null;
-        if (ctx.STAR() != null) {
-            op = NumericOperator.MUL;
-        } else if (ctx.SLASH() != null) {
-            op = NumericOperator.DIV;
-        } else if (ctx.PERCENT() != null) {
-            op = NumericOperator.MOD;
-        }
-
-        assert op != null : "Multiplicative_expression has a bad implementation";
-
-        final NumericOperationNode node = new NumericOperationNode(SourcePosition.create(ctx.start), op);
-        node.setLeft(ctx.numeric_expression(0).accept(this));
-        node.setRight(ctx.numeric_expression(1).accept(this));
-        return node;
-    }
-
-    @Override
     public Node visitIteration_do_while_statement(GLSLParser.Iteration_do_while_statementContext ctx) {
         final DoWhileIterationNode node = new DoWhileIterationNode(SourcePosition.create(ctx.start));
         node.setStatement(ctx.statement_with_scope().accept(this));
@@ -123,14 +141,8 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitExternal_declaration(GLSLParser.External_declarationContext ctx) {
-        return super.visitExternal_declaration(ctx);
-    }
-
-    @Override
     public Node visitField_selection(GLSLParser.Field_selectionContext ctx) {
-        throw new UnsupportedOperationException("field_selection is handled in postfix_expression");
-
+        throw new BadImplementationException();
     }
 
     @Override
@@ -148,6 +160,9 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitIteration_for_statement(GLSLParser.Iteration_for_statementContext ctx) {
+
+        // TODO: implement
+        /*
         final ForIterationNode node = new ForIterationNode(SourcePosition.create(ctx.start));
         if (ctx.statement_no_new_scope() != null) {
             parserContext.enterContext(node);
@@ -167,51 +182,13 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         return node;
+        */
+        return null;
     }
 
     @Override
     public Node visitFunction_call_header(GLSLParser.Function_call_headerContext ctx) {
-        throw new UnsupportedOperationException("This should be handled by function_call");
-    }
-
-    @Override
-    public Node visitFunction_declarator(GLSLParser.Function_declaratorContext ctx) {
-        final GLSLParser.Function_headerContext functionHeader = ctx.function_header();
-        final String functionName = functionHeader.IDENTIFIER().getText();
-        final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
-
-        // parse the return type
-        final TypeNode returnTypeNode = (TypeNode) functionHeader.fully_specified_type().accept(this);
-        // TODO: FIX!
-        final FunctionPrototypeNode functionPrototype = null;// new FunctionPrototypeNode(sourcePosition, functionName, returnTypeNode);
-
-        // function declarations are in the global context
-        functionPrototype.setContext(null);
-
-        // parse the parameters
-        for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
-            functionPrototype.addChild(parameterCtx.accept(this));
-        }
-
-        if (isIncluded(sourcePosition)) {
-            // mark the function as being included from a shared file.
-            functionPrototype.setShared(true);
-        }
-
-        // register the function
-        parserContext.getFunctionRegistry().declareFunction(functionPrototype);
-
-        return functionPrototype;
-    }
-
-    @Override
-    public Node visitFunction_header(GLSLParser.Function_headerContext ctx) {
-        throw new UnsupportedOperationException("Should be handled in function_declarator");
-    }
-
-    @Override
-    public Node visitFunction_identifier(GLSLParser.Function_identifierContext ctx) {
-        throw new UnsupportedOperationException("This should be handled by function_call");
+        throw new BadImplementationException();
     }
 
     @Override
@@ -220,33 +197,62 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitInit_declarator_list(GLSLParser.Init_declarator_listContext ctx) {
-        /*
+    public Node visitFunction_declarator(GLSLParser.Function_declaratorContext ctx) {
+        final GLSLParser.Function_headerContext functionHeader = ctx.function_header();
+        final String functionName = functionHeader.IDENTIFIER().getText();
+        final UnresolvedTypeNode returnType = NodeUtil.cast(functionHeader.fully_specified_type().accept(this));
+
         final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
-        final boolean isShared = isIncluded(sourcePosition);
+        final UnresolvedFunctionPrototypeNode prototype = new UnresolvedFunctionPrototypeNode(sourcePosition, functionName, returnType);
+
+        // parse the parameters
+        for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
+            UnresolvedParameterDeclarationNode parameter = NodeUtil.cast(parameterCtx.accept(this));
+            prototype.addParameter(parameter);
+        }
+
+        if (isIncluded(sourcePosition)) {
+            // mark the function as being included from a shared file.
+            prototype.setShared(true);
+        }
+
+        return prototype;
+    }
+
+    @Override
+    public Node visitFunction_header(GLSLParser.Function_headerContext ctx) {
+        throw new BadImplementationException();
+    }
+
+    @Override
+    public Node visitFunction_identifier(GLSLParser.Function_identifierContext ctx) {
+        throw new BadImplementationException();
+    }
+
+    @Override
+    public Node visitInit_declarator_list(GLSLParser.Init_declarator_listContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final boolean isShared = isIncluded(position);
 
         if (ctx.single_declaration() != null) {
-            final VariableDeclarationNode variableNode = (VariableDeclarationNode) ctx.single_declaration().accept(this);
-            variableNode.setShared(isShared);
+            final UnresolvedVariableDeclarationNode declarationNode = NodeUtil.cast(ctx.single_declaration().accept(this));
+            declarationNode.setShared(isShared);
 
             // always return a list node
-            final VariableDeclarationListNode listNode = new VariableDeclarationListNode(sourcePosition);
+            final UnresolvedVariableDeclarationListNode listNode = new UnresolvedVariableDeclarationListNode(position);
             listNode.setShared(isShared);
-            listNode.addChild(variableNode);
+            listNode.addChild(declarationNode);
             return listNode;
         }
 
-        final VariableDeclarationListNode listNode = (VariableDeclarationListNode) ctx.init_declarator_list().accept(this);
+        final UnresolvedVariableDeclarationListNode listNode = NodeUtil.cast(ctx.init_declarator_list().accept(this));
         listNode.setShared(isShared);
 
-        FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
         final String identifier = ctx.IDENTIFIER().getText();
 
+        ArraySpecifierListNode arraySpecifier = null;
         if (ctx.array_specifier() != null) {
-            // the declaration has an array specifier, modify the type to reflect that
-            final Node node = ctx.array_specifier().accept(this);
-            final GLSLType type = new ArrayType(fullySpecifiedType.getType(), node);
-            fullySpecifiedType = new FullySpecifiedType(fullySpecifiedType.getQualifiers(), type);
+            arraySpecifier = NodeUtil.cast(ctx.array_specifier().accept(this));
         }
 
         Node initializer = null;
@@ -254,51 +260,76 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             initializer = ctx.initializer().accept(this);
         }
 
-        final VariableDeclarationNode node = new VariableDeclarationNode(sourcePosition, false, fullySpecifiedType, identifier, initializer);
-        node.setShared(isShared);
-        listNode.addChild(node);
-
-        // register the declaration and usage of the type to enable easy look up during optimization
-        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), node);
-        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getNonArrayType(), node);
+        UnresolvedVariableDeclarationNode declarationNode = new UnresolvedVariableDeclarationNode(position, null, identifier, arraySpecifier, initializer);
+        declarationNode.setShared(isShared);
+        listNode.addVariableDeclaration(declarationNode);
 
         return listNode;
-        */
-        return null;
     }
 
     @Override
-    public ParameterDeclarationNode visitParameter_declaration(GLSLParser.Parameter_declarationContext ctx) {
-        /*
-        // the parameter might not have an identifier
-        final String parameterName = ctx.IDENTIFIER() == null ? null : ctx.IDENTIFIER().getText();
+    public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final UnresolvedTypeNode typeNode = NodeUtil.cast(ctx.fully_specified_type().accept(this));
 
-        // parse the type
-        TypeQualifierList qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
-
-        FullySpecifiedType fullySpecifiedType = TypeParserHelper.parseFullySpecifiedType(this, ctx);
-
-        // parse the array specifier
-        if (ctx.array_specifier() != null) {
-            Node node = ctx.array_specifier().accept(this);
-            final GLSLType type = new ArrayType(fullySpecifiedType.getType(), node);
-            fullySpecifiedType = new FullySpecifiedType(fullySpecifiedType.getQualifiers(), type);
+        if (ctx.IDENTIFIER() == null) {
+            // early type declaration
+            return new UnresolvedTypeDeclarationNode(position, typeNode);
         }
 
-        final ParameterDeclarationNode parameterDeclaration = new ParameterDeclarationNode(SourcePosition.create(ctx.start), fullySpecifiedType, parameterName);
+        final String identifier = ctx.IDENTIFIER().getText();
 
-        // register the declaration and usage of the type to enable easy look up during optimization
-        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), parameterDeclaration);
-        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getNonArrayType(), parameterDeclaration);
+        ArraySpecifierListNode arraySpecifier = null;
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = NodeUtil.cast(ctx.array_specifier().accept(this));
+        }
 
-        return parameterDeclaration;
-        */
-        return null;
+        Node initializer = null;
+        if (ctx.initializer() != null) {
+            initializer = ctx.initializer().accept(this);
+        }
+
+        return new UnresolvedVariableDeclarationNode(position, typeNode, identifier, arraySpecifier, initializer);
+    }
+
+    @Override
+    public Node visitParameter_declaration(GLSLParser.Parameter_declarationContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+
+        // handle the type qualifier
+        TypeQualifierList qualifiers;
+        if (ctx.type_qualifier() == null) {
+            qualifiers = new TypeQualifierList();
+        } else {
+            qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
+        }
+
+        UnresolvedTypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
+        String identifier = ctx.IDENTIFIER() != null ? ctx.IDENTIFIER().getText() : null;
+
+        ArraySpecifierListNode arraySpecifier = null;
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = NodeUtil.cast(ctx.array_specifier().accept(this));
+        }
+
+        UnresolvedTypeNode typeNode = new UnresolvedTypeNode(position, qualifiers, typeSpecifier);
+        return new UnresolvedParameterDeclarationNode(position, typeNode, identifier, arraySpecifier);
     }
 
     @Override
     public Node visitInitializer(GLSLParser.InitializerContext ctx) {
-        return ctx.assignment_expression().accept(this);
+        if (ctx.assignment_expression() != null) {
+            return ctx.assignment_expression().accept(this);
+        }
+
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final InitializerListNode listNode = new InitializerListNode(position);
+
+        for (GLSLParser.InitializerContext initializer : ctx.initializer()) {
+            listNode.addChild(initializer.accept(this));
+        }
+
+        return listNode;
     }
 
     @Override
@@ -330,14 +361,11 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitEquality_expression(GLSLParser.Equality_expressionContext ctx) {
-        RelationalOperator op = null;
-        if (ctx.EQ_OP() != null) {
-            op = RelationalOperator.Equal;
-        } else if (ctx.NE_OP() != null) {
-            op = RelationalOperator.NotEqual;
-        } else {
-            assert false : "The rule 'equality_expression' is not implemented correctly";
-        }
+        final RelationalOperator op = HasToken.fromContext(ctx,
+            RelationalOperator.Equal,
+            RelationalOperator.NotEqual
+        );
+        assert op != null : "Bad implementation";
 
         final RelationalOperationNode node = new RelationalOperationNode(SourcePosition.create(ctx.start), op);
         node.setLeft(ctx.logical_expression(0).accept(this));
@@ -347,18 +375,13 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitRelational_expression(GLSLParser.Relational_expressionContext ctx) {
-        RelationalOperator op = null;
-        if (ctx.LEFT_ANGLE() != null) {
-            op = RelationalOperator.LessThan;
-        } else if (ctx.RIGHT_ANGLE() != null) {
-            op = RelationalOperator.GreaterThan;
-        } else if (ctx.LE_OP() != null) {
-            op = RelationalOperator.LessThanOrEqual;
-        } else if (ctx.GE_OP() != null) {
-            op = RelationalOperator.GreaterThanOrEqual;
-        } else {
-            assert false : "The rule 'relational_expression' is not implemented correctly";
-        }
+        final RelationalOperator op = HasToken.fromContext(ctx,
+            RelationalOperator.LessThan,
+            RelationalOperator.GreaterThan,
+            RelationalOperator.LessThanOrEqual,
+            RelationalOperator.GreaterThanOrEqual
+        );
+        assert op != null : "Bad implementation";
 
         final RelationalOperationNode node = new RelationalOperationNode(SourcePosition.create(ctx.start), op);
         node.setLeft(ctx.logical_expression(0).accept(this));
@@ -372,7 +395,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         node.setLeft(ctx.logical_expression(0).accept(this));
         node.setRight(ctx.logical_expression(1).accept(this));
         return node;
-
     }
 
     @Override
@@ -436,6 +458,8 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitPrecision_declaration(GLSLParser.Precision_declarationContext ctx) {
+        // TODO: implement
+        /*
         final PrecisionQualifier qualifier = HasToken.fromToken(ctx.precision_qualifier(), PrecisionQualifier.values());
         final GLSLType type = TypeParserHelper.parseTypeSpecifier(this, ctx.type_specifier());
 
@@ -461,36 +485,8 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         }
 
         throw new SourcePositionException(typePosition, Errors.Syntax.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
-    }
-
-    @Override
-    public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
-        final SourcePosition position = SourcePosition.create(ctx.start);
-
-        TypeNode typeNode = (TypeNode) ctx.fully_specified_type().accept(this);
-        if (ctx.IDENTIFIER() == null) {
-            // early type declaration
-            return null;
-        }
-
-        final String identifier = ctx.IDENTIFIER().getText();
-
-        ArraySpecifierListNode arraySpecifier = null;
-        if (ctx.array_specifier() != null) {
-            arraySpecifier = (ArraySpecifierListNode) ctx.array_specifier().accept(this);
-        }
-
-        Node initializer = null;
-        if (ctx.initializer() != null) {
-            initializer = ctx.initializer().accept(this);
-        }
-
-        // TODO: fix
-        final VariableDeclarationNode node = null; //new VariableDeclarationNode(position, false, typeNode, identifier, arraySpecifier, initializer);
-
-        // register the declaration and usage of the type to enable easy look up during optimization
-        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), node);
-        return node;
+        */
+        return null;
     }
 
     @Override
@@ -537,6 +533,11 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
+    public Node visitStruct_init_declaration(GLSLParser.Struct_init_declarationContext ctx) {
+        throw new UnsupportedOperationException("Structs are not supported");
+    }
+
+    @Override
     public Node visitTranslation_unit(GLSLParser.Translation_unitContext ctx) {
         final StatementListNode listNode = new StatementListNode(SourcePosition.create(ctx.start));
         for (GLSLParser.External_declarationContext externalContext : ctx.external_declaration()) {
@@ -563,28 +564,32 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
         }
 
-        // handle the type specifier
-        final GLSLParser.Type_specifierContext typeSpecifierCtx = ctx.type_specifier();
-        final GLSLParser.Type_specifier_no_arrayContext typeCtx = typeSpecifierCtx.type_specifier_no_array();
+        UnresolvedTypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
+        return new UnresolvedTypeNode(position, qualifiers, typeSpecifier);
+    }
 
-        GLSLType type;
-        if (typeCtx.IDENTIFIER() != null) {
-            // this is a custom type, most likely a struct
-            type = new UnresolvedType(typeCtx.IDENTIFIER().getText());
-        } else if (typeCtx.struct_specifier() != null) {
-            // TODO: fix explicit node for structs
-            TypeNode typeNode = (TypeNode) typeCtx.struct_specifier().accept(this);
-            type = typeNode.getType();
+    @Override
+    public Node visitType_specifier(GLSLParser.Type_specifierContext ctx) {
+        final GLSLParser.Type_specifier_no_arrayContext specifierCtx = ctx.type_specifier_no_array();
+
+        StructDeclarationNode structDeclaration = null;
+        String typeOrIdentifier = null;
+
+        if (specifierCtx.struct_specifier() != null) {
+            // the type is a struct
+            structDeclaration = (StructDeclarationNode) specifierCtx.struct_specifier().accept(this);
         } else {
-            type = HasToken.fromToken(ctx, PredefinedType.values());
+            // if the type is not a struct, just store the token value for later processing
+            typeOrIdentifier = specifierCtx.getText();
         }
 
-        if (typeSpecifierCtx.array_specifier() == null) {
-            return new TypeNode(position, type, qualifiers, null);
+        ArraySpecifierListNode arraySpecifier = null;
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = (ArraySpecifierListNode) ctx.array_specifier().accept(this);
         }
 
-        ArraySpecifierListNode arraySpecifier = (ArraySpecifierListNode) typeSpecifierCtx.array_specifier().accept(this);
-        return new TypeNode(position, type, qualifiers, arraySpecifier);
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        return new UnresolvedTypeSpecifierNode(position, typeOrIdentifier, structDeclaration, arraySpecifier);
     }
 
     @Override
@@ -609,21 +614,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitUnary_expression(GLSLParser.Unary_expressionContext ctx) {
-        if (ctx.postfix_expression() != null) {
-            return ctx.postfix_expression().accept(this);
-        }
-
-        final UnaryOperator op = HasToken.fromContext(ctx, UnaryOperator.values());
-        assert op != null : "Bad implementation";
-
-        final Node expression = ctx.unary_expression().accept(this);
-        final UnaryOperationNode node = new UnaryOperationNode(SourcePosition.create(ctx.start), op);
-        node.setExpression(expression);
-        return node;
-    }
-
-    @Override
     public Node visitIteration_while_statement(GLSLParser.Iteration_while_statementContext ctx) {
         final WhileIterationNode node = new WhileIterationNode(SourcePosition.create(ctx.start));
         node.setCondition(ctx.condition().accept(this));
@@ -633,21 +623,10 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_definition(GLSLParser.Function_definitionContext ctx) {
-        // create the context
-        final FunctionDefinitionNode definitionNode = new FunctionDefinitionNode(SourcePosition.create(ctx.start), null, null);
-        parserContext.enterContext(definitionNode);
-
-        final FunctionPrototypeNode functionPrototype = (FunctionPrototypeNode) ctx.function_prototype().accept(this);
-        definitionNode.setFunctionPrototype(functionPrototype);
-        functionPrototype.setContext(definitionNode);
-
-        GLSLParser.Compound_statement_no_new_scopeContext statements = ctx.compound_statement_no_new_scope();
-        if (statements != null) {
-            definitionNode.setStatements((StatementListNode) statements.accept(this));
-        }
-        parserContext.exitContext();
-
-        return definitionNode;
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final UnresolvedFunctionPrototypeNode prototype = NodeUtil.cast(ctx.function_prototype().accept(this));
+        final StatementListNode statementList = NodeUtil.cast(ctx.compound_statement_no_new_scope().accept(this));
+        return new UnresolvedFunctionDefinitionNode(position, prototype, statementList);
     }
 
     @Override
@@ -764,53 +743,14 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         if (ctx.BOOLCONSTANT() != null) {
             return new BooleanLeafNode(position, Boolean.valueOf(ctx.BOOLCONSTANT().getText()));
         }
-        if (ctx.LEFT_PAREN() != null) {
+        if (ctx.expression() != null) {
             final Node expression = ctx.expression().accept(this);
             return new ParenthesisNode(position, expression);
         }
 
-        // resolve variable
-        final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
-        final GLSLContext currentContext = parserContext.currentContext();
-        final String variableName = ctx.variable_identifier().IDENTIFIER().getText();
-
-        try {
-            final ResolutionResult result = variableRegistry.resolve(currentContext, variableName, Identifier.Mode.Original);
-            final VariableNode node = new VariableNode(position, result.getDeclaration());
-
-            variableRegistry.registerVariableUsage(currentContext, variableName, node);
-
-            return node;
-        } catch (VariableException e) {
-            throw new SourcePositionException(position, e.getMessage(), e);
-        }
-    }
-
-    @Override
-    public Node visitChildren(RuleNode node) {
-        Node result = super.visitChildren(node);
-        if (result == null) {
-            System.err.format("ERROR: null result from node %s : %s\n", node.getRuleContext().getClass().getSimpleName(), node.getText());
-        }
-        return result;
-    }
-
-    @Override
-    public Node visitTerminal(TerminalNode node) {
-        Node result = super.visitTerminal(node);
-        if (result == null) {
-            System.err.format("ERROR: null result from terminal node %s\n", node.getText());
-        }
-        return result;
-    }
-
-    @Override
-    public Node visitShift_expression(GLSLParser.Shift_expressionContext ctx) {
-        final BitOperator op = ctx.LEFT_OP() != null ? BitOperator.SHIFT_LEFT : BitOperator.SHIFT_RIGHT;
-        final BitOperationNode node = new BitOperationNode(SourcePosition.create(ctx.start), op);
-        node.setLeft(ctx.numeric_expression(0).accept(this));
-        node.setRight(ctx.numeric_expression(1).accept(this));
-        return node;
+        // this is a variable
+        final String identifier = ctx.variable_identifier().IDENTIFIER().getText();
+        return new UnresolvedVariableNode(position, identifier);
     }
 
     @Override
@@ -859,6 +799,18 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         return new CaseNode(position, label, statements);
     }
 
+    @Override
+    public Node visitQualifier_declaration(GLSLParser.Qualifier_declarationContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final TypeQualifierList qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
+
+        List<String> identifiers = new ArrayList<>();
+        for (TerminalNode node : ctx.IDENTIFIER()) {
+            identifiers.add(node.getText());
+        }
+
+        return new TypeQualifierNode(position, qualifiers, identifiers);
+    }
 
     /**
      * Check if the provided SourcePosition originates from an included file.
@@ -878,5 +830,28 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
             return aggregate;
         }
         return nextResult;
+    }
+
+    @Override
+    public Node visitAssignment_operator(GLSLParser.Assignment_operatorContext ctx) {
+        throw new BadImplementationException();
+    }
+
+    @Override
+    public Node visitChildren(RuleNode node) {
+        Node result = super.visitChildren(node);
+        if (result == null) {
+            System.err.format("ERROR: null result from node %s : %s\n", node.getRuleContext().getClass().getSimpleName(), node.getText());
+        }
+        return result;
+    }
+
+    @Override
+    public Node visitTerminal(TerminalNode node) {
+        Node result = super.visitTerminal(node);
+        if (result == null) {
+            System.err.format("ERROR: null result from terminal node %s\n", node.getText());
+        }
+        return result;
     }
 }

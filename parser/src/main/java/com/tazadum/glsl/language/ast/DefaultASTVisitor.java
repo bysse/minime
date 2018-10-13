@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.expression.ConstantExpressionNode;
+import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
@@ -13,7 +14,11 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.struct.TypeDeclarationNode;
+import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
+import com.tazadum.glsl.language.ast.type.ArraySpecifierNode;
+import com.tazadum.glsl.language.ast.type.TypeNode;
+import com.tazadum.glsl.language.ast.type.TypeQualifierNode;
+import com.tazadum.glsl.language.ast.unresolved.*;
 import com.tazadum.glsl.language.ast.variable.*;
 
 /**
@@ -214,8 +219,8 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
-    public T visitTypeDeclaration(TypeDeclarationNode node) {
-        visitLeafNode(node);
+    public T visitTypeDeclaration(UnresolvedTypeDeclarationNode node) {
+        visitChildren(node);
         return null;
     }
 
@@ -240,6 +245,78 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     @Override
     public T visitSwitchDefault(DefaultCaseNode node) {
         visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeNode(TypeNode node) {
+        visitLeafNode(node);
+        return null;
+    }
+
+    @Override
+    public T visitArrayTypeNode(ArraySpecifierNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitArrayTypeListNode(ArraySpecifierListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeNode(UnresolvedTypeNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitVariable(UnresolvedVariableNode node) {
+        visitLeafNode(node);
+        return null;
+    }
+
+    @Override
+    public T visitFunctionPrototype(UnresolvedFunctionPrototypeNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitVariableDeclarationList(UnresolvedVariableDeclarationListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitVariableDeclaration(UnresolvedVariableDeclarationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitParameterDeclaration(UnresolvedParameterDeclarationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitFunctionDefinition(UnresolvedFunctionDefinitionNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitInitializerList(InitializerListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeQualifierNode(TypeQualifierNode node) {
+        visitLeafNode(node);
         return null;
     }
 

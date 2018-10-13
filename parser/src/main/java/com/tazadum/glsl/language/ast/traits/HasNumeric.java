@@ -1,4 +1,4 @@
-package com.tazadum.glsl.language.ast;
+package com.tazadum.glsl.language.ast.traits;
 
 
 import com.tazadum.glsl.language.type.Numeric;

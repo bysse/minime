@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.expression.ConstantExpressionNode;
+import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
@@ -13,7 +14,11 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.struct.TypeDeclarationNode;
+import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
+import com.tazadum.glsl.language.ast.type.ArraySpecifierNode;
+import com.tazadum.glsl.language.ast.type.TypeNode;
+import com.tazadum.glsl.language.ast.type.TypeQualifierNode;
+import com.tazadum.glsl.language.ast.unresolved.*;
 import com.tazadum.glsl.language.ast.variable.*;
 
 /**
@@ -84,7 +89,7 @@ public interface ASTVisitor<T> {
 
     T visitFloat(FloatLeafNode node);
 
-    T visitTypeDeclaration(TypeDeclarationNode node);
+    T visitTypeDeclaration(UnresolvedTypeDeclarationNode node);
 
     T visitBitOperation(BitOperationNode node);
 
@@ -93,4 +98,28 @@ public interface ASTVisitor<T> {
     T visitSwitchCase(CaseNode node);
 
     T visitSwitchDefault(DefaultCaseNode node);
+
+    T visitTypeNode(TypeNode node);
+
+    T visitArrayTypeNode(ArraySpecifierNode node);
+
+    T visitArrayTypeListNode(ArraySpecifierListNode node);
+
+    T visitTypeNode(UnresolvedTypeNode node); // there are potential sub-trees here
+
+    T visitTypeQualifierNode(TypeQualifierNode node); // there are potential sub-trees here
+
+    T visitVariable(UnresolvedVariableNode node);
+
+    T visitFunctionPrototype(UnresolvedFunctionPrototypeNode node);
+
+    T visitVariableDeclarationList(UnresolvedVariableDeclarationListNode node);
+
+    T visitVariableDeclaration(UnresolvedVariableDeclarationNode node);
+
+    T visitParameterDeclaration(UnresolvedParameterDeclarationNode node);
+
+    T visitFunctionDefinition(UnresolvedFunctionDefinitionNode node);
+
+    T visitInitializerList(InitializerListNode node);
 }

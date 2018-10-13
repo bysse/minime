@@ -1,9 +1,9 @@
 package com.tazadum.glsl.language.ast.arithmetic;
 
 import com.tazadum.glsl.language.ast.ASTVisitor;
-import com.tazadum.glsl.language.ast.HasNumeric;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.util.SourcePosition;

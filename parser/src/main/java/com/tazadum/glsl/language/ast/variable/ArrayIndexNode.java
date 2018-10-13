@@ -1,6 +1,10 @@
 package com.tazadum.glsl.language.ast.variable;
 
-import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.ASTVisitor;
+import com.tazadum.glsl.language.ast.FixedChildParentNode;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasMutableType;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
