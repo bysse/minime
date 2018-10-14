@@ -1,103 +1,16 @@
 package com.tazadum.glsl.language.ast.type;
 
-import com.tazadum.glsl.language.HasToken;
-import com.tazadum.glsl.language.ast.ContextVisitor;
+import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.model.*;
-import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.parser.GLSLBaseVisitor;
 import com.tazadum.glsl.parser.GLSLParser;
-import org.antlr.v4.runtime.tree.TerminalNode;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Created by Erik on 2016-10-07.
- */
+@Deprecated
 public class TypeParserHelper {
-    /**
-     * Translates the results of the 'type_specifier' rule to the AST model.
-     */
-    public static GLSLType parseTypeSpecifier(ContextVisitor contextVisitor, GLSLParser.Type_specifierContext ctx) {
-        final GLSLParser.Type_specifier_no_arrayContext typeCtx = ctx.type_specifier_no_array();
-
-        GLSLType type;
-        if (typeCtx.IDENTIFIER() != null) {
-            // this is a custom type, most likely a struct
-            type = new UnresolvedType(typeCtx.IDENTIFIER().getText());
-        } else if (typeCtx.struct_specifier() != null) {
-            TypeNode typeNode = (TypeNode) typeCtx.struct_specifier().accept(contextVisitor);
-            type = typeNode.getType();
-        } else {
-            type = HasToken.fromToken(ctx, PredefinedType.values());
-        }
-
-        if (ctx.array_specifier() == null) {
-            return type;
-        }
-
-        final Node node = ctx.array_specifier().accept(contextVisitor);
-        return new ArrayType(type, node);
-    }
-
     /**
      * Translates the results of the rule 'type_qualifier' to the AST model.
      */
-    public static TypeQualifierList parseTypeQualifier(GLSLBaseVisitor<Node> visitor, GLSLParser.Type_qualifierContext qualifierContext) {
-        if (qualifierContext == null) {
-            return null;
-        }
-
-        TypeQualifierList list = (qualifierContext.type_qualifier() != null) ? parseTypeQualifier(visitor, qualifierContext.type_qualifier()) : new TypeQualifierList();
-
-        final GLSLParser.Single_type_qualifierContext context = qualifierContext.single_type_qualifier();
-        if (context.storage_qualifier() != null) {
-
-            StorageQualifier storageQualifier = HasToken.fromString(context.storage_qualifier().getText(), StorageQualifier.values());
-            if (storageQualifier == StorageQualifier.SUBROUTINE) {
-                GLSLParser.Type_name_listContext typeNamesCtx = context.storage_qualifier().type_name_list();
-
-                if (typeNamesCtx == null) {
-                    list.add(new SubroutineQualifier(null));
-                } else {
-                    List<String> typeNames = typeNamesCtx.IDENTIFIER().stream()
-                        .map(TerminalNode::getText)
-                        .collect(Collectors.toList());
-
-                    list.add(new SubroutineQualifier(typeNames));
-                }
-            }
-
-            list.add(storageQualifier);
-        } else if (context.memory_qualifier() != null) {
-            list.add(HasToken.fromToken(context.memory_qualifier(), MemoryQualifier.values()));
-        } else if (context.layout_qualifier() != null) {
-            final List<LayoutQualifier.QualifierId> ids = new ArrayList<>();
-
-            final GLSLParser.Layout_qualifier_id_listContext listContext = context.layout_qualifier().layout_qualifier_id_list();
-            for (GLSLParser.Layout_qualifier_idContext ctx : listContext.layout_qualifier_id()) {
-                if (ctx.constant_expression() == null) {
-                    ids.add(new LayoutQualifier.QualifierId(ctx.SHARED().getText(), null));
-                } else {
-                    Node value = ctx.constant_expression().accept(visitor);
-                    ids.add(new LayoutQualifier.QualifierId(ctx.IDENTIFIER().getText(), value));
-                }
-            }
-            list.add(new LayoutQualifier(ids));
-        } else if (context.precision_qualifier() != null) {
-            list.add(HasToken.fromToken(context.precision_qualifier(), PrecisionQualifier.values()));
-        } else if (context.interpolation_qualifier() != null) {
-            list.add(HasToken.fromToken(context.interpolation_qualifier(), InterpolationQualifier.values()));
-        } else if (context.invariant_qualifier() != null) {
-            list.add(HasToken.fromToken(context.invariant_qualifier(), InvariantQualifier.values()));
-        } else if (context.precise_qualifier() != null) {
-            list.add(HasToken.fromToken(context.precise_qualifier(), PrecisionQualifier.values()));
-        } else {
-            assert false : "No TypeQualifier match!";
-        }
-
-        return list;
+    public static TypeQualifierListNode parseTypeQualifier(GLSLBaseVisitor<Node> visitor, GLSLParser.Type_qualifierContext qualifierContext) {
+        throw new BadImplementationException();
     }
 }

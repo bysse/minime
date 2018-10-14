@@ -4,28 +4,26 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.UnresolvedNode;
-import com.tazadum.glsl.language.type.TypeQualifierList;
+import com.tazadum.glsl.language.ast.type.TypeQualifierListNode;
 import com.tazadum.glsl.util.SourcePosition;
 
 public class UnresolvedTypeNode extends FixedChildParentNode implements UnresolvedNode {
-    private TypeQualifierList qualifiers;
-
-    public UnresolvedTypeNode(SourcePosition position, TypeQualifierList qualifiers, UnresolvedTypeSpecifierNode typeSpecifier) {
+    public UnresolvedTypeNode(SourcePosition position, TypeQualifierListNode qualifiers, UnresolvedTypeSpecifierNode typeSpecifier) {
         this(position, null, qualifiers, typeSpecifier);
     }
 
-    public UnresolvedTypeNode(SourcePosition position, ParentNode parentNode, TypeQualifierList qualifiers, UnresolvedTypeSpecifierNode typeSpecifier) {
-        super(position, 1, parentNode);
-        this.qualifiers = qualifiers;
-        setChild(0, typeSpecifier);
+    public UnresolvedTypeNode(SourcePosition position, ParentNode parentNode, TypeQualifierListNode qualifiers, UnresolvedTypeSpecifierNode typeSpecifier) {
+        super(position, 2, parentNode);
+        setChild(0, qualifiers);
+        setChild(1, typeSpecifier);
     }
 
-    public TypeQualifierList getQualifiers() {
-        return qualifiers;
+    public TypeQualifierListNode getQualifiers() {
+        return getChildAs(0);
     }
 
     public UnresolvedTypeSpecifierNode getTypeSpecifier() {
-        return getChildAs(0);
+        return getChildAs(1);
     }
 
     @Override

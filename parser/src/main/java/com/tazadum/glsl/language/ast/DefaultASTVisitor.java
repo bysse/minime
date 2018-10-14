@@ -14,10 +14,7 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
-import com.tazadum.glsl.language.ast.type.ArraySpecifierNode;
-import com.tazadum.glsl.language.ast.type.TypeNode;
-import com.tazadum.glsl.language.ast.type.TypeQualifierNode;
+import com.tazadum.glsl.language.ast.type.*;
 import com.tazadum.glsl.language.ast.unresolved.*;
 import com.tazadum.glsl.language.ast.variable.*;
 
@@ -310,6 +307,30 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitInitializerList(InitializerListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeQualifierListNode(TypeQualifierListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitLayoutQualifierListNode(LayoutQualifierListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitLayoutQualifierIdNode(LayoutQualifierIdNode node) {
         visitChildren(node);
         return null;
     }

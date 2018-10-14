@@ -7,5 +7,6 @@ public enum TypeCategory {
     NoFields,
     Scalar,
     Vector,
-    Matrix,;
+    Matrix,
+    Opaque;
 }

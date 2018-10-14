@@ -14,10 +14,7 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
-import com.tazadum.glsl.language.ast.type.ArraySpecifierNode;
-import com.tazadum.glsl.language.ast.type.TypeNode;
-import com.tazadum.glsl.language.ast.type.TypeQualifierNode;
+import com.tazadum.glsl.language.ast.type.*;
 import com.tazadum.glsl.language.ast.unresolved.*;
 import com.tazadum.glsl.language.ast.variable.*;
 
@@ -122,4 +119,12 @@ public interface ASTVisitor<T> {
     T visitFunctionDefinition(UnresolvedFunctionDefinitionNode node);
 
     T visitInitializerList(InitializerListNode node);
+
+    T visitTypeQualifierListNode(TypeQualifierListNode node);
+
+    T visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node);
+
+    T visitLayoutQualifierListNode(LayoutQualifierListNode node);
+
+    T visitLayoutQualifierIdNode(LayoutQualifierIdNode node);
 }

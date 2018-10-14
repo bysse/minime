@@ -21,7 +21,6 @@ import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
 import com.tazadum.glsl.language.ast.type.ArraySpecifierNode;
 import com.tazadum.glsl.language.ast.type.TypeNode;
-import com.tazadum.glsl.language.ast.type.TypeParserHelper;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.model.*;
@@ -437,29 +436,16 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitPrecision_declaration(GLSLParser.Precision_declarationContext ctx) {
         final PrecisionQualifier qualifier = HasToken.fromToken(ctx.precision_qualifier(), PrecisionQualifier.values());
-        final GLSLType type = TypeParserHelper.parseTypeSpecifier(this, ctx.type_specifier());
+        final PredefinedType type = HasToken.fromContext(ctx.type_specifier(), PredefinedType.values());
+
+        if (type != null) {
+            if (type == PredefinedType.INT || type == PredefinedType.FLOAT || type.category() == TypeCategory.Opaque) {
+                final SourcePosition position = SourcePosition.create(ctx.start);
+                return new PrecisionDeclarationNode(position, qualifier, type);
+            }
+        }
 
         final SourcePosition typePosition = SourcePosition.create(ctx.type_specifier().start);
-
-        if (!(type instanceof PredefinedType) || type.isArray()) {
-            throw new SourcePositionException(typePosition, Errors.Syntax.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
-        }
-
-        final PredefinedType predefinedType = (PredefinedType) type;
-        final SourcePosition position = SourcePosition.create(ctx.start);
-
-        switch (predefinedType) {
-            case INT:
-            case UINT:
-            case FLOAT:
-            case DOUBLE:
-                return new PrecisionDeclarationNode(position, qualifier, predefinedType);
-        }
-
-        if (predefinedType.category() != TypeCategory.NoFields) {
-            return new PrecisionDeclarationNode(position, qualifier, predefinedType);
-        }
-
         throw new SourcePositionException(typePosition, Errors.Syntax.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
     }
 
@@ -560,7 +546,7 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
         if (ctx.type_qualifier() == null) {
             qualifiers = new TypeQualifierList();
         } else {
-            qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
+            qualifiers = null;//TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
         }
 
         // handle the type specifier

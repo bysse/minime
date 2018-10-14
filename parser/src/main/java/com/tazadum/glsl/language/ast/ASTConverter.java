@@ -1,6 +1,8 @@
 package com.tazadum.glsl.language.ast;
 
 import com.tazadum.glsl.exception.BadImplementationException;
+import com.tazadum.glsl.exception.Errors;
+import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
@@ -20,19 +22,24 @@ import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.ast.variable.InitializerListNode;
+import com.tazadum.glsl.language.ast.variable.PrecisionDeclarationNode;
 import com.tazadum.glsl.language.model.*;
 import com.tazadum.glsl.language.type.Numeric;
-import com.tazadum.glsl.language.type.TypeQualifierList;
+import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.language.type.TypeCategory;
+import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLBaseVisitor;
 import com.tazadum.glsl.parser.GLSLParser;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
@@ -297,11 +304,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final SourcePosition position = SourcePosition.create(ctx.start);
 
         // handle the type qualifier
-        TypeQualifierList qualifiers;
-        if (ctx.type_qualifier() == null) {
-            qualifiers = new TypeQualifierList();
-        } else {
-            qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
+        TypeQualifierListNode qualifiers = null;
+        if (ctx.type_qualifier() != null) {
+            qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
         }
 
         UnresolvedTypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
@@ -458,35 +463,18 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitPrecision_declaration(GLSLParser.Precision_declarationContext ctx) {
-        // TODO: implement
-        /*
         final PrecisionQualifier qualifier = HasToken.fromToken(ctx.precision_qualifier(), PrecisionQualifier.values());
-        final GLSLType type = TypeParserHelper.parseTypeSpecifier(this, ctx.type_specifier());
+        final PredefinedType type = HasToken.fromContext(ctx.type_specifier(), PredefinedType.values());
+
+        if (type != null) {
+            if (type == PredefinedType.INT || type == PredefinedType.FLOAT || type.category() == TypeCategory.Opaque) {
+                final SourcePosition position = SourcePosition.create(ctx.start);
+                return new PrecisionDeclarationNode(position, qualifier, type);
+            }
+        }
 
         final SourcePosition typePosition = SourcePosition.create(ctx.type_specifier().start);
-
-        if (!(type instanceof PredefinedType) || type.isArray()) {
-            throw new SourcePositionException(typePosition, Errors.Syntax.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
-        }
-
-        final PredefinedType predefinedType = (PredefinedType) type;
-        final SourcePosition position = SourcePosition.create(ctx.start);
-
-        switch (predefinedType) {
-            case INT:
-            case UINT:
-            case FLOAT:
-            case DOUBLE:
-                return new PrecisionDeclarationNode(position, qualifier, predefinedType);
-        }
-
-        if (predefinedType.category() != TypeCategory.NoFields) {
-            return new PrecisionDeclarationNode(position, qualifier, predefinedType);
-        }
-
         throw new SourcePositionException(typePosition, Errors.Syntax.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
-        */
-        return null;
     }
 
     @Override
@@ -549,23 +537,87 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitType_qualifier(GLSLParser.Type_qualifierContext ctx) {
-        throw new UnsupportedOperationException("Please use HasToken::match or TypeHelper to parse this.");
+        // take care of recursion
+        TypeQualifierListNode qualifiers;
+        if (ctx.type_qualifier() == null) {
+            qualifiers = new TypeQualifierListNode(SourcePosition.create(ctx.start));
+        } else {
+            qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
+        }
+
+        final GLSLParser.Single_type_qualifierContext context = ctx.single_type_qualifier();
+        if (context.storage_qualifier() != null) {
+            final SourcePosition position = SourcePosition.create(context.storage_qualifier().start);
+
+            StorageQualifier storageQualifier = HasToken.fromString(context.storage_qualifier().getText(), StorageQualifier.values());
+            if (storageQualifier == StorageQualifier.SUBROUTINE) {
+                GLSLParser.Type_name_listContext typeNamesCtx = context.storage_qualifier().type_name_list();
+
+
+                if (typeNamesCtx == null) {
+                    qualifiers.addChild(new TypeQualifierNode(position, new SubroutineQualifier(null)));
+                } else {
+                    List<String> typeNames = typeNamesCtx.IDENTIFIER().stream()
+                        .map(TerminalNode::getText)
+                        .collect(Collectors.toList());
+
+                    qualifiers.addChild(new TypeQualifierNode(position, new SubroutineQualifier(typeNames)));
+                }
+            }
+
+            qualifiers.addChild(new TypeQualifierNode(position, storageQualifier));
+        } else if (context.memory_qualifier() != null) {
+            qualifiers.addChild(from(context.memory_qualifier(), MemoryQualifier.values()));
+        } else if (context.layout_qualifier() != null) {
+            final LayoutQualifierListNode list = new LayoutQualifierListNode(SourcePosition.create(context.layout_qualifier().start));
+            final GLSLParser.Layout_qualifier_id_listContext listContext = context.layout_qualifier().layout_qualifier_id_list();
+
+            for (GLSLParser.Layout_qualifier_idContext idCtx : listContext.layout_qualifier_id()) {
+                SourcePosition position = SourcePosition.create(idCtx.start);
+                if (idCtx.constant_expression() == null) {
+                    list.addChild(new LayoutQualifierIdNode(position, idCtx.SHARED().getText(), null));
+                } else {
+                    Node value = idCtx.constant_expression().accept(this);
+                    list.addChild(new LayoutQualifierIdNode(position, idCtx.IDENTIFIER().getText(), value));
+                }
+            }
+            qualifiers.addChild(list);
+        } else if (context.precision_qualifier() != null) {
+            qualifiers.addChild(from(context.precision_qualifier(), PrecisionQualifier.values()));
+        } else if (context.interpolation_qualifier() != null) {
+            qualifiers.addChild(from(context.interpolation_qualifier(), InterpolationQualifier.values()));
+        } else if (context.invariant_qualifier() != null) {
+            qualifiers.addChild(from(context.invariant_qualifier(), InvariantQualifier.values()));
+        } else if (context.precise_qualifier() != null) {
+            qualifiers.addChild(from(context.precise_qualifier(), PrecisionQualifier.values()));
+        } else {
+            assert false : "No TypeQualifier match!";
+        }
+
+        return qualifiers;
+    }
+
+    @Override
+    public Node visitQualifier_declaration(GLSLParser.Qualifier_declarationContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final TypeQualifierListNode qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
+
+        List<String> identifiers = new ArrayList<>();
+        for (TerminalNode node : ctx.IDENTIFIER()) {
+            identifiers.add(node.getText());
+        }
+
+        return new TypeQualifierDeclarationNode(position, qualifiers, identifiers);
     }
 
     @Override
     public Node visitFully_specified_type(GLSLParser.Fully_specified_typeContext ctx) {
-        final SourcePosition position = SourcePosition.create(ctx.start);
-
-        // handle the type qualifier
-        TypeQualifierList qualifiers;
-        if (ctx.type_qualifier() == null) {
-            qualifiers = new TypeQualifierList();
-        } else {
-            qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
+        TypeQualifierListNode qualifiers = null;
+        if (ctx.type_qualifier() != null) {
+            qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
         }
-
         UnresolvedTypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
-        return new UnresolvedTypeNode(position, qualifiers, typeSpecifier);
+        return new UnresolvedTypeNode(SourcePosition.create(ctx.start), qualifiers, typeSpecifier);
     }
 
     @Override
@@ -799,19 +851,6 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         return new CaseNode(position, label, statements);
     }
 
-    @Override
-    public Node visitQualifier_declaration(GLSLParser.Qualifier_declarationContext ctx) {
-        final SourcePosition position = SourcePosition.create(ctx.start);
-        final TypeQualifierList qualifiers = TypeParserHelper.parseTypeQualifier(this, ctx.type_qualifier());
-
-        List<String> identifiers = new ArrayList<>();
-        for (TerminalNode node : ctx.IDENTIFIER()) {
-            identifiers.add(node.getText());
-        }
-
-        return new TypeQualifierNode(position, qualifiers, identifiers);
-    }
-
     /**
      * Check if the provided SourcePosition originates from an included file.
      * This requires that the SourcePositionMapper from the preprocessor is passed to the visitor during construction.
@@ -854,4 +893,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
         return result;
     }
+
+    private static <T extends HasToken & TypeQualifier> TypeQualifierNode from(ParserRuleContext ctx, T... values) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final T qualifier = HasToken.fromToken(ctx, values);
+        return new TypeQualifierNode(position, qualifier);
+    }
+
 }
