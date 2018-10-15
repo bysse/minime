@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ParserTest {
@@ -24,6 +25,16 @@ class ParserTest {
         ParserRuleContext context = TestUtil.parse(source);
         Node node = TestUtil.ast(context);
         assertNotNull(node);
+    }
+
+    @DisplayName("Test String Conversion")
+    @ParameterizedTest(name = "test {index}: {0}")
+    @MethodSource("getSourceLines")
+    void testString(String source) {
+        ParserRuleContext context = TestUtil.parse(source);
+        Node node = TestUtil.ast(context);
+        String rendered = TestUtil.toString(node);
+        assertEquals(source, rendered);
     }
 
     private static String[] getSourceLines() {
