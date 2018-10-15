@@ -1,17 +1,15 @@
 package com.tazadum.glsl.language.ast.unresolved;
 
 import com.tazadum.glsl.language.ast.ASTVisitor;
-import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.traits.UnresolvedNode;
 import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Indicates that a type will be specified further down the source listing.
  */
-public class UnresolvedTypeDeclarationNode extends FixedChildParentNode implements UnresolvedNode {
+public class UnresolvedTypeDeclarationNode extends UnresolvedVariableDeclarationNode implements UnresolvedNode {
     public UnresolvedTypeDeclarationNode(SourcePosition position, UnresolvedTypeNode typeNode) {
-        super(position, 1);
-        setChild(0, typeNode);
+        super(position, typeNode, null, null, null);
     }
 
     public UnresolvedTypeNode getTypeNode() {

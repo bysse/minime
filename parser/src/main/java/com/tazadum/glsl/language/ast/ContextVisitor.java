@@ -503,11 +503,6 @@ public class ContextVisitor extends GLSLBaseVisitor<Node> {
     }
 
     @Override
-    public Node visitStruct_declaration_list(GLSLParser.Struct_declaration_listContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
-    }
-
-    @Override
     public Node visitStruct_declarator(GLSLParser.Struct_declaratorContext ctx) {
         throw new UnsupportedOperationException("Structs are not supported");
     }

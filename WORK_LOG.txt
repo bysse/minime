@@ -68,6 +68,7 @@ Date    Hours
 2018-10-12  3.6 The parser project compiles and switch statements are in the AST.
 2018-10-13  4.5 Realizing that i need to split ContextVisitor into two passes.
 2018-10-14  1.0 Fixing type qualifier AST nodes.
+2018-10-15  1.0 All test snippets are converted to AST.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -76,7 +77,5 @@ Date    Hours
 // TODO: Fix squeeze, what is the problem?
 // TODO: Add more complex arithmetic simplifications
 
-
 // TODO: Evaluate the length of arrays after conversion to AST
-// TODO: Add struct support in the AST.
 

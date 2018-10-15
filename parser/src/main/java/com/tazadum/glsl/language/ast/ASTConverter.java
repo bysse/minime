@@ -15,7 +15,6 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.type.*;
 import com.tazadum.glsl.language.ast.unresolved.*;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
@@ -30,6 +29,7 @@ import com.tazadum.glsl.language.type.TypeCategory;
 import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLBaseVisitor;
 import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.util.ANTLRUtils;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -497,32 +497,83 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitStruct_declaration(GLSLParser.Struct_declarationContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
-    }
+        final SourcePosition position = SourcePosition.create(ctx.start);
 
-    @Override
-    public Node visitStruct_declaration_list(GLSLParser.Struct_declaration_listContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
-    }
+        TypeQualifierListNode qualifiers = null;
+        if (ctx.type_qualifier() != null) {
+            qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
+        }
 
-    @Override
-    public Node visitStruct_declarator(GLSLParser.Struct_declaratorContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
+        final UnresolvedTypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
+        final UnresolvedStructFieldListNode fieldListNode = NodeUtil.cast(ctx.struct_declarator_list().accept(this));
+
+        final UnresolvedStructFieldDeclarationNode fieldDeclaration = new UnresolvedStructFieldDeclarationNode(position, qualifiers, typeSpecifier);
+        fieldDeclaration.setFieldList(fieldListNode);
+        return fieldDeclaration;
     }
 
     @Override
     public Node visitStruct_declarator_list(GLSLParser.Struct_declarator_listContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        UnresolvedStructFieldListNode listNode = new UnresolvedStructFieldListNode(position);
+
+        for (GLSLParser.Struct_declaratorContext declaratorContext : ctx.struct_declarator()) {
+            UnresolvedStructFieldNode fieldNode = NodeUtil.cast(declaratorContext.accept(this));
+            listNode.addFieldNode(fieldNode);
+        }
+
+        return listNode;
+    }
+
+    @Override
+    public Node visitStruct_declarator(GLSLParser.Struct_declaratorContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final String identifier = ctx.IDENTIFIER().getText();
+
+        ArraySpecifierListNode arraySpecifier = null;
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = NodeUtil.cast(ctx.array_specifier().accept(this));
+        }
+
+        return new UnresolvedStructFieldNode(position, identifier, arraySpecifier);
     }
 
     @Override
     public Node visitStruct_specifier(GLSLParser.Struct_specifierContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final String identifier = ANTLRUtils.toString(ctx.IDENTIFIER(), null);
+
+        final UnresolvedStructDeclarationNode declarationNode = new UnresolvedStructDeclarationNode(position, identifier);
+        for (GLSLParser.Struct_declarationContext declarationContext : ctx.struct_declaration()) {
+            UnresolvedStructFieldDeclarationNode fieldDeclaration = NodeUtil.cast(declarationContext.accept(this));
+            declarationNode.addFieldDeclaration(fieldDeclaration);
+        }
+
+        return declarationNode;
     }
 
     @Override
     public Node visitStruct_init_declaration(GLSLParser.Struct_init_declarationContext ctx) {
-        throw new UnsupportedOperationException("Structs are not supported");
+        final SourcePosition position = SourcePosition.create(ctx.start);
+        final TypeQualifierListNode qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
+
+        UnresolvedStructDeclarationNode structDeclaration = new UnresolvedStructDeclarationNode(SourcePosition.create(ctx.struct_declaration(0).start), null);
+        for (GLSLParser.Struct_declarationContext declarationContext : ctx.struct_declaration()) {
+            UnresolvedStructFieldDeclarationNode fieldDeclaration = NodeUtil.cast(declarationContext.accept(this));
+            structDeclaration.addFieldDeclaration(fieldDeclaration);
+        }
+
+        String identifier = null;
+        if (ctx.IDENTIFIER(1) != null) {
+            identifier = ctx.IDENTIFIER(1).getText();
+        }
+
+        ArraySpecifierListNode arraySpecifier = null;
+        if (ctx.array_specifier() != null) {
+            arraySpecifier = NodeUtil.cast(ctx.array_specifier().accept(this));
+        }
+
+        return new UnresolvedInterfaceBlockNode(position, qualifiers, structDeclaration, identifier, arraySpecifier);
     }
 
     @Override
@@ -624,12 +675,12 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     public Node visitType_specifier(GLSLParser.Type_specifierContext ctx) {
         final GLSLParser.Type_specifier_no_arrayContext specifierCtx = ctx.type_specifier_no_array();
 
-        StructDeclarationNode structDeclaration = null;
+        UnresolvedStructDeclarationNode structDeclaration = null;
         String typeOrIdentifier = null;
 
         if (specifierCtx.struct_specifier() != null) {
             // the type is a struct
-            structDeclaration = (StructDeclarationNode) specifierCtx.struct_specifier().accept(this);
+            structDeclaration = NodeUtil.cast(specifierCtx.struct_specifier().accept(this));
         } else {
             // if the type is not a struct, just store the token value for later processing
             typeOrIdentifier = specifierCtx.getText();

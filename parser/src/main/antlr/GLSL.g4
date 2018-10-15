@@ -120,7 +120,7 @@ declaration
   : function_prototype SEMICOLON											                                            # function_declaration
   | init_declarator_list SEMICOLON									    	            	                            # variable_declaration
   | PRECISION precision_qualifier type_specifier SEMICOLON		    	                                                # precision_declaration
-  | type_qualifier IDENTIFIER LEFT_BRACE struct_declaration_list RIGHT_BRACE (IDENTIFIER)? (array_specifier)? SEMICOLON # struct_init_declaration
+  | type_qualifier IDENTIFIER LEFT_BRACE (struct_declaration)+ RIGHT_BRACE (IDENTIFIER)? (array_specifier)? SEMICOLON   # struct_init_declaration
   | type_qualifier SEMICOLON                                                                                            # qualifier_declaration
   | type_qualifier IDENTIFIER (COMMA IDENTIFIER)* SEMICOLON                                                             # qualifier_declaration
   ;
@@ -303,12 +303,7 @@ type_specifier_no_array
   ;
 
 struct_specifier
-  : STRUCT (IDENTIFIER)? LEFT_BRACE struct_declaration_list RIGHT_BRACE
-  ;
-
-struct_declaration_list
-  : struct_declaration
-  | struct_declaration_list struct_declaration
+  : STRUCT (IDENTIFIER)? LEFT_BRACE (struct_declaration)+ RIGHT_BRACE
   ;
 
 struct_declaration

@@ -127,4 +127,14 @@ public interface ASTVisitor<T> {
     T visitLayoutQualifierListNode(LayoutQualifierListNode node);
 
     T visitLayoutQualifierIdNode(LayoutQualifierIdNode node);
+
+    T visitUnresolvedStructDeclarationNode(UnresolvedStructDeclarationNode node);
+
+    T visitUnresolvedStructFieldNode(UnresolvedStructFieldNode node);
+
+    T visitUnresolvedStructFieldDeclarationNode(UnresolvedStructFieldDeclarationNode node);
+
+    T visitUnresolvedStructFieldListNode(UnresolvedStructFieldListNode node);
+
+    T visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node);
 }

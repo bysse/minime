@@ -3,6 +3,7 @@ package com.tazadum.glsl.util;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.misc.Interval;
 import org.antlr.v4.runtime.tree.ParseTree;
+import org.antlr.v4.runtime.tree.TerminalNode;
 
 /**
  * Created by erikb on 2018-09-18.
@@ -33,5 +34,9 @@ public class ANTLRUtils {
             builder.append(child.getText());
         }
         return builder.toString();
+    }
+
+    public static String toString(TerminalNode node, String defaultValue) {
+        return node == null ? defaultValue : node.getText();
     }
 }

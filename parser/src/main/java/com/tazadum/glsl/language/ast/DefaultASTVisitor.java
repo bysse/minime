@@ -336,6 +336,36 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
+    public T visitUnresolvedStructDeclarationNode(UnresolvedStructDeclarationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitUnresolvedStructFieldNode(UnresolvedStructFieldNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitUnresolvedStructFieldDeclarationNode(UnresolvedStructFieldDeclarationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitUnresolvedStructFieldListNode(UnresolvedStructFieldListNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
     public T visitTypeQualifierNode(TypeQualifierNode node) {
         visitLeafNode(node);
         return null;

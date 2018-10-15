@@ -2,7 +2,6 @@ package com.tazadum.glsl.language.ast.unresolved;
 
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.ParentNode;
-import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.traits.UnresolvedNode;
 import com.tazadum.glsl.language.ast.type.ArraySpecifierListNode;
 import com.tazadum.glsl.util.SourcePosition;
@@ -13,11 +12,11 @@ import com.tazadum.glsl.util.SourcePosition;
 public class UnresolvedTypeSpecifierNode extends FixedChildParentNode implements UnresolvedNode {
     private String typeOrIdentifier;
 
-    public UnresolvedTypeSpecifierNode(SourcePosition position, String typeOrIdentifier, StructDeclarationNode structDeclaration, ArraySpecifierListNode arraySpecifier) {
+    public UnresolvedTypeSpecifierNode(SourcePosition position, String typeOrIdentifier, UnresolvedStructDeclarationNode structDeclaration, ArraySpecifierListNode arraySpecifier) {
         this(position, null, typeOrIdentifier, structDeclaration, arraySpecifier);
     }
 
-    public UnresolvedTypeSpecifierNode(SourcePosition position, ParentNode parentNode, String typeOrIdentifier, StructDeclarationNode structDeclaration, ArraySpecifierListNode arraySpecifier) {
+    public UnresolvedTypeSpecifierNode(SourcePosition position, ParentNode parentNode, String typeOrIdentifier, UnresolvedStructDeclarationNode structDeclaration, ArraySpecifierListNode arraySpecifier) {
         super(position, 2, parentNode);
         this.typeOrIdentifier = typeOrIdentifier;
 
@@ -29,7 +28,7 @@ public class UnresolvedTypeSpecifierNode extends FixedChildParentNode implements
         return typeOrIdentifier;
     }
 
-    public StructDeclarationNode getStructDeclaration() {
+    public UnresolvedStructDeclarationNode getStructDeclaration() {
         return getChildAs(0);
     }
 
