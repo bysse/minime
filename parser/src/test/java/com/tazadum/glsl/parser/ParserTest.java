@@ -24,7 +24,7 @@ class ParserTest {
     @MethodSource("getSourceLines")
     void testAST(String source) {
         ParserRuleContext context = TestUtil.parse(source);
-        Node node = TestUtil.ast(context);
+        Node node = TestUtil.ast(context, TestUtil.parserContext());
         assertNotNull(node);
     }
 
@@ -37,7 +37,7 @@ class ParserTest {
         }
 
         ParserRuleContext context = TestUtil.parse(source);
-        Node node = TestUtil.ast(context);
+        Node node = TestUtil.ast(context, TestUtil.parserContext());
         String rendered = TestUtil.toString(node);
         assertEquals(expected, rendered);
     }

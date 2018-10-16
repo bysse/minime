@@ -11,6 +11,7 @@ import com.tazadum.glsl.language.ast.expression.ConstantExpressionNode;
 import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.iteration.DoWhileIterationNode;
+import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
@@ -18,10 +19,7 @@ import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.type.*;
 import com.tazadum.glsl.language.ast.unresolved.*;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
-import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
-import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
-import com.tazadum.glsl.language.ast.variable.InitializerListNode;
-import com.tazadum.glsl.language.ast.variable.PrecisionDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.model.*;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.language.type.PredefinedType;
@@ -29,6 +27,7 @@ import com.tazadum.glsl.language.type.TypeCategory;
 import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLBaseVisitor;
 import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.util.ANTLRUtils;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
@@ -43,9 +42,11 @@ import java.util.stream.Collectors;
 
 public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
+    private ParserContext parserContext;
 
-    public ASTConverter(SourcePositionMapper mapper) {
+    public ASTConverter(SourcePositionMapper mapper, ParserContext parserContext) {
         this.mapper = mapper;
+        this.parserContext = parserContext;
     }
 
     @Override
@@ -108,16 +109,19 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitCondition(GLSLParser.ConditionContext ctx) {
+        final SourcePosition position = SourcePosition.create(ctx.start);
+
         if (ctx.expression() != null) {
             return ctx.expression().accept(this);
         }
 
-        final TypeNode typeNode = (TypeNode) ctx.fully_specified_type().accept(this);
+        final UnresolvedTypeNode typeNode = NodeUtil.cast(ctx.fully_specified_type().accept(this));
         final String identifier = ctx.IDENTIFIER().getText();
         final Node initializer = ctx.initializer().accept(this);
-        // TODO: implement
-        //return new VariableDeclarationNode(SourcePosition.create(ctx.start), false, typeNode, identifier, null, initializer);
-        return null;
+
+        final UnresolvedVariableDeclarationListNode listNode = new UnresolvedVariableDeclarationListNode(position);
+        listNode.addChild(new UnresolvedVariableDeclarationNode(position, typeNode, identifier, null, initializer));
+        return listNode;
     }
 
     @Override
@@ -167,9 +171,6 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitIteration_for_statement(GLSLParser.Iteration_for_statementContext ctx) {
-
-        // TODO: implement
-        /*
         final ForIterationNode node = new ForIterationNode(SourcePosition.create(ctx.start));
         if (ctx.statement_no_new_scope() != null) {
             parserContext.enterContext(node);
@@ -189,8 +190,6 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         return node;
-        */
-        return null;
     }
 
     @Override

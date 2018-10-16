@@ -38,6 +38,6 @@ class CloneUtilsTest {
 
     Node compile(String source) {
         ParserRuleContext context = TestUtil.parse(source);
-        return TestUtil.ast(context);
+        return TestUtil.ast(context, TestUtil.parserContext());
     }
 }

@@ -64,14 +64,14 @@ public class TestUtil {
         }
     }
 
-    public static Node ast(ParserRuleContext context) {
+    public static Node ast(ParserRuleContext context, ParserContext parserContext) {
         if (context == null) {
             return null;
         }
         try {
             SourcePositionMapper mapper = new SourcePositionMapper();
             mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
-            return context.accept(new ASTConverter(mapper));
+            return context.accept(new ASTConverter(mapper, parserContext));
         } catch (Exception e) {
             throw e;
         }

@@ -20,7 +20,7 @@ class ResolvingVisitorTest {
     @MethodSource("getSource")
     void testString(String source, SourcePosition sourcePosition) {
         ParserRuleContext context = TestUtil.parse(source);
-        Node node = TestUtil.ast(context);
+        Node node = TestUtil.ast(context, TestUtil.parserContext());
         try {
             TestUtil.resolve(node, TestUtil.parserContext());
 

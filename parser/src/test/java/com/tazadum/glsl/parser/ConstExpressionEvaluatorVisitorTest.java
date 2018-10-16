@@ -14,7 +14,7 @@ class ConstExpressionEvaluatorVisitorTest {
     @Test
     void test() {
         ParserRuleContext context = TestUtil.parse("1+3", GLSLParser::constant_expression);
-        Numeric result = TestUtil.ast(context).accept(new ConstExpressionEvaluatorVisitor());
+        Numeric result = TestUtil.ast(context, TestUtil.parserContext()).accept(new ConstExpressionEvaluatorVisitor());
         assertEquals(4, result.getValue());
     }
 }
