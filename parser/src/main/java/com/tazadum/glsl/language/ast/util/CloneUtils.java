@@ -3,8 +3,10 @@ package com.tazadum.glsl.language.ast.util;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasMutableType;
 import com.tazadum.glsl.language.ast.traits.HasNumeric;
+import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.ContextAware;
@@ -38,6 +40,14 @@ public class CloneUtils {
 
         if (source instanceof HasMutableType) {
             ((HasMutableType) clone).setType(source.getType());
+        }
+
+        if (source instanceof HasSharedState) {
+            ((HasSharedState) clone).setShared(((HasSharedState) source).isShared());
+        }
+
+        if (source instanceof HasConstState) {
+            ((HasConstState) clone).setConstant(((HasConstState) source).isConstant());
         }
 
         return clone;

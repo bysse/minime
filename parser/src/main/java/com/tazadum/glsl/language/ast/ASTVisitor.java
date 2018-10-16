@@ -74,8 +74,6 @@ public interface ASTVisitor<T> {
 
     T visitBreak(BreakLeafNode node);
 
-    T visitUnaryOperation(UnaryOperationNode node);
-
     T visitPrefixOperation(PrefixOperationNode node);
 
     T visitPostfixOperation(PostfixOperationNode node);

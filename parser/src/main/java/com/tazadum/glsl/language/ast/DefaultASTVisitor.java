@@ -180,12 +180,6 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
-    public T visitUnaryOperation(UnaryOperationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
     public T visitPrefixOperation(PrefixOperationNode node) {
         visitChildren(node);
         return null;

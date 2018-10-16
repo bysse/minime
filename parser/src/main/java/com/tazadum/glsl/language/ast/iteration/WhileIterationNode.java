@@ -6,10 +6,13 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.IterationNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class WhileIterationNode extends FixedChildParentNode implements IterationNode {
+public class WhileIterationNode extends FixedChildParentNode implements IterationNode, GLSLContext {
+    private GLSLContext parentContext;
+
     public WhileIterationNode(SourcePosition position) {
         this(position, null);
     }
@@ -47,5 +50,20 @@ public class WhileIterationNode extends FixedChildParentNode implements Iteratio
     @Override
     public GLSLType getType() {
         return null;
+    }
+
+    @Override
+    public GLSLContext getParent() {
+        return parentContext;
+    }
+
+    @Override
+    public void setParent(GLSLContext parentContext) {
+        this.parentContext = parentContext;
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return false;
     }
 }

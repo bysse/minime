@@ -1,5 +1,7 @@
 package com.tazadum.glsl.exception;
 
+import com.tazadum.glsl.language.type.PredefinedType;
+
 import java.util.Objects;
 
 import static java.lang.String.format;
@@ -9,6 +11,9 @@ import static java.lang.String.format;
  */
 public class Errors {
     public static class Type {
+        public static final String NOT_A_CONST_EXPRESSION = "Expected a constant expression.";
+        public static final String ARRAY_SPECIFIER_NOT_CONSTANT = "Array specifier is not a constant expression";
+
         public static String UNKNOWN_TYPE_ERROR(String details) {
             return "Unknown type error : " + details;
         }
@@ -31,6 +36,10 @@ public class Errors {
 
         public static String CUSTOM_TYPE_NOT_RESOLVED(String typeName) {
             return format("The custom type %s has not been resolved yet", typeName);
+        }
+
+        public static String INCOMPATIBLE_OP_TYPES(PredefinedType a, PredefinedType b) {
+            return format("Incompatible operand types '%s' and '%s'.", a.token(), b.token());
         }
     }
 

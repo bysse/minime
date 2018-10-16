@@ -10,7 +10,7 @@ public enum UnaryOperator implements HasToken {
     INCREASE("++", GLSLParser.INC_OP),
     DECREASE("--", GLSLParser.DEC_OP),
     MINUS("-", GLSLParser.DASH),
-    BANG("!", GLSLParser.BANG),
+    BANG("!", GLSLParser.BANG), // boolean negation
     PLUS("+", GLSLParser.PLUS);
 
     private final String token;

@@ -69,7 +69,7 @@ Date    Hours
 2018-10-13  4.5 Realizing that i need to split ContextVisitor into two passes.
 2018-10-14  2.0 Fixing type qualifier AST nodes.
 2018-10-15  3.0 All test snippets are converted to AST. Rebuilding config and fixing formatting of Numeric.
-2018-10-16  2.0 Fixing the OutputVisitor.
+2018-10-16  4.0 Fixing the OutputVisitor. First draft at resolving constant expressions.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

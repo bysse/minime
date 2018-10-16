@@ -5,4 +5,6 @@ package com.tazadum.glsl.language.ast.traits;
  */
 public interface HasSharedState {
     boolean isShared();
+
+    void setShared(boolean shared);
 }

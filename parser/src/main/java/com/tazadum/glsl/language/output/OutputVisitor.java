@@ -415,13 +415,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitUnaryOperation(UnaryOperationNode node) {
-        buffer.append(node.getOperator());
-        node.getExpression().accept(this);
-        return buffer;
-    }
-
-    @Override
     public SourceBuffer visitPrefixOperation(PrefixOperationNode node) {
         buffer.append(node.getOperator());
         node.getExpression().accept(this);

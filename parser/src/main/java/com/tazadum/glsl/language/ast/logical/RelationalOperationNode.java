@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.model.RelationalOperator;
 import com.tazadum.glsl.language.type.GLSLType;
@@ -13,8 +14,9 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2016-10-10.
  */
-public class RelationalOperationNode extends FixedChildParentNode {
+public class RelationalOperationNode extends FixedChildParentNode implements HasConstState {
     private RelationalOperator operator;
+    private boolean constant;
 
     public RelationalOperationNode(SourcePosition position, RelationalOperator operator) {
         this(position, null, operator);
@@ -43,6 +45,15 @@ public class RelationalOperationNode extends FixedChildParentNode {
 
     public Node getRight() {
         return getChild(1);
+    }
+
+    @Override
+    public boolean isConstant() {
+        return constant;
+    }
+
+    public void setConstant(boolean constant) {
+        this.constant = constant;
     }
 
     @Override

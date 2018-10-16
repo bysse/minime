@@ -58,7 +58,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         assert op != null : "Bad implementation";
 
         final Node expression = ctx.unary_expression().accept(this);
-        final UnaryOperationNode node = new UnaryOperationNode(SourcePosition.create(ctx.start), op);
+        final PrefixOperationNode node = new PrefixOperationNode(SourcePosition.create(ctx.start), op);
         node.setExpression(expression);
         return node;
     }

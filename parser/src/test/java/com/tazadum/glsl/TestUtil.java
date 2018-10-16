@@ -6,12 +6,10 @@ import com.tazadum.glsl.language.function.FunctionRegistryImpl;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputVisitor;
+import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.TypeRegistryImpl;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
-import com.tazadum.glsl.parser.GLSLLexer;
-import com.tazadum.glsl.parser.GLSLParser;
-import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.ParserContextImpl;
+import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -19,6 +17,7 @@ import org.antlr.v4.runtime.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 /**
  * Created by erikb on 2018-09-16.
@@ -46,6 +45,10 @@ public class TestUtil {
     }
 
     public static ParserRuleContext parse(String source) {
+        return parse(source, GLSLParser::translation_unit);
+    }
+
+    public static ParserRuleContext parse(String source, Function<GLSLParser, ParserRuleContext> extractor) {
         if (!source.endsWith("\n")) {
             source += "\n";
         }
@@ -54,7 +57,7 @@ public class TestUtil {
             final CommonTokenStream stream = TestUtil.tokenStream(source);
             final GLSLParser parser = TestUtil.parser(stream);
             parser.setErrorHandler(new BailErrorStrategy());
-            return parser.translation_unit();
+            return extractor.apply(parser);
         } catch (Exception e) {
             printTokens(source);
             throw e;
@@ -77,6 +80,11 @@ public class TestUtil {
     public static String toString(Node node) {
         OutputConfig outputConfig = new OutputConfigBuilder().blacklistKeyword("const").build();
         return node.accept(new OutputVisitor(outputConfig)).get();
+    }
+
+    public static GLSLType resolve(Node node, ParserContext parserContext) {
+        ResolvingVisitor visitor = new ResolvingVisitor(parserContext);
+        return node.accept(visitor);
     }
 
     public static ParserContext parserContext() {

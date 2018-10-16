@@ -36,7 +36,7 @@ class CloneUtilsTest {
         assertFalse(CloneUtils.equal(a, b, true));
     }
 
-    protected Node compile(String source) {
+    Node compile(String source) {
         ParserRuleContext context = TestUtil.parse(source);
         return TestUtil.ast(context);
     }

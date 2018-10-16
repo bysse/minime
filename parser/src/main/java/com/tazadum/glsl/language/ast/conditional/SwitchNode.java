@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
@@ -12,7 +13,9 @@ import com.tazadum.glsl.util.SourcePosition;
  * The type of each case label must be a scalar integer.
  * Created by Erik on 2018-10-12
  */
-public class SwitchNode extends ParentNode {
+public class SwitchNode extends ParentNode implements GLSLContext {
+    private GLSLContext parentContext;
+
     public SwitchNode(SourcePosition position, Node selector) {
         this(position, null, selector);
     }
@@ -48,5 +51,20 @@ public class SwitchNode extends ParentNode {
     @Override
     public GLSLType getType() {
         return null;
+    }
+
+    @Override
+    public GLSLContext getParent() {
+        return parentContext;
+    }
+
+    @Override
+    public void setParent(GLSLContext parentContext) {
+        this.parentContext = parentContext;
+    }
+
+    @Override
+    public boolean isGlobal() {
+        return false;
     }
 }
