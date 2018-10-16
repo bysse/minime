@@ -98,7 +98,7 @@ public interface ASTVisitor<T> {
 
     T visitTypeNode(TypeNode node);
 
-    T visitArrayTypeNode(ArraySpecifierNode node);
+    T visitArraySpecifierNode(ArraySpecifierNode node);
 
     T visitArrayTypeListNode(ArraySpecifierListNode node);
 
@@ -137,4 +137,6 @@ public interface ASTVisitor<T> {
     T visitUnresolvedStructFieldListNode(UnresolvedStructFieldListNode node);
 
     T visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node);
+
+    T visitTypeSpecifierNode(UnresolvedTypeSpecifierNode node);
 }

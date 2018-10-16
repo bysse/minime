@@ -252,7 +252,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
-    public T visitArrayTypeNode(ArraySpecifierNode node) {
+    public T visitArraySpecifierNode(ArraySpecifierNode node) {
         visitChildren(node);
         return null;
     }
@@ -361,6 +361,12 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
 
     @Override
     public T visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitTypeSpecifierNode(UnresolvedTypeSpecifierNode node) {
         visitChildren(node);
         return null;
     }

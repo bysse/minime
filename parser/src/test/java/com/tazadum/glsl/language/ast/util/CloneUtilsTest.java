@@ -1,6 +1,8 @@
 package com.tazadum.glsl.language.ast.util;
 
+import com.tazadum.glsl.TestUtil;
 import com.tazadum.glsl.language.ast.Node;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -10,6 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * Created by erikb on 2018-10-10.
  */
 class CloneUtilsTest {
+
+    // Not working because we don't implement clone in UnresolvedNodes
+
     @Test
     void testEquals() {
         Node a = compile("int f() { float a=1.0; return 2*a; }");
@@ -32,11 +37,7 @@ class CloneUtilsTest {
     }
 
     protected Node compile(String source) {
-        throw new UnsupportedOperationException("not implemented");
-        /*
-        GLSLOptimizerContext optimizerContext = TestUtil.optimizerContext("test.glsl");
-        ParserContext parserContext = optimizerContext.parserContext();
-        return TestUtil.parse(parserContext, Node.class, source);
-        */
+        ParserRuleContext context = TestUtil.parse(source);
+        return TestUtil.ast(context);
     }
 }

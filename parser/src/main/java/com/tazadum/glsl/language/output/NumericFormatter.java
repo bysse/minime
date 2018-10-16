@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.output;
 
 import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.language.type.PredefinedType;
 
 import java.util.Locale;
 
@@ -77,14 +78,20 @@ public class NumericFormatter {
         if (numeric.getValue() == 0) {
             return ZERO;
         }
+
+        String typeSuffix = "";
+        if (numeric.getType() == PredefinedType.UINT) {
+            typeSuffix = "u";
+        }
+
         final String number = String.format(Locale.US, "%d", (int) numeric.getValue());
         if (numeric.getValue() >= 1000) {
-            return exponentPositive1000(number);
+            return exponentPositive1000(number) + typeSuffix;
         }
         if (numeric.getValue() <= -1000) {
-            return exponentNegative1000(number);
+            return exponentNegative1000(number) + typeSuffix;
         }
-        return number;
+        return number + typeSuffix;
     }
 
     /**

@@ -24,6 +24,10 @@ public class UnresolvedFunctionPrototypeNode extends ParentNode implements HasSh
         return getChildAs(0);
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
     public void addParameter(UnresolvedParameterDeclarationNode parameter) {
         addChild(parameter);
     }
@@ -33,7 +37,7 @@ public class UnresolvedFunctionPrototypeNode extends ParentNode implements HasSh
     }
 
     public UnresolvedParameterDeclarationNode getParameter(int index) {
-        assert index > 0 : "Invalid index";
+        assert index >= 0 : "Invalid index";
         return getChildAs(index + 1);
     }
 

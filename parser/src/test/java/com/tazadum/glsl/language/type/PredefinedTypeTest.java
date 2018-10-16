@@ -1,7 +1,6 @@
 package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.NoSuchFieldException;
-import com.tazadum.glsl.exception.TypeException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -36,7 +35,7 @@ public class PredefinedTypeTest {
     @Test
     @DisplayName("Test swizzle failure cases")
     public void testSwizzleFail() {
-        assertThrows(TypeException.class, () ->
+        assertThrows(NoSuchFieldException.class, () ->
             VEC4.fieldType("fail")
         );
 

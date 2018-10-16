@@ -5,6 +5,7 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.function.FunctionRegistryImpl;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputVisitor;
 import com.tazadum.glsl.language.type.TypeRegistryImpl;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
 import com.tazadum.glsl.parser.GLSLLexer;
@@ -75,8 +76,7 @@ public class TestUtil {
 
     public static String toString(Node node) {
         OutputConfig outputConfig = new OutputConfigBuilder().blacklistKeyword("const").build();
-        //return node.accept(new OutputVisitor(outputConfig));
-        return null;
+        return node.accept(new OutputVisitor(outputConfig)).get();
     }
 
     public static ParserContext parserContext() {

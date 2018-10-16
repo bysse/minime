@@ -11,7 +11,7 @@ public class OutputConfigBuilder {
     private boolean renderNewLines = false;
     private int indentation = 4;
     private int maxDecimals = 5;
-    private IdentifierOutputMode identifierMode;
+    private IdentifierOutputMode identifierMode = IdentifierOutputMode.Original;
 
     /**
      * Indicate if new lines should be rendered to the output.
@@ -54,8 +54,13 @@ public class OutputConfigBuilder {
         return this;
     }
 
-
     public OutputConfig build() {
-        return new OutputConfig(renderNewLines, indentation, keywordBlacklist, identifierMode);
+        return new OutputConfig(
+            renderNewLines,
+            indentation,
+            keywordBlacklist,
+            identifierMode,
+            new NumericFormatter(maxDecimals)
+        );
     }
 }

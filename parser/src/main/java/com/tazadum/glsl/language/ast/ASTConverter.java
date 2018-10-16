@@ -212,10 +212,17 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
         final UnresolvedFunctionPrototypeNode prototype = new UnresolvedFunctionPrototypeNode(sourcePosition, functionName, returnType);
 
-        // parse the parameters
         for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
             UnresolvedParameterDeclarationNode parameter = NodeUtil.cast(parameterCtx.accept(this));
             prototype.addParameter(parameter);
+        }
+
+        if (prototype.getParameterCount() == 1) {
+            // if there's only a single parameter with the type void, remove it
+            UnresolvedParameterDeclarationNode parameter = prototype.getParameter(0);
+            if ("void".equals(parameter.getTypeNode().getTypeSpecifier().getTypeOrIdentifier())) {
+                prototype.removeChild(parameter);
+            }
         }
 
         if (isIncluded(sourcePosition)) {
@@ -557,7 +564,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final TypeQualifierListNode qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
 
-        UnresolvedStructDeclarationNode structDeclaration = new UnresolvedStructDeclarationNode(SourcePosition.create(ctx.struct_declaration(0).start), null);
+        String structIdentifier = ctx.IDENTIFIER(0).getText();
+        UnresolvedStructDeclarationNode structDeclaration = new UnresolvedStructDeclarationNode(SourcePosition.create(ctx.struct_declaration(0).start), structIdentifier);
         for (GLSLParser.Struct_declarationContext declarationContext : ctx.struct_declaration()) {
             UnresolvedStructFieldDeclarationNode fieldDeclaration = NodeUtil.cast(declarationContext.accept(this));
             structDeclaration.addFieldDeclaration(fieldDeclaration);

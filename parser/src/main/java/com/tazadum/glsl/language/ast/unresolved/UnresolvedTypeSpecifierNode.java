@@ -1,5 +1,6 @@
 package com.tazadum.glsl.language.ast.unresolved;
 
+import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.UnresolvedNode;
@@ -34,5 +35,10 @@ public class UnresolvedTypeSpecifierNode extends FixedChildParentNode implements
 
     public ArraySpecifierListNode getArraySpecifier() {
         return getChildAs(1);
+    }
+
+    @Override
+    public <T> T accept(ASTVisitor<T> visitor) {
+        return visitor.visitTypeSpecifierNode(this);
     }
 }

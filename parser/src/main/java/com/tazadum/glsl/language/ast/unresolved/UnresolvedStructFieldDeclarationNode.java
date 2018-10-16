@@ -18,6 +18,14 @@ public class UnresolvedStructFieldDeclarationNode extends FixedChildParentNode {
         setChild(1, typeSpecifier);
     }
 
+    public TypeQualifierListNode getTypeQualifiers() {
+        return getChildAs(0);
+    }
+
+    public UnresolvedTypeSpecifierNode getTypeSpecifier() {
+        return getChildAs(1);
+    }
+
     public void setFieldList(UnresolvedStructFieldListNode node) {
         setChild(2, node);
     }

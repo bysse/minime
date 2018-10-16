@@ -20,6 +20,7 @@ public class LayoutQualifierIdNode extends FixedChildParentNode {
 
     public LayoutQualifierIdNode(SourcePosition position, ParentNode parentNode, String identifier, Node expression) {
         super(position, 1, parentNode);
+        this.identifier = identifier;
         setChild(0, expression);
     }
 

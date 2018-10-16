@@ -5,7 +5,6 @@ import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.List;
@@ -26,7 +25,7 @@ public class TypeQualifierDeclarationNode extends FixedChildParentNode {
         setChild(0, qualifiers);
     }
 
-    public TypeQualifierList getQualifiers() {
+    public TypeQualifierListNode getQualifiers() {
         return getChildAs(0);
     }
 

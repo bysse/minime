@@ -23,6 +23,10 @@ public class UnresolvedStructFieldNode extends FixedChildParentNode implements U
         setChild(0, arraySpecifier);
     }
 
+    public String getIdentifier() {
+        return identifier;
+    }
+
     public ArraySpecifierListNode getArraySpecifier() {
         return getChildAs(0);
     }

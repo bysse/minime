@@ -25,6 +25,7 @@ class NumericFormatterTest {
             Arguments.of("0", new Numeric(0, 2, FLOAT)),
             Arguments.of("0", new Numeric(0, 2, DOUBLE)),
 
+            Arguments.of("3", new Numeric(3.1, 0, FLOAT)),
             Arguments.of("3.14159", new Numeric(Math.PI, 10, FLOAT)),
             Arguments.of("10.2", new Numeric(10.15, 1, DOUBLE)),
             Arguments.of(".1", new Numeric(0.100, 3, DOUBLE)),
@@ -38,12 +39,15 @@ class NumericFormatterTest {
 
             Arguments.of("0", new Numeric(0, 0, UINT)),
             Arguments.of("0", new Numeric(0, 0, INT)),
-            Arguments.of("10", new Numeric(10, 0, UINT)),
+            Arguments.of("10", new Numeric(10, 0, INT)),
+            Arguments.of("10u", new Numeric(10, 0, UINT)),
             Arguments.of("100", new Numeric(100, 0, INT)),
-            Arguments.of("1e3", new Numeric(1000, 0, UINT)),
+            Arguments.of("1e3u", new Numeric(1000, 0, UINT)),
             Arguments.of("4e3", new Numeric(4000, 0, INT)),
+            Arguments.of("4100", new Numeric(4100, 0, INT)),
             Arguments.of("-2", new Numeric(-2, 0, INT)),
             Arguments.of("-4e3", new Numeric(-4000, 0, INT)),
+            Arguments.of("-4100", new Numeric(-4100, 0, INT)),
         };
     }
 }

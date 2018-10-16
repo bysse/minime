@@ -31,7 +31,7 @@ public class ArraySpecifierNode extends FixedChildParentNode {
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
-        return visitor.visitArrayTypeNode(this);
+        return visitor.visitArraySpecifierNode(this);
     }
 
     @Override
