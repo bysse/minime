@@ -17,7 +17,6 @@ import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
-import com.tazadum.glsl.language.ast.type.TypeNode;
 import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 
@@ -239,12 +238,6 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     @Override
     public T visitSwitchDefault(DefaultCaseNode node) {
         visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitTypeNode(TypeNode node) {
-        visitLeafNode(node);
         return null;
     }
 

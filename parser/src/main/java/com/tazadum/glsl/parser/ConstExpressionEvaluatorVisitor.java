@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.*;
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.Node;
@@ -15,6 +16,7 @@ import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
+import com.tazadum.glsl.language.function.ConstFunction;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.language.type.NumericOperation;
@@ -183,8 +185,15 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
 
     @Override
     public Numeric visitFunctionCall(FunctionCallNode node) {
-        // TODO: Only built in functions
-        return super.visitFunctionCall(node);
+        if (!node.isConstant()) {
+            abort(node);
+        }
+
+        final ConstFunction function = HasToken.fromString(node.getIdentifier().original(), ConstFunction.values());
+
+        // TODO: implement
+
+        throw new BadImplementationException("ConstFunction evaluation is not implemented");
     }
 
     @Override

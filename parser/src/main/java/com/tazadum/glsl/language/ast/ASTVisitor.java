@@ -17,7 +17,6 @@ import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
-import com.tazadum.glsl.language.ast.type.TypeNode;
 import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 
@@ -94,8 +93,6 @@ public interface ASTVisitor<T> {
     T visitSwitchCase(CaseNode node);
 
     T visitSwitchDefault(DefaultCaseNode node);
-
-    T visitTypeNode(TypeNode node);
 
     T visitInitializerList(InitializerListNode node);
 

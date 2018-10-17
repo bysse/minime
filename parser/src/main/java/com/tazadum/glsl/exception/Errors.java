@@ -46,6 +46,7 @@ public class Errors {
     public static class Syntax {
         public static final String EXPECTED_INTEGRAL_CONSTANT_EXPRESSION = "Expected an integral constant expression.";
         public static final String EXPECTED_POSITIVE_INTEGRAL_CONSTANT_EXPRESSION = "Expected a non-negative integral constant expression";
+        public static final String STRUCT_DECLARATION_NOT_VALID = "Struct declaration is not valid at this location.";
 
         public static String TYPE_DOES_NOT_SUPPORT_PRECISION(String typeName) {
             return format("The type '%s' does not support precision declarations", typeName);

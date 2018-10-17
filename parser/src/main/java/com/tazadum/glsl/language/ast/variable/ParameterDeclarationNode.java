@@ -10,11 +10,11 @@ import com.tazadum.glsl.util.SourcePosition;
 
 public class ParameterDeclarationNode extends VariableDeclarationNode {
     public ParameterDeclarationNode(SourcePosition position, FullySpecifiedType fst, String identifier, ArraySpecifiers arraySpecifiers) {
-        super(position, false, fst, identifier, arraySpecifiers, null);
+        super(position, false, fst, identifier, arraySpecifiers, null, null);
     }
 
     protected ParameterDeclarationNode(SourcePosition position, ParentNode newParent, FullySpecifiedType fst, Identifier identifier, ArraySpecifiers arraySpecifiers) {
-        super(position, newParent, false, fst, identifier, arraySpecifiers, null);
+        super(position, newParent, false, fst, identifier, arraySpecifiers, null, null);
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.tazadum.glsl.language.ast;
 
-import com.tazadum.glsl.exception.BadImplementationException;
-import com.tazadum.glsl.exception.Errors;
-import com.tazadum.glsl.exception.SourcePositionException;
-import com.tazadum.glsl.exception.VariableException;
+import com.tazadum.glsl.exception.*;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
@@ -41,6 +38,7 @@ import com.tazadum.glsl.util.SourcePositionMapper;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import org.antlr.v4.runtime.tree.TerminalNodeImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -141,12 +139,17 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         final TypeNode typeNode = NodeUtil.cast(ctx.fully_specified_type().accept(this));
+        if (typeNode.getStructDeclaration() != null) {
+            final SourcePosition sourcePosition = typeNode.getStructDeclaration().getSourcePosition();
+            throw new SourcePositionException(sourcePosition, Errors.Syntax.STRUCT_DECLARATION_NOT_VALID);
+        }
+
         final String identifier = ctx.IDENTIFIER().getText();
         final Node initializer = ctx.initializer().accept(this);
 
         final FullySpecifiedType fullySpecifiedType = typeNode.getFullySpecifiedType();
 
-        VariableDeclarationNode declarationNode = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, null, initializer);
+        VariableDeclarationNode declarationNode = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, null, initializer, null);
 
         // register the declaration and usage of the type to enable easy look up for later passes
         parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
@@ -262,6 +265,10 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final String functionName = functionHeader.IDENTIFIER().getText();
 
         final TypeNode returnTypeNode = NodeUtil.cast(functionHeader.fully_specified_type().accept(this));
+        if (returnTypeNode.getStructDeclaration() != null) {
+            final SourcePosition sourcePosition = returnTypeNode.getStructDeclaration().getSourcePosition();
+            throw new SourcePositionException(sourcePosition, Errors.Syntax.STRUCT_DECLARATION_NOT_VALID);
+        }
 
         final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
         final FunctionPrototypeNode prototype = new FunctionPrototypeNode(sourcePosition, functionName, returnTypeNode.getFullySpecifiedType());
@@ -341,7 +348,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         // TODO: revisit for constant
 
         FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
-        VariableDeclarationNode declarationNode = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, arraySpecifiers, initializer);
+        VariableDeclarationNode declarationNode = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, arraySpecifiers, initializer, null);
         declarationNode.setShared(isShared);
         listNode.addChild(declarationNode);
 
@@ -356,10 +363,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final TypeNode typeNode = NodeUtil.cast(ctx.fully_specified_type().accept(this));
+        final StructDeclarationNode structDeclaration = typeNode.getStructDeclaration();
 
         if (ctx.IDENTIFIER() == null) {
             // early type declaration
-            return new TypeDeclarationNode(position, typeNode.getFullySpecifiedType());
+            return new TypeDeclarationNode(position, typeNode.getFullySpecifiedType(), typeNode.getStructDeclaration());
         }
 
         final String identifier = ctx.IDENTIFIER().getText();
@@ -375,7 +383,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             initializer = ctx.initializer().accept(this);
         }
 
-        return new VariableDeclarationNode(position, false, typeNode.getFullySpecifiedType(), identifier, arraySpecifiers, initializer);
+        return new VariableDeclarationNode(position, false, typeNode.getFullySpecifiedType(), identifier, arraySpecifiers, initializer, typeNode.getStructDeclaration());
     }
 
     @Override
@@ -389,6 +397,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         final TypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
+        if (typeSpecifier.getStructDeclaration() != null) {
+            final SourcePosition sourcePosition = typeSpecifier.getStructDeclaration().getSourcePosition();
+            throw new SourcePositionException(sourcePosition, Errors.Syntax.STRUCT_DECLARATION_NOT_VALID);
+        }
+
         final String identifier = ANTLRUtils.toString(ctx.IDENTIFIER(), null);
 
         FullySpecifiedType type = toFullySpecifiedType(qualifiers, typeSpecifier);
@@ -605,6 +618,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final FullySpecifiedType type = toFullySpecifiedType(qualifiers, typeSpecifier);
         final VariableDeclarationListNode declarationList = new VariableDeclarationListNode(position, type);
 
+        StructDeclarationNode structDeclaration = typeSpecifier.getStructDeclaration();
+
         for (GLSLParser.Struct_declaratorContext fieldCtx : ctx.struct_declarator_list().struct_declarator()) {
             String identifier = fieldCtx.IDENTIFIER().getText();
 
@@ -615,7 +630,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             }
 
             final SourcePosition fieldPosition = SourcePosition.create(fieldCtx.start);
-            declarationList.addChild(new VariableDeclarationNode(fieldPosition, false, type, identifier, arraySpecifiers, null));
+            declarationList.addChild(new VariableDeclarationNode(fieldPosition, false, type, identifier, arraySpecifiers, null, structDeclaration));
+            structDeclaration = null; // only register the struct on the first variable
+
         }
 
         return declarationList;
@@ -773,7 +790,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         TypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
         FullySpecifiedType type = toFullySpecifiedType(qualifiers, typeSpecifier);
 
-        return new TypeNode(position, type);
+        return new TypeNode(position, type, typeSpecifier.getStructDeclaration());
     }
 
     @Override
@@ -781,16 +798,24 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final GLSLParser.Type_specifier_no_arrayContext specifierCtx = ctx.type_specifier_no_array();
 
-        GLSLType customType = null;
-        GLSLType baseType = null;
+        StructDeclarationNode structDeclaration = null;
+        GLSLType baseType;
         if (specifierCtx.struct_specifier() != null) {
             // the type is a struct
-            //structDeclaration = NodeUtil.cast(specifierCtx.struct_specifier().accept(this));
-            // TODO: declare type
-            throw new BadImplementationException("Not implemented");
+            structDeclaration = NodeUtil.cast(specifierCtx.struct_specifier().accept(this));
+            baseType = new StructType(structDeclaration);
+
+            // register the struct
+            parserContext.getTypeRegistry().declare(new FullySpecifiedType(baseType));
         } else if (specifierCtx.IDENTIFIER() != null) {
-            // TODO: resolve type
-            throw new BadImplementationException("Not implemented");
+            // this is a reference to a struct declaration
+            final String customTypeName = specifierCtx.IDENTIFIER().getText();
+            try {
+                final FullySpecifiedType fullySpecifiedType = parserContext.getTypeRegistry().resolve(customTypeName);
+                baseType = fullySpecifiedType.getType();
+            } catch (TypeException e) {
+                throw new SourcePositionException(position, Errors.Syntax.CANT_RESOLVE_SYMBOL(customTypeName));
+            }
         } else {
             // the type is a predefined type
             baseType = HasToken.fromString(specifierCtx.getText(), PredefinedType.values());
@@ -798,10 +823,10 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         if (ctx.array_specifier() != null) {
             ArraySpecifierNode arraySpecifier = (ArraySpecifierNode) ctx.array_specifier().accept(this);
-            return new TypeSpecifierNode(position, customType, baseType, arraySpecifier.getArraySpecifiers());
+            return new TypeSpecifierNode(position, structDeclaration, baseType, arraySpecifier.getArraySpecifiers());
         }
 
-        return new TypeSpecifierNode(position, customType, baseType);
+        return new TypeSpecifierNode(position, structDeclaration, baseType, null);
     }
 
     @Override
@@ -861,13 +886,17 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     public Node visitFunction_call(GLSLParser.Function_callContext ctx) {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final String functionName = ctx.function_call_header().function_identifier().getText();
+
+        if (functionName.indexOf(' ') >= 0 || functionName.indexOf('{') >= 0) {
+            throw new BadImplementationException("Wacky function name not supported '" + functionName + "'");
+        }
+
         final FunctionCallNode functionCallNode = new FunctionCallNode(position, functionName);
 
         boolean allArgumentsAreConst = true;
 
         // check if the function call has arguments
         if (ctx.VOID() == null) {
-            final List<Node> arguments = new ArrayList<>();
             for (GLSLParser.Assignment_expressionContext argCtx : ctx.assignment_expression()) {
                 // parse each argument and mAdd them to the function
                 final Node argument = argCtx.accept(this);
@@ -1052,14 +1081,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     private FullySpecifiedType toFullySpecifiedType(TypeQualifierListNode qualifiers, TypeSpecifierNode typeSpecifier) {
         TypeQualifierList qualifierList = (qualifiers != null) ? qualifiers.getTypeQualifiers() : null;
-        GLSLType type = null;
-
-        if (typeSpecifier.getBaseType() != null) {
-            type = typeSpecifier.getBaseType();
-        } else if (typeSpecifier.getCustomType() != null) {
-            type = typeSpecifier.getCustomType();
-        }
-
+        GLSLType type = typeSpecifier.getBaseType();
         if (type == null) {
             throw new BadImplementationException("Not implemented");
         }
@@ -1122,8 +1144,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitTerminal(TerminalNode node) {
         Node result = super.visitTerminal(node);
+        if (node instanceof TerminalNodeImpl) {
+            return result;
+        }
         if (result == null) {
-            System.err.format("ERROR: null result from terminal node %s\n", node.getText());
+            System.err.format("ERROR: null result from terminal node %s : %s\n", node.getText(), node.getClass().getSimpleName());
         }
         return result;
     }

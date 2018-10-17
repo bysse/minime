@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.ast.variable;
 
 import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
@@ -19,11 +20,11 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     protected Identifier identifier;
     private boolean shared;
 
-    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, ArraySpecifiers arraySpecifiers, Node initializer) {
-        this(position, null, builtIn, fst, Identifier.orNull(identifier), arraySpecifiers, initializer);
+    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, ArraySpecifiers arraySpecifiers, Node initializer, StructDeclarationNode structDeclaration) {
+        this(position, null, builtIn, fst, Identifier.orNull(identifier), arraySpecifiers, initializer, structDeclaration);
     }
 
-    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, ArraySpecifiers arraySpecifiers, Node initializer) {
+    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, ArraySpecifiers arraySpecifiers, Node initializer, StructDeclarationNode structDeclaration) {
         super(position, 2, newParent);
 
         this.builtIn = builtIn;
@@ -37,6 +38,7 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
             this.type = FullySpecifiedType.mergeArraySpecifier(fst, arraySpecifiers);
         }
 
+        setStructDeclaration(structDeclaration);
         setInitializer(initializer);
     }
 
@@ -44,17 +46,24 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
         return builtIn;
     }
 
-
     public Identifier getIdentifier() {
         return identifier;
     }
 
+    public StructDeclarationNode getStructDeclaration() {
+        return getChildAs(0);
+    }
+
+    public void setStructDeclaration(StructDeclarationNode declarationNode) {
+        setChild(0, declarationNode);
+    }
+
     public Node getInitializer() {
-        return getChild(0);
+        return getChild(1);
     }
 
     public void setInitializer(Node initializer) {
-        setChild(0, initializer);
+        setChild(1, initializer);
     }
 
     public FullySpecifiedType getFullySpecifiedType() {
@@ -92,9 +101,8 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, arraySpecifiers, null);
-        node.setInitializer(CloneUtils.clone(getInitializer(), node));
-        return node;
+        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, arraySpecifiers, null, null);
+        return CloneUtils.cloneChildren(this, node);
     }
 
     @Override

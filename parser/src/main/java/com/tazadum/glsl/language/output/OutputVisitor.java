@@ -23,7 +23,6 @@ import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.traits.IterationNode;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
-import com.tazadum.glsl.language.ast.type.TypeNode;
 import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
@@ -119,8 +118,11 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitVariableDeclarationList(VariableDeclarationListNode node) {
-        outputType(node.getFullySpecifiedType());
-        buffer.append(config.identifierSpacing());
+        VariableDeclarationNode firstChild = node.getChildAs(0);
+        if (firstChild.getIdentifier() != null) {
+            outputType(node.getFullySpecifiedType(), firstChild.getStructDeclaration());
+            buffer.append(config.identifierSpacing());
+        }
         return outputChildCSV(node, 0, node.getChildCount());
     }
 
@@ -136,7 +138,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitParameterDeclaration(ParameterDeclarationNode node) {
-        outputType(node.getOriginalType());
+        outputType(node.getOriginalType(), null);
 
         if (node.getIdentifier() != null) {
             buffer.append(config.identifierSpacing());
@@ -225,7 +227,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitFunctionPrototype(FunctionPrototypeNode node) {
-        outputType(node.getReturnType());
+        outputType(node.getReturnType(), null);
 
         buffer.append(config.identifierSpacing());
         buffer.append(config.identifier(node.getIdentifier()));
@@ -358,7 +360,8 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitTypeDeclaration(TypeDeclarationNode node) {
-        outputType(node.getFullySpecifiedType());
+        outputType(node.getFullySpecifiedType(), node.getStructDeclaration());
+        //outputType(node.getFullySpecifiedType(), null);
         return buffer;
     }
 
@@ -409,13 +412,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitTypeNode(TypeNode node) {
-        // TODO: implement
-        buffer.append("TYPE_NOT_IMPLEMENTED");
-        return null;
-    }
-
-    @Override
     public SourceBuffer visitInitializerList(InitializerListNode node) {
         buffer.append('{');
         outputChildCSV(node, 0, node.getChildCount());
@@ -443,7 +439,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
         if (node.getIdentifier() != null) {
             buffer.appendSpace();
-            buffer.append(node.getIdentifier());
+            buffer.append(config.identifier(node.getIdentifier()));
         }
 
         buffer.append('{');
@@ -464,7 +460,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         final StructDeclarationNode block = node.getInterfaceStruct();
         if (block.getIdentifier() != null) {
             buffer.appendSpace();
-            buffer.append(block.getIdentifier());
+            buffer.append(config.identifier(block.getIdentifier()));
         }
 
         buffer.append('{');
@@ -501,11 +497,16 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             node instanceof IterationNode;
     }
 
-    private void outputType(FullySpecifiedType type) {
+    private void outputType(FullySpecifiedType type, StructDeclarationNode structDeclaration) {
         if (outputTypeQualifiers(type.getQualifiers())) {
             buffer.appendSpace();
         }
-        buffer.append(outputType(type.getType()));
+
+        if (structDeclaration != null) {
+            structDeclaration.accept(this);
+        } else {
+            buffer.append(outputType(type.getType()));
+        }
     }
 
     private String outputType(GLSLType type) {
@@ -516,7 +517,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         }
 
         if (type instanceof StructType) {
-            throw new BadImplementationException();
+            return "";
         }
 
         return type.token();

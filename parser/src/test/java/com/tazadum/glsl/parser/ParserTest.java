@@ -140,7 +140,7 @@ class ParserTest {
 
         parserContext.getVariableRegistry().declareVariable(
             parserContext.globalContext(),
-            new VariableDeclarationNode(SourcePosition.TOP, true, new FullySpecifiedType(PredefinedType.FLOAT), "u_time", null, null)
+            new VariableDeclarationNode(SourcePosition.TOP, true, new FullySpecifiedType(PredefinedType.FLOAT), "u_time", null, null, null)
         );
 
         TypeQualifierList qualifiers = new TypeQualifierList();
@@ -154,8 +154,8 @@ class ParserTest {
                 new FullySpecifiedType(qualifiers, PredefinedType.INT),
                 "start",
                 null,
-                new IntLeafNode(SourcePosition.TOP, new Numeric(1, 0, PredefinedType.INT))
-            )
+                new IntLeafNode(SourcePosition.TOP, new Numeric(1, 0, PredefinedType.INT)),
+                null)
         );
 
         return parserContext;

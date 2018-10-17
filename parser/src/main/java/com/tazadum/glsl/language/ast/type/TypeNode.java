@@ -1,10 +1,8 @@
 package com.tazadum.glsl.language.ast.type;
 
-import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
-import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
-import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
 /**
@@ -12,32 +10,19 @@ import com.tazadum.glsl.util.SourcePosition;
  */
 public class TypeNode extends LeafNode {
     private final FullySpecifiedType fullySpecifiedType;
+    private final StructDeclarationNode structDeclarationNode;
 
-    public TypeNode(SourcePosition position, FullySpecifiedType fullySpecifiedType) {
-        this(position, null, fullySpecifiedType);
-    }
-
-    public TypeNode(SourcePosition position, ParentNode parentNode, FullySpecifiedType fullySpecifiedType) {
-        super(position, parentNode);
+    public TypeNode(SourcePosition position, FullySpecifiedType fullySpecifiedType, StructDeclarationNode structDeclarationNode) {
+        super(position, null);
         this.fullySpecifiedType = fullySpecifiedType;
+        this.structDeclarationNode = structDeclarationNode;
     }
 
     public FullySpecifiedType getFullySpecifiedType() {
         return fullySpecifiedType;
     }
 
-    @Override
-    public LeafNode clone(ParentNode newParent) {
-        return new TypeNode(getSourcePosition(), newParent, fullySpecifiedType);
-    }
-
-    @Override
-    public <T> T accept(ASTVisitor<T> visitor) {
-        return visitor.visitTypeNode(this);
-    }
-
-    @Override
-    public GLSLType getType() {
-        return fullySpecifiedType.getType();
+    public StructDeclarationNode getStructDeclaration() {
+        return structDeclarationNode;
     }
 }

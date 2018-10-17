@@ -26,7 +26,11 @@ public class TypeRegistryImpl implements TypeRegistry {
 
     @Override
     public void declare(FullySpecifiedType fst) {
-        typeMap.put(fst.getType().token(), fst);
+        if (fst.getType().token() != null) {
+            typeMap.put(fst.getType().token(), fst);
+        } else {
+            // this is an anonymous struct
+        }
     }
 
     @Override
