@@ -14,8 +14,11 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.type.*;
-import com.tazadum.glsl.language.ast.unresolved.*;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeNode;
+import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 
 /**
@@ -210,7 +213,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
-    public T visitTypeDeclaration(UnresolvedTypeDeclarationNode node) {
+    public T visitTypeDeclaration(TypeDeclarationNode node) {
         visitChildren(node);
         return null;
     }
@@ -246,128 +249,26 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
-    public T visitArraySpecifierNode(ArraySpecifierNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitArrayTypeListNode(ArraySpecifierListNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitTypeNode(UnresolvedTypeNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitVariable(UnresolvedVariableNode node) {
-        visitLeafNode(node);
-        return null;
-    }
-
-    @Override
-    public T visitFunctionPrototype(UnresolvedFunctionPrototypeNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitVariableDeclarationList(UnresolvedVariableDeclarationListNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitVariableDeclaration(UnresolvedVariableDeclarationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitParameterDeclaration(UnresolvedParameterDeclarationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitFunctionDefinition(UnresolvedFunctionDefinitionNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
     public T visitInitializerList(InitializerListNode node) {
         visitChildren(node);
         return null;
     }
 
     @Override
-    public T visitTypeQualifierListNode(TypeQualifierListNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
     public T visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitLayoutQualifierListNode(LayoutQualifierListNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitLayoutQualifierIdNode(LayoutQualifierIdNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitUnresolvedStructDeclarationNode(UnresolvedStructDeclarationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitUnresolvedStructFieldNode(UnresolvedStructFieldNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitUnresolvedStructFieldDeclarationNode(UnresolvedStructFieldDeclarationNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitUnresolvedStructFieldListNode(UnresolvedStructFieldListNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitTypeSpecifierNode(UnresolvedTypeSpecifierNode node) {
-        visitChildren(node);
-        return null;
-    }
-
-    @Override
-    public T visitTypeQualifierNode(TypeQualifierNode node) {
         visitLeafNode(node);
+        return null;
+    }
+
+    @Override
+    public T visitStructDeclarationNode(StructDeclarationNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
+    public T visitInterfaceBlockNode(InterfaceBlockNode node) {
+        visitChildren(node);
         return null;
     }
 

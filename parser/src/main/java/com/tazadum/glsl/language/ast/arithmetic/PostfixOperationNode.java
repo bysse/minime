@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.MutatingOperation;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.model.UnaryOperator;
@@ -13,7 +14,7 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2016-10-07.
  */
-public class PostfixOperationNode extends FixedChildParentNode implements MutatingOperation {
+public class PostfixOperationNode extends FixedChildParentNode implements MutatingOperation, HasConstState {
     private UnaryOperator operator;
 
     public PostfixOperationNode(SourcePosition position, UnaryOperator operator) {
@@ -35,6 +36,11 @@ public class PostfixOperationNode extends FixedChildParentNode implements Mutati
 
     public Node getExpression() {
         return getChild(0);
+    }
+
+    @Override
+    public boolean isConstant() {
+        return HasConstState.isConst(getExpression());
     }
 
     @Override

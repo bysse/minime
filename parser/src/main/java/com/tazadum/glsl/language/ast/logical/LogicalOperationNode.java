@@ -16,7 +16,6 @@ import com.tazadum.glsl.util.SourcePosition;
  */
 public class LogicalOperationNode extends FixedChildParentNode implements HasConstState {
     private LogicalOperator operator;
-    private boolean constant;
 
     public LogicalOperationNode(SourcePosition position, LogicalOperator operator) {
         this(position, null, operator);
@@ -53,12 +52,7 @@ public class LogicalOperationNode extends FixedChildParentNode implements HasCon
 
     @Override
     public boolean isConstant() {
-        return constant;
-    }
-
-    @Override
-    public void setConstant(boolean constant) {
-        this.constant = constant;
+        return HasConstState.isConst(getLeft()) && HasConstState.isConst(getRight());
     }
 
     @Override

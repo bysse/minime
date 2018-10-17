@@ -1,10 +1,10 @@
 package com.tazadum.glsl.language.ast.type;
 
 import com.tazadum.glsl.language.ast.ASTVisitor;
-import com.tazadum.glsl.language.ast.FixedChildParentNode;
+import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
-import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.List;
@@ -12,27 +12,27 @@ import java.util.List;
 /**
  * Node for holding a single TypeQualifier declaration.
  */
-public class TypeQualifierDeclarationNode extends FixedChildParentNode {
-    private List<String> identifiers;
+public class TypeQualifierDeclarationNode extends LeafNode {
+    private final TypeQualifierList qualifiers;
+    private final List<String> identifiers;
 
-    public TypeQualifierDeclarationNode(SourcePosition position, TypeQualifierListNode qualifiers, List<String> identifiers) {
+    public TypeQualifierDeclarationNode(SourcePosition position, TypeQualifierList qualifiers, List<String> identifiers) {
         this(position, null, qualifiers, identifiers);
     }
 
-    public TypeQualifierDeclarationNode(SourcePosition position, ParentNode parentNode, TypeQualifierListNode qualifiers, List<String> identifiers) {
-        super(position, 1, parentNode);
+    public TypeQualifierDeclarationNode(SourcePosition position, ParentNode parentNode, TypeQualifierList qualifiers, List<String> identifiers) {
+        super(position, parentNode);
+        this.qualifiers = qualifiers;
         this.identifiers = identifiers;
-        setChild(0, qualifiers);
     }
 
-    public TypeQualifierListNode getQualifiers() {
-        return getChildAs(0);
+    public TypeQualifierList getQualifiers() {
+        return qualifiers;
     }
 
     @Override
-    public ParentNode clone(ParentNode newParent) {
-        TypeQualifierDeclarationNode node = new TypeQualifierDeclarationNode(getSourcePosition(), newParent, null, identifiers);
-        return CloneUtils.cloneChildren(this, node);
+    public TypeQualifierDeclarationNode clone(ParentNode newParent) {
+        return new TypeQualifierDeclarationNode(getSourcePosition(), newParent, null, identifiers);
     }
 
     @Override

@@ -17,7 +17,6 @@ import com.tazadum.glsl.util.SourcePosition;
 public class NumericOperationNode extends FixedChildParentNode implements HasMutableType, HasConstState {
     private NumericOperator operator;
     private GLSLType type;
-    private boolean constant;
 
     public NumericOperationNode(SourcePosition position, NumericOperator operator) {
         this(position, null, operator);
@@ -56,12 +55,7 @@ public class NumericOperationNode extends FixedChildParentNode implements HasMut
 
     @Override
     public boolean isConstant() {
-        return constant;
-    }
-
-    @Override
-    public void setConstant(boolean constant) {
-        this.constant = constant;
+        return HasConstState.isConst(getLeft()) && HasConstState.isConst(getRight());
     }
 
     @Override

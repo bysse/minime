@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasMutableType;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
@@ -12,7 +13,7 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2016-10-07.
  */
-public class ArrayIndexNode extends FixedChildParentNode implements HasMutableType {
+public class ArrayIndexNode extends FixedChildParentNode implements HasMutableType, HasConstState {
     private GLSLType type;
 
     public ArrayIndexNode(SourcePosition position, Node expression, Node index) {
@@ -62,5 +63,10 @@ public class ArrayIndexNode extends FixedChildParentNode implements HasMutableTy
     @Override
     public void setType(GLSLType type) {
         this.type = type;
+    }
+
+    @Override
+    public boolean isConstant() {
+        return HasConstState.isConst(getExpression()) && HasConstState.isConst(getIndex());
     }
 }

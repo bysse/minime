@@ -16,7 +16,6 @@ import com.tazadum.glsl.util.SourcePosition;
  */
 public class RelationalOperationNode extends FixedChildParentNode implements HasConstState {
     private RelationalOperator operator;
-    private boolean constant;
 
     public RelationalOperationNode(SourcePosition position, RelationalOperator operator) {
         this(position, null, operator);
@@ -49,11 +48,7 @@ public class RelationalOperationNode extends FixedChildParentNode implements Has
 
     @Override
     public boolean isConstant() {
-        return constant;
-    }
-
-    public void setConstant(boolean constant) {
-        this.constant = constant;
+        return HasConstState.isConst(getLeft()) && HasConstState.isConst(getRight());
     }
 
     @Override

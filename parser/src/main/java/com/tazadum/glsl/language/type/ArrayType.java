@@ -1,32 +1,26 @@
 package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.language.HasToken;
-import com.tazadum.glsl.language.ast.Node;
 
 public class ArrayType implements GLSLType, HasToken {
     public static final int UNKNOWN_LENGTH = -1;
-    private final GLSLType type;
-    private Node arraySpecifier;
-    private final int length;
 
-    public ArrayType(GLSLType type, int length) {
+    private final GLSLType type;
+    private final int dimension;
+
+    public ArrayType(GLSLType type, int dimension) {
         this.type = type;
-        this.length = length;
+        this.dimension = dimension;
     }
 
-    public ArrayType(GLSLType type, Node arraySpecifier) {
+    public ArrayType(GLSLType type) {
         this.type = type;
-        this.arraySpecifier = arraySpecifier;
-        this.length = UNKNOWN_LENGTH;
+        this.dimension = UNKNOWN_LENGTH;
     }
 
     @Override
     public GLSLType fieldType(String name) {
         return type;
-    }
-
-    public Node getArraySpecifier() {
-        return arraySpecifier;
     }
 
     @Override
@@ -41,8 +35,12 @@ public class ArrayType implements GLSLType, HasToken {
         return true;
     }
 
-    public int arrayLength() {
-        return length;
+    public int getDimension() {
+        return dimension;
+    }
+
+    public boolean hasDimension() {
+        return dimension > UNKNOWN_LENGTH;
     }
 
     @Override

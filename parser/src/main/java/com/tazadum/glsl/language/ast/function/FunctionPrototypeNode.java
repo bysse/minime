@@ -5,6 +5,7 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
@@ -57,6 +58,10 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     @Override
     public boolean isShared() {
         return shared;
+    }
+
+    public void addParameter(ParameterDeclarationNode parameter) {
+        addChild(parameter);
     }
 
     public void setShared(boolean shared) {

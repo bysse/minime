@@ -2,6 +2,14 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.TestUtil;
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.IntLeafNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.model.StorageQualifier;
+import com.tazadum.glsl.language.type.FullySpecifiedType;
+import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.language.type.TypeQualifierList;
+import com.tazadum.glsl.util.SourcePosition;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,36 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ParserTest {
-    @DisplayName("Test Generated Parser")
-    @ParameterizedTest(name = "test {index}: {0}")
-    @MethodSource("getSourceLines")
-    void testParsing(String source) {
-        TestUtil.parse(source);
-    }
-
-    @DisplayName("Test AST Conversion")
-    @ParameterizedTest(name = "test {index}: {0}")
-    @MethodSource("getSourceLines")
-    void testAST(String source) {
-        ParserRuleContext context = TestUtil.parse(source);
-        Node node = TestUtil.ast(context, TestUtil.parserContext());
-        assertNotNull(node);
-    }
-
-    @DisplayName("Test String Conversion")
-    @ParameterizedTest(name = "test {index}: {0}")
-    @MethodSource("getSourceLinesWithResult")
-    void testString(String source, String expected) {
-        if (expected == null) {
-            expected = source;
-        }
-
-        ParserRuleContext context = TestUtil.parse(source);
-        Node node = TestUtil.ast(context, TestUtil.parserContext());
-        String rendered = TestUtil.toString(node);
-        assertEquals(expected, rendered);
-    }
-
     private static String[] getSourceLines() {
         return new String[]{
             "void main(){}",
@@ -50,6 +28,7 @@ class ParserTest {
             "float b[]=float[](1,2,3,4,5);",
             "vec2 x=sin(3.14*u_time)>0?vec2(1):vec2(0);",
             "vec4[3][2] a;",
+            "vec4 a;vec2 b=a.xy;",
 
             "struct S { float f; };",
             "struct s { float a; float b; } S;",
@@ -98,6 +77,7 @@ class ParserTest {
             Arguments.of("float b[]=float[](1,2,3,4,5);", null),
             Arguments.of("vec2 x=sin(3.14*u_time)>0?vec2(1):vec2(0);", null),
             Arguments.of("vec4[3][2] a;", null),
+            Arguments.of("vec4 a;vec2 b=a.xy;", null),
 
             Arguments.of("struct S { float f; };", "struct S{float f;};"),
             Arguments.of("struct s { float a; float b; } S;", "struct s{float a;float b;} S;"),
@@ -128,7 +108,7 @@ class ParserTest {
             Arguments.of("in Material {smooth in vec4 Color1; vec2 TexCoord; };", "in Material{smooth in vec4 Color1;vec2 TexCoord;};"),
 
             Arguments.of("layout(location=3) in vec4 normal;", null),
-            Arguments.of("layout(location=start+2) in vec4 v;", null),
+            Arguments.of("layout(location=start+2) in vec4 v;", "layout(location=3) in vec4 v;"), // const expression is resolved to an integer value
             Arguments.of("layout(location=0,component=3) in float f[6];", null),
             Arguments.of("layout(xfb_buffer=1,xfb_stride=32) out;", null),
             Arguments.of("lowp ivec2 foo(lowp mat3);", null),
@@ -136,5 +116,63 @@ class ParserTest {
             Arguments.of("float myfunc(float f,out float g);", null),
             Arguments.of("int[] a(int[3] a[2]){}", null)
         };
+    }
+
+    @DisplayName("Test Generated Parser")
+    @ParameterizedTest(name = "test {index}: {0}")
+    @MethodSource("getSourceLines")
+    void testParsing(String source) {
+        TestUtil.parse(source);
+    }
+
+    @DisplayName("Test AST Conversion")
+    @ParameterizedTest(name = "test {index}: {0}")
+    @MethodSource("getSourceLines")
+    void testAST(String source) {
+        ParserContext parserContext = getParserContext();
+        ParserRuleContext context = TestUtil.parse(source);
+        Node node = TestUtil.ast(context, parserContext);
+        assertNotNull(node);
+    }
+
+    private ParserContext getParserContext() {
+        final ParserContext parserContext = TestUtil.parserContext();
+
+        parserContext.getVariableRegistry().declareVariable(
+            parserContext.globalContext(),
+            new VariableDeclarationNode(SourcePosition.TOP, true, new FullySpecifiedType(PredefinedType.FLOAT), "u_time", null, null)
+        );
+
+        TypeQualifierList qualifiers = new TypeQualifierList();
+        qualifiers.add(StorageQualifier.CONST);
+
+        parserContext.getVariableRegistry().declareVariable(
+            parserContext.globalContext(),
+            new VariableDeclarationNode(
+                SourcePosition.TOP,
+                true,
+                new FullySpecifiedType(qualifiers, PredefinedType.INT),
+                "start",
+                null,
+                new IntLeafNode(SourcePosition.TOP, new Numeric(1, 0, PredefinedType.INT))
+            )
+        );
+
+        return parserContext;
+    }
+
+    @DisplayName("Test String Conversion")
+    @ParameterizedTest(name = "test {index}: {0}")
+    @MethodSource("getSourceLinesWithResult")
+    void testString(String source, String expected) {
+        if (expected == null) {
+            expected = source;
+        }
+
+        ParserContext parserContext = getParserContext();
+        ParserRuleContext context = TestUtil.parse(source);
+        Node node = TestUtil.ast(context, parserContext);
+        String rendered = TestUtil.toString(node);
+        assertEquals(expected, rendered);
     }
 }

@@ -1,18 +1,19 @@
-package com.tazadum.glsl.language.ast.unresolved;
+package com.tazadum.glsl.language.ast.struct;
 
 import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.UnresolvedNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class UnresolvedStructDeclarationNode extends ParentNode implements UnresolvedNode {
+public class StructDeclarationNode extends ParentNode implements UnresolvedNode {
     private String identifier;
 
-    public UnresolvedStructDeclarationNode(SourcePosition position, String identifier) {
+    public StructDeclarationNode(SourcePosition position, String identifier) {
         this(position, null, identifier);
     }
 
-    public UnresolvedStructDeclarationNode(SourcePosition position, ParentNode parentNode, String identifier) {
+    public StructDeclarationNode(SourcePosition position, ParentNode parentNode, String identifier) {
         super(position, parentNode);
         this.identifier = identifier;
     }
@@ -24,12 +25,12 @@ public class UnresolvedStructDeclarationNode extends ParentNode implements Unres
         return identifier;
     }
 
-    public void addFieldDeclaration(UnresolvedStructFieldDeclarationNode fieldList) {
+    public void addFieldDeclaration(VariableDeclarationListNode fieldList) {
         addChild(fieldList);
     }
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
-        return visitor.visitUnresolvedStructDeclarationNode(this);
+        return visitor.visitStructDeclarationNode(this);
     }
 }

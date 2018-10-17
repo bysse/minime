@@ -1,5 +1,7 @@
 package com.tazadum.glsl.language.type;
 
+import com.tazadum.glsl.language.model.ArraySpecifiers;
+
 public class FullySpecifiedType {
     private TypeQualifierList qualifiers;
     private GLSLType type;
@@ -56,5 +58,12 @@ public class FullySpecifiedType {
     public String toString() {
         return (qualifiers == null ? "" : qualifiers + " ") +
             type.token();
+    }
+
+    /**
+     * Merging the array specifiers of the given type and the provided specifiers.
+     */
+    public static FullySpecifiedType mergeArraySpecifier(FullySpecifiedType fullySpecifiedType, ArraySpecifiers specifiers) {
+        return new FullySpecifiedType(fullySpecifiedType.getQualifiers(), specifiers.transform(fullySpecifiedType.getType()));
     }
 }

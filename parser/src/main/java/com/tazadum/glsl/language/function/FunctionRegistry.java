@@ -38,9 +38,6 @@ public interface FunctionRegistry {
 
     /**
      * Remap the function registry after a new Node hierarchy.
-     *
-     * @param base
-     * @return
      */
     FunctionRegistry remap(Node base);
 

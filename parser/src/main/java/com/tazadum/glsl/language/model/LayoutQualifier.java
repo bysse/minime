@@ -1,12 +1,11 @@
 package com.tazadum.glsl.language.model;
 
-import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.traits.HasSourcePosition;
 import com.tazadum.glsl.language.type.TypeQualifier;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Layout qualifiers can appear in several forms of declaration. They can appear as part of an
@@ -14,18 +13,25 @@ import java.util.Objects;
  * can also appear with just an interface-qualifier to establish layouts of other declarations made with
  * that qualifier
  */
-public class LayoutQualifier implements TypeQualifier {
-    private List<QualifierId> qualifiers;
+public class LayoutQualifier implements TypeQualifier, HasSourcePosition {
+    private final SourcePosition sourcePosition;
+    private final List<LayoutQualifierId> qualifiers;
 
-    public LayoutQualifier() {
+    public LayoutQualifier(SourcePosition sourcePosition) {
+        this.sourcePosition = sourcePosition;
         qualifiers = new ArrayList<>();
     }
 
-    public LayoutQualifier(List<QualifierId> qualifiers) {
-        this.qualifiers = qualifiers == null ? Collections.emptyList() : qualifiers;
+    public void addQualifierId(LayoutQualifierId id) {
+        qualifiers.add(id);
     }
 
-    public List<QualifierId> getQualifiers() {
+    @Override
+    public SourcePosition getSourcePosition() {
+        return sourcePosition;
+    }
+
+    public List<LayoutQualifierId> getIds() {
         return qualifiers;
     }
 
@@ -42,65 +48,5 @@ public class LayoutQualifier implements TypeQualifier {
     @Override
     public int hashCode() {
         return qualifiers.hashCode();
-    }
-
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("layout(");
-        for (QualifierId id : qualifiers) {
-            if (builder.length() > 0) {
-                builder.append(',');
-            }
-            builder.append(Objects.toString(id));
-        }
-        builder.append(')');
-        return builder.toString();
-    }
-
-    public static class QualifierId {
-        private String name;
-        private Node value;
-
-        public QualifierId(String name, Node value) {
-            this.name = name;
-            this.value = value;
-
-            assert name != null : "Qualifier Id has a null name";
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public Node getValue() {
-            return value;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            QualifierId that = (QualifierId) o;
-
-            if (!name.equals(that.name)) return false;
-            return value != null ? value.equals(that.value) : that.value == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = name.hashCode();
-            result = 31 * result + (value != null ? value.hashCode() : 0);
-            return result;
-        }
-
-        @Override
-        public String toString() {
-            if (value == null) {
-                return name;
-            }
-            return name + "=" + Objects.toString(value);
-        }
-
     }
 }

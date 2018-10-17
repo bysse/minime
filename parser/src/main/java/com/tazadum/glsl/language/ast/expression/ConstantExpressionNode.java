@@ -13,8 +13,6 @@ import com.tazadum.glsl.util.SourcePosition;
  * Created by Erik on 2016-10-11.
  */
 public class ConstantExpressionNode extends FixedChildParentNode implements HasConstState {
-    boolean constant;
-
     public ConstantExpressionNode(SourcePosition position, Node expression) {
         this(position, null, expression);
     }
@@ -30,12 +28,12 @@ public class ConstantExpressionNode extends FixedChildParentNode implements HasC
 
     @Override
     public boolean isConstant() {
-        return constant;
+        return true;
     }
 
     @Override
     public void setConstant(boolean constant) {
-        this.constant = constant;
+        // no effect
     }
 
     @Override

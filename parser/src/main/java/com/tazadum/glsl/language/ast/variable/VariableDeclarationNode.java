@@ -1,29 +1,41 @@
 package com.tazadum.glsl.language.ast.variable;
 
 import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.model.ArraySpecifiers;
+import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class VariableDeclarationNode extends FixedChildParentNode implements HasSharedState {
-    private boolean builtIn;
+public class VariableDeclarationNode extends FixedChildParentNode implements HasSharedState, HasConstState {
+    protected final boolean builtIn;
     protected final FullySpecifiedType type;
+    protected final FullySpecifiedType originalType;
+    protected final ArraySpecifiers arraySpecifiers;
 
     protected Identifier identifier;
     private boolean shared;
 
-    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, Node initializer) {
-        this(position, null, builtIn, fst, new Identifier(identifier), initializer);
+    public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, ArraySpecifiers arraySpecifiers, Node initializer) {
+        this(position, null, builtIn, fst, Identifier.orNull(identifier), arraySpecifiers, initializer);
     }
 
-    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, Node initializer) {
+    protected VariableDeclarationNode(SourcePosition position, ParentNode newParent, boolean builtIn, FullySpecifiedType fst, Identifier identifier, ArraySpecifiers arraySpecifiers, Node initializer) {
         super(position, 2, newParent);
 
         this.builtIn = builtIn;
-        this.type = fst;
         this.identifier = identifier;
+        this.arraySpecifiers = arraySpecifiers;
+        this.originalType = fst;
+
+        if (arraySpecifiers == null) {
+            this.type = fst;
+        } else {
+            this.type = FullySpecifiedType.mergeArraySpecifier(fst, arraySpecifiers);
+        }
 
         setInitializer(initializer);
     }
@@ -32,24 +44,32 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
         return builtIn;
     }
 
-    public Node getArraySpecifier() {
-        return getChild(0);
-    }
 
     public Identifier getIdentifier() {
         return identifier;
     }
 
     public Node getInitializer() {
-        return getChild(1);
+        return getChild(0);
     }
 
     public void setInitializer(Node initializer) {
-        setChild(1, initializer);
+        setChild(0, initializer);
     }
 
     public FullySpecifiedType getFullySpecifiedType() {
         return type;
+    }
+
+    /**
+     * Retruns the original type of the variable before any post fix array specifier has been applied.
+     */
+    public FullySpecifiedType getOriginalType() {
+        return originalType;
+    }
+
+    public ArraySpecifiers getArraySpecifiers() {
+        return arraySpecifiers;
     }
 
     @Override
@@ -62,8 +82,17 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     }
 
     @Override
+    public boolean isConstant() {
+        Node initializer = getInitializer();
+        if (initializer != null && type.getQualifiers().contains(StorageQualifier.CONST)) {
+            return HasConstState.isConst(initializer);
+        }
+        return false;
+    }
+
+    @Override
     public ParentNode clone(ParentNode newParent) {
-        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, null);
+        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, arraySpecifiers, null);
         node.setInitializer(CloneUtils.clone(getInitializer(), node));
         return node;
     }

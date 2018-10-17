@@ -18,14 +18,22 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.traits.IterationNode;
-import com.tazadum.glsl.language.ast.type.*;
-import com.tazadum.glsl.language.ast.unresolved.*;
+import com.tazadum.glsl.language.ast.type.ArraySpecifier;
+import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeNode;
+import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
+import com.tazadum.glsl.language.model.ArraySpecifiers;
+import com.tazadum.glsl.language.model.LayoutQualifier;
+import com.tazadum.glsl.language.model.LayoutQualifierId;
 import com.tazadum.glsl.language.model.SubroutineQualifier;
-import com.tazadum.glsl.language.type.FullySpecifiedType;
-import com.tazadum.glsl.language.type.TypeQualifier;
+import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.util.Provider;
+
+import java.util.Objects;
 
 /**
  * Created by Erik on 2016-10-13.
@@ -48,7 +56,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitBoolean(BooleanLeafNode node) {
-        // TODO: replace false with 1==0 ?
+        // TODO: Optimization: replace false with 1==0 ?
         final String value = String.valueOf(node.getValue());
         return buffer.append(value);
     }
@@ -78,11 +86,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitVariable(UnresolvedVariableNode node) {
-        return buffer.append(node.getIdentifier());
-    }
-
-    @Override
     public SourceBuffer visitStatementList(StatementListNode node) {
         for (int i = 0; i < node.getChildCount(); i++) {
             final Node child = node.getChild(i);
@@ -104,29 +107,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         // Don't output type here, it should come from the VariableDeclarationList
         buffer.append(config.identifier(node.getIdentifier()));
 
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
-
-        if (node.getInitializer() != null) {
-            buffer.append('=');
-            node.getInitializer().accept(this);
-            buffer.append(';');
-        }
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitVariableDeclaration(UnresolvedVariableDeclarationNode node) {
-        if (node.getTypeNode() != null) {
-            node.getTypeNode().accept(this);
-            buffer.append(config.identifierSpacing());
-        }
-        buffer.append(node.getIdentifier());
-
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
+        outputArraySpecifier(node.getArraySpecifiers());
 
         if (node.getInitializer() != null) {
             buffer.append('=');
@@ -144,11 +125,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitVariableDeclarationList(UnresolvedVariableDeclarationListNode node) {
-        return outputChildCSV(node, 0, node.getChildCount());
-    }
-
-    @Override
     public SourceBuffer visitPrecision(PrecisionDeclarationNode node) {
         buffer.append(config.keyword("precision"));
         buffer.appendSpace();
@@ -160,43 +136,17 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitParameterDeclaration(ParameterDeclarationNode node) {
-        outputType(node.getFullySpecifiedType());
+        outputType(node.getOriginalType());
 
         if (node.getIdentifier() != null) {
             buffer.append(config.identifierSpacing());
             buffer.append(config.identifier(node.getIdentifier()));
         }
 
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
+        outputArraySpecifier(node.getArraySpecifiers());
 
-        if (node.getInitializer() != null) {
-            buffer.append('=');
-            node.getInitializer().accept(this);
-        }
-        return buffer;
-    }
+        // we don't even look at the initializer because parameters can't have them.
 
-    @Override
-    public SourceBuffer visitParameterDeclaration(UnresolvedParameterDeclarationNode node) {
-        if (node.getTypeNode() != null) {
-            node.getTypeNode().accept(this);
-        }
-
-        if (node.getIdentifier() != null) {
-            buffer.append(config.identifierSpacing());
-            buffer.append(node.getIdentifier());
-        }
-
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
-
-        if (node.getInitializer() != null) {
-            buffer.append('=');
-            node.getInitializer().accept(this);
-        }
         return buffer;
     }
 
@@ -281,30 +231,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         buffer.append(config.identifier(node.getIdentifier()));
 
         buffer.append('(');
-        outputChildCSV(node, 1, node.getChildCount());
-        buffer.append(')');
-
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitFunctionPrototype(UnresolvedFunctionPrototypeNode node) {
-        node.getReturnType().accept(this);
-
-        buffer.appendSpace();
-        buffer.append(node.getIdentifier());
-
-        if (node.getParameterCount() == 1) {
-            // if there's only a single parameter declaration of type void, don't output it.
-            UnresolvedParameterDeclarationNode parameter = node.getParameter(0);
-            String parameterType = parameter.getTypeNode().getTypeSpecifier().getTypeOrIdentifier();
-            if ("void".equals(parameterType)) {
-                return buffer.append("()");
-            }
-        }
-
-        buffer.append('(');
-        outputChildCSV(node, 1, node.getChildCount());
+        outputChildCSV(node, 0, node.getChildCount());
         buffer.append(')');
 
         return buffer;
@@ -327,12 +254,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
         buffer.append('}');
         return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitFunctionDefinition(UnresolvedFunctionDefinitionNode node) {
-        node.getFunctionPrototype().accept(this);
-        return outputBlock(node.getStatements());
     }
 
     @Override
@@ -436,8 +357,8 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitTypeDeclaration(UnresolvedTypeDeclarationNode node) {
-        node.getTypeNode().accept(this);
+    public SourceBuffer visitTypeDeclaration(TypeDeclarationNode node) {
+        outputType(node.getFullySpecifiedType());
         return buffer;
     }
 
@@ -495,56 +416,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitTypeNode(UnresolvedTypeNode node) {
-        if (node.getQualifiers() != null) {
-            node.getQualifiers().accept(this);
-        }
-        buffer.appendSpace();
-        node.getTypeSpecifier().accept(this);
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitArraySpecifierNode(ArraySpecifierNode node) {
-        buffer.append('[');
-        if (node.getExpression() != null) {
-            node.getExpression().accept(this);
-        }
-        buffer.append(']');
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitArrayTypeListNode(ArraySpecifierListNode node) {
-        return visitChildren(node);
-    }
-
-    @Override
-    public SourceBuffer visitTypeQualifierNode(TypeQualifierNode node) {
-        TypeQualifier qualifier = node.getQualifier();
-
-        if (qualifier instanceof HasToken) {
-            final String token = ((HasToken) qualifier).token();
-            return buffer.append(config.keyword(token));
-        }
-
-        if (qualifier instanceof SubroutineQualifier) {
-            final SubroutineQualifier subroutine = (SubroutineQualifier) qualifier;
-
-            buffer.append(config.keyword("subroutine"));
-            buffer.append('(');
-            for (String typeName : subroutine.getTypeNames()) {
-                buffer.appendComma();
-                buffer.append(typeName);
-            }
-            buffer.append(')');
-            return buffer;
-        }
-
-        throw new BadImplementationException("No output case for " + qualifier.getClass().getName());
-    }
-
-    @Override
     public SourceBuffer visitInitializerList(InitializerListNode node) {
         buffer.append('{');
         outputChildCSV(node, 0, node.getChildCount());
@@ -553,43 +424,21 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitTypeQualifierListNode(TypeQualifierListNode node) {
-        for (int i = 0; i < node.getChildCount(); i++) {
-            node.getChild(i).accept(this);
-            if (i + 1 < node.getChildCount()) {
-                buffer.appendSpace();
-            }
-        }
-        return buffer;
-    }
-
-    @Override
     public SourceBuffer visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node) {
-        node.getQualifiers().accept(this);
+        outputTypeQualifiers(node.getQualifiers());
         return buffer;
     }
 
-    @Override
-    public SourceBuffer visitLayoutQualifierListNode(LayoutQualifierListNode node) {
-        buffer.append(config.keyword("layout"));
-        buffer.append('(');
-        outputChildCSV(node, 0, node.getChildCount());
-        buffer.append(')');
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitLayoutQualifierIdNode(LayoutQualifierIdNode node) {
+    public SourceBuffer visitLayoutQualifierId(LayoutQualifierId node) {
         buffer.append(node.getIdentifier());
-        if (node.getExpression() != null) {
-            buffer.append('=');
-            node.getExpression().accept(this);
+        if (node.getValue() != null) {
+            buffer.append('=').append(node.getValue());
         }
         return buffer;
     }
 
     @Override
-    public SourceBuffer visitUnresolvedStructDeclarationNode(UnresolvedStructDeclarationNode node) {
+    public SourceBuffer visitStructDeclarationNode(StructDeclarationNode node) {
         buffer.append(config.keyword("struct"));
 
         if (node.getIdentifier() != null) {
@@ -607,41 +456,12 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitUnresolvedStructFieldDeclarationNode(UnresolvedStructFieldDeclarationNode node) {
-        if (node.getTypeQualifiers() != null) {
-            node.getTypeQualifiers().accept(this);
-            buffer.appendSpace();
-        }
-
-        node.getTypeSpecifier().accept(this);
-        buffer.appendSpace();
-        node.getFieldList().accept(this);
-
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitUnresolvedStructFieldListNode(UnresolvedStructFieldListNode node) {
-        return outputChildCSV(node, 0, node.getChildCount());
-    }
-
-    @Override
-    public SourceBuffer visitUnresolvedStructFieldNode(UnresolvedStructFieldNode node) {
-        buffer.append(node.getIdentifier());
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
-        return buffer;
-    }
-
-
-    @Override
-    public SourceBuffer visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node) {
-        node.getTypeQualifier().accept(this);
+    public SourceBuffer visitInterfaceBlockNode(InterfaceBlockNode node) {
+        outputTypeQualifiers(node.getTypeQualifier());
         buffer.appendSpace();
 
         // the struct output needs to be inlined since the keyword 'struct' shouldn't be rendered.
-        final UnresolvedStructDeclarationNode block = node.getInterfaceStruct();
+        final StructDeclarationNode block = node.getInterfaceStruct();
         if (block.getIdentifier() != null) {
             buffer.appendSpace();
             buffer.append(block.getIdentifier());
@@ -655,26 +475,9 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         buffer.append('}');
 
         if (node.getIdentifier() != null) {
-            buffer.append(node.getIdentifier());
+            buffer.append(config.identifier(node.getIdentifier()));
         }
-
-        if (node.getArraySpecifier() != null) {
-            node.getArraySpecifier().accept(this);
-        }
-
-        return buffer;
-    }
-
-    @Override
-    public SourceBuffer visitTypeSpecifierNode(UnresolvedTypeSpecifierNode node) {
-        if (node.getStructDeclaration() != null) {
-            node.getStructDeclaration().accept(this);
-        } else {
-            buffer.append(node.getTypeOrIdentifier());
-            if (node.getArraySpecifier() != null) {
-                node.getArraySpecifier().accept(this);
-            }
-        }
+        outputArraySpecifier(node.getArraySpecifier());
         return buffer;
     }
 
@@ -694,27 +497,94 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     private boolean noSemiColon(Node node) {
-        return
-            node instanceof FunctionDefinitionNode ||
-                node instanceof UnresolvedFunctionDefinitionNode ||
-                node instanceof IterationNode;
+        return node instanceof FunctionDefinitionNode ||
+            node instanceof IterationNode;
     }
 
-    private String outputType(FullySpecifiedType type) {
-        /*
-        final StringBuilder buffer = new StringBuilder();
-        if (type.getQualifier() != null) {
-            if (type.getQualifier() != TypeQualifier.CONST || config.isOutputConst()) {
-                buffer.append(type.getQualifier().token()).append(' ');
+    private void outputType(FullySpecifiedType type) {
+        if (outputTypeQualifiers(type.getQualifiers())) {
+            buffer.appendSpace();
+        }
+        buffer.append(outputType(type.getType()));
+    }
+
+    private String outputType(GLSLType type) {
+        if (type instanceof ArrayType) {
+            final ArrayType arrayType = (ArrayType) type;
+            final String dimension = arrayType.hasDimension() ? Objects.toString(arrayType.getDimension()) : "";
+            return outputType(arrayType.baseType()) + "[" + dimension + "]";
+        }
+
+        if (type instanceof StructType) {
+            throw new BadImplementationException();
+        }
+
+        return type.token();
+    }
+
+    private boolean outputTypeQualifiers(TypeQualifierList typeQualifier) {
+        if (typeQualifier == null) {
+            return false;
+        }
+
+        boolean first = true;
+        for (TypeQualifier qualifier : typeQualifier.getQualifiers()) {
+            if (!first) {
+                buffer.appendSpace();
             }
+            first = false;
+
+            if (qualifier instanceof HasToken) {
+                final String token = ((HasToken) qualifier).token();
+                buffer.append(config.keyword(token));
+                continue;
+            }
+
+            if (qualifier instanceof SubroutineQualifier) {
+                final SubroutineQualifier subroutine = (SubroutineQualifier) qualifier;
+
+                buffer.append(config.keyword("subroutine"));
+                buffer.append('(');
+                for (String typeName : subroutine.getTypeNames()) {
+                    buffer.appendComma();
+                    buffer.append(typeName);
+                }
+                buffer.append(')');
+                continue;
+            }
+
+            if (qualifier instanceof LayoutQualifier) {
+                buffer.append(config.keyword("layout"));
+                buffer.append('(');
+                for (LayoutQualifierId id : ((LayoutQualifier) qualifier).getIds()) {
+                    buffer.appendComma();
+                    buffer.append(id.getIdentifier());
+                    if (id.getValue() != null) {
+                        buffer.append('=').append(Objects.toString(id.getValue()));
+                    }
+                }
+                buffer.append(')');
+                continue;
+            }
+
+            throw new BadImplementationException("No output case for " + qualifier.getClass().getName());
         }
-        if (type.getPrecision() != null) {
-            buffer.append(type.getPrecision().token()).append(' ');
+
+        return true;
+    }
+
+    private void outputArraySpecifier(ArraySpecifiers arraySpecifiers) {
+        if (arraySpecifiers == null) {
+            return;
         }
-        buffer.append(type.getType().token());
-        return buffer;
-        */
-        return "TYPE";
+
+        for (ArraySpecifier specifier : arraySpecifiers.getSpecifiers()) {
+            buffer.append('[');
+            if (specifier.hasDimension()) {
+                buffer.append(specifier.getDimension());
+            }
+            buffer.append(']');
+        }
     }
 
     private SourceBuffer outputBlock(Node node) {

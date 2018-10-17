@@ -8,6 +8,16 @@ public class Identifier implements Comparable<Identifier> {
         return new Identifier(original);
     }
 
+    /**
+     * Returns an instance of Identifier is the provided value is not null.
+     */
+    public static Identifier orNull(String identifier) {
+        if (identifier == null) {
+            return null;
+        }
+        return get(identifier);
+    }
+
     public Identifier(String original) {
         this.original = original;
     }

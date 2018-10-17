@@ -13,7 +13,7 @@ import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.unresolved.UnresolvedStructDeclarationNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.Numeric;
@@ -278,7 +278,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     }
 
     @Override
-    public Numeric visitUnresolvedStructDeclarationNode(UnresolvedStructDeclarationNode node) {
+    public Numeric visitStructDeclarationNode(StructDeclarationNode node) {
         return abort(node);
     }
 

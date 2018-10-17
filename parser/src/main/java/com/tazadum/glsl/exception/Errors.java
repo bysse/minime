@@ -44,8 +44,19 @@ public class Errors {
     }
 
     public static class Syntax {
+        public static final String EXPECTED_INTEGRAL_CONSTANT_EXPRESSION = "Expected an integral constant expression.";
+        public static final String EXPECTED_POSITIVE_INTEGRAL_CONSTANT_EXPRESSION = "Expected a non-negative integral constant expression";
+
         public static String TYPE_DOES_NOT_SUPPORT_PRECISION(String typeName) {
             return format("The type '%s' does not support precision declarations", typeName);
+        }
+
+        public static String LAYOUT_QUALIFIER_ID_NOT_CONST(String qualifierName) {
+            return format("The layout qualifier '%s' does not have a constant expression value", qualifierName);
+        }
+
+        public static String CANT_RESOLVE_SYMBOL(String identifier) {
+            return format("Can't resolve symbol '%s'", identifier);
         }
     }
 }

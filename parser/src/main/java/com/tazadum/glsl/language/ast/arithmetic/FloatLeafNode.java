@@ -3,12 +3,13 @@ package com.tazadum.glsl.language.ast.arithmetic;
 import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasNumeric;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class FloatLeafNode extends LeafNode implements HasNumeric {
+public class FloatLeafNode extends LeafNode implements HasNumeric, HasConstState {
     private final Numeric value;
 
     public FloatLeafNode(SourcePosition position, Numeric value) {
@@ -37,5 +38,10 @@ public class FloatLeafNode extends LeafNode implements HasNumeric {
     @Override
     public GLSLType getType() {
         return value.getType();
+    }
+
+    @Override
+    public boolean isConstant() {
+        return true;
     }
 }

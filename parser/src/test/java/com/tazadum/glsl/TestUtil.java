@@ -6,10 +6,12 @@ import com.tazadum.glsl.language.function.FunctionRegistryImpl;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputVisitor;
-import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.TypeRegistryImpl;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
-import com.tazadum.glsl.parser.*;
+import com.tazadum.glsl.parser.GLSLLexer;
+import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.ParserContextImpl;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -80,11 +82,6 @@ public class TestUtil {
     public static String toString(Node node) {
         OutputConfig outputConfig = new OutputConfigBuilder().blacklistKeyword("const").build();
         return node.accept(new OutputVisitor(outputConfig)).get();
-    }
-
-    public static GLSLType resolve(Node node, ParserContext parserContext) {
-        ResolvingVisitor visitor = new ResolvingVisitor(parserContext);
-        return node.accept(visitor);
     }
 
     public static ParserContext parserContext() {

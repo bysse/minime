@@ -14,8 +14,11 @@ import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.type.*;
-import com.tazadum.glsl.language.ast.unresolved.*;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeNode;
+import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 
 /**
@@ -84,8 +87,6 @@ public interface ASTVisitor<T> {
 
     T visitFloat(FloatLeafNode node);
 
-    T visitTypeDeclaration(UnresolvedTypeDeclarationNode node);
-
     T visitBitOperation(BitOperationNode node);
 
     T visitSwitch(SwitchNode node);
@@ -96,45 +97,13 @@ public interface ASTVisitor<T> {
 
     T visitTypeNode(TypeNode node);
 
-    T visitArraySpecifierNode(ArraySpecifierNode node);
-
-    T visitArrayTypeListNode(ArraySpecifierListNode node);
-
-    T visitTypeNode(UnresolvedTypeNode node); // there are potential sub-trees here
-
-    T visitTypeQualifierNode(TypeQualifierNode node); // there are potential sub-trees here
-
-    T visitVariable(UnresolvedVariableNode node);
-
-    T visitFunctionPrototype(UnresolvedFunctionPrototypeNode node);
-
-    T visitVariableDeclarationList(UnresolvedVariableDeclarationListNode node);
-
-    T visitVariableDeclaration(UnresolvedVariableDeclarationNode node);
-
-    T visitParameterDeclaration(UnresolvedParameterDeclarationNode node);
-
-    T visitFunctionDefinition(UnresolvedFunctionDefinitionNode node);
-
     T visitInitializerList(InitializerListNode node);
-
-    T visitTypeQualifierListNode(TypeQualifierListNode node);
 
     T visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node);
 
-    T visitLayoutQualifierListNode(LayoutQualifierListNode node);
+    T visitStructDeclarationNode(StructDeclarationNode node);
 
-    T visitLayoutQualifierIdNode(LayoutQualifierIdNode node);
+    T visitInterfaceBlockNode(InterfaceBlockNode node);
 
-    T visitUnresolvedStructDeclarationNode(UnresolvedStructDeclarationNode node);
-
-    T visitUnresolvedStructFieldNode(UnresolvedStructFieldNode node);
-
-    T visitUnresolvedStructFieldDeclarationNode(UnresolvedStructFieldDeclarationNode node);
-
-    T visitUnresolvedStructFieldListNode(UnresolvedStructFieldListNode node);
-
-    T visitUnresolvedInterfaceBlockNode(UnresolvedInterfaceBlockNode node);
-
-    T visitTypeSpecifierNode(UnresolvedTypeSpecifierNode node);
+    T visitTypeDeclaration(TypeDeclarationNode node);
 }

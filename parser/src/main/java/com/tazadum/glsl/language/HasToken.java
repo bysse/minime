@@ -17,7 +17,9 @@ public interface HasToken {
     /**
      * Returns the ANTLR parser token id.
      */
-    int tokenId();
+    default int tokenId() {
+        return NO_TOKEN_ID;
+    }
 
     /**
      * Does a linear search through the list of values to search for an item that matches the provided token.

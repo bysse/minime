@@ -39,6 +39,7 @@ postfix_expression
 
 field_selection
   : IDENTIFIER
+  | IDENTIFIER LEFT_PAREN RIGHT_PAREN
   ;
 
 integer_expression

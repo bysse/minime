@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
@@ -11,7 +12,7 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2016-10-07.
  */
-public class TernaryConditionNode extends FixedChildParentNode {
+public class TernaryConditionNode extends FixedChildParentNode implements HasConstState {
     public TernaryConditionNode(SourcePosition position, Node condition, Node thenNode, Node elseNode) {
         this(position, null, condition, thenNode, elseNode);
     }
@@ -33,6 +34,13 @@ public class TernaryConditionNode extends FixedChildParentNode {
 
     public Node getElse() {
         return getChild(2);
+    }
+
+    @Override
+    public boolean isConstant() {
+        return HasConstState.isConst(getCondition()) &&
+            HasConstState.isConst(getThen()) &&
+            HasConstState.isConst(getElse());
     }
 
     @Override

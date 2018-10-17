@@ -18,6 +18,11 @@ public class SourceBuffer implements Provider<String> {
         return this;
     }
 
+    public SourceBuffer append(int number) {
+        builder.append(number);
+        return this;
+    }
+
     public SourceBuffer append(char ch) {
         builder.append(ch);
         return this;

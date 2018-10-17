@@ -1,25 +1,32 @@
 package com.tazadum.glsl.language.model;
 
+import com.tazadum.glsl.language.ast.traits.HasSourcePosition;
 import com.tazadum.glsl.language.type.TypeQualifier;
+import com.tazadum.glsl.util.SourcePosition;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SubroutineQualifier implements TypeQualifier {
-    private List<String> typeNames;
+public class SubroutineQualifier implements TypeQualifier, HasSourcePosition {
+    private final SourcePosition sourcePosition;
+    private final List<String> typeNames;
 
-    public SubroutineQualifier() {
-        typeNames = new ArrayList<>();
+    public SubroutineQualifier(SourcePosition sourcePosition) {
+        this(sourcePosition, Collections.emptyList());
+    }
+
+    public SubroutineQualifier(SourcePosition sourcePosition, List<String> typeNames) {
+        this.sourcePosition = sourcePosition;
+        this.typeNames = typeNames;
+    }
+
+    @Override
+    public SourcePosition getSourcePosition() {
+        return sourcePosition;
     }
 
     public List<String> getTypeNames() {
         return typeNames;
-    }
-
-    public SubroutineQualifier(List<String> typeNames) {
-        this.typeNames = typeNames == null ? Collections.emptyList() : typeNames;
-
     }
 
     public String toString() {

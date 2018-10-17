@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasMutableType;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
@@ -12,7 +13,7 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2016-10-07.
  */
-public class FieldSelectionNode extends FixedChildParentNode implements HasMutableType {
+public class FieldSelectionNode extends FixedChildParentNode implements HasMutableType, HasConstState {
     private String selection;
     private GLSLType type;
 
@@ -35,6 +36,11 @@ public class FieldSelectionNode extends FixedChildParentNode implements HasMutab
 
     public void setExpression(Node expression) {
         setChild(0, expression);
+    }
+
+    @Override
+    public boolean isConstant() {
+        return HasConstState.isConst(getExpression());
     }
 
     @Override
