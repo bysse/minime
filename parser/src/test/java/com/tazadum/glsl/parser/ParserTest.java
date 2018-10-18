@@ -82,6 +82,7 @@ class ParserTest {
             Arguments.of("struct S { float f; };", "struct S{float f;};"),
             Arguments.of("struct s { float a; float b; } S;", "struct s{float a;float b;} S;"),
             Arguments.of("struct {float f;} s;", "struct{float f;} s;"),
+            Arguments.of("struct {float f;} s[2];", "struct{float f;} s[2];"),
 
             Arguments.of("mat2x2 a=mat2( vec2( 1.0, 0.0), vec2( 0.0, 1.0 ) );", "mat2x2 a=mat2(vec2(1,0),vec2(0,1));"),
             Arguments.of("mat2x2 b={ vec2( 1.0, 0.0), vec2( 0.0, 1.0 ) };", "mat2x2 b={vec2(1,0),vec2(0,1)};"),

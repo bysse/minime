@@ -12,14 +12,17 @@ import static java.lang.String.format;
 public class Errors {
     public static class Type {
         public static final String NOT_A_CONST_EXPRESSION = "Expected a constant expression.";
-        public static final String ARRAY_SPECIFIER_NOT_CONSTANT = "Array specifier is not a constant expression";
+        public static final String NON_INTEGER_ARRAY_LENGTH = "Array size must be expressed as an integer.";
 
+        public static final String NON_INTEGER_ARRAY_INDEX = "Array indices must be expressed as integers >= 0";
+        public static final String INITIALIZER_TOO_SMALL = "Too little data in initialization";
+        public static final String INITIALIZER_TOO_BIG = "Too much data in initialization";
+
+        public static String ARRAY_INDEX_OUT_OF_BOUNDS(int size, int index) {
+            return format("Array index out of bounds : %d >= %d", index, size);
+        }
         public static String UNKNOWN_TYPE_ERROR(String details) {
             return "Unknown type error : " + details;
-        }
-
-        public static String NON_INTEGER_ARRAY_LENGTH() {
-            return "Array size must be expressed as an integer.";
         }
 
         public static String NO_SUCH_FIELD(String fieldName, String typeName) {
@@ -58,6 +61,10 @@ public class Errors {
 
         public static String CANT_RESOLVE_SYMBOL(String identifier) {
             return format("Can't resolve symbol '%s'", identifier);
+        }
+
+        public static String FUNCTION_NOT_CONST_EXP(String functionName) {
+            return format("Function '%s' can't be used to form constant expressions", functionName);
         }
     }
 }

@@ -2,6 +2,7 @@ package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.Errors;
 import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
@@ -26,10 +27,15 @@ public class TypeRegistryImpl implements TypeRegistry {
 
     @Override
     public void declare(FullySpecifiedType fst) {
-        if (fst.getType().token() != null) {
-            typeMap.put(fst.getType().token(), fst);
+        if (fst.getType() instanceof StructType) {
+            final Identifier identifier = ((StructType) fst.getType()).getIdentifier();
+            if (identifier != null) {
+                // only register the original type name
+                typeMap.put(identifier.original(), fst);
+            }
+            // this is an anonymous type, don't register it
         } else {
-            // this is an anonymous struct
+            typeMap.put(fst.getType().token(), fst);
         }
     }
 

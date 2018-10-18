@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.*;
+import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
@@ -18,9 +19,7 @@ import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.function.ConstFunction;
 import com.tazadum.glsl.language.model.StorageQualifier;
-import com.tazadum.glsl.language.type.Numeric;
-import com.tazadum.glsl.language.type.NumericOperation;
-import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.language.type.*;
 
 /**
  * A constant expression is one of:
@@ -96,8 +95,15 @@ import com.tazadum.glsl.language.type.PredefinedType;
  * Created by erikb on 2018-10-16.
  */
 public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> {
+    private int escape = 100000;
+    private boolean variablesAllowed = true;
+
     private Numeric abort(Node node) {
-        throw new NotContExpressionException(node.getSourcePosition(), Errors.Type.NOT_A_CONST_EXPRESSION);
+        throw new NotContExpressionException(node.getSourcePosition(), node.getSourcePosition().format() + ":" + Errors.Type.NOT_A_CONST_EXPRESSION);
+    }
+
+    private Numeric abort(Node node, String message) {
+        throw new NotContExpressionException(node.getSourcePosition(), node.getSourcePosition().format() + ":" + message);
     }
 
     @Override
@@ -123,36 +129,91 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
 
     @Override
     public Numeric visitVariable(VariableNode node) {
-        VariableDeclarationNode declarationNode = node.getDeclarationNode();
-        if (declarationNode == null) {
-            throw new BadImplementationException("The declaration of the variable at " + node.getSourcePosition().format() + " is null");
+        if (escape-- <= 0) {
+            throw new SourcePositionException(node.getSourcePosition(), "Infinite loop in declaration / initializer");
         }
 
-        if (!declarationNode.getFullySpecifiedType().getQualifiers().contains(StorageQualifier.CONST)) {
-            // only const variables are allowed
-            abort(node);
-        }
-
-        if (declarationNode.getInitializer() == null) {
-            // if the variable declaration has no initializer, it's not a valid const expression
-            abort(node);
-        }
-
-        // TODO: This could create loops
-        return declarationNode.getInitializer().accept(this);
+        // TODO: This could create loops if the initialize contains a reference to the variable
+        return getInitializerList(node).accept(this);
     }
 
     @Override
     public Numeric visitFieldSelection(FieldSelectionNode node) {
-        // TODO: tricky to solve
-        node.getExpression().accept(this);
-        return super.visitFieldSelection(node);
+        if (!(node.getExpression() instanceof VariableNode)) {
+            abort(node);
+        }
+        final VariableNode variableNode = (VariableNode) node.getExpression();
+        final InitializerListNode initializerList = getInitializerList(variableNode);
+
+        final VariableDeclarationNode declarationNode = variableNode.getDeclarationNode();
+        final FullySpecifiedType fullySpecifiedType = declarationNode.getFullySpecifiedType();
+
+        if (fullySpecifiedType.getType() instanceof ArrayType) {
+            // arrays only has a single field that can be accessed and that's the 'length()' function.
+            if (node instanceof LengthFunctionFieldSelectionNode) {
+                // return array dimension
+                final ArrayType arrayType = (ArrayType) fullySpecifiedType.getType();
+                if (arrayType.hasDimension()) {
+                    // the array type was explicitly specified, return the size
+                    return new Numeric(arrayType.getDimension(), 0, PredefinedType.UINT);
+                } else {
+                    // no dimension specified, look at the initializer
+                    return new Numeric(initializerList.getChildCount(), 0, PredefinedType.UINT);
+                }
+            }
+            return abort(node);
+        }
+
+        if (fullySpecifiedType.getType() instanceof StructType) {
+            // resolve the field value in the initializer and return
+            final StructType structType = (StructType) fullySpecifiedType.getType();
+            try {
+                final int fieldIndex = structType.getFieldIndex(node.getSelection());
+                if (0 <= fieldIndex && fieldIndex <= initializerList.getChildCount()) {
+                    return initializerList.getChild(fieldIndex).accept(this);
+                }
+
+                return abort(node, Errors.Type.INITIALIZER_TOO_SMALL);
+            } catch (NoSuchFieldException e) {
+                return abort(node, e.getMessage());
+            }
+        }
+
+        return abort(node);
     }
 
     @Override
     public Numeric visitArrayIndex(ArrayIndexNode node) {
-        // TODO: no variables allowed
-        return super.visitArrayIndex(node);
+        // verify that expression is a const array with an initializer
+        if (!(node.getExpression() instanceof VariableNode)) {
+            return abort(node);
+        }
+        final VariableNode variableNode = (VariableNode) node.getExpression();
+        final InitializerListNode initializerList = getInitializerList(variableNode);
+
+        final FullySpecifiedType fullySpecifiedType = variableNode.getDeclarationNode().getFullySpecifiedType();
+        if (!fullySpecifiedType.getType().isArray()) {
+            return abort(variableNode);
+        }
+
+        // resolve the index and verify it
+        variablesAllowed = false;
+        Numeric indexNumeric = node.getIndex().accept(this);
+        variablesAllowed = true;
+
+        if (indexNumeric.getType() != PredefinedType.UINT && indexNumeric.getType() != PredefinedType.INT) {
+            return abort(node.getIndex(), Errors.Type.NON_INTEGER_ARRAY_INDEX);
+        }
+        int index = (int) indexNumeric.getValue();
+        if (index < 0) {
+            return abort(node.getIndex(), Errors.Type.NON_INTEGER_ARRAY_INDEX);
+        }
+        if (index >= initializerList.getChildCount()) {
+            return abort(node.getIndex(), Errors.Type.ARRAY_INDEX_OUT_OF_BOUNDS(initializerList.getChildCount(), index));
+        }
+
+        // resolve the initializer at the correct index
+        return initializerList.getChild(index).accept(this);
     }
 
     @Override
@@ -161,7 +222,6 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
         Numeric right = node.getRight().accept(this);
         Boolean value = node.getOperator().apply(left, right);
 
-        node.setConstant(true);
         return new Numeric(boolInt(value), 0, PredefinedType.BOOL);
     }
 
@@ -169,7 +229,6 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     public Numeric visitLogicalOperation(LogicalOperationNode node) {
         Numeric left = node.getLeft().accept(this);
         Numeric right = node.getRight().accept(this);
-        node.setConstant(true);
 
         switch (node.getOperator()) {
             case OR:
@@ -189,18 +248,24 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
             abort(node);
         }
 
-        final ConstFunction function = HasToken.fromString(node.getIdentifier().original(), ConstFunction.values());
+        final String functionName = node.getIdentifier().original();
+        final ConstFunction function = HasToken.fromString(functionName, ConstFunction.values());
+        if (function == null) {
+            abort(node, Errors.Syntax.FUNCTION_NOT_CONST_EXP(functionName));
+        }
+        if (node.getChildCount() != 1) {
+            throw new BadImplementationException("const expressions for functions with multiple arguments are not supported");
+        }
 
-        // TODO: implement
+        // TODO: functions with multiple arguments or vec -> scalar types are not supported
 
-        throw new BadImplementationException("ConstFunction evaluation is not implemented");
+        Numeric numeric = node.getChild(0).accept(this);
+        return function.apply(numeric);
     }
 
     @Override
     public Numeric visitConstantExpression(ConstantExpressionNode node) {
-        Numeric numeric = node.getExpression().accept(this);
-        node.setConstant(true);
-        return numeric;
+        return node.getExpression().accept(this);
     }
 
     @Override
@@ -244,8 +309,6 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
         try {
             Numeric left = node.getLeft().accept(this);
             Numeric right = node.getRight().accept(this);
-
-            node.setConstant(true);
 
             switch (node.getOperator()) {
                 case ADD:
@@ -293,5 +356,33 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
 
     private int boolInt(boolean value) {
         return value ? 1 : 0;
+    }
+
+
+    private InitializerListNode getInitializerList(VariableNode node) {
+        if (!variablesAllowed) {
+            abort(node);
+        }
+
+        VariableDeclarationNode declarationNode = node.getDeclarationNode();
+        if (declarationNode == null) {
+            throw new BadImplementationException("The declaration of the variable at " + node.getSourcePosition().format() + " is null");
+        }
+
+        if (declarationNode instanceof ParameterDeclarationNode) {
+            abort(node);
+        }
+
+        if (!declarationNode.getFullySpecifiedType().getQualifiers().contains(StorageQualifier.CONST)) {
+            // only const variables are allowed
+            abort(node);
+        }
+
+        if (declarationNode.getInitializer() == null) {
+            // if the variable declaration has no initializer, it's not a valid const expression
+            abort(node);
+        }
+
+        return (InitializerListNode) declarationNode.getInitializer();
     }
 }

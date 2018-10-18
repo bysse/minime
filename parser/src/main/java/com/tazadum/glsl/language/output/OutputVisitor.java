@@ -242,7 +242,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     @Override
     public SourceBuffer visitFunctionDefinition(FunctionDefinitionNode node) {
         node.getFunctionPrototype().accept(this);
-        buffer.append('{');
+        buffer.append('{').append(config.newLine());
 
         Identifier identifier = node.getFunctionPrototype().getIdentifier();
         if (!identifier.original().equals(identifier.token())) {
@@ -517,7 +517,11 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         }
 
         if (type instanceof StructType) {
-            return "";
+            Identifier identifier = ((StructType) type).getIdentifier();
+            if (identifier == null) {
+                throw new BadImplementationException("Identifier shouldn't be null here");
+            }
+            return config.identifier(identifier);
         }
 
         return type.token();

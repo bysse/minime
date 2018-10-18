@@ -9,7 +9,7 @@ import java.util.Set;
 public class OutputConfigBuilder {
     private Set<String> keywordBlacklist = new HashSet<>();
     private boolean renderNewLines = false;
-    private int indentation = 4;
+    private int indentation = 0;
     private int maxDecimals = 5;
     private IdentifierOutputMode identifierMode = IdentifierOutputMode.Original;
 

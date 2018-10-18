@@ -12,6 +12,7 @@ import com.tazadum.glsl.util.SourcePosition;
  * Created by Erik on 2016-10-07.
  */
 public class LengthFunctionFieldSelectionNode extends FieldSelectionNode {
+    public static final String LENGTH_FUNCTION = "length()";
     private GLSLType type;
 
     public LengthFunctionFieldSelectionNode(SourcePosition position) {
@@ -19,7 +20,7 @@ public class LengthFunctionFieldSelectionNode extends FieldSelectionNode {
     }
 
     public LengthFunctionFieldSelectionNode(SourcePosition position, ParentNode parentNode) {
-        super(position, parentNode, "length()");
+        super(position, parentNode, LENGTH_FUNCTION);
     }
 
     public Node getExpression() {

@@ -412,7 +412,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         final ParameterDeclarationNode declarationNode = new ParameterDeclarationNode(position, type, identifier, arraySpecifiers);
-        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
+        if (identifier != null && type.getType() != PredefinedType.VOID) {
+            parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
+        }
         return declarationNode;
     }
 

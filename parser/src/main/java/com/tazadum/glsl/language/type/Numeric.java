@@ -101,6 +101,10 @@ public class Numeric implements Comparable<Numeric> {
         return new Numeric(value, decimals, type);
     }
 
+    public String toString() {
+        return String.format("{%f, %d, %s}", value, decimals, type.token());
+    }
+
     public static Numeric abs(Numeric n) {
         return new Numeric(Math.abs(n.getValue()), n.getDecimals(), n.getType());
     }
