@@ -10,7 +10,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 /**
  * Created by erikb on 2018-10-18.
@@ -34,9 +35,13 @@ class TypeVisitorTest {
             }
         } catch (SourcePositionException e) {
             if (sourcePosition == null) {
+                e.printStackTrace();
                 fail("Did not expect an exception");
             } else {
-                assertTrue(e.getSourcePosition().equals(sourcePosition), "Position of exception are not matching expectations");
+                if (!e.getSourcePosition().equals(sourcePosition)) {
+                    e.printStackTrace();
+                    fail("Position of exception are not matching expectations: expected " + sourcePosition.format() + ", found: " + e.getSourcePosition().format());
+                }
             }
         }
     }
@@ -44,7 +49,8 @@ class TypeVisitorTest {
     private static Arguments[] getSnippets() {
         return new Arguments[]{
             ok("int a=1;float b=a;"),
-            notOk("float a=1;int b=a;", 1, 14),
+            ok("int[] a={1,2,3};float b=a[2];"),
+            notOk("float a=1;int b=a;", 1, 16),
         };
     }
 

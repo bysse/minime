@@ -14,6 +14,7 @@ import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.variable.InitializerListNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.model.BitOperator;
 import com.tazadum.glsl.language.type.ArrayType;
 import com.tazadum.glsl.language.type.GLSLType;
@@ -200,8 +201,18 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             if (!node.getType().isAssignableBy(initializerType)) {
                 throw incompatibleTypes(initializer, node.getType(), initializerType);
             }
+
+            // TODO: if this is an array initializer for an unspecified array, set the sizes!
         }
         return node.getType();
+    }
+
+    @Override
+    public GLSLType visitVariable(VariableNode node) {
+        VariableDeclarationNode declarationNode = node.getDeclarationNode();
+        assert declarationNode != null : "No declaration found for variable";
+
+        return declarationNode.getType();
     }
 
     @Override

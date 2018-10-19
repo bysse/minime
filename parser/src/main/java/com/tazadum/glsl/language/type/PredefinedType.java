@@ -32,30 +32,30 @@ public enum PredefinedType implements GLSLType, HasToken {
     UVEC2("uvec2", GLSLParser.UVEC2, TypeCategory.Vector, BaseType.UINT, 2),
     UVEC3("uvec3", GLSLParser.UVEC3, TypeCategory.Vector, BaseType.UINT, 3),
     UVEC4("uvec4", GLSLParser.UVEC4, TypeCategory.Vector, BaseType.UINT, 4),
-    MAT2("mat2", GLSLParser.MAT2, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT3("mat3", GLSLParser.MAT3, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT4("mat4", GLSLParser.MAT4, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT2X2("mat2x2", GLSLParser.MAT2X2, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT2X3("mat2x3", GLSLParser.MAT2X3, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT2X4("mat2x4", GLSLParser.MAT2X4, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT3X2("mat3x2", GLSLParser.MAT3X2, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT3X3("mat3x3", GLSLParser.MAT3X3, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT3X4("mat3x4", GLSLParser.MAT3X4, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT4X2("mat4x2", GLSLParser.MAT4X2, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT4X3("mat4x3", GLSLParser.MAT4X3, TypeCategory.Matrix, BaseType.FLOAT),
-    MAT4X4("mat4x4", GLSLParser.MAT4X4, TypeCategory.Matrix, BaseType.FLOAT),
-    DMAT2("dmat2", GLSLParser.DMAT2, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT3("dmat3", GLSLParser.DMAT3, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT4("dmat4", GLSLParser.DMAT4, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT2X2("dmat2x2", GLSLParser.DMAT2X2, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT2X3("dmat2x3", GLSLParser.DMAT2X3, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT2X4("dmat2x4", GLSLParser.DMAT2X4, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT3X2("dmat3x2", GLSLParser.DMAT3X2, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT3X3("dmat3x3", GLSLParser.DMAT3X3, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT3X4("dmat3x4", GLSLParser.DMAT3X4, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT4X2("dmat4x2", GLSLParser.DMAT4X2, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT4X3("dmat4x3", GLSLParser.DMAT4X3, TypeCategory.Matrix, BaseType.DOUBLE),
-    DMAT4X4("dmat4x4", GLSLParser.DMAT4X4, TypeCategory.Matrix, BaseType.DOUBLE),
+    MAT2("mat2", GLSLParser.MAT2, TypeCategory.Matrix, BaseType.FLOAT, 2, 2),
+    MAT3("mat3", GLSLParser.MAT3, TypeCategory.Matrix, BaseType.FLOAT, 3, 3),
+    MAT4("mat4", GLSLParser.MAT4, TypeCategory.Matrix, BaseType.FLOAT, 4, 4),
+    MAT2X2("mat2x2", GLSLParser.MAT2X2, TypeCategory.Matrix, BaseType.FLOAT, 2, 2),
+    MAT2X3("mat2x3", GLSLParser.MAT2X3, TypeCategory.Matrix, BaseType.FLOAT, 2, 3),
+    MAT2X4("mat2x4", GLSLParser.MAT2X4, TypeCategory.Matrix, BaseType.FLOAT, 2, 4),
+    MAT3X2("mat3x2", GLSLParser.MAT3X2, TypeCategory.Matrix, BaseType.FLOAT, 3, 2),
+    MAT3X3("mat3x3", GLSLParser.MAT3X3, TypeCategory.Matrix, BaseType.FLOAT, 3, 3),
+    MAT3X4("mat3x4", GLSLParser.MAT3X4, TypeCategory.Matrix, BaseType.FLOAT, 3, 4),
+    MAT4X2("mat4x2", GLSLParser.MAT4X2, TypeCategory.Matrix, BaseType.FLOAT, 4, 2),
+    MAT4X3("mat4x3", GLSLParser.MAT4X3, TypeCategory.Matrix, BaseType.FLOAT, 4, 3),
+    MAT4X4("mat4x4", GLSLParser.MAT4X4, TypeCategory.Matrix, BaseType.FLOAT, 4, 4),
+    DMAT2("dmat2", GLSLParser.DMAT2, TypeCategory.Matrix, BaseType.DOUBLE, 2, 2),
+    DMAT3("dmat3", GLSLParser.DMAT3, TypeCategory.Matrix, BaseType.DOUBLE, 3, 3),
+    DMAT4("dmat4", GLSLParser.DMAT4, TypeCategory.Matrix, BaseType.DOUBLE, 4, 4),
+    DMAT2X2("dmat2x2", GLSLParser.DMAT2X2, TypeCategory.Matrix, BaseType.DOUBLE, 2, 2),
+    DMAT2X3("dmat2x3", GLSLParser.DMAT2X3, TypeCategory.Matrix, BaseType.DOUBLE, 2, 3),
+    DMAT2X4("dmat2x4", GLSLParser.DMAT2X4, TypeCategory.Matrix, BaseType.DOUBLE, 2, 4),
+    DMAT3X2("dmat3x2", GLSLParser.DMAT3X2, TypeCategory.Matrix, BaseType.DOUBLE, 3, 2),
+    DMAT3X3("dmat3x3", GLSLParser.DMAT3X3, TypeCategory.Matrix, BaseType.DOUBLE, 3, 3),
+    DMAT3X4("dmat3x4", GLSLParser.DMAT3X4, TypeCategory.Matrix, BaseType.DOUBLE, 3, 4),
+    DMAT4X2("dmat4x2", GLSLParser.DMAT4X2, TypeCategory.Matrix, BaseType.DOUBLE, 4, 2),
+    DMAT4X3("dmat4x3", GLSLParser.DMAT4X3, TypeCategory.Matrix, BaseType.DOUBLE, 4, 3),
+    DMAT4X4("dmat4x4", GLSLParser.DMAT4X4, TypeCategory.Matrix, BaseType.DOUBLE, 4, 4),
     ATOMIC_UINT("atomic_uint", GLSLParser.ATOMIC_UINT, TypeCategory.Scalar),
     SAMPLER1D("sampler1D", GLSLParser.SAMPLER1D, TypeCategory.Opaque, BaseType.FLOAT),
     SAMPLER2D("sampler2D", GLSLParser.SAMPLER2D, TypeCategory.Opaque, BaseType.FLOAT),
@@ -138,6 +138,8 @@ public enum PredefinedType implements GLSLType, HasToken {
     private final TypeCategory category;
     private final BaseType baseType;
     private final int components;
+    private final int rows;
+    private final int columns;
 
     PredefinedType(String token, int id, TypeCategory category) {
         this.token = token;
@@ -145,6 +147,8 @@ public enum PredefinedType implements GLSLType, HasToken {
         this.category = category;
         this.baseType = null;
         this.components = 0;
+        this.rows = 1;
+        this.columns = 1;
     }
 
     PredefinedType(String token, int id, TypeCategory category, BaseType baseType) {
@@ -153,6 +157,8 @@ public enum PredefinedType implements GLSLType, HasToken {
         this.category = category;
         this.baseType = baseType;
         this.components = 0;
+        this.rows = 1;
+        this.columns = 1;
     }
 
     PredefinedType(String token, int id, TypeCategory category, BaseType baseType, int components) {
@@ -161,6 +167,18 @@ public enum PredefinedType implements GLSLType, HasToken {
         this.category = category;
         this.baseType = baseType;
         this.components = components;
+        this.rows = 1;
+        this.columns = components;
+    }
+
+    PredefinedType(String token, int id, TypeCategory category, BaseType baseType, int rows, int columns) {
+        this.token = token;
+        this.id = id;
+        this.category = category;
+        this.baseType = baseType;
+        this.components = 0;
+        this.rows = rows;
+        this.columns = columns;
     }
 
     @Override
@@ -437,5 +455,19 @@ public enum PredefinedType implements GLSLType, HasToken {
      */
     public int components() {
         return components;
+    }
+
+    /**
+     * Returns the number of columns for the type.
+     */
+    public int columns() {
+        return columns;
+    }
+
+    /**
+     * Returns the number of rows for the type.
+     */
+    public int rows() {
+        return rows;
     }
 }

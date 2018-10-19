@@ -54,6 +54,10 @@ public class Errors {
         public static String INCOMPATIBLE_TYPE_EXPECTED(GLSLType type, String expectedType) {
             return format("Incompatible type '%s', expected %s", type.token(), expectedType);
         }
+
+        public static String INCOMPATIBLE_MATRIX_TYPES(PredefinedType a, PredefinedType b) {
+            return format("Incompatible vector/matrix dimensions '%s' and '%s'.", a.token(), b.token());
+        }
     }
 
     public static class Syntax {

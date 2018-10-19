@@ -57,6 +57,6 @@ public class PredefinedTypeTest {
 
         assertTrue(FLOAT.isAssignableBy(INT));
         assertTrue(FLOAT.isAssignableBy(UINT));
-        assertTrue(FLOAT.isAssignableBy(DOUBLE));
+        assertFalse(FLOAT.isAssignableBy(DOUBLE));
     }
 }

@@ -104,4 +104,8 @@ public class StructType implements GLSLType {
         }
         return identifier.token();
     }
+
+    public String toString() {
+        return "struct{" + fieldMap.size() + "}";
+    }
 }

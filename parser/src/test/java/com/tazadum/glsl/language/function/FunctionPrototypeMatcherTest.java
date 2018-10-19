@@ -1,9 +1,10 @@
 package com.tazadum.glsl.language.function;
 
-import com.tazadum.glsl.language.type.PredefinedType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import static com.tazadum.glsl.language.function.FunctionPrototypeMatcher.ANY;
+import static com.tazadum.glsl.language.type.PredefinedType.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,31 +15,30 @@ public class FunctionPrototypeMatcherTest {
 
     @BeforeEach
     public void setUp() throws Exception {
-        f_1 = new FunctionPrototype(true, PredefinedType.VOID, PredefinedType.VOID);
-        f_2 = new FunctionPrototype(true, PredefinedType.INT, PredefinedType.MAT2, PredefinedType.INT);
-        f_3 = new FunctionPrototype(true, PredefinedType.INT, PredefinedType.MAT2, PredefinedType.FLOAT);
+        f_1 = new FunctionPrototype(true, VOID, VOID);
+        f_2 = new FunctionPrototype(true, INT, MAT2, INT);
+        f_3 = new FunctionPrototype(true, INT, MAT2, FLOAT);
     }
 
     @Test
     public void testExact() throws Exception {
-        assertTrue(match(f_1, new FunctionPrototypeMatcher(PredefinedType.VOID, PredefinedType.VOID)));
-        assertFalse(match(f_2, new FunctionPrototypeMatcher(PredefinedType.INT, PredefinedType.VOID)));
+        assertTrue(match(f_1, new FunctionPrototypeMatcher(VOID, VOID)));
+        assertFalse(match(f_2, new FunctionPrototypeMatcher(INT, VOID)));
 
-        assertTrue(match(f_2, new FunctionPrototypeMatcher(PredefinedType.INT, PredefinedType.MAT2, PredefinedType.FLOAT)));
-        assertTrue(match(f_2, new FunctionPrototypeMatcher(PredefinedType.INT, PredefinedType.MAT2, PredefinedType.INT)));
-        assertFalse(match(f_3, new FunctionPrototypeMatcher(PredefinedType.INT, PredefinedType.MAT2, PredefinedType.INT)));
+        assertTrue(match(f_2, new FunctionPrototypeMatcher(INT, MAT2, INT)));
+        assertTrue(match(f_3, new FunctionPrototypeMatcher(INT, MAT2, INT)));
 
-        assertFalse(match(f_2, new FunctionPrototypeMatcher(PredefinedType.INT, PredefinedType.MAT2, PredefinedType.BOOL)));
+        assertFalse(match(f_2, new FunctionPrototypeMatcher(INT, MAT2, BOOL)));
     }
 
     @Test
     public void testPartial() throws Exception {
-        assertTrue(match(f_1, new FunctionPrototypeMatcher(FunctionPrototypeMatcher.ANY, PredefinedType.VOID)));
+        assertTrue(match(f_1, new FunctionPrototypeMatcher(ANY, VOID)));
 
-        assertTrue(match(f_2, new FunctionPrototypeMatcher(FunctionPrototypeMatcher.ANY, PredefinedType.MAT2, PredefinedType.FLOAT)));
-        assertTrue(match(f_2, new FunctionPrototypeMatcher(PredefinedType.INT, FunctionPrototypeMatcher.ANY, PredefinedType.INT)));
+        assertTrue(match(f_2, new FunctionPrototypeMatcher(INT, ANY, INT)));
+        assertTrue(match(f_3, new FunctionPrototypeMatcher(ANY, MAT2, FLOAT)));
 
-        assertFalse(match(f_2, new FunctionPrototypeMatcher(PredefinedType.INT, FunctionPrototypeMatcher.ANY, PredefinedType.BOOL)));
+        assertFalse(match(f_2, new FunctionPrototypeMatcher(INT, ANY, BOOL)));
     }
 
     private boolean match(FunctionPrototype functionPrototype, FunctionPrototypeMatcher matcher) {

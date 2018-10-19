@@ -415,6 +415,9 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
 
     @Override
     public ConstResult visitInitializerList(InitializerListNode node) {
+        if (node.getChildCount() == 1) {
+            return node.getChild(0).accept(this);
+        }
         return super.visitInitializerList(node);
     }
 
@@ -446,12 +449,20 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
             abort(node);
         }
 
-        if (declarationNode.getInitializer() == null) {
+        Node initializer = declarationNode.getInitializer();
+        if (initializer == null) {
             // if the variable declaration has no initializer, it's not a valid const expression
             abort(node);
         }
 
-        return (InitializerListNode) declarationNode.getInitializer();
+        if (initializer instanceof InitializerListNode) {
+            return (InitializerListNode) initializer;
+        }
+
+        // wrap initializer in a list
+        InitializerListNode listNode = new InitializerListNode(initializer.getSourcePosition());
+        listNode.addChild(initializer);
+        return listNode;
     }
 
     private Numeric expectNumeric(ConstResult result) {

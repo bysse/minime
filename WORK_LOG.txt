@@ -72,7 +72,7 @@ Date    Hours
 2018-10-16  4.0 Fixing the OutputVisitor. First draft at resolving constant expressions.
 2018-10-16  6.5 Reverting and doing const expression lookup directly in the ast construction.
 2018-10-17  5.0 Extending the const expression resolver to support structs and const arrays.
-2018-10-18  2.0 Extending the const expression evaluator.
+2018-10-18  3.4 Extending the const expression evaluator.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -82,4 +82,5 @@ Date    Hours
 // TODO: Add more complex arithmetic simplifications
 
 // TODO: Fix type checking
+// TODO: Make sure unspecified array dimensions are resolved
 // TODO: add conditional formatting for scientific notation of numeric

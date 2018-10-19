@@ -36,8 +36,8 @@ public class TypeCombination {
 
             final PredefinedType[] rightConversions = ((PredefinedType) right).getTypeConversion();
             for (PredefinedType conversion : rightConversions) {
-                if (conversion == right) {
-                    return right;
+                if (conversion == left) {
+                    return left;
                 }
             }
         }
@@ -71,6 +71,10 @@ public class TypeCombination {
                             }
                             return compatibleType(left, right);
                         case Matrix:
+                            // vector * matrix
+                            if (left.components() != right.columns()) {
+                                throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                            }
                             return left;
                     }
                     break;
@@ -79,9 +83,32 @@ public class TypeCombination {
                         case Scalar:
                             return left;
                         case Vector:
+                            // matrix * vector
+                            if (left.columns() != right.components()) {
+                                throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                            }
                             return right;
                         case Matrix:
-                            return compatibleType(left, right);
+                            // matrix * matrix
+                            if (left.columns() == right.columns() && left.rows() == right.rows()) {
+                                return compatibleType(left, right);
+                            }
+                            if (left.columns() != right.rows()) {
+                                throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                            }
+
+                            // find a matrix type with dimensions left.columns() x right.rows()
+                            GLSLType baseType = compatibleType(left.baseType(), right.baseType());
+                            for (PredefinedType type : PredefinedType.values()) {
+                                if (type.category() != TypeCategory.Matrix) {
+                                    continue;
+                                }
+                                if (type.baseType() == baseType && type.columns() == left.columns() && type.rows() == right.rows()) {
+                                    return type;
+                                }
+                            }
+                            throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+
                     }
                     break;
             }

@@ -24,16 +24,17 @@ public class ArrayType implements GLSLType, HasToken {
     }
 
     @Override
-    public boolean isAssignableBy(GLSLType type) {
-        if (this == type) {
+    public boolean isAssignableBy(GLSLType otherType) {
+        if (this == otherType) {
             return true;
         }
-        if (!type.isArray() || !type.isAssignableBy(type.baseType())) {
+        if (!otherType.isArray() || !type.isAssignableBy(otherType.baseType())) {
             return false;
         }
         if (hasDimension()) {
             // check that the dimensions are valid
-            return ((ArrayType) type).hasDimension() && getDimension() == ((ArrayType) type).getDimension();
+            return ((ArrayType) otherType).hasDimension() &&
+                getDimension() == ((ArrayType) otherType).getDimension();
         }
         return true;
     }
@@ -57,11 +58,18 @@ public class ArrayType implements GLSLType, HasToken {
 
     @Override
     public String token() {
-        return type.token();
+        if (hasDimension()) {
+            return type.token() + "[" + dimension + "]";
+        }
+        return type.token() + "[]";
     }
 
     @Override
     public int tokenId() {
         return HasToken.NO_TOKEN_ID;
+    }
+
+    public String toString() {
+        return token();
     }
 }

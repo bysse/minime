@@ -36,7 +36,7 @@ public class FunctionPrototypeMatcher {
     }
 
     /**
-     * Tests if a function prototype/call matches.
+     * Tests if a function prototype/call matches a prototype.
      *
      * @param prototype The prototype/call to test.
      * @return True if the prototype/call matches.
