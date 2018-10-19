@@ -9,18 +9,20 @@ import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tazadum.glsl.exception.Errors.Type.NO_SUCH_FIELD;
+import static com.tazadum.glsl.exception.Errors.Syntax.NO_SUCH_FIELD;
 
 /**
  * Created by erikb on 2018-10-10.
  */
 public class StructType implements GLSLType {
     private final Identifier identifier;
-    private final Map<String, GLSLType> fieldMap = new HashMap<>();
-    private final Map<String, Integer> indexMap = new HashMap<>();
+    private final Map<String, GLSLType> fieldMap;
+    private final Map<String, Integer> indexMap;
 
     public StructType(StructDeclarationNode declarationNode) {
         identifier = declarationNode.getIdentifier();
+        fieldMap = new HashMap<>();
+        indexMap = new HashMap<>();
 
         int index = 0;
         for (int i = 0; i < declarationNode.getChildCount(); i++) {
@@ -42,6 +44,14 @@ public class StructType implements GLSLType {
                 indexMap.put(fieldName, index++);
             }
         }
+    }
+
+    public StructType(Identifier identifier, Map<String, GLSLType> fieldMap, Map<String, Integer> indexMap) {
+        this.identifier = identifier;
+        this.fieldMap = fieldMap;
+        this.indexMap = indexMap;
+
+        assert fieldMap.size() == indexMap.size() : "Field and index map are different sizes";
     }
 
     public Identifier getIdentifier() {
@@ -69,7 +79,12 @@ public class StructType implements GLSLType {
 
     @Override
     public boolean isAssignableBy(GLSLType type) {
-        return false;
+        if (this == type) {
+            return true;
+        }
+
+        // TODO: implement
+        throw new UnsupportedOperationException("Not implemented");
     }
 
     @Override

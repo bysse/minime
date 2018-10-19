@@ -425,20 +425,12 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         return buffer;
     }
 
-    public SourceBuffer visitLayoutQualifierId(LayoutQualifierId node) {
-        buffer.append(node.getIdentifier());
-        if (node.getValue() != null) {
-            buffer.append('=').append(node.getValue());
-        }
-        return buffer;
-    }
-
     @Override
     public SourceBuffer visitStructDeclarationNode(StructDeclarationNode node) {
         buffer.append(config.keyword("struct"));
 
         if (node.getIdentifier() != null) {
-            buffer.appendSpace();
+            buffer.append(config.identifierSpacing());
             buffer.append(config.identifier(node.getIdentifier()));
         }
 
@@ -456,7 +448,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         outputTypeQualifiers(node.getTypeQualifier());
         buffer.appendSpace();
 
-        // the struct output needs to be inlined since the keyword 'struct' shouldn't be rendered.
+        // the struct output needs to be inline since the keyword 'struct' shouldn't be rendered.
         final StructDeclarationNode block = node.getInterfaceStruct();
         if (block.getIdentifier() != null) {
             buffer.appendSpace();
@@ -575,7 +567,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             throw new BadImplementationException("No output case for " + qualifier.getClass().getName());
         }
 
-        return true;
+        return !first;
     }
 
     private void outputArraySpecifier(ArraySpecifiers arraySpecifiers) {

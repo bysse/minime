@@ -586,7 +586,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         final SourcePosition typePosition = SourcePosition.create(ctx.type_specifier().start);
-        throw new SourcePositionException(typePosition, Errors.Syntax.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
+        throw new SourcePositionException(typePosition, Errors.Type.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
     }
 
     @Override
@@ -1120,8 +1120,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     }
 
     private int evaluateInt(Node node) {
-        ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor();
-        Numeric numeric = node.accept(visitor);
+        Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(node);
 
         if (numeric.getType() == PredefinedType.INT || numeric.getType() == PredefinedType.UINT) {
             if (numeric.getValue() < 0) {

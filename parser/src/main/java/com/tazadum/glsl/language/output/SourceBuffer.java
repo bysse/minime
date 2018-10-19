@@ -38,6 +38,7 @@ public class SourceBuffer implements Provider<String> {
             return this;
         }
         switch (lastCharacter()) {
+            case '{':
             case '}':
             case '(':
             case SEMICOLON:

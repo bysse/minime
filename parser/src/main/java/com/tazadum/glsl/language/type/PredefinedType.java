@@ -4,7 +4,7 @@ import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
-import static com.tazadum.glsl.exception.Errors.Type.NO_SUCH_FIELD;
+import static com.tazadum.glsl.exception.Errors.Syntax.NO_SUCH_FIELD;
 import static com.tazadum.glsl.exception.Errors.Type.UNKNOWN_TYPE_ERROR;
 
 /**
@@ -131,6 +131,8 @@ public enum PredefinedType implements GLSLType, HasToken {
     IIMAGE2DMSARRAY("iimage2DMSArray", GLSLParser.IIMAGE2DMSARRAY, TypeCategory.Opaque, BaseType.INT),
     UIMAGE2DMSARRAY("uimage2DMSArray", GLSLParser.UIMAGE2DMSARRAY, TypeCategory.Opaque);
 
+    private static final PredefinedType[] NO_CONVERSION = new PredefinedType[0];
+
     private final String token;
     private final int id;
     private final TypeCategory category;
@@ -230,69 +232,162 @@ public enum PredefinedType implements GLSLType, HasToken {
             return false;
         }
 
-        final PredefinedType type = (PredefinedType) glslType;
+        final PredefinedType other = (PredefinedType) glslType;
         switch (this) {
-            case INT:
-                return comapre(type, UINT, FLOAT, DOUBLE);
+            //case INT:   return other == INT;
             case UINT:
-                return comapre(type, FLOAT, DOUBLE);
+                return compare(other, INT);
             case FLOAT:
-                return type == DOUBLE;
+                return compare(other, INT, UINT);
+            case DOUBLE:
+                return compare(other, INT, UINT, FLOAT);
 
-            case IVEC2:
-                return comapre(type, UVEC2, VEC2, DVEC2);
-            case IVEC3:
-                return comapre(type, UVEC3, VEC3, DVEC3);
-            case IVEC4:
-                return comapre(type, UVEC4, VEC4, DVEC4);
-
+            //case IVEC2:return other == IVEC2;
+            //case IVEC3:return other == IVEC3;
+            //case IVEC4:return other == IVEC4;
             case UVEC2:
-                return comapre(type, VEC2, DVEC2);
+                return compare(other, IVEC2);
             case UVEC3:
-                return comapre(type, VEC3, DVEC3);
+                return compare(other, IVEC3);
             case UVEC4:
-                return comapre(type, VEC4, DVEC4);
-
+                return compare(other, IVEC4);
             case VEC2:
-                return type == DVEC2;
+                return compare(other, IVEC2, UVEC2);
             case VEC3:
-                return type == DVEC3;
+                return compare(other, IVEC3, UVEC3);
             case VEC4:
-                return type == DVEC4;
+                return compare(other, IVEC4, UVEC4);
+            case DVEC2:
+                return compare(other, IVEC2, UVEC2, VEC2);
+            case DVEC3:
+                return compare(other, IVEC3, UVEC3, VEC3);
+            case DVEC4:
+                return compare(other, IVEC4, UVEC4, VEC4);
 
-            case MAT2:
-                return type == DMAT2;
-            case MAT3:
-                return type == DMAT3;
-            case MAT4:
-                return type == DMAT4;
+            //case MAT2:return other == DMAT2;
+            //case MAT3:return other == DMAT3;
+            //case MAT4:return other == DMAT4;
+
+            case DMAT2:
+                return other == MAT2;
+            case DMAT3:
+                return other == MAT3;
+            case DMAT4:
+                return other == MAT4;
 
             case MAT2X2:
-                return comapre(type, MAT2, DMAT2);
+                return compare(other, DMAT2X2, MAT2, DMAT2);
             case MAT2X3:
-                return type == DMAT2X3;
+                return other == DMAT2X3;
             case MAT2X4:
-                return type == DMAT2X4;
+                return other == DMAT2X4;
 
             case MAT3X2:
-                return type == DMAT3X2;
+                return other == DMAT3X2;
             case MAT3X3:
-                return comapre(type, MAT3, DMAT3);
+                return compare(other, DMAT3X3, MAT3, DMAT3);
             case MAT3X4:
-                return type == DMAT3X4;
+                return other == DMAT3X4;
 
             case MAT4X2:
-                return type == DMAT4X2;
+                return other == DMAT4X2;
             case MAT4X3:
-                return type == DMAT4X3;
+                return other == DMAT4X3;
             case MAT4X4:
-                return comapre(type, MAT4, DMAT4);
+                return compare(other, DMAT4X4, MAT4, DMAT4);
         }
 
         return false;
     }
 
-    private boolean comapre(PredefinedType type, PredefinedType... conversions) {
+    public PredefinedType[] getTypeConversion() {
+        if (category == TypeCategory.Opaque || category == TypeCategory.NoFields) {
+            return NO_CONVERSION;
+        }
+
+        switch (this) {
+            case INT:
+                return types(INT, UINT, FLOAT, DOUBLE);
+            case UINT:
+                return types(UINT, FLOAT, DOUBLE);
+            case FLOAT:
+                return types(FLOAT, DOUBLE);
+            case IVEC2:
+                return types(IVEC2, UVEC2, VEC2, DVEC2);
+            case UVEC2:
+                return types(UVEC2, VEC2, DVEC2);
+            case VEC2:
+                return types(VEC2, DVEC2);
+            case IVEC3:
+                return types(IVEC3, UVEC3, VEC3, DVEC3);
+            case UVEC3:
+                return types(UVEC3, VEC3, DVEC3);
+            case VEC3:
+                return types(VEC3, DVEC3);
+            case IVEC4:
+                return types(IVEC4, UVEC4, VEC4, DVEC4);
+            case UVEC4:
+                return types(UVEC4, VEC4, DVEC4);
+            case VEC4:
+                return types(VEC4, DVEC4);
+
+            case MAT2:
+                return types(MAT2, DMAT2);
+            case MAT3:
+                return types(MAT3, DMAT3);
+            case MAT4:
+                return types(MAT4, DMAT4);
+
+            case MAT2X2:
+                return types(MAT2X2, MAT2, DMAT2);
+            case MAT2X3:
+                return types(MAT2X3, DMAT2X3);
+            case MAT2X4:
+                return types(MAT2X4, DMAT2X4);
+            case MAT3X2:
+                return types(MAT3X2, DMAT3X2);
+            case MAT3X3:
+                return types(MAT3X3, MAT3, DMAT3);
+            case MAT3X4:
+                return types(MAT3X4, DMAT3X4);
+            case MAT4X2:
+                return types(MAT4X2, DMAT4X2);
+            case MAT4X3:
+                return types(MAT4X3, DMAT4X3);
+            case MAT4X4:
+                return types(MAT4X4, MAT4, DMAT4);
+            case DMAT2X2:
+                return types(DMAT2X2, DMAT2);
+            case DMAT3X3:
+                return types(DMAT3X3, DMAT3);
+            case DMAT4X4:
+                return types(DMAT4X4, DMAT3);
+
+            case DOUBLE:
+            case DVEC2:
+            case DVEC3:
+            case DVEC4:
+            case DMAT2:
+            case DMAT3:
+            case DMAT4:
+            case DMAT2X3:
+            case DMAT2X4:
+            case DMAT3X2:
+            case DMAT3X4:
+            case DMAT4X2:
+            case DMAT4X3:
+                return types(this);
+
+        }
+
+        return NO_CONVERSION;
+    }
+
+    private PredefinedType[] types(PredefinedType... types) {
+        return types;
+    }
+
+    private boolean compare(PredefinedType type, PredefinedType... conversions) {
         for (PredefinedType conversion : conversions) {
             if (type == conversion) {
                 return true;

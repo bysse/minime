@@ -21,6 +21,11 @@ import com.tazadum.glsl.language.function.ConstFunction;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
 
+import static com.tazadum.glsl.language.type.PredefinedType.INT;
+import static com.tazadum.glsl.language.type.PredefinedType.UINT;
+import static com.tazadum.glsl.parser.TypeCombination.anyOf;
+import static com.tazadum.glsl.parser.TypeCombination.compatibleType;
+
 /**
  * A constant expression is one of:
  * <ul>
@@ -94,15 +99,28 @@ import com.tazadum.glsl.language.type.*;
  * </ul>
  * Created by erikb on 2018-10-16.
  */
-public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> {
-    private int escape = 100000;
+public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpressionEvaluatorVisitor.ConstResult> {
+    private int escape = 10000;
     private boolean variablesAllowed = true;
+    private GLSLType structFieldType = null;
 
-    private Numeric abort(Node node) {
+    public static Numeric evaluate(Node node) {
+        ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor();
+        ConstResult result = node.accept(visitor);
+        while (!result.isNumeric()) {
+            result = result.getNode().accept(visitor);
+        }
+        return result.getNumeric();
+    }
+
+    ConstExpressionEvaluatorVisitor() {
+    }
+
+    private ConstResult abort(Node node) {
         throw new NotContExpressionException(node.getSourcePosition(), node.getSourcePosition().format() + ":" + Errors.Type.NOT_A_CONST_EXPRESSION);
     }
 
-    private Numeric abort(Node node, String message) {
+    private ConstResult abort(Node node, String message) {
         throw new NotContExpressionException(node.getSourcePosition(), node.getSourcePosition().format() + ":" + message);
     }
 
@@ -117,18 +135,18 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     }
 
     @Override
-    public Numeric visitBoolean(BooleanLeafNode node) {
+    public ConstResult visitBoolean(BooleanLeafNode node) {
         // TODO: sketchy handling
-        return new Numeric(1, 0, PredefinedType.BOOL);
+        return number(1, 0, PredefinedType.BOOL);
     }
 
     @Override
-    public Numeric visitParenthesis(ParenthesisNode node) {
+    public ConstResult visitParenthesis(ParenthesisNode node) {
         return node.accept(this);
     }
 
     @Override
-    public Numeric visitVariable(VariableNode node) {
+    public ConstResult visitVariable(VariableNode node) {
         if (escape-- <= 0) {
             throw new SourcePositionException(node.getSourcePosition(), "Infinite loop in declaration / initializer");
         }
@@ -138,42 +156,61 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     }
 
     @Override
-    public Numeric visitFieldSelection(FieldSelectionNode node) {
-        if (!(node.getExpression() instanceof VariableNode)) {
+    public ConstResult visitFieldSelection(FieldSelectionNode node) {
+        Node expression = node.getExpression();
+
+        // check if node.getExpression is an array index node
+        if (expression instanceof FieldSelectionNode) {
+            ConstResult result = expression.accept(this);
+            if (result.isNumeric()) {
+                abort(expression);
+            }
+            expression = result.getNode();
+        }
+
+        GLSLType nodeType = null;
+        InitializerListNode initializerList = null;
+
+        if (expression instanceof InitializerListNode) {
+            initializerList = (InitializerListNode) expression;
+            nodeType = structFieldType;
+        } else if (expression instanceof VariableNode) {
+            final VariableNode variableNode = (VariableNode) expression;
+            initializerList = getInitializerList(variableNode);
+
+            final VariableDeclarationNode declarationNode = variableNode.getDeclarationNode();
+            nodeType = declarationNode.getFullySpecifiedType().getType();
+        } else {
             abort(node);
         }
-        final VariableNode variableNode = (VariableNode) node.getExpression();
-        final InitializerListNode initializerList = getInitializerList(variableNode);
 
-        final VariableDeclarationNode declarationNode = variableNode.getDeclarationNode();
-        final FullySpecifiedType fullySpecifiedType = declarationNode.getFullySpecifiedType();
-
-        if (fullySpecifiedType.getType() instanceof ArrayType) {
+        if (nodeType instanceof ArrayType) {
             // arrays only has a single field that can be accessed and that's the 'length()' function.
             if (node instanceof LengthFunctionFieldSelectionNode) {
                 // return array dimension
-                final ArrayType arrayType = (ArrayType) fullySpecifiedType.getType();
+                final ArrayType arrayType = (ArrayType) nodeType;
                 if (arrayType.hasDimension()) {
                     // the array type was explicitly specified, return the size
-                    return new Numeric(arrayType.getDimension(), 0, PredefinedType.UINT);
+                    return number(arrayType.getDimension(), 0, UINT);
                 } else {
                     // no dimension specified, look at the initializer
-                    return new Numeric(initializerList.getChildCount(), 0, PredefinedType.UINT);
+                    return number(initializerList.getChildCount(), 0, UINT);
                 }
             }
             return abort(node);
         }
 
-        if (fullySpecifiedType.getType() instanceof StructType) {
+        if (nodeType instanceof StructType) {
             // resolve the field value in the initializer and return
-            final StructType structType = (StructType) fullySpecifiedType.getType();
+            final StructType structType = (StructType) nodeType;
             try {
                 final int fieldIndex = structType.getFieldIndex(node.getSelection());
                 if (0 <= fieldIndex && fieldIndex <= initializerList.getChildCount()) {
-                    return initializerList.getChild(fieldIndex).accept(this);
+                    structFieldType = structType.fieldType(node.getSelection());
+                    return node(initializerList.getChild(fieldIndex));
                 }
 
-                return abort(node, Errors.Type.INITIALIZER_TOO_SMALL);
+                return abort(node, Errors.Syntax.INITIALIZER_TOO_SMALL);
             } catch (NoSuchFieldException e) {
                 return abort(node, e.getMessage());
             }
@@ -183,11 +220,11 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     }
 
     @Override
-    public Numeric visitArrayIndex(ArrayIndexNode node) {
-        // verify that expression is a const array with an initializer
+    public ConstResult visitArrayIndex(ArrayIndexNode node) {
         if (!(node.getExpression() instanceof VariableNode)) {
-            return abort(node);
+            abort(node.getExpression());
         }
+
         final VariableNode variableNode = (VariableNode) node.getExpression();
         final InitializerListNode initializerList = getInitializerList(variableNode);
 
@@ -198,52 +235,52 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
 
         // resolve the index and verify it
         variablesAllowed = false;
-        Numeric indexNumeric = node.getIndex().accept(this);
+        Numeric indexNumeric = node.getIndex().accept(this).getNumeric();
         variablesAllowed = true;
 
-        if (indexNumeric.getType() != PredefinedType.UINT && indexNumeric.getType() != PredefinedType.INT) {
-            return abort(node.getIndex(), Errors.Type.NON_INTEGER_ARRAY_INDEX);
+        if (indexNumeric.getType() != UINT && indexNumeric.getType() != INT) {
+            return abort(node.getIndex(), Errors.Syntax.NON_INTEGER_ARRAY_INDEX);
         }
         int index = (int) indexNumeric.getValue();
         if (index < 0) {
-            return abort(node.getIndex(), Errors.Type.NON_INTEGER_ARRAY_INDEX);
+            return abort(node.getIndex(), Errors.Syntax.NON_INTEGER_ARRAY_INDEX);
         }
         if (index >= initializerList.getChildCount()) {
-            return abort(node.getIndex(), Errors.Type.ARRAY_INDEX_OUT_OF_BOUNDS(initializerList.getChildCount(), index));
+            return abort(node.getIndex(), Errors.Syntax.ARRAY_INDEX_OUT_OF_BOUNDS(initializerList.getChildCount(), index));
         }
 
         // resolve the initializer at the correct index
-        return initializerList.getChild(index).accept(this);
+        return node(initializerList.getChild(index));
     }
 
     @Override
-    public Numeric visitRelationalOperation(RelationalOperationNode node) {
-        Numeric left = node.getLeft().accept(this);
-        Numeric right = node.getRight().accept(this);
+    public ConstResult visitRelationalOperation(RelationalOperationNode node) {
+        Numeric left = expectNumeric(node.getLeft().accept(this));
+        Numeric right = expectNumeric(node.getRight().accept(this));
         Boolean value = node.getOperator().apply(left, right);
 
-        return new Numeric(boolInt(value), 0, PredefinedType.BOOL);
+        return number(boolInt(value), 0, PredefinedType.BOOL);
     }
 
     @Override
-    public Numeric visitLogicalOperation(LogicalOperationNode node) {
-        Numeric left = node.getLeft().accept(this);
-        Numeric right = node.getRight().accept(this);
+    public ConstResult visitLogicalOperation(LogicalOperationNode node) {
+        Numeric left = expectNumeric(node.getLeft().accept(this));
+        Numeric right = expectNumeric(node.getRight().accept(this));
 
         switch (node.getOperator()) {
             case OR:
-                return new Numeric(boolInt(left.getValue() > 0 || right.getValue() > 0), 0, PredefinedType.BOOL);
+                return number(boolInt(left.getValue() > 0 || right.getValue() > 0), 0, PredefinedType.BOOL);
             case AND:
-                return new Numeric(boolInt(left.getValue() > 0 && right.getValue() > 0), 0, PredefinedType.BOOL);
+                return number(boolInt(left.getValue() > 0 && right.getValue() > 0), 0, PredefinedType.BOOL);
             case XOR:
-                return new Numeric(boolInt(left.getValue() > 0 ^ right.getValue() > 0), 0, PredefinedType.BOOL);
+                return number(boolInt(left.getValue() > 0 ^ right.getValue() > 0), 0, PredefinedType.BOOL);
         }
 
         throw new BadImplementationException();
     }
 
     @Override
-    public Numeric visitFunctionCall(FunctionCallNode node) {
+    public ConstResult visitFunctionCall(FunctionCallNode node) {
         if (!node.isConstant()) {
             abort(node);
         }
@@ -259,18 +296,18 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
 
         // TODO: functions with multiple arguments or vec -> scalar types are not supported
 
-        Numeric numeric = node.getChild(0).accept(this);
-        return function.apply(numeric);
+        Numeric numeric = expectNumeric(node.getChild(0).accept(this));
+        return number(function.apply(numeric));
     }
 
     @Override
-    public Numeric visitConstantExpression(ConstantExpressionNode node) {
+    public ConstResult visitConstantExpression(ConstantExpressionNode node) {
         return node.getExpression().accept(this);
     }
 
     @Override
-    public Numeric visitTernaryCondition(TernaryConditionNode node) {
-        Numeric condition = node.getCondition().accept(this);
+    public ConstResult visitTernaryCondition(TernaryConditionNode node) {
+        Numeric condition = expectNumeric(node.getCondition().accept(this));
         if (condition != null && condition.getType() == PredefinedType.BOOL) {
             if (condition.getValue() > 0) {
                 return node.getThen().accept(this);
@@ -282,45 +319,46 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     }
 
     @Override
-    public Numeric visitPrefixOperation(PrefixOperationNode node) {
-        Numeric numeric = node.getExpression().accept(this);
+    public ConstResult visitPrefixOperation(PrefixOperationNode node) {
+        Numeric numeric = expectNumeric(node.getExpression().accept(this));
+
         switch (node.getOperator()) {
             case DECREASE:
-                return new Numeric(numeric.getValue() - 1, numeric.getDecimals(), numeric.getType());
+                return number(numeric.getValue() - 1, numeric.getDecimals(), numeric.getType());
             case INCREASE:
-                return new Numeric(numeric.getValue() + 1, numeric.getDecimals(), numeric.getType());
+                return number(numeric.getValue() + 1, numeric.getDecimals(), numeric.getType());
             case MINUS:
-                return new Numeric(-numeric.getValue(), numeric.getDecimals(), numeric.getType());
+                return number(-numeric.getValue(), numeric.getDecimals(), numeric.getType());
             case PLUS:
-                return numeric;
+                return number(numeric);
             case BANG:
-                return new Numeric(1 - numeric.getValue(), numeric.getDecimals(), PredefinedType.BOOL);
+                return number(1 - numeric.getValue(), numeric.getDecimals(), PredefinedType.BOOL);
         }
         return abort(node);
     }
 
     @Override
-    public Numeric visitPostfixOperation(PostfixOperationNode node) {
+    public ConstResult visitPostfixOperation(PostfixOperationNode node) {
         return abort(node);
     }
 
     @Override
-    public Numeric visitNumericOperation(NumericOperationNode node) {
+    public ConstResult visitNumericOperation(NumericOperationNode node) {
         try {
-            Numeric left = node.getLeft().accept(this);
-            Numeric right = node.getRight().accept(this);
+            Numeric left = expectNumeric(node.getLeft().accept(this));
+            Numeric right = expectNumeric(node.getRight().accept(this));
 
             switch (node.getOperator()) {
                 case ADD:
-                    return NumericOperation.add(left, right);
+                    return number(NumericOperation.add(left, right));
                 case DIV:
-                    return NumericOperation.div(left, right);
+                    return number(NumericOperation.div(left, right));
                 case SUB:
-                    return NumericOperation.sub(left, right);
+                    return number(NumericOperation.sub(left, right));
                 case MUL:
-                    return NumericOperation.mul(left, right);
+                    return number(NumericOperation.mul(left, right));
                 case MOD:
-                    return NumericOperation.mod(left, right);
+                    return number(NumericOperation.mod(left, right));
             }
         } catch (TypeException e) {
             throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
@@ -330,34 +368,64 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
     }
 
     @Override
-    public Numeric visitBitOperation(BitOperationNode node) {
+    public ConstResult visitBitOperation(BitOperationNode node) {
+        try {
+            Numeric left = expectNumeric(node.getLeft().accept(this));
+            Numeric right = expectNumeric(node.getRight().accept(this));
+            GLSLType type = compatibleType(left.getType(), right.getType());
+
+            if (!anyOf(type, INT, UINT)) {
+                // this is an illegal operation
+                String message = Errors.Type.INCOMPATIBLE_OP_TYPES(left.getType(), right.getType());
+                throw new SourcePositionException(node.getSourcePosition(), message);
+            }
+
+            final int lval = (int) left.getValue();
+            final int rval = (int) right.getValue();
+            final PredefinedType basicType = (PredefinedType) type;
+
+            switch (node.getOperator()) {
+                case SHIFT_LEFT:
+                    return number(lval << rval, 0, basicType);
+                case SHIFT_RIGHT:
+                    return number(lval >> rval, 0, basicType);
+                case AND:
+                    return number(lval & rval, 0, basicType);
+                case OR:
+                    return number(lval | rval, 0, basicType);
+                case XOR:
+                    return number(lval ^ rval, 0, basicType);
+            }
+        } catch (TypeException e) {
+            throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
+        }
+
         throw new BadImplementationException();
     }
 
     @Override
-    public Numeric visitInt(IntLeafNode node) {
-        return node.getValue();
+    public ConstResult visitInt(IntLeafNode node) {
+        return number(node.getValue());
     }
 
     @Override
-    public Numeric visitFloat(FloatLeafNode node) {
-        return node.getValue();
+    public ConstResult visitFloat(FloatLeafNode node) {
+        return number(node.getValue());
     }
 
     @Override
-    public Numeric visitInitializerList(InitializerListNode node) {
+    public ConstResult visitInitializerList(InitializerListNode node) {
         return super.visitInitializerList(node);
     }
 
     @Override
-    public Numeric visitStructDeclarationNode(StructDeclarationNode node) {
+    public ConstResult visitStructDeclarationNode(StructDeclarationNode node) {
         return abort(node);
     }
 
     private int boolInt(boolean value) {
         return value ? 1 : 0;
     }
-
 
     private InitializerListNode getInitializerList(VariableNode node) {
         if (!variablesAllowed) {
@@ -384,5 +452,57 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<Numeric> 
         }
 
         return (InitializerListNode) declarationNode.getInitializer();
+    }
+
+    private Numeric expectNumeric(ConstResult result) {
+        if (result.isNumeric()) {
+            return result.getNumeric();
+        }
+        return expectNumeric(result.getNode().accept(this));
+    }
+
+    private ConstResult number(double value, int decimals, PredefinedType type) {
+        return number(new Numeric(value, decimals, type));
+    }
+
+    private ConstResult number(Numeric numeric) {
+        return new ConstResult(numeric);
+    }
+
+    private ConstResult node(Node node) {
+        return new ConstResult(node);
+    }
+
+    public static class ConstResult {
+        private final Numeric numeric;
+        private final Node node;
+
+        ConstResult(Numeric numeric) {
+            this.numeric = numeric;
+            this.node = null;
+        }
+
+        ConstResult(Node node) {
+            this.numeric = null;
+            this.node = node;
+        }
+
+        public boolean isNumeric() {
+            return numeric != null;
+        }
+
+        public Numeric getNumeric() {
+            if (numeric == null) {
+                throw new IllegalStateException("Not a number");
+            }
+            return numeric;
+        }
+
+        public Node getNode() {
+            if (node == null) {
+                throw new IllegalStateException("Not a node");
+            }
+            return node;
+        }
     }
 }

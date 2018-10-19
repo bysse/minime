@@ -8,10 +8,7 @@ import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputVisitor;
 import com.tazadum.glsl.language.type.TypeRegistryImpl;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
-import com.tazadum.glsl.parser.GLSLLexer;
-import com.tazadum.glsl.parser.GLSLParser;
-import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.ParserContextImpl;
+import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -75,8 +72,13 @@ public class TestUtil {
             mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
             return context.accept(new ASTConverter(mapper, parserContext));
         } catch (Exception e) {
-            throw e;
+            throw new RuntimeException(e);
         }
+    }
+
+    public static void typeCheck(Node node, ParserContext parserContext) {
+        assert node != null : "Node is null";
+        node.accept(new TypeVisitor(parserContext));
     }
 
     public static String toString(Node node) {

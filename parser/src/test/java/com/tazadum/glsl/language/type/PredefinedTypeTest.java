@@ -52,11 +52,11 @@ public class PredefinedTypeTest {
     @DisplayName("Test assignment")
     public void testAssignment() {
         assertTrue(INT.isAssignableBy(INT));
+        assertFalse(INT.isAssignableBy(FLOAT));
+        assertTrue(UINT.isAssignableBy(INT));
 
-        assertFalse(FLOAT.isAssignableBy(INT));
-        assertTrue(INT.isAssignableBy(FLOAT));
-        assertTrue(INT.isAssignableBy(UINT));
-        assertTrue(UINT.isAssignableBy(FLOAT));
+        assertTrue(FLOAT.isAssignableBy(INT));
+        assertTrue(FLOAT.isAssignableBy(UINT));
         assertTrue(FLOAT.isAssignableBy(DOUBLE));
     }
 }

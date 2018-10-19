@@ -14,6 +14,12 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ASTConvertionTest {
     private static Arguments[] getSnippets() {
         return new Arguments[]{
+            differentOutput(
+                "const struct S{const struct T{float u;} t;} s={{1}};int a[s.t.u];",
+                "struct S{struct T{float u;} t;} s={{1}};int a[1];"),
+            differentOutput(
+                "const struct S{const struct T{const struct U{float v;} u;} t;} s={{{1}}};int a[s.t.u.v];",
+                "struct S{struct T{struct U{float v;} u;} t;} s={{{1}}};int a[1];"),
             sameOutput("struct S{float f;};"),
             sameOutput("struct S{float a,b;};S create(){S s={1,2};return s;}"),
             differentOutput(

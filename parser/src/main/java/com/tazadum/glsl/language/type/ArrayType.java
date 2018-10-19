@@ -25,10 +25,17 @@ public class ArrayType implements GLSLType, HasToken {
 
     @Override
     public boolean isAssignableBy(GLSLType type) {
-        if (!type.isArray()) {
+        if (this == type) {
+            return true;
+        }
+        if (!type.isArray() || !type.isAssignableBy(type.baseType())) {
             return false;
         }
-        return type.isAssignableBy(type.baseType());
+        if (hasDimension()) {
+            // check that the dimensions are valid
+            return ((ArrayType) type).hasDimension() && getDimension() == ((ArrayType) type).getDimension();
+        }
+        return true;
     }
 
     public boolean isArray() {
