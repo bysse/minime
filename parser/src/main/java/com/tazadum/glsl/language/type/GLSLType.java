@@ -27,7 +27,8 @@ public interface GLSLType extends HasToken {
     boolean isArray();
 
     /**
-     * The unqualified type meaning uint will return int.
+     * Returns the basic field type for the type.
+     * This really only has meaning for vectors and matrices.
      */
     GLSLType baseType();
 }

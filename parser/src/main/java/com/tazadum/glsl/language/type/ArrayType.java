@@ -59,9 +59,9 @@ public class ArrayType implements GLSLType, HasToken {
     @Override
     public String token() {
         if (hasDimension()) {
-            return type.token() + "[" + dimension + "]";
+            return "[" + dimension + "]" + type.token();
         }
-        return type.token() + "[]";
+        return "[]" + type.token();
     }
 
     @Override

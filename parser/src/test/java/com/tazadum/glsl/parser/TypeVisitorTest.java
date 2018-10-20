@@ -48,8 +48,10 @@ class TypeVisitorTest {
 
     private static Arguments[] getSnippets() {
         return new Arguments[]{
-            ok("int a=1;float b=a;"),
+            ok("int[][] a[]={{{1,2},{3,4}}};float b=a[0][1][2];"),
             ok("int[] a={1,2,3};float b=a[2];"),
+            ok("int[] a={1,2,3};int[3] b=a;"),
+            ok("int a=1;float b=a;"),
             notOk("float a=1;int b=a;", 1, 16),
         };
     }

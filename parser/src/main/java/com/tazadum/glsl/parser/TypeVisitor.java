@@ -1,7 +1,6 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.BadImplementationException;
-import com.tazadum.glsl.exception.Errors;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
@@ -12,18 +11,22 @@ import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.InitializerListNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.model.BitOperator;
-import com.tazadum.glsl.language.type.ArrayType;
-import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.language.type.PredefinedType;
-import com.tazadum.glsl.language.type.TypeCategory;
+import com.tazadum.glsl.language.type.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPE;
+import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPES;
+import static com.tazadum.glsl.exception.Errors.Extras.*;
+import static com.tazadum.glsl.language.type.PredefinedType.INT;
+import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.parser.TypeCombination.*;
 
 /**
@@ -158,6 +161,28 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     */
 
     @Override
+    public GLSLType visitArrayIndex(ArrayIndexNode node) {
+        final GLSLType expressionType = node.getExpression().accept(this);
+        final GLSLType indexType = node.getIndex().accept(this);
+
+        if (TypeCombination.ofCategory(TypeCategory.Matrix, expressionType)) {
+            if (!TypeCombination.anyOf(indexType, INT, UINT)) {
+                throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, MATRIX_INDEX_NOT_INT));
+            }
+            return expressionType.baseType();
+        }
+
+        if (expressionType instanceof ArrayType) {
+            if (!TypeCombination.anyOf(indexType, INT, UINT)) {
+                throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
+            }
+            return expressionType.baseType();
+        }
+
+        throw new SourcePositionException(node.getExpression(), INCOMPATIBLE_TYPE(expressionType, NOT_INDEXABLE));
+    }
+
+    @Override
     public GLSLType visitInitializerList(InitializerListNode node) {
         final List<GLSLType> childTypes = new ArrayList<>();
         GLSLType firstType = null;
@@ -178,11 +203,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             childTypes.add(childType);
         }
 
-        if (node.getChildCount() == 1) {
-            return firstType;
-        }
-
-        if (allCompatible) {
+        if (node.getChildCount() == 1 || allCompatible) {
             // this initializer could be an array or a struct where all field are of the same or compatible type.
             return new ArrayType(firstType, node.getChildCount());
         }
@@ -194,17 +215,25 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitVariableDeclaration(VariableDeclarationNode node) {
-        Node initializer = node.getInitializer();
-        if (initializer != null) {
-            GLSLType initializerType = initializer.accept(this);
-            assert initializerType != null : "The type of initializer could not be determined";
-            if (!node.getType().isAssignableBy(initializerType)) {
-                throw incompatibleTypes(initializer, node.getType(), initializerType);
-            }
-
-            // TODO: if this is an array initializer for an unspecified array, set the sizes!
+        final Node initializer = node.getInitializer();
+        if (initializer == null) {
+            return node.getType();
         }
-        return node.getType();
+
+        GLSLType initializerType = initializer.accept(this);
+        assert initializerType != null : "The type of initializer could not be determined";
+
+        try {
+            FullySpecifiedType originalType = node.getOriginalType();
+            ArraySpecifiers arraySpecifiers = new ArraySpecifiers();
+
+            GLSLType glslType = TypeComparator.checkAndTransfer(initializerType, arraySpecifiers, originalType.getType(), node.getArraySpecifiers());
+            node.updateType(new FullySpecifiedType(originalType.getQualifiers(), glslType), arraySpecifiers);
+
+            return node.getType();
+        } catch (TypeException e) {
+            throw new SourcePositionException(node.getInitializer(), INCOMPATIBLE_TYPES(node.getType(), initializerType, NO_CONVERSION));
+        }
     }
 
     @Override
@@ -222,23 +251,20 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         if (left.isAssignableBy(right)) {
             return left;
         }
-        throw incompatibleTypes(node, left, right);
+        throw new SourcePositionException(node, INCOMPATIBLE_TYPES(left, right, NO_CONVERSION));
     }
 
     @Override
     public GLSLType visitTernaryCondition(TernaryConditionNode node) {
-        super.visitTernaryCondition(node);
-
-        // TODO: this is not accurate, it has to be compatible with the target type not each other
-
         final GLSLType thenType = node.getThen().getType();
         final GLSLType elseType = node.getElse().getType();
 
-        if (!thenType.isAssignableBy(elseType)) {
-            throw incompatibleTypes(node, thenType, elseType);
+        final GLSLType glslType = compatibleTypeNoException(thenType, elseType);
+        if (glslType == null) {
+            throw new SourcePositionException(node, INCOMPATIBLE_TYPES(thenType, elseType, TERNARY_TYPES_NOT_COMPATIBLE));
         }
 
-        return thenType;
+        return glslType;
     }
 
     @Override
@@ -258,11 +284,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                     if (anyOf(left, INTEGER_TYPES) && anyOf(right, INTEGER_TYPES)) {
                         node.setType(arithmeticResult(left, right));
                     }
-                    throw new TypeException(Errors.Type.INCOMPATIBLE_OP_TYPES(left, right));
+                    throw new TypeException(INCOMPATIBLE_TYPES(left, right, EXPECTED_INTEGERS));
             }
             return node.getType();
         } catch (TypeException e) {
-            throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
+            throw new SourcePositionException(node, e.getMessage(), e);
         }
     }
 
@@ -275,18 +301,18 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 if (PredefinedType.BOOL == type) {
                     return PredefinedType.BOOL;
                 }
-                throw incompatibleType_Bool(node, type);
+                throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_BOOL));
             case TILDE:
                 if (anyOf(type, TypeCombination.INTEGER_TYPES)) {
                     return type;
                 }
-                throw incompatibleType_Integer(node, type);
+                throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_INTEGERS));
 
         }
         if (ofAnyCategory(type, TypeCategory.Scalar, TypeCategory.Vector, TypeCategory.Matrix)) {
             return type;
         }
-        throw incompatibleType_ScalarVectorMatrix(node, type);
+        throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_NON_OPAQUE));
     }
 
     @Override
@@ -295,7 +321,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         if (ofAnyCategory(type, TypeCategory.Scalar, TypeCategory.Vector, TypeCategory.Matrix)) {
             return type;
         }
-        throw incompatibleType_ScalarVectorMatrix(node, type);
+        throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_NON_OPAQUE));
     }
 
     @Override
@@ -307,7 +333,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             case Equal:
             case NotEqual:
                 if (ofCategory(TypeCategory.Opaque, leftType, rightType)) {
-                    throw incompatibleTypes(node, leftType, rightType);
+                    throw new SourcePositionException(node, INCOMPATIBLE_TYPES(leftType, rightType, EXPECTED_NON_OPAQUE));
                 }
                 break;
             case GreaterThan:
@@ -315,7 +341,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             case LessThanOrEqual:
             case GreaterThanOrEqual:
                 if (!ofCategory(TypeCategory.Scalar, leftType, rightType)) {
-                    throw incompatibleTypes(node, leftType, rightType);
+                    throw new SourcePositionException(node, INCOMPATIBLE_TYPES(leftType, rightType, EXPECTED_SCALAR));
                 }
                 break;
         }
@@ -329,7 +355,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         GLSLType rightType = node.getRight().accept(this);
 
         if (!allOf(PredefinedType.BOOL, leftType, rightType)) {
-            throw incompatibleTypes(node, leftType, rightType, "bool");
+            throw new SourcePositionException(node, INCOMPATIBLE_TYPES(leftType, rightType, EXPECTED_BOOL));
         }
 
         return PredefinedType.BOOL;
@@ -341,10 +367,14 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         GLSLType rightType = node.getRight().accept(this);
 
         if (!anyOf(leftType, INTEGER_TYPES)) {
-            throw incompatibleType_Integer(node.getLeft(), leftType);
+            throw new SourcePositionException(node.getLeft(),
+                INCOMPATIBLE_TYPE(leftType, EXPECTED_INTEGERS)
+            );
         }
         if (!anyOf(rightType, INTEGER_TYPES)) {
-            throw incompatibleType_Integer(node.getRight(), rightType);
+            throw new SourcePositionException(node.getRight(),
+                INCOMPATIBLE_TYPE(rightType, EXPECTED_INTEGERS)
+            );
         }
 
         if (node.getOperator() == BitOperator.SHIFT_LEFT || node.getOperator() == BitOperator.SHIFT_RIGHT) {
@@ -355,11 +385,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 if (sameSize(leftType, rightType)) {
                     return leftType;
                 }
-                throw incompatibleTypes(node, leftType, rightType);
+                throw new SourcePositionException(node, INCOMPATIBLE_TYPES(leftType, rightType, NO_CONVERSION));
             }
 
             if (ofCategory(TypeCategory.Vector, rightType)) {
-                throw incompatibleTypes(node, leftType, rightType);
+                throw new SourcePositionException(node.getRight(), INCOMPATIBLE_TYPE(rightType, EXPECTED_INTEGER_SCALAR));
             }
 
             return leftType;
@@ -368,7 +398,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         try {
             return arithmeticResult(leftType, rightType);
         } catch (TypeException e) {
-            throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
+            throw new SourcePositionException(node, e.getMessage(), e);
         }
     }
 
@@ -385,34 +415,5 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     @Override
     public GLSLType visitFloat(FloatLeafNode node) {
         return node.getType();
-    }
-
-    private SourcePositionException incompatibleTypes(Node node, GLSLType a, GLSLType b) {
-        return new SourcePositionException(node.getSourcePosition(), Errors.Type.INCOMPATIBLE_OP_TYPES(a, b));
-    }
-
-    private SourcePositionException incompatibleTypes(Node node, GLSLType a, GLSLType b, String expected) {
-        return new SourcePositionException(node.getSourcePosition(), Errors.Type.INCOMPATIBLE_OP_TYPES(a, b, expected));
-    }
-
-    private SourcePositionException incompatibleType_Integer(Node node, GLSLType a) {
-        return new SourcePositionException(
-            node.getSourcePosition(),
-            Errors.Type.INCOMPATIBLE_TYPE_EXPECTED(a, "integer or unsigned integer type")
-        );
-    }
-
-    private SourcePositionException incompatibleType_ScalarVectorMatrix(Node node, GLSLType a) {
-        return new SourcePositionException(
-            node.getSourcePosition(),
-            Errors.Type.INCOMPATIBLE_TYPE_EXPECTED(a, "scalar, vector or matrix")
-        );
-    }
-
-    private SourcePositionException incompatibleType_Bool(Node node, GLSLType a) {
-        return new SourcePositionException(
-            node.getSourcePosition(),
-            Errors.Type.INCOMPATIBLE_TYPE_EXPECTED(a, "bool")
-        );
     }
 }

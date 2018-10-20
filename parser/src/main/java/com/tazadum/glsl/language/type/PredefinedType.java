@@ -1,11 +1,12 @@
 package com.tazadum.glsl.language.type;
 
+import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
-import static com.tazadum.glsl.exception.Errors.Syntax.NO_SUCH_FIELD;
-import static com.tazadum.glsl.exception.Errors.Type.UNKNOWN_TYPE_ERROR;
+import static com.tazadum.glsl.exception.Errors.Coarse.NO_SUCH_FIELD;
+
 
 /**
  * Created by erikb on 2018-09-15.
@@ -198,13 +199,13 @@ public enum PredefinedType implements GLSLType, HasToken {
     @Override
     public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
         if (category != TypeCategory.Vector) {
-            throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName, token));
+            throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName));
         }
 
         // verify all characters in the field selection
         for (int i = 0; i < fieldName.length(); i++) {
             if (!VectorField.isVectorComponent(fieldName.charAt(i))) {
-                throw new NoSuchFieldException(NO_SUCH_FIELD(name(), fieldName));
+                throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName));
             }
         }
 
@@ -235,7 +236,7 @@ public enum PredefinedType implements GLSLType, HasToken {
                 return typeSwizzle(fieldName, UINT, UVEC2, UVEC3, UVEC4);
         }
 
-        throw new UnsupportedOperationException(UNKNOWN_TYPE_ERROR("bad implementation of type " + name()));
+        throw new BadImplementationException("Bad implementation of " + this);
     }
 
     @Override
@@ -445,7 +446,7 @@ public enum PredefinedType implements GLSLType, HasToken {
     private PredefinedType typeSwizzle(String fieldName, PredefinedType... types) throws NoSuchFieldException {
         final int length = fieldName.length();
         if (length > types.length) {
-            throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName, token));
+            throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName));
         }
         return types[length - 1];
     }

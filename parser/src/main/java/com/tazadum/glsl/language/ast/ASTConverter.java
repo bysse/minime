@@ -1,6 +1,9 @@
 package com.tazadum.glsl.language.ast;
 
-import com.tazadum.glsl.exception.*;
+import com.tazadum.glsl.exception.BadImplementationException;
+import com.tazadum.glsl.exception.SourcePositionException;
+import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
@@ -44,7 +47,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.tazadum.glsl.exception.Errors.Coarse.*;
+import static com.tazadum.glsl.exception.Errors.Extras.*;
 import static com.tazadum.glsl.language.ast.traits.HasConstState.isConst;
+import static com.tazadum.glsl.language.type.PredefinedType.INT;
+import static com.tazadum.glsl.language.type.PredefinedType.UINT;
+import static com.tazadum.glsl.parser.TypeCombination.anyOf;
 
 public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
@@ -141,7 +149,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final TypeNode typeNode = NodeUtil.cast(ctx.fully_specified_type().accept(this));
         if (typeNode.getStructDeclaration() != null) {
             final SourcePosition sourcePosition = typeNode.getStructDeclaration().getSourcePosition();
-            throw new SourcePositionException(sourcePosition, Errors.Syntax.STRUCT_DECLARATION_NOT_VALID);
+            throw new SourcePositionException(sourcePosition, SYNTAX_ERROR(INVALID_STRUCT_DECLARATION));
         }
 
         final String identifier = ctx.IDENTIFIER().getText();
@@ -266,8 +274,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         final TypeNode returnTypeNode = NodeUtil.cast(functionHeader.fully_specified_type().accept(this));
         if (returnTypeNode.getStructDeclaration() != null) {
-            final SourcePosition sourcePosition = returnTypeNode.getStructDeclaration().getSourcePosition();
-            throw new SourcePositionException(sourcePosition, Errors.Syntax.STRUCT_DECLARATION_NOT_VALID);
+            throw new SourcePositionException(returnTypeNode.getStructDeclaration(), SYNTAX_ERROR(INVALID_STRUCT_DECLARATION));
         }
 
         final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
@@ -398,8 +405,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         final TypeSpecifierNode typeSpecifier = NodeUtil.cast(ctx.type_specifier().accept(this));
         if (typeSpecifier.getStructDeclaration() != null) {
-            final SourcePosition sourcePosition = typeSpecifier.getStructDeclaration().getSourcePosition();
-            throw new SourcePositionException(sourcePosition, Errors.Syntax.STRUCT_DECLARATION_NOT_VALID);
+            throw new SourcePositionException(typeSpecifier.getStructDeclaration(), SYNTAX_ERROR(INVALID_STRUCT_DECLARATION));
         }
 
         final String identifier = ANTLRUtils.toString(ctx.IDENTIFIER(), null);
@@ -579,14 +585,15 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final PredefinedType type = HasToken.fromContext(ctx.type_specifier(), PredefinedType.values());
 
         if (type != null) {
-            if (type == PredefinedType.INT || type == PredefinedType.FLOAT || type.category() == TypeCategory.Opaque) {
+            if (type == INT || type == PredefinedType.FLOAT || type.category() == TypeCategory.Opaque) {
                 final SourcePosition position = SourcePosition.create(ctx.start);
                 return new PrecisionDeclarationNode(position, qualifier, type);
             }
         }
 
         final SourcePosition typePosition = SourcePosition.create(ctx.type_specifier().start);
-        throw new SourcePositionException(typePosition, Errors.Type.TYPE_DOES_NOT_SUPPORT_PRECISION(ctx.type_specifier().getText()));
+        final String typeName = ctx.type_specifier().getText();
+        throw new SourcePositionException(typePosition, SYNTAX_ERROR(typeName, PRECISION_NOT_SUPPORTED));
     }
 
     @Override
@@ -816,7 +823,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
                 final FullySpecifiedType fullySpecifiedType = parserContext.getTypeRegistry().resolve(customTypeName);
                 baseType = fullySpecifiedType.getType();
             } catch (TypeException e) {
-                throw new SourcePositionException(position, Errors.Syntax.CANT_RESOLVE_SYMBOL(customTypeName));
+                throw new SourcePositionException(position, UNKNOWN_SYMBOL(customTypeName));
             }
         } else {
             // the type is a predefined type
@@ -1027,7 +1034,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             return new VariableNode(position, result.getDeclaration());
         } catch (VariableException e) {
             SourcePosition variablePosition = SourcePosition.create(ctx.variable_identifier().start);
-            throw new SourcePositionException(variablePosition, Errors.Syntax.CANT_RESOLVE_SYMBOL(identifier), e);
+            throw new SourcePositionException(variablePosition, UNKNOWN_SYMBOL(identifier), e);
         }
     }
 
@@ -1121,16 +1128,10 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     private int evaluateInt(Node node) {
         Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(node);
-
-        if (numeric.getType() == PredefinedType.INT || numeric.getType() == PredefinedType.UINT) {
-            if (numeric.getValue() < 0) {
-                throw new SourcePositionException(node.getSourcePosition(), Errors.Syntax.EXPECTED_POSITIVE_INTEGRAL_CONSTANT_EXPRESSION);
-            }
-
+        if (anyOf(numeric.getType(), INT, UINT) && numeric.getValue() >= 0) {
             return (int) numeric.getValue();
         }
-
-        throw new SourcePositionException(node.getSourcePosition(), Errors.Syntax.EXPECTED_INTEGRAL_CONSTANT_EXPRESSION);
+        throw new SourcePositionException(node, INCOMPATIBLE_TYPE(numeric.getType(), EXPECTED_NON_NEGATIVE_INTEGER));
     }
 
     @Override

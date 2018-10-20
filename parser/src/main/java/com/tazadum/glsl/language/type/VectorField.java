@@ -1,6 +1,6 @@
 package com.tazadum.glsl.language.type;
 
-import static com.tazadum.glsl.exception.Errors.Type.ILLEGAL_SWIZZLE;
+import static com.tazadum.glsl.exception.Errors.Coarse.ILLEGAL_SWIZZLE;
 
 public class VectorField {
     private static final String[] fieldSelection = {"xyzw", "rgba", "stpq"};

@@ -21,6 +21,8 @@ import com.tazadum.glsl.language.function.ConstFunction;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
 
+import static com.tazadum.glsl.exception.Errors.Coarse.*;
+import static com.tazadum.glsl.exception.Errors.Extras.*;
 import static com.tazadum.glsl.language.type.PredefinedType.INT;
 import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.parser.TypeCombination.anyOf;
@@ -104,6 +106,9 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
     private boolean variablesAllowed = true;
     private GLSLType structFieldType = null;
 
+    ConstExpressionEvaluatorVisitor() {
+    }
+
     public static Numeric evaluate(Node node) {
         ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor();
         ConstResult result = node.accept(visitor);
@@ -113,15 +118,8 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         return result.getNumeric();
     }
 
-    ConstExpressionEvaluatorVisitor() {
-    }
-
     private ConstResult abort(Node node) {
-        throw new NotContExpressionException(node.getSourcePosition(), node.getSourcePosition().format() + ":" + Errors.Type.NOT_A_CONST_EXPRESSION);
-    }
-
-    private ConstResult abort(Node node, String message) {
-        throw new NotContExpressionException(node.getSourcePosition(), node.getSourcePosition().format() + ":" + message);
+        throw new NotConstExpressionException(node, NOT_CONST_EXPRESSION(null));
     }
 
     @Override
@@ -148,7 +146,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
     @Override
     public ConstResult visitVariable(VariableNode node) {
         if (escape-- <= 0) {
-            throw new SourcePositionException(node.getSourcePosition(), "Infinite loop in declaration / initializer");
+            throw new SourcePositionException(node, "Infinite loop in declaration / initializer");
         }
 
         // TODO: This could create loops if the initialize contains a reference to the variable
@@ -210,9 +208,9 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
                     return node(initializerList.getChild(fieldIndex));
                 }
 
-                return abort(node, Errors.Syntax.INITIALIZER_TOO_SMALL);
+                throw new NotConstExpressionException(node, NOT_CONST_EXPRESSION(INITIALIZER_TOO_SMALL));
             } catch (NoSuchFieldException e) {
-                return abort(node, e.getMessage());
+                throw new SourcePositionException(node, UNKNOWN_SYMBOL(e.getMessage()));
             }
         }
 
@@ -238,15 +236,17 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         Numeric indexNumeric = node.getIndex().accept(this).getNumeric();
         variablesAllowed = true;
 
-        if (indexNumeric.getType() != UINT && indexNumeric.getType() != INT) {
-            return abort(node.getIndex(), Errors.Syntax.NON_INTEGER_ARRAY_INDEX);
+        PredefinedType indexType = indexNumeric.getType();
+        if (!anyOf(indexType, INT, UINT)) {
+            throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
         }
         int index = (int) indexNumeric.getValue();
         if (index < 0) {
-            return abort(node.getIndex(), Errors.Syntax.NON_INTEGER_ARRAY_INDEX);
+            throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
         }
         if (index >= initializerList.getChildCount()) {
-            return abort(node.getIndex(), Errors.Syntax.ARRAY_INDEX_OUT_OF_BOUNDS(initializerList.getChildCount(), index));
+            String details = ARRAY_INDEX_OUT_OF_BOUNDS.details(index, initializerList.getChildCount());
+            throw new NotConstExpressionException(node.getIndex(), NOT_CONST_EXPRESSION(ARRAY_INDEX_OUT_OF_BOUNDS) + details);
         }
 
         // resolve the initializer at the correct index
@@ -288,7 +288,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         final String functionName = node.getIdentifier().original();
         final ConstFunction function = HasToken.fromString(functionName, ConstFunction.values());
         if (function == null) {
-            abort(node, Errors.Syntax.FUNCTION_NOT_CONST_EXP(functionName));
+            throw new NotConstExpressionException(node, FUNCTION_NOT_CONST_EXPRESSION(functionName, null));
         }
         if (node.getChildCount() != 1) {
             throw new BadImplementationException("const expressions for functions with multiple arguments are not supported");
@@ -361,7 +361,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
                     return number(NumericOperation.mod(left, right));
             }
         } catch (TypeException e) {
-            throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
+            throw new SourcePositionException(node, e.getMessage(), e);
         }
 
         throw new BadImplementationException();
@@ -376,8 +376,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
 
             if (!anyOf(type, INT, UINT)) {
                 // this is an illegal operation
-                String message = Errors.Type.INCOMPATIBLE_OP_TYPES(left.getType(), right.getType());
-                throw new SourcePositionException(node.getSourcePosition(), message);
+                throw new SourcePositionException(node, INCOMPATIBLE_TYPES(left.getType(), right.getType(), EXPECTED_INTEGER_SCALAR));
             }
 
             final int lval = (int) left.getValue();
@@ -397,7 +396,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
                     return number(lval ^ rval, 0, basicType);
             }
         } catch (TypeException e) {
-            throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
+            throw SourcePositionException.wrap(node, e);
         }
 
         throw new BadImplementationException();

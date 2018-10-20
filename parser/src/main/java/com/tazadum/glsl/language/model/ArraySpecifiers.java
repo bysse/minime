@@ -6,6 +6,7 @@ import com.tazadum.glsl.language.type.GLSLType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by erikb on 2018-10-17.
@@ -32,15 +33,21 @@ public class ArraySpecifiers {
             return baseType;
         }
 
+        if (baseType instanceof ArrayType) {
+            // unwrap array types
+            ArrayType arrayType = (ArrayType) baseType;
+            GLSLType type = transform(arrayType.baseType());
+            return new ArrayType(type, arrayType.getDimension());
+        }
+
         for (ArraySpecifier specifier : specifiers) {
-            if (specifier.hasDimension()) {
-                baseType = new ArrayType(baseType, specifier.getDimension());
-            } else {
-                baseType = new ArrayType(baseType);
-            }
+            baseType = specifier.transform(baseType);
         }
 
         return baseType;
     }
 
+    public String toString() {
+        return specifiers.stream().map(ArraySpecifier::toString).collect(Collectors.joining());
+    }
 }

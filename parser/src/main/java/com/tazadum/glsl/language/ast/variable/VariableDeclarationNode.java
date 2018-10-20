@@ -13,9 +13,9 @@ import com.tazadum.glsl.util.SourcePosition;
 
 public class VariableDeclarationNode extends FixedChildParentNode implements HasSharedState, HasConstState {
     protected final boolean builtIn;
-    protected final FullySpecifiedType type;
-    protected final FullySpecifiedType originalType;
-    protected final ArraySpecifiers arraySpecifiers;
+    protected FullySpecifiedType type;
+    protected FullySpecifiedType originalType;
+    protected ArraySpecifiers arraySpecifiers;
 
     protected Identifier identifier;
     private boolean shared;
@@ -29,17 +29,22 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
         this.builtIn = builtIn;
         this.identifier = identifier;
-        this.arraySpecifiers = arraySpecifiers;
-        this.originalType = fst;
 
-        if (arraySpecifiers == null) {
-            this.type = fst;
-        } else {
-            this.type = FullySpecifiedType.mergeArraySpecifier(fst, arraySpecifiers);
-        }
+        updateType(fst, arraySpecifiers);
 
         setStructDeclaration(structDeclaration);
         setInitializer(initializer);
+    }
+
+    public final void updateType(FullySpecifiedType fullySpecifiedType, ArraySpecifiers arraySpecifiers) {
+        this.arraySpecifiers = arraySpecifiers;
+        this.originalType = fullySpecifiedType;
+
+        if (arraySpecifiers == null) {
+            this.type = fullySpecifiedType;
+        } else {
+            this.type = FullySpecifiedType.mergeArraySpecifier(fullySpecifiedType, arraySpecifiers);
+        }
     }
 
     public boolean isBuiltIn() {

@@ -1,10 +1,12 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.exception.Errors;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.language.type.TypeCategory;
+
+import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPES;
+import static com.tazadum.glsl.exception.Errors.Extras.*;
 
 /**
  * Created by erikb on 2018-10-18.
@@ -21,7 +23,7 @@ public class TypeCombination {
         PredefinedType.UVEC4
     };
 
-    public static GLSLType compatibleType(GLSLType left, GLSLType right) throws TypeException {
+    public static GLSLType compatibleTypeNoException(GLSLType left, GLSLType right) {
         if (left == right || left.isAssignableBy(right)) {
             return left;
         }
@@ -41,8 +43,15 @@ public class TypeCombination {
                 }
             }
         }
+        return null;
+    }
 
-        throw new TypeException(Errors.Type.INCOMPATIBLE_OP_TYPES(left, right));
+    public static GLSLType compatibleType(GLSLType left, GLSLType right) throws TypeException {
+        GLSLType glslType = compatibleTypeNoException(left, right);
+        if (glslType == null) {
+            throw new TypeException(INCOMPATIBLE_TYPES(left, right, NO_CONVERSION));
+        }
+        return glslType;
     }
 
     public static GLSLType arithmeticResult(GLSLType leftType, GLSLType rightType) throws TypeException {
@@ -67,13 +76,13 @@ public class TypeCombination {
                             return left;
                         case Vector:
                             if (left.components() != right.components()) {
-                                throw new TypeException(Errors.Type.INCOMPATIBLE_VECTOR_TYPES(left, right));
+                                throw new TypeException(INCOMPATIBLE_TYPES(left, right, VECTOR_DIM_DIFFERENT));
                             }
                             return compatibleType(left, right);
                         case Matrix:
                             // vector * matrix
                             if (left.components() != right.columns()) {
-                                throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                                throw new TypeException(INCOMPATIBLE_TYPES(left, right, MATRIX_VECTOR_DIM_DIFFERENT));
                             }
                             return left;
                     }
@@ -85,7 +94,7 @@ public class TypeCombination {
                         case Vector:
                             // matrix * vector
                             if (left.columns() != right.components()) {
-                                throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                                throw new TypeException(INCOMPATIBLE_TYPES(left, right, MATRIX_VECTOR_DIM_DIFFERENT));
                             }
                             return right;
                         case Matrix:
@@ -94,7 +103,7 @@ public class TypeCombination {
                                 return compatibleType(left, right);
                             }
                             if (left.columns() != right.rows()) {
-                                throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                                throw new TypeException(INCOMPATIBLE_TYPES(left, right, MATRIX_DIM_DIFFERENT));
                             }
 
                             // find a matrix type with dimensions left.columns() x right.rows()
@@ -107,13 +116,13 @@ public class TypeCombination {
                                     return type;
                                 }
                             }
-                            throw new TypeException(Errors.Type.INCOMPATIBLE_MATRIX_TYPES(left, right));
+                            throw new TypeException(INCOMPATIBLE_TYPES(left, right, MATRIX_DIM_DIFFERENT));
 
                     }
                     break;
             }
         }
-        throw new TypeException(Errors.Type.INCOMPATIBLE_OP_TYPES(leftType, rightType));
+        throw new TypeException(INCOMPATIBLE_TYPES(leftType, rightType, NO_CONVERSION));
     }
 
     public static boolean ofCategory(TypeCategory typeCategory, GLSLType... types) {

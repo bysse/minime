@@ -1,7 +1,11 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.exception.Errors;
 import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.parser.TypeCombination;
+
+import static com.tazadum.glsl.language.type.PredefinedType.INT;
+import static com.tazadum.glsl.language.type.PredefinedType.UINT;
+import static com.tazadum.glsl.parser.TypeCombination.anyOf;
 
 public class NumericOperation {
     public static Numeric add(Numeric a, Numeric b) throws TypeException {
@@ -23,7 +27,7 @@ public class NumericOperation {
         int decimals = Math.max(a.getDecimals(), b.getDecimals());
         PredefinedType type = negotiateType(a, b);
 
-        if (type == PredefinedType.INT || type == PredefinedType.UINT) {
+        if (anyOf(type, INT, UINT)) {
             return new Numeric((int) a.getValue() / (int) b.getValue(), decimals, type);
         }
 
@@ -34,22 +38,14 @@ public class NumericOperation {
         int decimals = Math.max(a.getDecimals(), b.getDecimals());
         PredefinedType type = negotiateType(a, b);
 
-        if (type == PredefinedType.INT || type == PredefinedType.UINT) {
+        if (anyOf(type, INT, UINT)) {
             return new Numeric((int) a.getValue() % (int) b.getValue(), decimals, type);
         }
 
         return new Numeric(a.getValue() % b.getValue(), decimals, type);
     }
 
-    public static PredefinedType negotiateType(Numeric a, Numeric b) throws TypeException {
-        PredefinedType typeA = a.getType();
-        PredefinedType typeB = b.getType();
-        if (typeA == typeB || typeA.isAssignableBy(typeB)) {
-            return typeA;
-        }
-        if (typeB.isAssignableBy(typeA)) {
-            return typeB;
-        }
-        throw new TypeException(Errors.Type.INCOMPATIBLE_OP_TYPES(typeA, typeB));
+    private static PredefinedType negotiateType(Numeric a, Numeric b) throws TypeException {
+        return (PredefinedType) TypeCombination.compatibleType(a.getType(), b.getType());
     }
 }

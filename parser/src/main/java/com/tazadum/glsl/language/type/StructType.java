@@ -9,7 +9,7 @@ import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tazadum.glsl.exception.Errors.Syntax.NO_SUCH_FIELD;
+import static com.tazadum.glsl.exception.Errors.Coarse.NO_SUCH_FIELD;
 
 /**
  * Created by erikb on 2018-10-10.
@@ -62,7 +62,7 @@ public class StructType implements GLSLType {
     public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
         GLSLType glslType = fieldMap.get(fieldName);
         if (glslType == null) {
-            String name = identifier == null ? "anonymous struct" : identifier.original();
+            String name = identifier == null ? "structure" : identifier.original();
             throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName, name));
         }
         return glslType;
@@ -71,7 +71,7 @@ public class StructType implements GLSLType {
     public int getFieldIndex(String fieldName) throws NoSuchFieldException {
         Integer index = indexMap.get(fieldName);
         if (index == null) {
-            String name = identifier == null ? "anonymous struct" : identifier.original();
+            String name = identifier == null ? "structure" : identifier.original();
             throw new NoSuchFieldException(NO_SUCH_FIELD(fieldName, name));
         }
         return index;

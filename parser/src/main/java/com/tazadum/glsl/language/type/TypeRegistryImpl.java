@@ -1,6 +1,5 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.exception.Errors;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
@@ -10,6 +9,8 @@ import com.tazadum.glsl.parser.Usage;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+
+import static com.tazadum.glsl.exception.Errors.Coarse.UNKNOWN_SYMBOL;
 
 public class TypeRegistryImpl implements TypeRegistry {
     private ConcurrentMap<String, FullySpecifiedType> typeMap;
@@ -48,7 +49,7 @@ public class TypeRegistryImpl implements TypeRegistry {
     public FullySpecifiedType resolve(String name) throws TypeException {
         FullySpecifiedType fst = typeMap.get(name);
         if (fst == null) {
-            throw new TypeException(Errors.Type.UNKNOWN_TYPE(name));
+            throw new TypeException(UNKNOWN_SYMBOL(name));
         }
         return fst;
     }

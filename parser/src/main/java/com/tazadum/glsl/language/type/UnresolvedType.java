@@ -1,8 +1,9 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.exception.Errors;
 import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.language.HasToken;
+
+import static com.tazadum.glsl.exception.Errors.Coarse.NO_SUCH_FIELD;
 
 /**
  * Created by erikb on 2018-10-10.
@@ -16,7 +17,7 @@ public class UnresolvedType implements GLSLType {
 
     @Override
     public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
-        throw new NoSuchFieldException(Errors.Type.CUSTOM_TYPE_NOT_RESOLVED(identifier));
+        throw new NoSuchFieldException(NO_SUCH_FIELD(identifier));
     }
 
     @Override
