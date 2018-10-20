@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.BadImplementationException;
+import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
@@ -67,15 +68,53 @@ public class TypeComparator {
             return type;
         }
 
-        if (targetType instanceof StructType) {
-            throw new BadImplementationException();
-        }
-
+        // struct comparison are supported in this clause
         if (!targetType.isAssignableBy(sourceType)) {
             throw new TypeException(INCOMPATIBLE_TYPES(targetType, sourceType, NO_CONVERSION));
         }
 
         // all good
         return targetType;
+    }
+
+    public static boolean isAssignable(StructType structType, GLSLType type) {
+        if (structType == type) {
+            return true;
+        }
+
+        if (type instanceof ArrayType) {
+            ArrayType other = (ArrayType) type;
+
+            if (!other.hasDimension() || other.getDimension() != structType.components()) {
+                // the sizes are different or non-specified
+                return false;
+            }
+            // all fields in the structure has compatible types and is compatible with the array
+            return structType.baseType() != null && structType.baseType().isAssignableBy(other.baseType());
+        }
+
+        if (type instanceof StructType) {
+            StructType other = (StructType) type;
+
+            if (structType.components() != other.components()) {
+                return false;
+            }
+
+            try {
+                for (int i = 0; i < structType.components(); i++) {
+                    GLSLType structField = structType.getFieldType(i);
+                    GLSLType initField = other.getFieldType(i);
+                    if (!structField.isAssignableBy(initField)) {
+                        return false;
+                    }
+                }
+                return true;
+            } catch (NoSuchFieldException e) {
+                return false;
+            }
+        }
+
+        // some other type
+        return false;
     }
 }

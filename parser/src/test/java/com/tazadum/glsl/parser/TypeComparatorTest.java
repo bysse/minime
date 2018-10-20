@@ -1,11 +1,18 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.type.ArrayType;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.language.type.StructType;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.tazadum.glsl.language.type.PredefinedType.FLOAT;
 import static com.tazadum.glsl.util.SourcePosition.TOP;
@@ -17,8 +24,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class TypeComparatorTest {
 
     @Test
+    @DisplayName("Test nested arrays")
     void test_1() throws TypeException {
-
         // float[][]
         GLSLType target = new ArrayType(FLOAT);
         ArraySpecifiers targetSpecifiers = new ArraySpecifiers();
@@ -44,8 +51,34 @@ class TypeComparatorTest {
 
         // check the element type
         assertEquals(FLOAT, level2.baseType());
-
-        // check comparator
         assertTrue(level1.isAssignableBy(source));
+    }
+
+    @Test
+    @DisplayName("Test structures")
+    void test_2() throws TypeException {
+        Map<String, GLSLType> fieldMap = new HashMap<>();
+        Map<String, Integer> indexMap = new HashMap<>();
+
+        fieldMap.put("a", PredefinedType.FLOAT);
+        fieldMap.put("b", PredefinedType.INT);
+        indexMap.put("a", 0);
+        indexMap.put("b", 1);
+
+        StructType targetType = new StructType(new Identifier("A"), fieldMap, indexMap);
+        StructType targetType2 = new StructType(new Identifier("B"), fieldMap, indexMap);
+        GLSLType sourceType = new ArrayType(FLOAT, 2);
+
+        assertTrue(TypeComparator.isAssignable(targetType, sourceType));
+        assertTrue(targetType.isAssignableBy(sourceType));
+        assertTrue(targetType.isAssignableBy(targetType2));
+
+        assertFalse(targetType.isAssignableBy(new ArrayType(FLOAT, 3)));
+    }
+
+    @Test
+    @DisplayName("Test nested structures")
+    void test_3() throws TypeException {
+
     }
 }

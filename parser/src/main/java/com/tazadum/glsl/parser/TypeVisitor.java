@@ -1,6 +1,5 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
@@ -19,8 +18,7 @@ import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.model.BitOperator;
 import com.tazadum.glsl.language.type.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPE;
 import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPES;
@@ -208,9 +206,19 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             return new ArrayType(firstType, node.getChildCount());
         }
 
-        // TODO: implement for structs
+        // create the struct initializer type
+        int index = 0;
+        Map<String, GLSLType> fieldMap = new HashMap<>();
+        Map<String, Integer> indexMap = new HashMap<>();
 
-        throw new BadImplementationException("Struct initialization not supported");
+        for (GLSLType fieldType : childTypes) {
+            String fieldName = Objects.toString(index);
+            fieldMap.put(fieldName, fieldType);
+            indexMap.put(fieldName, index);
+            index++;
+        }
+
+        return new StructType(null, fieldMap, indexMap);
     }
 
     @Override

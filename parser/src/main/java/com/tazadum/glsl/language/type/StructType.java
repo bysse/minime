@@ -5,6 +5,8 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.parser.TypeCombination;
+import com.tazadum.glsl.parser.TypeComparator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,12 +19,15 @@ import static com.tazadum.glsl.exception.Errors.Coarse.NO_SUCH_FIELD;
 public class StructType implements GLSLType {
     private final Identifier identifier;
     private final Map<String, GLSLType> fieldMap;
+    private final Map<Integer, GLSLType> fieldIndexMap;
     private final Map<String, Integer> indexMap;
+    private GLSLType sameFieldType = null;
 
     public StructType(StructDeclarationNode declarationNode) {
         identifier = declarationNode.getIdentifier();
         fieldMap = new HashMap<>();
         indexMap = new HashMap<>();
+        fieldIndexMap = new HashMap<>();
 
         int index = 0;
         for (int i = 0; i < declarationNode.getChildCount(); i++) {
@@ -34,13 +39,20 @@ public class StructType implements GLSLType {
                 VariableDeclarationNode fieldNode = variableList.getChildAs(j);
                 String fieldName = fieldNode.getIdentifier().original();
 
-                if (structDeclaration == null) {
-                    // phew this is an ordinary type
-                    fieldMap.put(fieldName, fieldNode.getFullySpecifiedType().getType());
-                } else {
+                GLSLType type = fieldNode.getFullySpecifiedType().getType();
+                if (structDeclaration != null) {
                     // a nested struct
-                    fieldMap.put(fieldName, new StructType(structDeclaration));
+                    type = new StructType(structDeclaration);
                 }
+
+                if (i == 0) {
+                    sameFieldType = type;
+                } else if (sameFieldType != null) {
+                    sameFieldType = TypeCombination.compatibleTypeNoException(sameFieldType, type);
+                }
+
+                fieldMap.put(fieldName, type);
+                fieldIndexMap.put(index, type);
                 indexMap.put(fieldName, index++);
             }
         }
@@ -52,6 +64,28 @@ public class StructType implements GLSLType {
         this.indexMap = indexMap;
 
         assert fieldMap.size() == indexMap.size() : "Field and index map are different sizes";
+
+        this.fieldIndexMap = new HashMap<>();
+        boolean first = true;
+        for (Map.Entry<String, Integer> entry : indexMap.entrySet()) {
+            GLSLType type = fieldMap.get(entry.getKey());
+            fieldIndexMap.put(entry.getValue(), type);
+
+            if (type == null) {
+                throw new IllegalStateException("Inconsistent structure data for field " + entry.getKey());
+            }
+
+            if (first) {
+                sameFieldType = type;
+                first = false;
+            } else if (sameFieldType != null) {
+                sameFieldType = TypeCombination.compatibleTypeNoException(sameFieldType, type);
+            }
+        }
+    }
+
+    public int components() {
+        return fieldMap.size();
     }
 
     public Identifier getIdentifier() {
@@ -68,6 +102,15 @@ public class StructType implements GLSLType {
         return glslType;
     }
 
+    public GLSLType getFieldType(int index) throws NoSuchFieldException {
+        GLSLType type = fieldIndexMap.get(index);
+        if (type == null) {
+            String name = identifier == null ? "structure" : identifier.original();
+            throw new NoSuchFieldException(NO_SUCH_FIELD("#" + index, name));
+        }
+        return type;
+    }
+
     public int getFieldIndex(String fieldName) throws NoSuchFieldException {
         Integer index = indexMap.get(fieldName);
         if (index == null) {
@@ -79,12 +122,7 @@ public class StructType implements GLSLType {
 
     @Override
     public boolean isAssignableBy(GLSLType type) {
-        if (this == type) {
-            return true;
-        }
-
-        // TODO: implement
-        throw new UnsupportedOperationException("Not implemented");
+        return TypeComparator.isAssignable(this, type);
     }
 
     @Override
@@ -94,7 +132,7 @@ public class StructType implements GLSLType {
 
     @Override
     public GLSLType baseType() {
-        return null;
+        return sameFieldType;
     }
 
     @Override
