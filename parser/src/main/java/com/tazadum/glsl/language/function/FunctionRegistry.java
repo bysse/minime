@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.parser.Usage;
 
 import java.util.List;
@@ -23,6 +24,15 @@ public interface FunctionRegistry {
      * @param node          The function call node.
      */
     void registerFunctionCall(FunctionPrototypeNode prototypeNode, FunctionCallNode node);
+
+    /**
+     * Searches for a function prototype based on the parameters and identifier.
+     *
+     * @param identifier Identifier of the function
+     * @param parameters The parameter types.
+     * @return A FunctionPrototypeNode or null if no function was found.
+     */
+    FunctionPrototypeNode resolve(Identifier identifier, GLSLType... parameters);
 
     FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher);
 

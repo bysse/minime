@@ -102,7 +102,7 @@ public class StructType implements GLSLType {
         return glslType;
     }
 
-    public GLSLType getFieldType(int index) throws NoSuchFieldException {
+    public GLSLType fieldType(int index) throws NoSuchFieldException {
         GLSLType type = fieldIndexMap.get(index);
         if (type == null) {
             String name = identifier == null ? "structure" : identifier.original();

@@ -13,13 +13,19 @@ public enum StorageQualifier implements TypeQualifier, HasToken {
      */
     CONST("const", GLSLParser.CONST),
     /**
-     * linkage into a shader from a previous stage, variable is copied in
+     * linkage into a shader from a previous stage, variable is copied in.
+     * for function parameters passed into a function.
      */
     IN("in", GLSLParser.IN),
     /**
-     * linkage out of a shader to a subsequent stage, variable is copied out
+     * linkage out of a shader to a subsequent stage, variable is copied out.
+     * for function parameters passed back out of a function, but not initialized for use when passed in.
      */
     OUT("out", GLSLParser.OUT),
+    /**
+     * For function parameters passed both into and out of a function.
+     */
+    INOUT("inout", GLSLParser.INOUT),
     /**
      * compatibility profile only and vertex language only; same as in when in a
      * vertex shader

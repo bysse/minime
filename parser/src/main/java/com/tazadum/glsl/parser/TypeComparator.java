@@ -102,8 +102,8 @@ public class TypeComparator {
 
             try {
                 for (int i = 0; i < structType.components(); i++) {
-                    GLSLType structField = structType.getFieldType(i);
-                    GLSLType initField = other.getFieldType(i);
+                    GLSLType structField = structType.fieldType(i);
+                    GLSLType initField = other.fieldType(i);
                     if (!structField.isAssignableBy(initField)) {
                         return false;
                     }

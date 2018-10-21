@@ -12,7 +12,11 @@ import static java.lang.String.format;
 public class Errors {
     public static class Coarse {
         public static String UNKNOWN_SYMBOL(String identifier) {
-            return format("Unknown symbol '%s'", identifier);
+            return UNKNOWN_SYMBOL(identifier, null);
+        }
+
+        public static String UNKNOWN_SYMBOL(String identifier, Extras extras) {
+            return format("Unknown symbol '%s',", identifier) + Extras.format(extras);
         }
 
         public static String NO_SUCH_FIELD(String fieldName) {
@@ -20,11 +24,15 @@ public class Errors {
         }
 
         public static String NO_SUCH_FIELD(String fieldName, String type) {
-            return format("No such field '%s' in %s.", fieldName, type);
+            return format("No such field '%s' in type '%s'.", fieldName, type);
         }
 
         public static String ILLEGAL_SWIZZLE(char component) {
-            return format("Illegal component '%s' in swizzle", Objects.toString(component));
+            return ILLEGAL_SWIZZLE(Objects.toString(component));
+        }
+
+        public static String ILLEGAL_SWIZZLE(String component) {
+            return format("Illegal swizzle '%s'", component);
         }
 
         public static String SYNTAX_ERROR(Extras extras) {
@@ -54,30 +62,38 @@ public class Errors {
 
     public enum Extras {
         NO_CONVERSION("No acceptable type conversion could be found."),
+        NO_MATCHING_FUNCTION_FOUND("No matching function prototype found."),
 
         EXPECTED_BOOL("Expected operands of type bool."),
-        EXPECTED_INTEGER_SCALAR("Expected operands of type int or uint"),
-        EXPECTED_INTEGERS("Expected operands of type int, uint, ivec*, uvec*"),
-        EXPECTED_NON_NEGATIVE_INTEGER("Expected operand to be a non-negative integer of type int or uint"),
+        EXPECTED_INTEGER_SCALAR("Expected operands of type int or uint."),
+        EXPECTED_INTEGERS("Expected operands of type int, uint, ivec*, uvec*."),
+        EXPECTED_NON_NEGATIVE_INTEGER("Expected operand to be a non-negative integer of type int or uint."),
 
         EXPECTED_SCALAR("Expected operands of scalar type"),
         EXPECTED_NON_OPAQUE("Expected operands of non-opaque type scalar, vector or matrix."),
 
         NOT_INDEXABLE("The expression is not of type array or matrix."),
         ARRAY_INDEX_NOT_INT("Array indices must be expressed as a non-negative integer of type int or uint."),
-        ARRAY_INDEX_OUT_OF_BOUNDS("Array indices out of bounds", "%d >= %d"),
+        ARRAY_INDEX_OUT_OF_BOUNDS("Array indices out of bounds.", "%d >= %d"),
         MATRIX_INDEX_NOT_INT("Matrix column indices must be expressed as a non-negative integer of type int or uint."),
 
         INVALID_STRUCT_DECLARATION("Struct declaration is not valid at this location."),
+        INVALID_SWIZZLE("No valid swizzle type could be created."),
+        INVALID_SWIZZLE_FOR_TYPE("Type does not have any fields."),
+        INVALID_SWIZZLE_SCALAR("Swizzle operations not allowed on scalar types."),
 
         PRECISION_NOT_SUPPORTED("The type does not support precision declarations."),
 
-        INITIALIZER_TOO_SMALL("Too little data in initialization"),
-        INITIALIZER_TOO_BIG("Too much data in initialization"),
+        INITIALIZER_TOO_SMALL("Too little data in initialization."),
+        INITIALIZER_TOO_BIG("Too much data in initialization."),
+        INITIALIZER_ON_PARAMETER("Parameters are not allowed to have initializers."),
+
+        OPAQUE_TYPE_LVALUE("Opaque types cannot be treated as l-values."),
+        QUALIFIER_BOTH_IN_AND_OUT("A variable cannot be declared with both the in and the out qualifiers."),
 
         VECTOR_DIM_DIFFERENT("Vector lengths are different."),
-        MATRIX_VECTOR_DIM_DIFFERENT("Vector and matrix dimensions are wrong for this operation"),
-        MATRIX_DIM_DIFFERENT("Matrix dimensions are wrong for this operation"),
+        MATRIX_VECTOR_DIM_DIFFERENT("Vector and matrix dimensions are wrong for this operation."),
+        MATRIX_DIM_DIFFERENT("Matrix dimensions are wrong for this operation."),
 
         TERNARY_TYPES_NOT_COMPATIBLE("Each branch in a ternary expression must have compatible types.");
 

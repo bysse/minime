@@ -102,15 +102,18 @@ import static com.tazadum.glsl.parser.TypeCombination.compatibleType;
  * Created by erikb on 2018-10-16.
  */
 public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpressionEvaluatorVisitor.ConstResult> {
+    private final ParserContext parserContext;
+
     private int escape = 10000;
     private boolean variablesAllowed = true;
     private GLSLType structFieldType = null;
 
-    ConstExpressionEvaluatorVisitor() {
+    ConstExpressionEvaluatorVisitor(ParserContext parserContext) {
+        this.parserContext = parserContext;
     }
 
-    public static Numeric evaluate(Node node) {
-        ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor();
+    public static Numeric evaluate(ParserContext parserContext, Node node) {
+        ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor(parserContext);
         ConstResult result = node.accept(visitor);
         while (!result.isNumeric()) {
             result = result.getNode().accept(visitor);
@@ -150,7 +153,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         }
 
         // TODO: This could create loops if the initialize contains a reference to the variable
-        return getInitializerList(node).accept(this);
+        return getInitializerNode(node).accept(this);
     }
 
     @Override
@@ -174,7 +177,11 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
             nodeType = structFieldType;
         } else if (expression instanceof VariableNode) {
             final VariableNode variableNode = (VariableNode) expression;
-            initializerList = getInitializerList(variableNode);
+            Node initializerNode = getInitializerNode(variableNode);
+            if (!(initializerNode instanceof InitializerListNode)) {
+                abort(initializerNode);
+            }
+            initializerList = (InitializerListNode) initializerNode;
 
             final VariableDeclarationNode declarationNode = variableNode.getDeclarationNode();
             nodeType = declarationNode.getFullySpecifiedType().getType();
@@ -183,7 +190,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         }
 
         if (nodeType instanceof ArrayType) {
-            // arrays only has a single field that can be accessed and that's the 'length()' function.
+            // arrays only have a single field that can be accessed and that's the 'length()' function.
             if (node instanceof LengthFunctionFieldSelectionNode) {
                 // return array dimension
                 final ArrayType arrayType = (ArrayType) nodeType;
@@ -220,11 +227,17 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
     @Override
     public ConstResult visitArrayIndex(ArrayIndexNode node) {
         if (!(node.getExpression() instanceof VariableNode)) {
+            // more complex are not allowed in constant expressions
             abort(node.getExpression());
         }
 
         final VariableNode variableNode = (VariableNode) node.getExpression();
-        final InitializerListNode initializerList = getInitializerList(variableNode);
+        final Node initializerNode = getInitializerNode(variableNode);
+
+        if (!(initializerNode instanceof InitializerListNode)) {
+            abort(initializerNode);
+        }
+        final InitializerListNode initializerList = (InitializerListNode) initializerNode;
 
         final FullySpecifiedType fullySpecifiedType = variableNode.getDeclarationNode().getFullySpecifiedType();
         if (!fullySpecifiedType.getType().isArray()) {
@@ -233,20 +246,21 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
 
         // resolve the index and verify it
         variablesAllowed = false;
-        Numeric indexNumeric = node.getIndex().accept(this).getNumeric();
+        Node indexNode = node.getIndex();
+        Numeric indexNumeric = indexNode.accept(this).getNumeric();
         variablesAllowed = true;
 
         PredefinedType indexType = indexNumeric.getType();
         if (!anyOf(indexType, INT, UINT)) {
-            throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
+            throw new SourcePositionException(indexNode, INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
         }
         int index = (int) indexNumeric.getValue();
         if (index < 0) {
-            throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
+            throw new SourcePositionException(indexNode, INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
         }
         if (index >= initializerList.getChildCount()) {
             String details = ARRAY_INDEX_OUT_OF_BOUNDS.details(index, initializerList.getChildCount());
-            throw new NotConstExpressionException(node.getIndex(), NOT_CONST_EXPRESSION(ARRAY_INDEX_OUT_OF_BOUNDS) + details);
+            throw new NotConstExpressionException(indexNode, NOT_CONST_EXPRESSION(ARRAY_INDEX_OUT_OF_BOUNDS) + details);
         }
 
         // resolve the initializer at the correct index
@@ -429,7 +443,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         return value ? 1 : 0;
     }
 
-    private InitializerListNode getInitializerList(VariableNode node) {
+    private Node getInitializerNode(VariableNode node) {
         if (!variablesAllowed) {
             abort(node);
         }
@@ -459,9 +473,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         }
 
         // wrap initializer in a list
-        InitializerListNode listNode = new InitializerListNode(initializer.getSourcePosition());
-        listNode.addChild(initializer);
-        return listNode;
+        return initializer;
     }
 
     private Numeric expectNumeric(ConstResult result) {

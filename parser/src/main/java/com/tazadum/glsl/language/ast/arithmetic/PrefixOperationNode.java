@@ -5,6 +5,7 @@ import com.tazadum.glsl.language.ast.FixedChildParentNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.HasConstState;
+import com.tazadum.glsl.language.ast.traits.MutatingOperation;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.model.UnaryOperator;
 import com.tazadum.glsl.language.type.GLSLType;
@@ -13,7 +14,7 @@ import com.tazadum.glsl.util.SourcePosition;
 /**
  * Created by Erik on 2016-10-07.
  */
-public class PrefixOperationNode extends FixedChildParentNode implements HasConstState {
+public class PrefixOperationNode extends FixedChildParentNode implements MutatingOperation, HasConstState {
     private UnaryOperator operator;
 
     public PrefixOperationNode(SourcePosition position, UnaryOperator operator) {

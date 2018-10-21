@@ -1,30 +1,36 @@
 package com.tazadum.glsl.parser;
 
+import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.TernaryConditionNode;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
-import com.tazadum.glsl.language.ast.variable.InitializerListNode;
-import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.ast.util.NodeFinder;
+import com.tazadum.glsl.language.ast.util.NodeUtil;
+import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.model.BitOperator;
+import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.*;
 
-import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPE;
-import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPES;
+import static com.tazadum.glsl.exception.Errors.Coarse.*;
 import static com.tazadum.glsl.exception.Errors.Extras.*;
 import static com.tazadum.glsl.language.type.PredefinedType.INT;
 import static com.tazadum.glsl.language.type.PredefinedType.UINT;
+import static com.tazadum.glsl.language.type.TypeCategory.*;
 import static com.tazadum.glsl.parser.TypeCombination.*;
 
 /**
@@ -38,61 +44,18 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         this.parserContext = parserContext;
     }
 
-    /*
-    @Override
-    public GLSLType visitFieldSelection(FieldSelectionNode node) {
-        super.visitFieldSelection(node);
-
-        Node expression = node.getExpression();
-        if (expression instanceof ArrayIndexNode) {
-            // Special case if expression is array index node
-            expression = ((ArrayIndexNode) expression).getExpression();
-        }
-
-        final GLSLType glslType = expression.getType();
-        if (glslType instanceof PredefinedType) {
-            return glslType;
-        }
-
-        final PredefinedType type = (PredefinedType) glslType;
-        final GLSLType selectionType = type.fieldType(node.getSelection());
-
-        node.setType(selectionType);
-        return selectionType;
-    }
-
-    @Override
-    public GLSLType visitArrayIndex(ArrayIndexNode node) {
-        super.visitArrayIndex(node);
-
-        final GLSLType expressionType = node.getExpression().getType();
-        final GLSLType indexType = node.getIndex().getType();
-
-        if (PredefinedType.INT != indexType) {
-            throw new TypeException("Array index is not of type int!");
-        }
-
-        // TODO: Perform some clever transform of the expressionType to the element type
-
-        return expressionType;
-    }
-    */
-
-    /*
     @Override
     public GLSLType visitFunctionCall(FunctionCallNode node) {
-        super.visitFunctionCall(node);
-
+        // collect all parameter types
         final GLSLType[] parameterTypes = new GLSLType[node.getChildCount()];
         for (int i = 0; i < node.getChildCount(); i++) {
-            parameterTypes[i] = node.getChild(i).getType();
+            parameterTypes[i] = node.getChild(i).accept(this);
         }
 
-        final FunctionPrototypeMatcher prototypeMatcher = new FunctionPrototypeMatcher(FunctionPrototypeMatcher.ANY, parameterTypes);
-        final FunctionPrototypeNode prototypeNode = parserContext.getFunctionRegistry().resolve(node.getIdentifier(), prototypeMatcher);
-
+        final FunctionPrototypeNode prototypeNode = parserContext.getFunctionRegistry().resolve(node.getIdentifier(), parameterTypes);
         if (prototypeNode == null) {
-            throw TypeException.incompatibleTypes(node.getIdentifier().original(), prototypeMatcher);
+            String functionName = node.getIdentifier().original();
+            throw new SourcePositionException(node, UNKNOWN_SYMBOL(functionName, NO_MATCHING_FUNCTION_FOUND));
         }
 
         node.setDeclarationNode(prototypeNode);
@@ -103,34 +66,43 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitFunctionDefinition(FunctionDefinitionNode node) {
-        super.visitFunctionDefinition(node);
+        final FunctionPrototypeNode functionPrototype = node.getFunctionPrototype();
 
-        // try to find out if this function can mutate global state
+        // starting assumptions
+        node.setMutatesGlobalState(false);
+        node.setUsesGlobalState(true);
 
         // check if the parameters are writable
-        for (int i = 0; i < node.getFunctionPrototype().getChildCount(); i++) {
-            final ParameterDeclarationNode declarationNode = node.getFunctionPrototype().getChild(i, ParameterDeclarationNode.class);
-            final TypeQualifier typeQualifier = declarationNode.getFullySpecifiedType().getQualifier();
-            if (typeQualifier != null && (typeQualifier == TypeQualifier.OUT || typeQualifier == TypeQualifier.INOUT)) {
+        for (int i = 0; i < functionPrototype.getChildCount(); i++) {
+            final ParameterDeclarationNode parameterNode = functionPrototype.getChildAs(i);
+            final TypeQualifierList qualifiers = parameterNode.getFullySpecifiedType().getQualifiers();
+            if (qualifiers == null || qualifiers.isEmpty()) {
+                continue;
+            }
+            if (qualifiers.contains(StorageQualifier.OUT)) {
                 node.setMutatesGlobalState(true);
-                node.setUsesGlobalState(false);
-                return null;
+                break;
             }
         }
 
+        node.getStatements().accept(this);
+
         // check if the body contains calls to other functions that mutates state
         for (FunctionCallNode functionCallNode : NodeFinder.findAll(node.getStatements(), FunctionCallNode.class)) {
-            if (functionCallNode.getDeclarationNode().getPrototype().isBuiltIn()) {
+            final FunctionPrototypeNode declarationNode = functionCallNode.getDeclarationNode();
+
+            if (declarationNode.getPrototype().isBuiltIn()) {
+                // the built-in functions doesn't mutate the shader state
                 continue;
             }
 
-            final ParentNode functionDefinition = functionCallNode.getDeclarationNode().getParentNode();
+            final ParentNode functionDefinition = declarationNode.getParentNode();
             if (functionDefinition instanceof FunctionDefinitionNode) {
+                // we found custom functions that was used in this function
                 final FunctionDefinitionNode definition = (FunctionDefinitionNode) functionDefinition;
                 if (definition.mutatesGlobalState()) {
                     node.setMutatesGlobalState(true);
-                    node.setUsesGlobalState(false);
-                    return null;
+                    break;
                 }
                 if (!definition.usesGlobalState()) {
                     node.setUsesGlobalState(false);
@@ -142,28 +114,75 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         for (VariableNode variableNode : NodeFinder.findAll(node.getStatements(), VariableNode.class)) {
             final VariableDeclarationNode declarationNode = variableNode.getDeclarationNode();
             if (declarationNode.isBuiltIn()) {
+                // built-in variables doesn't count in this sense
                 continue;
             }
+
             // check if this is a global variable
             if (parserContext.globalContext().equals(parserContext.findContext(declarationNode))) {
                 node.setUsesGlobalState(false);
                 if (NodeFinder.isMutated(variableNode)) {
                     node.setMutatesGlobalState(true);
-                    return null;
+                    break;
                 }
             }
         }
 
         return null;
     }
-    */
+
+    @Override
+    public GLSLType visitFieldSelection(FieldSelectionNode node) {
+        final GLSLType expressionType = node.getExpression().accept(this);
+        if (expressionType.isArray()) {
+            // handle the length() function
+            if (node.getSelection().equals(LengthFunctionFieldSelectionNode.LENGTH_FUNCTION)) {
+                return PredefinedType.INT;
+            }
+            throw new SourcePositionException(node, NO_SUCH_FIELD(node.getSelection()));
+        }
+
+        if (expressionType instanceof StructType) {
+            final StructType type = (StructType) expressionType;
+
+            try {
+                GLSLType glslType = type.fieldType(node.getSelection());
+                node.setType(glslType);
+                return glslType;
+            } catch (NoSuchFieldException e) {
+                throw new SourcePositionException(node, NO_SUCH_FIELD(node.getSelection(), type.token()), e);
+            }
+        }
+
+        if (expressionType instanceof PredefinedType) {
+            final PredefinedType type = (PredefinedType) expressionType;
+
+            if (type.category() == Vector) {
+                try {
+                    VectorField field = new VectorField(type, node.getSelection());
+                    PredefinedType glslType = field.getType();
+                    node.setType(glslType);
+                    return glslType;
+                } catch (NoSuchFieldException | TypeException e) {
+                    throw new SourcePositionException(node, ILLEGAL_SWIZZLE(node.getSelection()), e);
+                }
+            }
+
+            if (type.category() == Scalar) {
+                // just a more detailed error message
+                throw new SourcePositionException(node, SYNTAX_ERROR(node.getSelection(), INVALID_SWIZZLE));
+            }
+        }
+
+        throw new SourcePositionException(node, NO_SUCH_FIELD(node.getSelection(), expressionType.token()));
+    }
 
     @Override
     public GLSLType visitArrayIndex(ArrayIndexNode node) {
         final GLSLType expressionType = node.getExpression().accept(this);
         final GLSLType indexType = node.getIndex().accept(this);
 
-        if (TypeCombination.ofCategory(TypeCategory.Matrix, expressionType)) {
+        if (TypeCombination.ofCategory(Matrix, expressionType)) {
             if (!TypeCombination.anyOf(indexType, INT, UINT)) {
                 throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, MATRIX_INDEX_NOT_INT));
             }
@@ -229,7 +248,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         }
 
         GLSLType initializerType = initializer.accept(this);
-        assert initializerType != null : "The type of initializer could not be determined";
+        assert initializerType != null : "The type of initializer could not be determined : " + initializer.getClass().getName();
 
         try {
             FullySpecifiedType originalType = node.getOriginalType();
@@ -240,7 +259,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
             return node.getType();
         } catch (TypeException e) {
-            throw new SourcePositionException(node.getInitializer(), INCOMPATIBLE_TYPES(node.getType(), initializerType, NO_CONVERSION));
+            final SourcePosition sourcePosition = NodeUtil.getSourcePosition(node.getInitializer());
+            throw new SourcePositionException(sourcePosition, INCOMPATIBLE_TYPES(node.getType(), initializerType, NO_CONVERSION));
         }
     }
 
@@ -256,6 +276,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     public GLSLType visitAssignment(AssignmentNode node) {
         GLSLType left = node.getLeft().accept(this);
         GLSLType right = node.getRight().accept(this);
+
+        if (TypeCombination.ofCategory(TypeCategory.Opaque, left)) {
+            throw new SourcePositionException(node, SYNTAX_ERROR(OPAQUE_TYPE_LVALUE));
+        }
+
         if (left.isAssignableBy(right)) {
             return left;
         }
@@ -317,7 +342,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_INTEGERS));
 
         }
-        if (ofAnyCategory(type, TypeCategory.Scalar, TypeCategory.Vector, TypeCategory.Matrix)) {
+        if (ofAnyCategory(type, Scalar, Vector, Matrix)) {
             return type;
         }
         throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_NON_OPAQUE));
@@ -326,7 +351,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     @Override
     public GLSLType visitPostfixOperation(PostfixOperationNode node) {
         final GLSLType type = node.getExpression().getType();
-        if (ofAnyCategory(type, TypeCategory.Scalar, TypeCategory.Vector, TypeCategory.Matrix)) {
+        if (ofAnyCategory(type, Scalar, Vector, Matrix)) {
             return type;
         }
         throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_NON_OPAQUE));
@@ -348,7 +373,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             case LessThan:
             case LessThanOrEqual:
             case GreaterThanOrEqual:
-                if (!ofCategory(TypeCategory.Scalar, leftType, rightType)) {
+                if (!ofCategory(Scalar, leftType, rightType)) {
                     throw new SourcePositionException(node, INCOMPATIBLE_TYPES(leftType, rightType, EXPECTED_SCALAR));
                 }
                 break;
@@ -386,8 +411,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         }
 
         if (node.getOperator() == BitOperator.SHIFT_LEFT || node.getOperator() == BitOperator.SHIFT_RIGHT) {
-            if (ofCategory(TypeCategory.Vector, leftType)) {
-                if (ofCategory(TypeCategory.Scalar, rightType)) {
+            if (ofCategory(Vector, leftType)) {
+                if (ofCategory(Scalar, rightType)) {
                     return leftType;
                 }
                 if (sameSize(leftType, rightType)) {
@@ -396,7 +421,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 throw new SourcePositionException(node, INCOMPATIBLE_TYPES(leftType, rightType, NO_CONVERSION));
             }
 
-            if (ofCategory(TypeCategory.Vector, rightType)) {
+            if (ofCategory(Vector, rightType)) {
                 throw new SourcePositionException(node.getRight(), INCOMPATIBLE_TYPE(rightType, EXPECTED_INTEGER_SCALAR));
             }
 

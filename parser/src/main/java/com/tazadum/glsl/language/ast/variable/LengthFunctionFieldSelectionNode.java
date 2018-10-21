@@ -13,7 +13,6 @@ import com.tazadum.glsl.util.SourcePosition;
  */
 public class LengthFunctionFieldSelectionNode extends FieldSelectionNode {
     public static final String LENGTH_FUNCTION = "length()";
-    private GLSLType type;
 
     public LengthFunctionFieldSelectionNode(SourcePosition position) {
         this(position, null);
@@ -44,10 +43,5 @@ public class LengthFunctionFieldSelectionNode extends FieldSelectionNode {
     @Override
     public GLSLType getType() {
         return PredefinedType.UINT;
-    }
-
-    @Override
-    public void setType(GLSLType type) {
-        this.type = type;
     }
 }

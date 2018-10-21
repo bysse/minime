@@ -44,9 +44,7 @@ public class TypeQualifierList {
      * Returns true if a specific qualifier exists in the list.
      */
     public <T extends TypeQualifier> boolean contains(T type) {
-        return get(type.getClass())
-            .filter(t -> t == type)
-            .count() > 0;
+        return get(type.getClass()).anyMatch(t -> t == type);
     }
 
     public String toString() {
@@ -62,5 +60,9 @@ public class TypeQualifierList {
             builder.append(Objects.toString(qualifier));
         }
         return builder.toString();
+    }
+
+    public boolean isEmpty() {
+        return qualifiers.isEmpty();
     }
 }

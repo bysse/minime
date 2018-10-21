@@ -26,14 +26,12 @@ import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.ConstFunction;
+import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.model.*;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.language.variable.VariableRegistry;
-import com.tazadum.glsl.parser.ConstExpressionEvaluatorVisitor;
-import com.tazadum.glsl.parser.GLSLBaseVisitor;
-import com.tazadum.glsl.parser.GLSLParser;
-import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.util.ANTLRUtils;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
@@ -50,6 +48,8 @@ import java.util.stream.Collectors;
 import static com.tazadum.glsl.exception.Errors.Coarse.*;
 import static com.tazadum.glsl.exception.Errors.Extras.*;
 import static com.tazadum.glsl.language.ast.traits.HasConstState.isConst;
+import static com.tazadum.glsl.language.model.StorageQualifier.INOUT;
+import static com.tazadum.glsl.language.model.StorageQualifier.OUT;
 import static com.tazadum.glsl.language.type.PredefinedType.INT;
 import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.parser.TypeCombination.anyOf;
@@ -278,30 +278,59 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         final SourcePosition sourcePosition = SourcePosition.create(ctx.start);
-        final FunctionPrototypeNode prototype = new FunctionPrototypeNode(sourcePosition, functionName, returnTypeNode.getFullySpecifiedType());
+        final FunctionPrototypeNode functionNode = new FunctionPrototypeNode(sourcePosition, functionName, returnTypeNode.getFullySpecifiedType());
 
         for (GLSLParser.Parameter_declarationContext parameterCtx : ctx.parameter_declaration()) {
-            ParameterDeclarationNode parameter = NodeUtil.cast(parameterCtx.accept(this));
-            prototype.addParameter(parameter);
+            final ParameterDeclarationNode parameter = NodeUtil.cast(parameterCtx.accept(this));
+            functionNode.addParameter(parameter);
+
+            // prepare for some syntax checks
+            FullySpecifiedType fullySpecifiedType = parameter.getFullySpecifiedType();
+            TypeQualifierList qualifiers = fullySpecifiedType.getQualifiers();
+            GLSLType type = fullySpecifiedType.getType();
+
+            if (qualifiers != null) {
+                if (TypeCombination.ofCategory(TypeCategory.Opaque, type)) {
+                    if (qualifiers.contains(OUT) || qualifiers.contains(INOUT)) {
+                        throw new SourcePositionException(parameter, SYNTAX_ERROR(OPAQUE_TYPE_LVALUE));
+                    }
+                }
+            }
         }
 
         // if there's only a single parameter with the type void, remove it
-        if (prototype.getChildCount() == 1) {
-            ParameterDeclarationNode parameter = prototype.getChildAs(0);
+        if (functionNode.getChildCount() == 1) {
+            ParameterDeclarationNode parameter = functionNode.getChildAs(0);
             if (PredefinedType.VOID == parameter.getFullySpecifiedType().getType()) {
-                prototype.removeChild(parameter);
+                functionNode.removeChild(parameter);
             }
         }
 
         if (isIncluded(sourcePosition)) {
             // mark the function as being included from a shared file.
-            prototype.setShared(true);
+            functionNode.setShared(true);
         }
 
-        // register the function
-        parserContext.getFunctionRegistry().declareFunction(prototype);
+        // construct a prototype for the function
+        final GLSLType[] parameterTypes = new GLSLType[functionNode.getChildCount()];
+        for (int i = 0; i < parameterTypes.length; i++) {
+            ParameterDeclarationNode parameterNode = functionNode.getChildAs(i);
 
-        return prototype;
+            // verify that the parameter doesn't have any initializers
+            if (parameterNode.getInitializer() != null) {
+                throw new SourcePositionException(parameterNode, SYNTAX_ERROR(INITIALIZER_ON_PARAMETER));
+            }
+
+            parameterTypes[i] = parameterNode.getFullySpecifiedType().getType();
+        }
+
+        final GLSLType returnType = returnTypeNode.getFullySpecifiedType().getType();
+        functionNode.setPrototype(new FunctionPrototype(false, returnType, parameterTypes));
+
+        // register the function
+        parserContext.getFunctionRegistry().declareFunction(functionNode);
+
+        return functionNode;
     }
 
     @Override
@@ -751,7 +780,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
                 if (idCtx.constant_expression() == null) {
                     qualifier.addQualifierId(new LayoutQualifierId(position, qualifierName));
                 } else {
-                    int value = evaluateInt(idCtx.constant_expression().accept(this));
+                    Node expression = idCtx.constant_expression().accept(this);
+                    int value = evaluateInt(expression);
+                    parserContext.dereferenceTree(expression); // get rid of variable references in the expression
                     qualifier.addQualifierId(new LayoutQualifierId(position, qualifierName, value));
                 }
             }
@@ -853,7 +884,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         if (ctx.constant_expression() == null) {
             specifiers.addSpecifier(new ArraySpecifier(position));
         } else {
-            int dimension = evaluateInt(ctx.constant_expression().accept(this));
+            Node expression = ctx.constant_expression().accept(this);
+            int dimension = evaluateInt(expression);
+            parserContext.dereferenceTree(expression); // get rid of variable references in the expression
             specifiers.addSpecifier(new ArraySpecifier(position, dimension));
         }
 
@@ -1031,7 +1064,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final String identifier = ctx.variable_identifier().IDENTIFIER().getText();
         try {
             final ResolutionResult result = variableRegistry.resolve(currentContext, identifier, Identifier.Mode.Original);
-            return new VariableNode(position, result.getDeclaration());
+            VariableNode variableNode = new VariableNode(position, result.getDeclaration());
+            variableRegistry.registerVariableUsage(variableNode);
+            return variableNode;
         } catch (VariableException e) {
             SourcePosition variablePosition = SourcePosition.create(ctx.variable_identifier().start);
             throw new SourcePositionException(variablePosition, UNKNOWN_SYMBOL(identifier), e);
@@ -1127,7 +1162,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     }
 
     private int evaluateInt(Node node) {
-        Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(node);
+        Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(parserContext, node);
         if (anyOf(numeric.getType(), INT, UINT) && numeric.getValue() >= 0) {
             return (int) numeric.getValue();
         }

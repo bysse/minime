@@ -73,7 +73,8 @@ Date    Hours
 2018-10-17  6.5 Reverting and doing const expression lookup directly in the ast construction.
 2018-10-18  5.0 Extending the const expression resolver to support structs and const arrays.
 2018-10-19  4.0 Extending the const expression evaluator. Fixing bugs and extending type information for matrices.
-2018-10-19  5.0 Restructuring the error messages. Fixing the TypeVisitor for the current test cases.
+2018-10-20  5.0 Restructuring the error messages. Fixing the TypeVisitor for the current test cases.
+2018-10-21  6.0 Fixing variable references when const expressions are substituted.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -82,5 +83,7 @@ Date    Hours
 // TODO: Fix squeeze, what is the problem?
 // TODO: Add more complex arithmetic simplifications
 
-// TODO: Fix type checking
+// TODO: Fix type checking !!
+// TODO: Verify all built-in functions
+// TODO: Check all constructor functions
 // TODO: add conditional formatting for scientific notation of numeric

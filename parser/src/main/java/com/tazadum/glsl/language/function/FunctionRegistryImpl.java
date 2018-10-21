@@ -5,6 +5,7 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.parser.Usage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,10 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     public void registerFunctionCall(FunctionPrototypeNode prototypeNode, FunctionCallNode node) {
         final Usage<FunctionPrototypeNode> usage = usageMap.computeIfAbsent(prototypeNode, Usage::new);
         usage.add(node);
+    }
+
+    public FunctionPrototypeNode resolve(Identifier identifier, GLSLType... parameters) {
+        return resolve(identifier, new FunctionPrototypeMatcher(FunctionPrototypeMatcher.ANY, parameters));
     }
 
     @Override

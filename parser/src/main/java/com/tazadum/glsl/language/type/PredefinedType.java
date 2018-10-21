@@ -147,7 +147,7 @@ public enum PredefinedType implements GLSLType, HasToken {
         this.id = id;
         this.category = category;
         this.baseType = null;
-        this.components = 0;
+        this.components = 1;
         this.rows = 1;
         this.columns = 1;
     }
@@ -422,8 +422,10 @@ public enum PredefinedType implements GLSLType, HasToken {
     }
 
     @Override
-    public GLSLType baseType() {
+    public PredefinedType baseType() {
         if (baseType != null) {
+            // This looks weird, but baseType is not a PredefinedType
+            // it's done like this to avoid cyclic declarations.
             switch (baseType) {
                 case INT:
                     return INT;

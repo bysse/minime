@@ -1,5 +1,7 @@
 package com.tazadum.glsl.language.type;
 
+import java.util.Locale;
+
 public class Numeric implements Comparable<Numeric> {
     private double value;
     private int decimals;
@@ -102,7 +104,7 @@ public class Numeric implements Comparable<Numeric> {
     }
 
     public String toString() {
-        return String.format("{%f, %d, %s}", value, decimals, type.token());
+        return String.format(Locale.US, "{%f, %d, %s}", value, decimals, type.token());
     }
 
     public static Numeric abs(Numeric n) {
