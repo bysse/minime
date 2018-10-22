@@ -90,6 +90,9 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     }
 
     public String toString() {
+        if (prototype != null) {
+            return prototype.toString();
+        }
         return "function(" + identifier + ")";
     }
 }

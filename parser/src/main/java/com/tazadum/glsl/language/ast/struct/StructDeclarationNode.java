@@ -31,7 +31,7 @@ public class StructDeclarationNode extends ParentNode implements UnresolvedNode 
         addChild(fieldList);
     }
 
-    public VariableDeclarationListNode getVariableDeclarationList(int index) {
+    public VariableDeclarationListNode getFieldDeclarationList(int index) {
         return getChildAs(index);
     }
 

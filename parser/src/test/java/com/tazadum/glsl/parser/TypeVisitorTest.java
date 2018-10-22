@@ -51,10 +51,12 @@ class TypeVisitorTest {
             ok("int[][] a[]={{{1,2},{3,4}}};float b=a[0][1][2];"),
             ok("int[] a={1,2,3};float b=a[2];"),
             ok("int[] a={1,2,3};int[3] b=a;"),
+            ok("float[] a=float[3](1,2,3);vec2 b=vec2(a[0]);"),
             ok("int a=1;float b=a;"),
             ok("uniform vec2 a[2];void main(){float b=a[1].x;}"),
             ok("uniform vec2 a[2];void main(){vec3 b=a[1].xxx;}"),
             ok("int p(vec2 a){return int(a.x);}void main(){float b=p(vec2(1,2));}"),
+
 
             notOk("float a=1;int b=a;", 1, 16),
             notOk("uniform vec2 a[2];void main(){vec3 b=a[1].xyz;}", 1, 42),

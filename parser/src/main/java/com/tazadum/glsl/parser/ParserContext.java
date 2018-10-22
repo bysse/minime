@@ -6,6 +6,7 @@ import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionRegistry;
 import com.tazadum.glsl.language.type.TypeRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistry;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 
 /**
  * @author erikb
@@ -53,4 +54,12 @@ public interface ParserContext extends ContextAware {
      * @return A new ParserContext implementation.
      */
     ParserContext remap(Node base);
+
+    /**
+     * Initialized all variables and functions in the context.
+     *
+     * @param shaderType The type of shader.
+     * @param profile    The GLSL profile.
+     */
+    void initialize(ShaderType shaderType, GLSLProfile profile);
 }

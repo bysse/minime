@@ -7,8 +7,10 @@ import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputVisitor;
 import com.tazadum.glsl.language.type.TypeRegistryImpl;
+import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
 import com.tazadum.glsl.parser.*;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -87,7 +89,15 @@ public class TestUtil {
     }
 
     public static ParserContext parserContext() {
-        return new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
+        return parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY);
+    }
+
+    public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile) {
+        VariableRegistry variableRegistry = new VariableRegistryImpl();
+
+        ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, new FunctionRegistryImpl());
+        parserContext.initialize(shaderType, profile);
+        return parserContext;
     }
 }
 

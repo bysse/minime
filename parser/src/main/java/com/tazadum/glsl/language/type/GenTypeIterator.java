@@ -1,5 +1,6 @@
 package com.tazadum.glsl.language.type;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 /**
@@ -19,7 +20,7 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
                 if (this.gentype == null) {
                     this.gentype = (GenTypes) parameter;
                 } else if (this.gentype != parameter) {
-                    throw new IllegalArgumentException("Different GenTypes specified!");
+                    throw new IllegalArgumentException("Different GenTypes specified! " + Arrays.toString(parameters));
                 }
                 continue;
             }
@@ -28,20 +29,27 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
             }
             throw new IllegalArgumentException("Invalid argument type!");
         }
-
-        if (gentype == null) {
-            throw new IllegalArgumentException("No GenTypes specified!");
-        }
     }
 
     @Override
     public boolean hasNext() {
-        return index < gentype.concreteTypes.length;
+        if (gentype == null) {
+            return index == 0;
+        }
+        return index < gentype.types.length;
     }
 
     @Override
     public PredefinedType[] next() {
-        final PredefinedType type = gentype.concreteTypes[index++];
+        if (gentype == null) {
+            index++;
+            final PredefinedType[] types = new PredefinedType[parameters.length];
+            for (int i = 0; i < parameters.length; i++) {
+                types[i] = (PredefinedType) parameters[i];
+            }
+            return types;
+        }
+        final PredefinedType type = gentype.types[index++];
         final PredefinedType[] types = new PredefinedType[parameters.length];
 
         for (int i = 0; i < parameters.length; i++) {

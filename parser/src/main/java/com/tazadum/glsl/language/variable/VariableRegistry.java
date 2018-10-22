@@ -8,6 +8,7 @@ import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
+import com.tazadum.glsl.parser.variables.VariableSet;
 
 import java.util.List;
 import java.util.Map;
@@ -52,4 +53,9 @@ public interface VariableRegistry {
     VariableRegistry remap(Node base, ContextAware contextAwareRemap);
 
     boolean isEmpty();
+
+    /**
+     * Apply a whole variable set to the registry.
+     */
+    void apply(GLSLContext glslContext, VariableSet variableSet);
 }

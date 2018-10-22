@@ -3,12 +3,14 @@ package com.tazadum.glsl.language.variable;
 import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.parser.Usage;
+import com.tazadum.glsl.parser.variables.VariableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -163,6 +165,18 @@ public class VariableRegistryImpl implements VariableRegistry {
     @Override
     public boolean isEmpty() {
         return declarationMap.isEmpty() && usageMap.isEmpty();
+    }
+
+    @Override
+    public void apply(GLSLContext glslContext, VariableSet variableSet) {
+        for (VariableDeclarationNode declarationNode : variableSet.getDeclarations()) {
+            declareVariable(glslContext, declarationNode);
+        }
+
+        for (InterfaceBlockNode declarationNode : variableSet.getInterfaceBlocks()) {
+            // TODO: implement
+            System.err.println("Implement interface node registrations");
+        }
     }
 
     private VariableRegistryContext resolveContext(GLSLContext context, String identifier, Identifier.Mode mode) {
