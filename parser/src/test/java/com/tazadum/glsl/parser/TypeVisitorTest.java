@@ -36,7 +36,7 @@ class TypeVisitorTest {
         } catch (SourcePositionException e) {
             if (sourcePosition == null) {
                 e.printStackTrace();
-                fail("Did not expect an exception");
+                fail(e.getSourcePosition().format() + ": Did not expect an exception");
             } else {
                 if (!e.getSourcePosition().equals(sourcePosition)) {
                     e.printStackTrace();

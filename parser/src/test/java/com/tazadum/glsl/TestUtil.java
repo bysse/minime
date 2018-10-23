@@ -2,6 +2,8 @@ package com.tazadum.glsl;
 
 import com.tazadum.glsl.language.ast.ASTConverter;
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
+import com.tazadum.glsl.language.function.BuiltInFunctionRegistryImpl;
 import com.tazadum.glsl.language.function.FunctionRegistryImpl;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
@@ -10,6 +12,7 @@ import com.tazadum.glsl.language.type.TypeRegistryImpl;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
 import com.tazadum.glsl.parser.*;
+import com.tazadum.glsl.parser.functions.FunctionSets;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
@@ -92,10 +95,20 @@ public class TestUtil {
         return parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY);
     }
 
+    private static BuiltInFunctionRegistry builtInRegistry = null;
+
+    public static BuiltInFunctionRegistry getBuiltInFunctionRegistry() {
+        if (builtInRegistry == null) {
+            System.err.println("WARNING: BuiltInFunctionRegistry is a singleton instance!");
+            builtInRegistry = FunctionSets.applyFunctions(new BuiltInFunctionRegistryImpl());
+        }
+        return builtInRegistry;
+    }
+
     public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile) {
         VariableRegistry variableRegistry = new VariableRegistryImpl();
-
-        ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, new FunctionRegistryImpl());
+        FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(getBuiltInFunctionRegistry());
+        ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, functionRegistry);
         parserContext.initialize(shaderType, profile);
         return parserContext;
     }

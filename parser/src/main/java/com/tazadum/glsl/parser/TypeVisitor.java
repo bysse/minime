@@ -55,7 +55,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         final FunctionPrototypeNode prototypeNode = parserContext.getFunctionRegistry().resolve(node.getIdentifier(), parameterTypes);
         if (prototypeNode == null) {
             String functionName = node.getIdentifier().original();
-            throw new SourcePositionException(node, UNKNOWN_SYMBOL(functionName, NO_MATCHING_FUNCTION_FOUND));
+            throw new SourcePositionException(node, UNKNOWN_FUNCTION(functionName, NO_MATCHING_FUNCTION_FOUND));
         }
 
         node.setDeclarationNode(prototypeNode);

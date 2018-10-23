@@ -31,11 +31,21 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
 
     @Override
     public FunctionPrototypeNode resolve(Identifier identifier, GLSLType... parameters) {
-        return null;
+        return resolve(identifier, new FunctionPrototypeMatcher(FunctionPrototypeMatcher.ANY, parameters));
     }
 
     @Override
     public FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher) {
+        final List<FunctionPrototypeNode> prototypeNodes = functionMap.get(identifier.original());
+
+        if (prototypeNodes != null && !prototypeNodes.isEmpty()) {
+            for (FunctionPrototypeNode prototypeNode : prototypeNodes) {
+                if (prototypeMatcher.matches(prototypeNode.getPrototype())) {
+                    return prototypeNode;
+                }
+            }
+        }
+
         return null;
     }
 

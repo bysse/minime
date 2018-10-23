@@ -16,8 +16,13 @@ public class Errors {
         }
 
         public static String UNKNOWN_SYMBOL(String identifier, Extras extras) {
-            return format("Unknown symbol '%s',", identifier) + Extras.format(extras);
+            return format("Unknown symbol '%s'.", identifier) + Extras.format(extras);
         }
+
+        public static String UNKNOWN_FUNCTION(String identifier, Extras extras) {
+            return format("Unknown function '%s'.", identifier) + Extras.format(extras);
+        }
+
 
         public static String NO_SUCH_FIELD(String fieldName) {
             return format("No such field '%s'.", fieldName);

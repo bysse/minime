@@ -19,15 +19,18 @@ import java.util.concurrent.ConcurrentMap;
 public class FunctionRegistryImpl implements FunctionRegistry {
     private final Logger logger = LoggerFactory.getLogger(FunctionRegistryImpl.class);
 
-    private ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap;
-    private ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap;
+    private final BuiltInFunctionRegistry builtInRegistry;
+    private final ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap;
+    private final ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap;
 
-    public FunctionRegistryImpl() {
+    public FunctionRegistryImpl(BuiltInFunctionRegistry builtInRegistry) {
+        this.builtInRegistry = builtInRegistry;
         functionMap = new ConcurrentHashMap<>();
         usageMap = new ConcurrentHashMap<>();
     }
 
-    private FunctionRegistryImpl(ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap, ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap) {
+    private FunctionRegistryImpl(BuiltInFunctionRegistry builtInRegistry, ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap, ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMap) {
+        this.builtInRegistry = builtInRegistry;
         this.functionMap = functionMap;
         this.usageMap = usageMap;
     }
@@ -50,17 +53,16 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     @Override
     public FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher) {
         final List<FunctionPrototypeNode> prototypeNodes = functionMap.get(identifier.original());
-        if (prototypeNodes == null || prototypeNodes.isEmpty()) {
-            return null;
-        }
 
-        for (FunctionPrototypeNode prototypeNode : prototypeNodes) {
-            if (prototypeMatcher.matches(prototypeNode.getPrototype())) {
-                return prototypeNode;
+        if (prototypeNodes != null && !prototypeNodes.isEmpty()) {
+            for (FunctionPrototypeNode prototypeNode : prototypeNodes) {
+                if (prototypeMatcher.matches(prototypeNode.getPrototype())) {
+                    return prototypeNode;
+                }
             }
         }
 
-        return null;
+        return builtInRegistry.resolve(identifier, prototypeMatcher);
     }
 
     @Override
@@ -148,7 +150,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
             usageMapRemapped.put(prototype, usage.remap(base, prototype));
         });
 
-        return new FunctionRegistryImpl(functionMapRemapped, usageMapRemapped);
+        return new FunctionRegistryImpl(builtInRegistry, functionMapRemapped, usageMapRemapped);
     }
 
     @Override
