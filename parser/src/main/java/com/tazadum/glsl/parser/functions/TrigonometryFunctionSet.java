@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser.functions;
 
-import com.tazadum.glsl.language.function.FunctionRegistry;
+import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
 
 import static com.tazadum.glsl.language.type.GenTypes.GenFType;
 
@@ -8,27 +8,25 @@ import static com.tazadum.glsl.language.type.GenTypes.GenFType;
  * Angle and Trigonometry Functions
  * Created by erikb on 2018-10-22.
  */
-public class TrigonometryFunctionSet extends FunctionSet {
-    public TrigonometryFunctionSet(FunctionRegistry functionRegistry) {
-        super(functionRegistry);
-    }
+public class TrigonometryFunctionSet implements FunctionSet {
 
-    @Override
-    public void generate() {
-        function("radians", GenFType, GenFType);
-        function("degrees", GenFType, GenFType);
-        function("sin", GenFType, GenFType);
-        function("cos", GenFType, GenFType);
-        function("tan", GenFType, GenFType);
-        function("asin", GenFType, GenFType);
-        function("acos", GenFType, GenFType);
-        function("atan", GenFType, GenFType);
-        function("atan", GenFType, GenFType, GenFType);
-        function("sinh", GenFType, GenFType);
-        function("cosh", GenFType, GenFType);
-        function("tanh", GenFType, GenFType);
-        function("asinh", GenFType, GenFType);
-        function("acosh", GenFType, GenFType);
-        function("atanh", GenFType, GenFType);
+    public void generate(BuiltInFunctionRegistry registry) {
+        BuiltInFunctionRegistry.FunctionDeclarator declarator = registry.getFunctionDeclarator();
+
+        declarator.function("radians", GenFType, GenFType);
+        declarator.function("degrees", GenFType, GenFType);
+        declarator.function("sin", GenFType, GenFType);
+        declarator.function("cos", GenFType, GenFType);
+        declarator.function("tan", GenFType, GenFType);
+        declarator.function("asin", GenFType, GenFType);
+        declarator.function("acos", GenFType, GenFType);
+        declarator.function("atan", GenFType, GenFType);
+        declarator.function("atan", GenFType, GenFType, GenFType);
+        declarator.function("sinh", GenFType, GenFType);
+        declarator.function("cosh", GenFType, GenFType);
+        declarator.function("tanh", GenFType, GenFType);
+        declarator.function("asinh", GenFType, GenFType);
+        declarator.function("acosh", GenFType, GenFType);
+        declarator.function("atanh", GenFType, GenFType);
     }
 }

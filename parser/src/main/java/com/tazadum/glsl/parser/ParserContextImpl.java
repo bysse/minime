@@ -10,12 +10,11 @@ import com.tazadum.glsl.language.context.ContextAwareImpl;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.function.FunctionRegistry;
-import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.language.type.FullySpecifiedType;
+import com.tazadum.glsl.language.type.GenTypeIterator;
+import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.language.type.TypeRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistry;
-import com.tazadum.glsl.parser.functions.CommonFunctionSet;
-import com.tazadum.glsl.parser.functions.ConstructorsFunctionSet;
-import com.tazadum.glsl.parser.functions.ExponentialFunctionSet;
-import com.tazadum.glsl.parser.functions.TrigonometryFunctionSet;
 import com.tazadum.glsl.parser.variables.*;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
@@ -23,8 +22,7 @@ import com.tazadum.glsl.util.SourcePosition;
 import java.util.Arrays;
 import java.util.Set;
 
-import static com.tazadum.glsl.language.type.GenTypes.GenFType;
-import static com.tazadum.glsl.language.type.PredefinedType.*;
+import static com.tazadum.glsl.language.type.PredefinedType.VEC4;
 
 public class ParserContextImpl implements ParserContext {
     private final TypeRegistry typeRegistry;
@@ -43,47 +41,6 @@ public class ParserContextImpl implements ParserContext {
         this.functionRegistry = functionRegistry;
         this.dereferenceVisitor = new DereferenceVisitor(this);
         this.contextAware = contextAware;
-
-        if (functionRegistry.isEmpty()) {
-            setupFunctions();
-        }
-    }
-
-    private void setupFunctions() {
-
-
-        // isnan
-        // isinf
-        function("fma", GenFType, GenFType, GenFType, GenFType);
-
-        // Geometric Functions
-        function("length", FLOAT, GenFType);
-        function("distance", FLOAT, GenFType);
-        function("dot", FLOAT, GenFType, GenFType);
-        fixedFunction("cross", VEC3, VEC3, VEC3);
-        function("normalize", GenFType, GenFType);
-        function("faceforward", GenFType, GenFType, GenFType, GenFType);
-        function("reflect", GenFType, GenFType, GenFType);
-        function("refract", GenFType, GenFType, GenFType, FLOAT);
-
-        // Matrix Functions
-        function("inverse", GenTypes.GenMatrixType, GenTypes.GenMatrixType);
-
-        // Vector Relational Functions
-
-        // Integer Functions
-
-        // Texture Functions
-        fixedFunction("texture2D", VEC4, PredefinedType.SAMPLER2D, VEC2);
-        fixedFunction("texture", VEC4, PredefinedType.SAMPLER2D, VEC2);
-        fixedFunction("texture", VEC4, PredefinedType.SAMPLER3D, VEC3);
-
-        // Derivative Functions
-        function("dFdx", GenFType, GenFType);
-        function("dFdy", GenFType, GenFType);
-        function("fwidth", GenFType, GenFType);
-
-        // Interpolation Functions
     }
 
     private VariableDeclarationNode variable(PredefinedType type, String identifier) {
@@ -196,10 +153,11 @@ public class ParserContextImpl implements ParserContext {
                 throw new IllegalArgumentException("Unknown shader type " + shaderType);
         }
 
-        new ConstructorsFunctionSet(functionRegistry).generate();
-        new TrigonometryFunctionSet(functionRegistry).generate();
-        new ExponentialFunctionSet(functionRegistry).generate();
-        new CommonFunctionSet(functionRegistry).generate();
+        if (shaderType == ShaderType.VERTEX && profile == GLSLProfile.COMPATIBILITY) {
+            final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePosition.TOP, "ftransform", new FullySpecifiedType(VEC4));
+            node.setPrototype(new FunctionPrototype(true, VEC4));
+            functionRegistry.declareFunction(node);
+        }
     }
 
     @Override

@@ -76,6 +76,7 @@ Date    Hours
 2018-10-20  5.0 Restructuring the error messages. Fixing the TypeVisitor for the current test cases.
 2018-10-21  6.0 Fixing variable references when const expressions are substituted and a lot of type checking.
 2018-10-22  6.0 Going through all built-in functions and variables and registering them.
+2018-10-23  6.0 Breaking apart custom functions and built-in function to optimize ParserContext creation.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
