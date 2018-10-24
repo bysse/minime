@@ -7,6 +7,7 @@ import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GenTypes;
 import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
 
 import static com.tazadum.glsl.language.model.StorageQualifier.IN;
@@ -20,7 +21,7 @@ import static com.tazadum.glsl.language.type.PredefinedType.*;
  */
 public class CommonFunctionSet implements FunctionSet {
     @Override
-    public void generate(BuiltInFunctionRegistry registry) {
+    public void generate(BuiltInFunctionRegistry registry, GLSLProfile profile) {
         BuiltInFunctionRegistry.FunctionDeclarator declarator = registry.getFunctionDeclarator();
 
         declarator.function("abs", GenFType, GenFType);

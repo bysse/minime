@@ -77,6 +77,7 @@ Date    Hours
 2018-10-21  6.0 Fixing variable references when const expressions are substituted and a lot of type checking.
 2018-10-22  6.0 Going through all built-in functions and variables and registering them.
 2018-10-23  6.5 Breaking apart custom functions and built-in function to optimize ParserContext creation.
+2018-10-24  2.5 All functions encoded!
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

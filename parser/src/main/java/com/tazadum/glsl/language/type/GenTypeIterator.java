@@ -1,5 +1,7 @@
 package com.tazadum.glsl.language.type;
 
+import com.tazadum.glsl.exception.NoSuchFieldException;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -7,7 +9,7 @@ import java.util.NoSuchElementException;
 /**
  * Created by Erik on 2016-10-17.
  */
-public class GenTypeIterator implements Iterator<PredefinedType[]> {
+public class GenTypeIterator implements Iterator<GLSLType[]> {
     private static final int MAX_GENTYPES = 3;
     private Object[] parameters;
     private GenTypes[] genTypes;
@@ -44,7 +46,7 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
                 types++;
                 continue;
             }
-            if (parameter instanceof PredefinedType) {
+            if (parameter instanceof GLSLType) {
                 continue;
             }
             throw new IllegalArgumentException("Invalid argument type!");
@@ -52,6 +54,14 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
 
         index = new int[types];
         Arrays.fill(index, 0);
+    }
+
+    public static GLSLType out(GLSLType type) {
+        return new OutWrapper(type);
+    }
+
+    public static GLSLType inout(GLSLType type) {
+        return new InOutWrapper(type);
     }
 
     @Override
@@ -64,15 +74,15 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
     }
 
     @Override
-    public PredefinedType[] next() {
+    public GLSLType[] next() {
         if (index.length == 0) {
             if (!fixedFunction) {
                 throw new NoSuchElementException("Fixed function combination already delivered");
             }
             fixedFunction = false;
-            final PredefinedType[] types = new PredefinedType[parameters.length];
+            final GLSLType[] types = new GLSLType[parameters.length];
             for (int i = 0; i < parameters.length; i++) {
-                types[i] = (PredefinedType) parameters[i];
+                types[i] = (GLSLType) parameters[i];
             }
             return types;
         }
@@ -81,13 +91,12 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
             throw new NoSuchElementException("Combinations exhausted");
         }
 
-        final PredefinedType[] types = new PredefinedType[parameters.length];
-
+        final GLSLType[] types = new GLSLType[parameters.length];
 
         for (int i = 0; i < parameters.length; i++) {
             final Object parameter = parameters[i];
-            if (parameter instanceof PredefinedType) {
-                types[i] = (PredefinedType) parameter;
+            if (parameter instanceof GLSLType) {
+                types[i] = (GLSLType) parameter;
             } else if (parameter instanceof GenTypes) {
                 // find out the genTypeIndex
                 int index = genTypeIndex[i];
@@ -110,5 +119,71 @@ public class GenTypeIterator implements Iterator<PredefinedType[]> {
             i++;
         }
         return types;
+    }
+
+    public static class OutWrapper implements GLSLType {
+        private final GLSLType type;
+
+        public OutWrapper(GLSLType type) {
+            this.type = type;
+        }
+
+        @Override
+        public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
+            return null;
+        }
+
+        @Override
+        public boolean isAssignableBy(GLSLType type) {
+            return false;
+        }
+
+        @Override
+        public boolean isArray() {
+            return false;
+        }
+
+        @Override
+        public GLSLType baseType() {
+            return type;
+        }
+
+        @Override
+        public String token() {
+            return null;
+        }
+    }
+
+    public static class InOutWrapper implements GLSLType {
+        private final GLSLType type;
+
+        public InOutWrapper(GLSLType type) {
+            this.type = type;
+        }
+
+        @Override
+        public GLSLType fieldType(String fieldName) throws NoSuchFieldException {
+            return null;
+        }
+
+        @Override
+        public boolean isAssignableBy(GLSLType type) {
+            return false;
+        }
+
+        @Override
+        public boolean isArray() {
+            return false;
+        }
+
+        @Override
+        public GLSLType baseType() {
+            return type;
+        }
+
+        @Override
+        public String token() {
+            return null;
+        }
     }
 }

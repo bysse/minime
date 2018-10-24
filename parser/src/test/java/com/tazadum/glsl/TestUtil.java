@@ -97,17 +97,17 @@ public class TestUtil {
 
     private static BuiltInFunctionRegistry builtInRegistry = null;
 
-    public static BuiltInFunctionRegistry getBuiltInFunctionRegistry() {
+    public static BuiltInFunctionRegistry getBuiltInFunctionRegistry(ShaderType shaderType, GLSLProfile profile) {
         if (builtInRegistry == null) {
             System.err.println("WARNING: BuiltInFunctionRegistry is a singleton instance!");
-            builtInRegistry = FunctionSets.applyFunctions(new BuiltInFunctionRegistryImpl());
+            builtInRegistry = FunctionSets.applyFunctions(new BuiltInFunctionRegistryImpl(), shaderType, profile);
         }
         return builtInRegistry;
     }
 
     public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile) {
         VariableRegistry variableRegistry = new VariableRegistryImpl();
-        FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(getBuiltInFunctionRegistry());
+        FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(getBuiltInFunctionRegistry(shaderType, profile));
         ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, functionRegistry);
         parserContext.initialize(shaderType, profile);
         return parserContext;

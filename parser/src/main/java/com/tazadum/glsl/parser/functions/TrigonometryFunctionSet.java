@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser.functions;
 
 import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 
 import static com.tazadum.glsl.language.type.GenTypes.GenFType;
 
@@ -10,7 +11,7 @@ import static com.tazadum.glsl.language.type.GenTypes.GenFType;
  */
 public class TrigonometryFunctionSet implements FunctionSet {
 
-    public void generate(BuiltInFunctionRegistry registry) {
+    public void generate(BuiltInFunctionRegistry registry, GLSLProfile profile) {
         BuiltInFunctionRegistry.FunctionDeclarator declarator = registry.getFunctionDeclarator();
 
         declarator.function("radians", GenFType, GenFType);

@@ -10,10 +10,7 @@ import com.tazadum.glsl.language.context.ContextAwareImpl;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.function.FunctionRegistry;
-import com.tazadum.glsl.language.type.FullySpecifiedType;
-import com.tazadum.glsl.language.type.GenTypeIterator;
-import com.tazadum.glsl.language.type.PredefinedType;
-import com.tazadum.glsl.language.type.TypeRegistry;
+import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.variables.*;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
@@ -56,9 +53,9 @@ public class ParserContextImpl implements ParserContext {
     private void function(String identifier, Object... parameterTypes) {
         final GenTypeIterator iterator = new GenTypeIterator(parameterTypes);
         while (iterator.hasNext()) {
-            final PredefinedType[] parameters = iterator.next();
-            final PredefinedType returnType = parameters[0];
-            final PredefinedType[] arguments = Arrays.copyOfRange(parameters, 1, parameters.length);
+            final GLSLType[] parameters = iterator.next();
+            final GLSLType returnType = parameters[0];
+            final GLSLType[] arguments = Arrays.copyOfRange(parameters, 1, parameters.length);
 
             final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePosition.TOP, identifier, new FullySpecifiedType(returnType));
             node.setPrototype(new FunctionPrototype(true, returnType, arguments));

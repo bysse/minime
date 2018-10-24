@@ -1,7 +1,10 @@
 package com.tazadum.glsl.parser.functions;
 
 import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
+import com.tazadum.glsl.language.type.ArrayType;
+import com.tazadum.glsl.language.type.GenTypes;
 import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 
 import static com.tazadum.glsl.language.type.GenTypes.*;
 import static com.tazadum.glsl.language.type.PredefinedType.*;
@@ -12,7 +15,7 @@ import static com.tazadum.glsl.language.type.PredefinedType.*;
  */
 public class TextureFunctionSet implements FunctionSet {
     @Override
-    public void generate(BuiltInFunctionRegistry registry) {
+    public void generate(BuiltInFunctionRegistry registry, GLSLProfile profile) {
         BuiltInFunctionRegistry.FunctionDeclarator def = registry.getFunctionDeclarator();
 
         // Texture Query Functions
@@ -64,152 +67,138 @@ public class TextureFunctionSet implements FunctionSet {
         def.function("textureSamples", INT, GenSampler2DMSArray);
 
         // Textel Lookup Functions
-
-        for (int i = 0; i < GenSampler1D.types.length; i++) {
-            PredefinedType gvec4 = GenVec4Type.types[i];
-
-            PredefinedType gsampler1D = GenSampler1D.types[i];
-            PredefinedType gsampler2D = GenSampler2D.types[i];
-            PredefinedType gsampler3D = GenSampler3D.types[i];
-            PredefinedType gsamplerCube = GenSamplerCube.types[i];
-            PredefinedType gsampler2DRect = GenSampler2DRect.types[i];
-            PredefinedType gsampler1DArray = GenSampler1DArray.types[i];
-            PredefinedType gsampler2DArray = GenSampler2DArray.types[i];
-            PredefinedType gsamplerCubeArray = GenSamplerCubeArray.types[i];
-            PredefinedType gsamplerBuffer = GenSampleBuffer.types[i];
-            PredefinedType gsampler2DMS = GenSampler2DMS.types[i];
-            PredefinedType gsampler2DMSArray = GenSampler2DMSArray.types[i];
-
-            def.function("texture", gvec4, gsampler1D, FLOAT);
-            def.function("texture", gvec4, gsampler1D, FLOAT, FLOAT);
-            def.function("texture", gvec4, gsampler2D, VEC2);
-            def.function("texture", gvec4, gsampler2D, VEC2, FLOAT);
-            def.function("texture", gvec4, gsampler3D, VEC3);
-            def.function("texture", gvec4, gsampler3D, VEC3, FLOAT);
+        GenTypes.iterateFUI((gscalar, gvec2, gvec3, gvec4, gsampler1d, gsampler2d, gsampler3d, gsamplerCube,
+                             gsampler2dRect, gsampler2dMS, gsamplerBuffer, gsampler1dArray, gsampler2dArray,
+                             gsamplerCubeArray, gsampler2dMSArray) -> {
+            def.function("texture", gvec4, gsampler1d, FLOAT);
+            def.function("texture", gvec4, gsampler1d, FLOAT, FLOAT);
+            def.function("texture", gvec4, gsampler2d, VEC2);
+            def.function("texture", gvec4, gsampler2d, VEC2, FLOAT);
+            def.function("texture", gvec4, gsampler3d, VEC3);
+            def.function("texture", gvec4, gsampler3d, VEC3, FLOAT);
             def.function("texture", gvec4, gsamplerCube, VEC3);
             def.function("texture", gvec4, gsamplerCube, VEC3, FLOAT);
-            def.function("texture", gvec4, gsampler2DRect, VEC2);
-            def.function("texture", gvec4, gsampler1DArray, VEC2);
-            def.function("texture", gvec4, gsampler1DArray, VEC2, FLOAT);
-            def.function("texture", gvec4, gsampler2DArray, VEC3);
-            def.function("texture", gvec4, gsampler2DArray, VEC3, FLOAT);
+            def.function("texture", gvec4, gsampler2dRect, VEC2);
+            def.function("texture", gvec4, gsampler1dArray, VEC2);
+            def.function("texture", gvec4, gsampler1dArray, VEC2, FLOAT);
+            def.function("texture", gvec4, gsampler2dArray, VEC3);
+            def.function("texture", gvec4, gsampler2dArray, VEC3, FLOAT);
             def.function("texture", gvec4, gsamplerCubeArray, VEC4);
             def.function("texture", gvec4, gsamplerCubeArray, VEC4, FLOAT);
 
-            def.function("textureProj", gvec4, gsampler1D, VEC2);
-            def.function("textureProj", gvec4, gsampler1D, VEC2, FLOAT);
-            def.function("textureProj", gvec4, gsampler1D, VEC4);
-            def.function("textureProj", gvec4, gsampler1D, VEC4, FLOAT);
-            def.function("textureProj", gvec4, gsampler2D, VEC3);
-            def.function("textureProj", gvec4, gsampler2D, VEC3, FLOAT);
-            def.function("textureProj", gvec4, gsampler2D, VEC4);
-            def.function("textureProj", gvec4, gsampler2D, VEC4, FLOAT);
-            def.function("textureProj", gvec4, gsampler3D, VEC4);
-            def.function("textureProj", gvec4, gsampler3D, VEC4, FLOAT);
-            def.function("textureProj", gvec4, gsampler2DRect, VEC3);
-            def.function("textureProj", gvec4, gsampler2DRect, VEC4);
+            def.function("textureProj", gvec4, gsampler1d, VEC2);
+            def.function("textureProj", gvec4, gsampler1d, VEC2, FLOAT);
+            def.function("textureProj", gvec4, gsampler1d, VEC4);
+            def.function("textureProj", gvec4, gsampler1d, VEC4, FLOAT);
+            def.function("textureProj", gvec4, gsampler2d, VEC3);
+            def.function("textureProj", gvec4, gsampler2d, VEC3, FLOAT);
+            def.function("textureProj", gvec4, gsampler2d, VEC4);
+            def.function("textureProj", gvec4, gsampler2d, VEC4, FLOAT);
+            def.function("textureProj", gvec4, gsampler3d, VEC4);
+            def.function("textureProj", gvec4, gsampler3d, VEC4, FLOAT);
+            def.function("textureProj", gvec4, gsampler2dRect, VEC3);
+            def.function("textureProj", gvec4, gsampler2dRect, VEC4);
 
-            def.function("textureLod", gvec4, gsampler1D, FLOAT);
-            def.function("textureLod", gvec4, gsampler2D, VEC2);
-            def.function("textureLod", gvec4, gsampler3D, VEC3);
+            def.function("textureLod", gvec4, gsampler1d, FLOAT);
+            def.function("textureLod", gvec4, gsampler2d, VEC2);
+            def.function("textureLod", gvec4, gsampler3d, VEC3);
             def.function("textureLod", gvec4, gsamplerCube, VEC3);
-            def.function("textureLod", gvec4, gsampler1DArray, VEC2, FLOAT);
-            def.function("textureLod", gvec4, gsampler2DArray, VEC3, FLOAT);
-            def.function("textureLod", gvec4, gsampler2DArray, VEC4, FLOAT);
+            def.function("textureLod", gvec4, gsampler1dArray, VEC2, FLOAT);
+            def.function("textureLod", gvec4, gsampler2dArray, VEC3, FLOAT);
+            def.function("textureLod", gvec4, gsampler2dArray, VEC4, FLOAT);
 
-            def.function("textureOffset", gvec4, gsampler1D, FLOAT, INT);
-            def.function("textureOffset", gvec4, gsampler1D, FLOAT, INT, FLOAT);
-            def.function("textureOffset", gvec4, gsampler2D, VEC2, IVEC2);
-            def.function("textureOffset", gvec4, gsampler2D, VEC2, IVEC2, FLOAT);
-            def.function("textureOffset", gvec4, gsampler3D, VEC3, IVEC3);
-            def.function("textureOffset", gvec4, gsampler3D, VEC3, IVEC3, FLOAT);
-            def.function("textureOffset", gvec4, gsampler2DRect, VEC2, IVEC2);
+            def.function("textureOffset", gvec4, gsampler1d, FLOAT, INT);
+            def.function("textureOffset", gvec4, gsampler1d, FLOAT, INT, FLOAT);
+            def.function("textureOffset", gvec4, gsampler2d, VEC2, IVEC2);
+            def.function("textureOffset", gvec4, gsampler2d, VEC2, IVEC2, FLOAT);
+            def.function("textureOffset", gvec4, gsampler3d, VEC3, IVEC3);
+            def.function("textureOffset", gvec4, gsampler3d, VEC3, IVEC3, FLOAT);
+            def.function("textureOffset", gvec4, gsampler2dRect, VEC2, IVEC2);
 
-            def.function("textureOffset", gvec4, gsampler1DArray, VEC2, INT);
-            def.function("textureOffset", gvec4, gsampler1DArray, VEC2, INT, FLOAT);
-            def.function("textureOffset", gvec4, gsampler2DArray, VEC3, IVEC2);
-            def.function("textureOffset", gvec4, gsampler2DArray, VEC3, IVEC2, FLOAT);
+            def.function("textureOffset", gvec4, gsampler1dArray, VEC2, INT);
+            def.function("textureOffset", gvec4, gsampler1dArray, VEC2, INT, FLOAT);
+            def.function("textureOffset", gvec4, gsampler2dArray, VEC3, IVEC2);
+            def.function("textureOffset", gvec4, gsampler2dArray, VEC3, IVEC2, FLOAT);
 
-            def.function("texelFetch", gvec4, gsampler1D, INT, INT);
-            def.function("texelFetch", gvec4, gsampler2D, IVEC2, INT);
-            def.function("texelFetch", gvec4, gsampler3D, IVEC3, INT);
-            def.function("texelFetch", gvec4, gsampler1DArray, IVEC2, INT);
-            def.function("texelFetch", gvec4, gsampler2DArray, IVEC3, INT);
+            def.function("texelFetch", gvec4, gsampler1d, INT, INT);
+            def.function("texelFetch", gvec4, gsampler2d, IVEC2, INT);
+            def.function("texelFetch", gvec4, gsampler3d, IVEC3, INT);
+            def.function("texelFetch", gvec4, gsampler1dArray, IVEC2, INT);
+            def.function("texelFetch", gvec4, gsampler2dArray, IVEC3, INT);
             def.function("texelFetch", gvec4, gsamplerBuffer, INT, INT);
-            def.function("texelFetch", gvec4, gsampler2DMS, IVEC2, INT);
-            def.function("texelFetch", gvec4, gsampler2DMSArray, IVEC3, INT);
+            def.function("texelFetch", gvec4, gsampler2dMS, IVEC2, INT);
+            def.function("texelFetch", gvec4, gsampler2dMSArray, IVEC3, INT);
 
-            def.function("texelFetchOffset", gvec4, gsampler1D, INT, INT, INT);
-            def.function("texelFetchOffset", gvec4, gsampler2D, IVEC2, INT, IVEC2);
-            def.function("texelFetchOffset", gvec4, gsampler3D, IVEC3, INT, IVEC3);
-            def.function("texelFetchOffset", gvec4, gsampler2DRect, IVEC2, IVEC2);
-            def.function("texelFetchOffset", gvec4, gsampler1DArray, IVEC2, INT, INT);
-            def.function("texelFetchOffset", gvec4, gsampler2DArray, IVEC3, INT, IVEC2);
+            def.function("texelFetchOffset", gvec4, gsampler1d, INT, INT, INT);
+            def.function("texelFetchOffset", gvec4, gsampler2d, IVEC2, INT, IVEC2);
+            def.function("texelFetchOffset", gvec4, gsampler3d, IVEC3, INT, IVEC3);
+            def.function("texelFetchOffset", gvec4, gsampler2dRect, IVEC2, IVEC2);
+            def.function("texelFetchOffset", gvec4, gsampler1dArray, IVEC2, INT, INT);
+            def.function("texelFetchOffset", gvec4, gsampler2dArray, IVEC3, INT, IVEC2);
 
-            def.function("textureProjOffset", gvec4, gsampler1D, VEC2, INT);
-            def.function("textureProjOffset", gvec4, gsampler1D, VEC2, INT, FLOAT);
-            def.function("textureProjOffset", gvec4, gsampler1D, VEC4, INT);
-            def.function("textureProjOffset", gvec4, gsampler1D, VEC4, INT, FLOAT);
-            def.function("textureProjOffset", gvec4, gsampler2D, VEC3, IVEC2);
-            def.function("textureProjOffset", gvec4, gsampler2D, VEC3, IVEC2, FLOAT);
-            def.function("textureProjOffset", gvec4, gsampler2D, VEC4, IVEC2);
-            def.function("textureProjOffset", gvec4, gsampler2D, VEC4, IVEC2, FLOAT);
-            def.function("textureProjOffset", gvec4, gsampler3D, VEC4, IVEC3);
-            def.function("textureProjOffset", gvec4, gsampler3D, VEC4, IVEC3, FLOAT);
-            def.function("textureProjOffset", gvec4, gsampler2DRect, VEC3, IVEC2);
-            def.function("textureProjOffset", gvec4, gsampler2DRect, VEC4, IVEC2);
+            def.function("textureProjOffset", gvec4, gsampler1d, VEC2, INT);
+            def.function("textureProjOffset", gvec4, gsampler1d, VEC2, INT, FLOAT);
+            def.function("textureProjOffset", gvec4, gsampler1d, VEC4, INT);
+            def.function("textureProjOffset", gvec4, gsampler1d, VEC4, INT, FLOAT);
+            def.function("textureProjOffset", gvec4, gsampler2d, VEC3, IVEC2);
+            def.function("textureProjOffset", gvec4, gsampler2d, VEC3, IVEC2, FLOAT);
+            def.function("textureProjOffset", gvec4, gsampler2d, VEC4, IVEC2);
+            def.function("textureProjOffset", gvec4, gsampler2d, VEC4, IVEC2, FLOAT);
+            def.function("textureProjOffset", gvec4, gsampler3d, VEC4, IVEC3);
+            def.function("textureProjOffset", gvec4, gsampler3d, VEC4, IVEC3, FLOAT);
+            def.function("textureProjOffset", gvec4, gsampler2dRect, VEC3, IVEC2);
+            def.function("textureProjOffset", gvec4, gsampler2dRect, VEC4, IVEC2);
 
-            def.function("textureLodOffset", gvec4, gsampler1D, FLOAT, FLOAT, INT);
-            def.function("textureLodOffset", gvec4, gsampler2D, VEC2, FLOAT, IVEC2);
-            def.function("textureLodOffset", gvec4, gsampler3D, VEC3, FLOAT, IVEC3);
-            def.function("textureLodOffset", gvec4, gsampler1DArray, VEC2, FLOAT, INT);
-            def.function("textureLodOffset", gvec4, gsampler2DArray, VEC3, FLOAT, IVEC2);
+            def.function("textureLodOffset", gvec4, gsampler1d, FLOAT, FLOAT, INT);
+            def.function("textureLodOffset", gvec4, gsampler2d, VEC2, FLOAT, IVEC2);
+            def.function("textureLodOffset", gvec4, gsampler3d, VEC3, FLOAT, IVEC3);
+            def.function("textureLodOffset", gvec4, gsampler1dArray, VEC2, FLOAT, INT);
+            def.function("textureLodOffset", gvec4, gsampler2dArray, VEC3, FLOAT, IVEC2);
 
-            def.function("textureProjLod", gvec4, gsampler1D, VEC2, FLOAT);
-            def.function("textureProjLod", gvec4, gsampler1D, VEC4, FLOAT);
-            def.function("textureProjLod", gvec4, gsampler2D, VEC3, FLOAT);
-            def.function("textureProjLod", gvec4, gsampler2D, VEC4, FLOAT);
-            def.function("textureProjLod", gvec4, gsampler3D, VEC4, FLOAT);
+            def.function("textureProjLod", gvec4, gsampler1d, VEC2, FLOAT);
+            def.function("textureProjLod", gvec4, gsampler1d, VEC4, FLOAT);
+            def.function("textureProjLod", gvec4, gsampler2d, VEC3, FLOAT);
+            def.function("textureProjLod", gvec4, gsampler2d, VEC4, FLOAT);
+            def.function("textureProjLod", gvec4, gsampler3d, VEC4, FLOAT);
 
-            def.function("textureProjLodOffset", gvec4, gsampler1D, VEC2, FLOAT, INT);
-            def.function("textureProjLodOffset", gvec4, gsampler1D, VEC4, FLOAT, INT);
-            def.function("textureProjLodOffset", gvec4, gsampler2D, VEC3, FLOAT, IVEC2);
-            def.function("textureProjLodOffset", gvec4, gsampler2D, VEC4, FLOAT, IVEC2);
-            def.function("textureProjLodOffset", gvec4, gsampler3D, VEC4, FLOAT, IVEC3);
+            def.function("textureProjLodOffset", gvec4, gsampler1d, VEC2, FLOAT, INT);
+            def.function("textureProjLodOffset", gvec4, gsampler1d, VEC4, FLOAT, INT);
+            def.function("textureProjLodOffset", gvec4, gsampler2d, VEC3, FLOAT, IVEC2);
+            def.function("textureProjLodOffset", gvec4, gsampler2d, VEC4, FLOAT, IVEC2);
+            def.function("textureProjLodOffset", gvec4, gsampler3d, VEC4, FLOAT, IVEC3);
 
-            def.function("textureGrad", gvec4, gsampler1D, FLOAT, FLOAT, FLOAT);
-            def.function("textureGrad", gvec4, gsampler2D, VEC2, VEC2, VEC2);
-            def.function("textureGrad", gvec4, gsampler3D, VEC3, VEC3, VEC3);
+            def.function("textureGrad", gvec4, gsampler1d, FLOAT, FLOAT, FLOAT);
+            def.function("textureGrad", gvec4, gsampler2d, VEC2, VEC2, VEC2);
+            def.function("textureGrad", gvec4, gsampler3d, VEC3, VEC3, VEC3);
             def.function("textureGrad", gvec4, gsamplerCube, VEC3, VEC3, VEC3);
-            def.function("textureGrad", gvec4, gsampler2DRect, VEC2, VEC2, VEC2);
-            def.function("textureGrad", gvec4, gsampler1DArray, VEC2, FLOAT, FLOAT);
-            def.function("textureGrad", gvec4, gsampler2DArray, VEC3, VEC2, VEC2);
+            def.function("textureGrad", gvec4, gsampler2dRect, VEC2, VEC2, VEC2);
+            def.function("textureGrad", gvec4, gsampler1dArray, VEC2, FLOAT, FLOAT);
+            def.function("textureGrad", gvec4, gsampler2dArray, VEC3, VEC2, VEC2);
             def.function("textureGrad", gvec4, gsamplerCubeArray, VEC4, VEC3, VEC3);
 
-            def.function("textureGradOffset", gvec4, gsampler1D, FLOAT, FLOAT, FLOAT, INT);
-            def.function("textureGradOffset", gvec4, gsampler2D, VEC2, VEC2, VEC2, IVEC2);
-            def.function("textureGradOffset", gvec4, gsampler3D, VEC3, VEC3, VEC3, IVEC3);
-            def.function("textureGradOffset", gvec4, gsampler2DRect, VEC2, VEC2, VEC2, IVEC2);
-            def.function("textureGradOffset", gvec4, gsampler1DArray, VEC2, FLOAT, FLOAT, INT);
-            def.function("textureGradOffset", gvec4, gsampler2DArray, VEC3, VEC2, VEC2, IVEC2);
+            def.function("textureGradOffset", gvec4, gsampler1d, FLOAT, FLOAT, FLOAT, INT);
+            def.function("textureGradOffset", gvec4, gsampler2d, VEC2, VEC2, VEC2, IVEC2);
+            def.function("textureGradOffset", gvec4, gsampler3d, VEC3, VEC3, VEC3, IVEC3);
+            def.function("textureGradOffset", gvec4, gsampler2dRect, VEC2, VEC2, VEC2, IVEC2);
+            def.function("textureGradOffset", gvec4, gsampler1dArray, VEC2, FLOAT, FLOAT, INT);
+            def.function("textureGradOffset", gvec4, gsampler2dArray, VEC3, VEC2, VEC2, IVEC2);
 
-            def.function("textureProjGrad", gvec4, gsampler1D, VEC2, FLOAT, FLOAT);
-            def.function("textureProjGrad", gvec4, gsampler1D, VEC4, FLOAT, FLOAT);
-            def.function("textureProjGrad", gvec4, gsampler2D, VEC2, VEC2, VEC2);
-            def.function("textureProjGrad", gvec4, gsampler2D, VEC4, VEC2, VEC2);
-            def.function("textureProjGrad", gvec4, gsampler3D, VEC4, VEC3, VEC3);
-            def.function("textureProjGrad", gvec4, gsampler2DRect, VEC3, VEC2, VEC2);
-            def.function("textureProjGrad", gvec4, gsampler2DRect, VEC4, VEC2, VEC2);
+            def.function("textureProjGrad", gvec4, gsampler1d, VEC2, FLOAT, FLOAT);
+            def.function("textureProjGrad", gvec4, gsampler1d, VEC4, FLOAT, FLOAT);
+            def.function("textureProjGrad", gvec4, gsampler2d, VEC2, VEC2, VEC2);
+            def.function("textureProjGrad", gvec4, gsampler2d, VEC4, VEC2, VEC2);
+            def.function("textureProjGrad", gvec4, gsampler3d, VEC4, VEC3, VEC3);
+            def.function("textureProjGrad", gvec4, gsampler2dRect, VEC3, VEC2, VEC2);
+            def.function("textureProjGrad", gvec4, gsampler2dRect, VEC4, VEC2, VEC2);
 
-            def.function("textureProjGradOffset", gvec4, gsampler1D, VEC2, FLOAT, FLOAT, INT);
-            def.function("textureProjGradOffset", gvec4, gsampler1D, VEC4, FLOAT, FLOAT, INT);
-            def.function("textureProjGradOffset", gvec4, gsampler2D, VEC2, VEC2, VEC2, IVEC2);
-            def.function("textureProjGradOffset", gvec4, gsampler2D, VEC4, VEC2, VEC2, IVEC2);
-            def.function("textureProjGradOffset", gvec4, gsampler3D, VEC4, VEC3, VEC3, IVEC3);
-            def.function("textureProjGradOffset", gvec4, gsampler2DRect, VEC3, VEC2, VEC2, IVEC2);
-            def.function("textureProjGradOffset", gvec4, gsampler2DRect, VEC4, VEC2, VEC2, IVEC2);
-
-        }
+            def.function("textureProjGradOffset", gvec4, gsampler1d, VEC2, FLOAT, FLOAT, INT);
+            def.function("textureProjGradOffset", gvec4, gsampler1d, VEC4, FLOAT, FLOAT, INT);
+            def.function("textureProjGradOffset", gvec4, gsampler2d, VEC2, VEC2, VEC2, IVEC2);
+            def.function("textureProjGradOffset", gvec4, gsampler2d, VEC4, VEC2, VEC2, IVEC2);
+            def.function("textureProjGradOffset", gvec4, gsampler3d, VEC4, VEC3, VEC3, IVEC3);
+            def.function("textureProjGradOffset", gvec4, gsampler2dRect, VEC3, VEC2, VEC2, IVEC2);
+            def.function("textureProjGradOffset", gvec4, gsampler2dRect, VEC4, VEC2, VEC2, IVEC2);
+        });
 
         def.function("texture", FLOAT, SAMPLER1DSHADOW, VEC3);
         def.function("texture", FLOAT, SAMPLER1DSHADOW, VEC3, FLOAT);
@@ -278,10 +267,102 @@ public class TextureFunctionSet implements FunctionSet {
         def.function("textureProjGradOffset", FLOAT, SAMPLER2DRECTSHADOW, VEC4, VEC2, VEC2, IVEC2);
 
         // Texture Gather Functions
+        GenTypes.iterateFUI((gscalar, gvec2, gvec3, gvec4, gsampler1d, gsampler2d, gsampler3d, gsamplerCube,
+                             gsampler2dRect, gsampler2dMS, gsamplerBuffer, gsampler1dArray, gsampler2dArray,
+                             gsamplerCubeArray, gsampler2dMSArray) -> {
 
-        // Derivative Functions
-        def.function("dFdx", GenFType, GenFType);
-        def.function("dFdy", GenFType, GenFType);
-        def.function("fwidth", GenFType, GenFType);
+            def.function("textureGather", gvec4, gsampler2d, VEC2);
+            def.function("textureGather", gvec4, gsampler2d, VEC2, INT);
+            def.function("textureGather", gvec4, gsampler2dArray, VEC3);
+            def.function("textureGather", gvec4, gsampler2dArray, VEC3, INT);
+            def.function("textureGather", gvec4, gsamplerCube, VEC3);
+            def.function("textureGather", gvec4, gsamplerCube, VEC3, INT);
+            def.function("textureGather", gvec4, gsamplerCubeArray, VEC4);
+            def.function("textureGather", gvec4, gsamplerCubeArray, VEC4, INT);
+            def.function("textureGather", gvec4, gsampler2dRect, VEC2);
+            def.function("textureGather", gvec4, gsampler2dRect, VEC2, INT);
+
+            def.function("textureGatherOffset", gvec4, gsampler2d, VEC2, IVEC2);
+            def.function("textureGatherOffset", gvec4, gsampler2d, VEC2, IVEC2, INT);
+            def.function("textureGatherOffset", gvec4, gsampler2dArray, VEC3, IVEC2);
+            def.function("textureGatherOffset", gvec4, gsampler2dArray, VEC3, IVEC2, INT);
+            def.function("textureGatherOffset", gvec4, gsampler2dRect, VEC2, IVEC2);
+            def.function("textureGatherOffset", gvec4, gsampler2dRect, VEC2, IVEC2, INT);
+
+            def.function("textureGatherOffsets", gvec4, gsampler2d, VEC2, array(IVEC2, 4));
+            def.function("textureGatherOffsets", gvec4, gsampler2d, VEC2, array(IVEC2, 4), INT);
+            def.function("textureGatherOffsets", gvec4, gsampler2dArray, VEC3, array(IVEC2, 4));
+            def.function("textureGatherOffsets", gvec4, gsampler2dArray, VEC3, array(IVEC2, 4), INT);
+            def.function("textureGatherOffsets", gvec4, gsampler2dRect, VEC2, array(IVEC2, 4));
+            def.function("textureGatherOffsets", gvec4, gsampler2dRect, VEC2, array(IVEC2, 4), INT);
+
+        });
+
+        def.function("textureGather", FLOAT, SAMPLER2DSHADOW, VEC2, FLOAT);
+        def.function("textureGather", FLOAT, SAMPLERCUBESHADOW, VEC3, FLOAT);
+        def.function("textureGather", FLOAT, SAMPLER2DARRAYSHADOW, VEC3, FLOAT);
+        def.function("textureGather", FLOAT, SAMPLERCUBEARRAYSHADOW, VEC4, FLOAT);
+        def.function("textureGather", FLOAT, SAMPLER2DRECTSHADOW, VEC2, FLOAT);
+
+        def.function("textureGatherOffset", FLOAT, SAMPLER2DSHADOW, VEC2, FLOAT, IVEC2);
+        def.function("textureGatherOffset", FLOAT, SAMPLER2DARRAYSHADOW, VEC3, FLOAT, IVEC2);
+        def.function("textureGatherOffset", FLOAT, SAMPLER2DRECTSHADOW, VEC2, FLOAT, IVEC2);
+
+        def.function("textureGatherOffsets", FLOAT, SAMPLER2DSHADOW, VEC2, FLOAT, array(IVEC2, 4));
+        def.function("textureGatherOffsets", FLOAT, SAMPLER2DARRAYSHADOW, VEC3, FLOAT, array(IVEC2, 4));
+        def.function("textureGatherOffsets", FLOAT, SAMPLER2DRECTSHADOW, VEC2, FLOAT, array(IVEC2, 4));
+
+        // Compatibility Profile Texture Functions
+        if (profile == GLSLProfile.COMPATIBILITY) {
+            def.function("texture1D", VEC4, SAMPLER1D, FLOAT);
+            def.function("texture1D", VEC4, SAMPLER1D, FLOAT, FLOAT);
+            def.function("texture1DProj", VEC4, SAMPLER1D, VEC2);
+            def.function("texture1DProj", VEC4, SAMPLER1D, VEC2, FLOAT);
+            def.function("texture1DProj", VEC4, SAMPLER1D, VEC4);
+            def.function("texture1DProj", VEC4, SAMPLER1D, VEC2, FLOAT);
+            def.function("texture1DLod", VEC4, SAMPLER1D, FLOAT, FLOAT);
+            def.function("texture1DProjLod", VEC4, SAMPLER1D, VEC2, FLOAT);
+            def.function("texture1DProjLod", VEC4, SAMPLER1D, VEC2, FLOAT);
+
+            def.function("texture2D", VEC4, SAMPLER2D, VEC2);
+            def.function("texture2D", VEC4, SAMPLER2D, VEC2, FLOAT);
+            def.function("texture2DProj", VEC4, SAMPLER2D, VEC3);
+            def.function("texture2DProj", VEC4, SAMPLER2D, VEC3, FLOAT);
+            def.function("texture2DProj", VEC4, SAMPLER2D, VEC4);
+            def.function("texture2DProj", VEC4, SAMPLER2D, VEC2, FLOAT);
+            def.function("texture2DLod", VEC4, SAMPLER2D, VEC2, FLOAT);
+            def.function("texture2DProjLod", VEC4, SAMPLER2D, VEC3, FLOAT);
+            def.function("texture2DProjLod", VEC4, SAMPLER2D, VEC4, FLOAT);
+
+            def.function("texture3D", VEC4, SAMPLER3D, VEC3);
+            def.function("texture3D", VEC4, SAMPLER3D, VEC3, FLOAT);
+            def.function("texture3DProj", VEC4, SAMPLER3D, VEC4);
+            def.function("texture3DProj", VEC4, SAMPLER3D, VEC4, FLOAT);
+            def.function("texture3DLod", VEC4, SAMPLER3D, VEC3);
+            def.function("texture3DProjLod", VEC4, SAMPLER3D, VEC4, FLOAT);
+
+            def.function("textureCube", VEC4, SAMPLERCUBE, VEC3);
+            def.function("textureCube", VEC4, SAMPLERCUBE, VEC3, FLOAT);
+            def.function("textureCubeLod", VEC4, SAMPLERCUBE, VEC3, FLOAT);
+
+            def.function("shadow1D", VEC4, SAMPLER1DSHADOW, VEC3);
+            def.function("shadow1D", VEC4, SAMPLER1DSHADOW, VEC3, FLOAT);
+            def.function("shadow2D", VEC4, SAMPLER2DSHADOW, VEC3);
+            def.function("shadow2D", VEC4, SAMPLER2DSHADOW, VEC3, FLOAT);
+
+            def.function("shadow1DProj", VEC4, SAMPLER1DSHADOW, VEC4);
+            def.function("shadow1DProj", VEC4, SAMPLER1DSHADOW, VEC4, FLOAT);
+            def.function("shadow2DProj", VEC4, SAMPLER2DSHADOW, VEC4);
+            def.function("shadow2DProj", VEC4, SAMPLER2DSHADOW, VEC4, FLOAT);
+
+            def.function("shadow1DLod", VEC4, SAMPLER1DSHADOW, VEC3, FLOAT);
+            def.function("shadow2DLod", VEC4, SAMPLER2DSHADOW, VEC3, FLOAT);
+            def.function("shadow1DProjLod", VEC4, SAMPLER1DSHADOW, VEC4, FLOAT);
+            def.function("shadow2DProjLod", VEC4, SAMPLER2DSHADOW, VEC4, FLOAT);
+        }
+    }
+
+    private ArrayType array(PredefinedType type, int size) {
+        return new ArrayType(type, size);
     }
 }

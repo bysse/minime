@@ -17,7 +17,7 @@ class GenTypeIteratorTest {
     @Test
     @DisplayName("Test fixed function")
     void testFixed() {
-        List<PredefinedType[]> list = collect(new GenTypeIterator(INT, INT));
+        List<GLSLType[]> list = collect(new GenTypeIterator(INT, INT));
         assertEquals(1, list.size());
         equals(list.get(0), INT, INT);
     }
@@ -25,7 +25,7 @@ class GenTypeIteratorTest {
     @Test
     @DisplayName("Test single GenType")
     void testGenType() {
-        List<PredefinedType[]> list = collect(new GenTypeIterator(INT, GenTypes.GenFType));
+        List<GLSLType[]> list = collect(new GenTypeIterator(INT, GenTypes.GenFType));
         assertEquals(4, list.size());
         equals(list.get(0), INT, FLOAT);
         equals(list.get(1), INT, VEC2);
@@ -43,7 +43,7 @@ class GenTypeIteratorTest {
     @Test
     @DisplayName("Test multiple GenTypes")
     void testGenTypes() {
-        List<PredefinedType[]> list = collect(new GenTypeIterator(GenTypes.GenFType, INT, GenTypes.GenFVectorType));
+        List<GLSLType[]> list = collect(new GenTypeIterator(GenTypes.GenFType, INT, GenTypes.GenFVectorType));
         assertEquals(12, list.size());
 
         equals(list.get(0), FLOAT, INT, VEC2);
@@ -60,8 +60,8 @@ class GenTypeIteratorTest {
         equals(list.get(11), VEC4, INT, VEC4);
     }
 
-    private List<PredefinedType[]> collect(GenTypeIterator iterator) {
-        final List<PredefinedType[]> list = new ArrayList<>();
+    private List<GLSLType[]> collect(GenTypeIterator iterator) {
+        final List<GLSLType[]> list = new ArrayList<>();
         int escape = 100;
         while (iterator.hasNext()) {
             list.add(iterator.next());
@@ -75,7 +75,7 @@ class GenTypeIteratorTest {
         return list;
     }
 
-    private void equals(PredefinedType[] actual, PredefinedType... expected) {
+    private void equals(GLSLType[] actual, GLSLType... expected) {
         assertEquals(expected.length, actual.length);
         assertArrayEquals(expected, actual);
     }

@@ -2,10 +2,10 @@ package com.tazadum.glsl.language.function;
 
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.GenTypeIterator;
-import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;
@@ -56,13 +56,39 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
     @Override
     public void function(String identifier, Object... parameterTypes) {
         final GenTypeIterator iterator = new GenTypeIterator(parameterTypes);
-        while (iterator.hasNext()) {
-            final PredefinedType[] parameters = iterator.next();
-            final PredefinedType returnType = parameters[0];
-            final PredefinedType[] arguments = Arrays.copyOfRange(parameters, 1, parameters.length);
 
-            final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePosition.TOP, identifier, new FullySpecifiedType(returnType));
-            node.setPrototype(new FunctionPrototype(true, returnType, arguments));
+        while (iterator.hasNext()) {
+            final GLSLType[] parameters = iterator.next();
+            final GLSLType returnType = parameters[0];
+            final GLSLType[] params = Arrays.copyOfRange(parameters, 1, parameters.length);
+
+            final FunctionPrototypeNode node = new FunctionPrototypeNode(
+                SourcePosition.TOP,
+                identifier,
+                new FullySpecifiedType(returnType)
+            );
+
+            StorageQualifier[] qualifiers = null;
+            boolean foundQualifier = false;
+            for (int i = 0; i < params.length; i++) {
+                if (params[i] instanceof GenTypeIterator.OutWrapper) {
+                    params[i] = params[i].baseType();
+                    foundQualifier = true;
+                }
+            }
+
+            if (foundQualifier) {
+                qualifiers = new StorageQualifier[params.length];
+                for (int i = 0; i < params.length; i++) {
+                    if (params[i] instanceof GenTypeIterator.OutWrapper) {
+                        qualifiers[i] = StorageQualifier.OUT;
+                    } else {
+                        qualifiers[i] = StorageQualifier.IN;
+                    }
+                }
+            }
+
+            node.setPrototype(new FunctionPrototype(true, returnType, params, qualifiers));
 
             function(node);
         }
