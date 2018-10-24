@@ -3,6 +3,7 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
@@ -15,6 +16,7 @@ import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
@@ -52,6 +54,9 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             parameterTypes[i] = node.getChild(i).accept(this);
         }
 
+        final PredefinedType functionNameType = HasToken.fromString(node.getIdentifier().original(), PredefinedType.values());
+        final ArraySpecifiers arraySpecifiers = node.getArraySpecifiers();
+
         final FunctionPrototypeNode prototypeNode = parserContext.getFunctionRegistry().resolve(node.getIdentifier(), parameterTypes);
         if (prototypeNode == null) {
             String functionName = node.getIdentifier().original();
@@ -61,7 +66,36 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         node.setDeclarationNode(prototypeNode);
         parserContext.getFunctionRegistry().registerFunctionCall(prototypeNode, node);
 
-        return prototypeNode.getReturnType().getType();
+        if (functionNameType != null && arraySpecifiers != null) {
+            // this is an array construction
+            int size = 1;
+            boolean specifiedSize = true;
+            for (ArraySpecifier specifier : arraySpecifiers.getSpecifiers()) {
+                if (!specifier.hasDimension()) {
+                    specifiedSize = false;
+                    break;
+                }
+                size *= specifier.getDimension();
+            }
+
+            if (!specifiedSize && arraySpecifiers.getSpecifiers().size() > 1) {
+                throw new SourcePositionException(node, NOT_SUPPORTED("Multi level array constructors must have specified size."));
+            }
+
+            if (specifiedSize) {
+                if (node.getChildCount() < size) {
+                    throw new SourcePositionException(node, SYNTAX_ERROR(node.getIdentifier().original(), INITIALIZER_TOO_BIG));
+                }
+                if (node.getChildCount() > size) {
+                    throw new SourcePositionException(node, SYNTAX_ERROR(node.getIdentifier().original(), INITIALIZER_TOO_SMALL));
+                }
+            } else {
+                ArraySpecifier first = arraySpecifiers.getSpecifiers().remove(0);
+                arraySpecifiers.addSpecifier(new ArraySpecifier(first.getSourcePosition(), size));
+            }
+        }
+
+        return node.getType();
     }
 
     @Override
@@ -182,11 +216,22 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         final GLSLType expressionType = node.getExpression().accept(this);
         final GLSLType indexType = node.getIndex().accept(this);
 
+        if (TypeCombination.ofCategory(Vector, expressionType)) {
+            if (!TypeCombination.anyOf(indexType, INT, UINT)) {
+                throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, VECTOR_INDEX_NOT_INT));
+            }
+            return expressionType.baseType();
+        }
+
         if (TypeCombination.ofCategory(Matrix, expressionType)) {
             if (!TypeCombination.anyOf(indexType, INT, UINT)) {
                 throw new SourcePositionException(node.getIndex(), INCOMPATIBLE_TYPE(indexType, MATRIX_INDEX_NOT_INT));
             }
-            return expressionType.baseType();
+
+            final GLSLType baseType = expressionType.baseType();
+            final int components = ((PredefinedType) expressionType).rows();
+
+            return PredefinedType.find((type) -> type.baseType() == baseType && type.components() == components);
         }
 
         if (expressionType instanceof ArrayType) {

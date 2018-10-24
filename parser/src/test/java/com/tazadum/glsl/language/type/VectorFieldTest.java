@@ -16,6 +16,7 @@ class VectorFieldTest {
     @Test
     @DisplayName("test simple")
     public void test_1() throws NoSuchFieldException, TypeException {
+        assertEquals(FLOAT, new VectorField(FLOAT, "x").getType());
         assertEquals(VEC3, new VectorField(VEC3, "xyz").getType());
         assertEquals(VEC4, new VectorField(VEC3, "rgbr").getType());
         assertEquals(VEC2, new VectorField(VEC3, "tp").getType());

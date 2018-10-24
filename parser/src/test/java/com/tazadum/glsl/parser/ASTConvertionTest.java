@@ -25,6 +25,7 @@ class ASTConvertionTest {
                 "struct S{struct T{struct U{float v;} u;} t;} s={{{1}}};int a[1];"),
             sameOutput("struct S{float f;};"),
             sameOutput("struct S{float a,b;};S create(){S s={1,2};return s;}"),
+            sameOutput("float[] a=float[2](1,2);"),
             differentOutput(
                 "const int[] a={1,1,2};\nint b[a[1+1]+1]={1,2,3};",
                 "int[] a={1,1,2};int b[3]={1,2,3};"

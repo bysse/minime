@@ -5,22 +5,30 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
 public class FunctionCallNode extends ParentNode implements HasConstState {
     private Identifier identifier;
+    private ArraySpecifiers arraySpecifiers;
     private FunctionPrototypeNode declarationNode;
     private boolean constant;
 
     public FunctionCallNode(SourcePosition position, String functionName) {
-        super(position);
-        this.identifier = new Identifier(functionName);
+        this(position, functionName, null);
     }
 
-    public FunctionCallNode(SourcePosition position, ParentNode parentNode, Identifier identifier) {
+    public FunctionCallNode(SourcePosition position, String functionName, ArraySpecifiers arraySpecifiers) {
+        super(position);
+        this.identifier = new Identifier(functionName);
+        this.arraySpecifiers = arraySpecifiers;
+    }
+
+    public FunctionCallNode(SourcePosition position, ParentNode parentNode, Identifier identifier, ArraySpecifiers arraySpecifiers) {
         super(position, parentNode);
         this.identifier = identifier;
+        this.arraySpecifiers = arraySpecifiers;
     }
 
     public Identifier getIdentifier() {
@@ -28,6 +36,10 @@ public class FunctionCallNode extends ParentNode implements HasConstState {
             return declarationNode.getIdentifier();
         }
         return identifier;
+    }
+
+    public ArraySpecifiers getArraySpecifiers() {
+        return arraySpecifiers;
     }
 
     public void setDeclarationNode(FunctionPrototypeNode declarationNode) {
@@ -55,7 +67,7 @@ public class FunctionCallNode extends ParentNode implements HasConstState {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(getSourcePosition(), newParent, identifier));
+        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(getSourcePosition(), newParent, identifier, arraySpecifiers));
         // we don't clone the declaration here
         clone.setDeclarationNode(declarationNode);
         return clone;

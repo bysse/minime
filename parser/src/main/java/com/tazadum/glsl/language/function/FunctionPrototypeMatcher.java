@@ -36,6 +36,29 @@ public class FunctionPrototypeMatcher {
     }
 
     /**
+     * Returns the number of parameters in the matcher.
+     */
+    public int getParameterCount() {
+        return parameterTypes.length;
+    }
+
+    /**
+     * Returns the list of parameter types.
+     */
+    public GLSLType[] getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public boolean hasWildcards() {
+        for (GLSLType parameterType : parameterTypes) {
+            if (parameterType == null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
      * Tests if a function prototype/call matches a prototype.
      *
      * @param prototype The prototype/call to test.

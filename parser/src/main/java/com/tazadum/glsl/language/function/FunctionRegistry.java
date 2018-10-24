@@ -28,12 +28,19 @@ public interface FunctionRegistry {
     /**
      * Searches for a function prototype based on the parameters and identifier.
      *
-     * @param identifier Identifier of the function
-     * @param parameters The parameter types.
+     * @param identifier      Identifier of the function
+     * @param parameters      The parameter types.
      * @return A FunctionPrototypeNode or null if no function was found.
      */
     FunctionPrototypeNode resolve(Identifier identifier, GLSLType... parameters);
 
+    /**
+     * Searches for a function prototype based on the parameters and identifier.
+     *
+     * @param identifier       Identifier of the function
+     * @param prototypeMatcher The prototype matcher for the call.
+     * @return A FunctionPrototypeNode or null if no function was found.
+     */
     FunctionPrototypeNode resolve(Identifier identifier, FunctionPrototypeMatcher prototypeMatcher);
 
     List<FunctionPrototypeNode> resolve(String identifier, Identifier.Mode mode);

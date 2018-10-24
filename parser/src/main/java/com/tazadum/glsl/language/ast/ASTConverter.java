@@ -259,7 +259,27 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_call_header(GLSLParser.Function_call_headerContext ctx) {
-        throw new BadImplementationException();
+        final GLSLParser.Type_specifierContext context = ctx.function_identifier().type_specifier();
+        final SourcePosition position = SourcePosition.create(context.start);
+        final GLSLParser.Type_specifier_no_arrayContext specifierCtx = context.type_specifier_no_array();
+
+        String functionName = null;
+        if (specifierCtx.struct_specifier() != null) {
+            throw new SourcePositionException(position, SYNTAX_ERROR(INVALID_STRUCT_DECLARATION));
+        } else if (specifierCtx.IDENTIFIER() != null) {
+            // this is a reference to a function name or struct constructor
+            functionName = specifierCtx.IDENTIFIER().getText();
+        } else {
+            // the type is a predefined type constructor
+            functionName = specifierCtx.getText();
+        }
+
+        if (context.array_specifier() != null) {
+            ArraySpecifierNode arraySpecifier = (ArraySpecifierNode) context.array_specifier().accept(this);
+            return new FunctionCallNode(position, functionName, arraySpecifier.getArraySpecifiers());
+        }
+
+        return new FunctionCallNode(position, functionName);
     }
 
     @Override
@@ -926,28 +946,21 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     @Override
     public Node visitFunction_call(GLSLParser.Function_callContext ctx) {
-        final SourcePosition position = SourcePosition.create(ctx.start);
-        final String functionName = ctx.function_call_header().function_identifier().getText();
-
-        if (functionName.indexOf(' ') >= 0 || functionName.indexOf('{') >= 0) {
-            throw new BadImplementationException("Wacky function name not supported '" + functionName + "'");
-        }
-
-        final FunctionCallNode functionCallNode = new FunctionCallNode(position, functionName);
-
-        boolean allArgumentsAreConst = true;
+        final FunctionCallNode functionCallNode = NodeUtil.cast(ctx.function_call_header().accept(this));
 
         // check if the function call has arguments
+        boolean allArgumentsAreConst = true;
         if (ctx.VOID() == null) {
             for (GLSLParser.Assignment_expressionContext argCtx : ctx.assignment_expression()) {
-                // parse each argument and mAdd them to the function
+                // parse each argument and add them to the function
                 final Node argument = argCtx.accept(this);
                 allArgumentsAreConst &= isConst(argument);
                 functionCallNode.addChild(argument);
             }
         }
 
-        if (allArgumentsAreConst) {
+        if (allArgumentsAreConst && functionCallNode.getArraySpecifiers() == null) {
+            final String functionName = functionCallNode.getIdentifier().original();
             final ConstFunction constFunction = HasToken.fromString(functionName, ConstFunction.values());
             if (constFunction != null) {
                 functionCallNode.setConstant(true);

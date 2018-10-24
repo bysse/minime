@@ -77,7 +77,7 @@ Date    Hours
 2018-10-21  6.0 Fixing variable references when const expressions are substituted and a lot of type checking.
 2018-10-22  6.0 Going through all built-in functions and variables and registering them.
 2018-10-23  6.5 Breaking apart custom functions and built-in function to optimize ParserContext creation.
-2018-10-24  2.5 All functions encoded!
+2018-10-24  4.5 All functions encoded! Added support for array constructors for PredefinedTypes.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -87,6 +87,11 @@ Date    Hours
 // TODO: Add more complex arithmetic simplifications
 
 // TODO: Fix type checking !!
-// TODO: Verify all built-in functions
 // TODO: Check all constructor functions
+// TODO: Register constructors when regsitering structure types (section 5.4.3)
 // TODO: add conditional formatting for scientific notation of numeric
+
+
+
+// NOTE: Field selection from different sets is allowed.
+// NOTE: Multi level array constructors must have specified size.

@@ -5,6 +5,8 @@ import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
 
+import java.util.function.Predicate;
+
 import static com.tazadum.glsl.exception.Errors.Coarse.NO_SUCH_FIELD;
 
 
@@ -133,6 +135,15 @@ public enum PredefinedType implements GLSLType, HasToken {
     UIMAGE2DMSARRAY("uimage2DMSArray", GLSLParser.UIMAGE2DMSARRAY, TypeCategory.Opaque);
 
     private static final PredefinedType[] NO_CONVERSION = new PredefinedType[0];
+
+    public static PredefinedType find(Predicate<PredefinedType> predicate) {
+        for (PredefinedType type : values()) {
+            if (predicate.test(type)) {
+                return type;
+            }
+        }
+        return null;
+    }
 
     private final String token;
     private final int id;

@@ -262,6 +262,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     public SourceBuffer visitFunctionCall(FunctionCallNode node) {
         if (node.getIdentifier() != null) {
             buffer.append(config.identifier(node.getIdentifier()));
+            outputArraySpecifier(node.getArraySpecifiers());
         }
         buffer.append('(');
         outputChildCSV(node, 0, node.getChildCount());

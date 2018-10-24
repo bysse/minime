@@ -11,6 +11,10 @@ import static java.lang.String.format;
  */
 public class Errors {
     public static class Coarse {
+        public static String NOT_SUPPORTED(String what) {
+            return "Not Supported! " + what;
+        }
+
         public static String UNKNOWN_SYMBOL(String identifier) {
             return UNKNOWN_SYMBOL(identifier, null);
         }
@@ -22,7 +26,6 @@ public class Errors {
         public static String UNKNOWN_FUNCTION(String identifier, Extras extras) {
             return format("Unknown function '%s'.", identifier) + Extras.format(extras);
         }
-
 
         public static String NO_SUCH_FIELD(String fieldName) {
             return format("No such field '%s'.", fieldName);
@@ -81,6 +84,7 @@ public class Errors {
         ARRAY_INDEX_NOT_INT("Array indices must be expressed as a non-negative integer of type int or uint."),
         ARRAY_INDEX_OUT_OF_BOUNDS("Array indices out of bounds.", "%d >= %d"),
         MATRIX_INDEX_NOT_INT("Matrix column indices must be expressed as a non-negative integer of type int or uint."),
+        VECTOR_INDEX_NOT_INT("Vector row indices must be expressed as a non-negative integer of type int or uint."),
 
         INVALID_STRUCT_DECLARATION("Struct declaration is not valid at this location."),
         INVALID_SWIZZLE("No valid swizzle type could be created."),

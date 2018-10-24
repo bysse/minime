@@ -1,11 +1,11 @@
 package com.tazadum.glsl.language.function;
 
+import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.model.StorageQualifier;
-import com.tazadum.glsl.language.type.FullySpecifiedType;
-import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.language.type.GenTypeIterator;
+import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.parser.TypeCombination;
 import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
     private ConcurrentMap<String, List<FunctionPrototypeNode>> functionMap;
 
     public BuiltInFunctionRegistryImpl() {
-        this.functionMap = new ConcurrentHashMap<>(1000);
+        this.functionMap = new ConcurrentHashMap<>(2500);
     }
 
     @Override
@@ -43,6 +43,27 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
                 if (prototypeMatcher.matches(prototypeNode.getPrototype())) {
                     return prototypeNode;
                 }
+            }
+        }
+
+        final PredefinedType predefinedType = HasToken.fromString(identifier.original(), PredefinedType.values());
+        if (predefinedType != null && !TypeCombination.ofCategory(TypeCategory.Opaque, predefinedType)) {
+            // create array constructor nodes on the fly
+            if (!prototypeMatcher.hasWildcards()) {
+                final GLSLType[] parameterTypes = prototypeMatcher.getParameterTypes();
+                final int parameterCount = prototypeMatcher.getParameterCount();
+                final GLSLType type = new ArrayType(predefinedType, parameterCount);
+
+                final FunctionPrototypeNode prototypeNode = new FunctionPrototypeNode(
+                    SourcePosition.TOP,
+                    identifier.original(),
+                    new FullySpecifiedType(type)
+                );
+                prototypeNode.setPrototype(new FunctionPrototype(true, type, parameterTypes));
+
+                // register the function
+                function(prototypeNode);
+                return prototypeNode;
             }
         }
 
