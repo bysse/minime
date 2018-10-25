@@ -88,6 +88,7 @@ class DefaultPreprocessorTest {
             Arguments.of("test_1.input", "test_1.expected", true),
             Arguments.of("test_2.input", "test_2.expected", true),
             Arguments.of("ifdef_1.input", "ifdef_1.expected", true),
+            Arguments.of("ifdef_2.input", "ifdef_2.expected", true),
             Arguments.of("ifndef_1.input", "ifndef_1.expected", true),
             Arguments.of("fail_1.input", null, false),
             Arguments.of("fail_2.input", null, false)

@@ -16,7 +16,6 @@ import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 import com.tazadum.glsl.util.io.SourceReader;
-import org.antlr.v4.runtime.BailErrorStrategy;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -123,6 +122,7 @@ public class DefaultPreprocessor implements Preprocessor {
                     !declaration.equals("error") &&
                     !declaration.equals("extension") &&
                     !declaration.equals("version") &&
+                    !declaration.equals("ifdef") &&
                     !declaration.equals("define")) {
                     // apply macro expansion
                     line = applyOps(lineNumber, line, matcher.end());
@@ -331,8 +331,7 @@ public class DefaultPreprocessor implements Preprocessor {
             PPLexer lexer = new PPLexer(CharStreams.fromString(sourceLine));
             final PPParser parser = new PPParser(new CommonTokenStream(lexer));
 
-            // TODO: make better bail strategy
-            parser.setErrorHandler(new BailErrorStrategy());
+            parser.setErrorHandler(new PreprocessorBailStrategy());
 
             PreprocessorVisitor visitor = new PreprocessorVisitor(sourceId, state.getLogKeeper());
             PPParser.PreprocessorContext context = parser.preprocessor();
@@ -340,7 +339,7 @@ public class DefaultPreprocessor implements Preprocessor {
         } catch (PreprocessorException e) {
             SourcePosition local = e.getSourcePosition().getPosition();
             SourcePositionId position = SourcePositionId.create(startOfDeclaration + local.getLine(), local.getColumn());
-            throw new PreprocessorException(position, e, "Syntax error");
+            throw new PreprocessorException(position, e, "Syntax error. " + e.getMessage());
         }
     }
 
