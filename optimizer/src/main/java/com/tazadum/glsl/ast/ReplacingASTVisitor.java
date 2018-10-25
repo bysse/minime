@@ -1,27 +1,34 @@
 package com.tazadum.glsl.ast;
 
-import com.tazadum.glsl.ast.arithmetic.*;
-import com.tazadum.glsl.ast.conditional.*;
-import com.tazadum.glsl.ast.expression.AssignmentNode;
-import com.tazadum.glsl.ast.expression.ConstantExpressionNode;
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.iteration.DoWhileIterationNode;
-import com.tazadum.glsl.ast.iteration.ForIterationNode;
-import com.tazadum.glsl.ast.iteration.WhileIterationNode;
-import com.tazadum.glsl.ast.logical.BooleanLeafNode;
-import com.tazadum.glsl.ast.logical.LogicalOperationNode;
-import com.tazadum.glsl.ast.logical.RelationalOperationNode;
-import com.tazadum.glsl.ast.variable.*;
+import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.arithmetic.*;
+import com.tazadum.glsl.language.ast.conditional.*;
+import com.tazadum.glsl.language.ast.expression.AssignmentNode;
+import com.tazadum.glsl.language.ast.expression.ConstantExpressionNode;
+import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.iteration.DoWhileIterationNode;
+import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
+import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
+import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
+import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
+import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
+import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.optimizer.OptimizerBranch;
+import com.tazadum.glsl.util.SourcePosition;
 
 /**
  * Created by Erik on 2016-10-20.
  */
 public class ReplacingASTVisitor implements ASTVisitor<Node> {
-    public static final Node REMOVE = new LeafNode();
+    public static final Node REMOVE = new LeafNode(SourcePosition.TOP);
 
     protected ParserContext parserContext;
     protected Node firstNode;
@@ -29,10 +36,23 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     private boolean dereference;
     private boolean reference;
 
+    /**
+     * Constructs a base visitor.
+     *
+     * @param parserContext The ParserContext to operate in.
+     * @param dereference   Automatically dereference removes node trees.
+     */
     public ReplacingASTVisitor(ParserContext parserContext, boolean dereference) {
         this(parserContext, dereference, dereference);
     }
 
+    /**
+     * Constructs a base visitor.
+     *
+     * @param parserContext The ParserContext to operate in.
+     * @param dereference   Automatically dereference removes node trees.
+     * @param reference     Automatically reference added node trees.
+     */
     public ReplacingASTVisitor(ParserContext parserContext, boolean dereference, boolean reference) {
         this.parserContext = parserContext;
         this.dereference = dereference;
@@ -41,6 +61,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     /**
      * Creates an OptimizerBranch from the first encountered branch and the ParserContext.
+     *
      * @return An instance of OptimizerBranch.
      */
     public OptimizerBranch createBranch() {
@@ -206,12 +227,6 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     }
 
     @Override
-    public Node visitUnaryOperation(UnaryOperationNode node) {
-        processParentNode(node);
-        return null;
-    }
-
-    @Override
     public Node visitPrefixOperation(PrefixOperationNode node) {
         processParentNode(node);
         return null;
@@ -230,14 +245,62 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     }
 
     @Override
-    public Node visitInt(IntLeafNode node) {
+    public Node visitNumeric(NumericLeafNode node) {
         processLeafNode(node);
         return null;
     }
 
     @Override
-    public Node visitFloat(FloatLeafNode node) {
+    public Node visitBitOperation(BitOperationNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitSwitch(SwitchNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitSwitchCase(CaseNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitSwitchDefault(DefaultCaseNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitInitializerList(InitializerListNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node) {
         processLeafNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitStructDeclarationNode(StructDeclarationNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitInterfaceBlockNode(InterfaceBlockNode node) {
+        processParentNode(node);
+        return null;
+    }
+
+    @Override
+    public Node visitTypeDeclaration(TypeDeclarationNode node) {
+        processParentNode(node);
         return null;
     }
 

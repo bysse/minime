@@ -1,8 +1,8 @@
 package com.tazadum.glsl.type;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.Usage;

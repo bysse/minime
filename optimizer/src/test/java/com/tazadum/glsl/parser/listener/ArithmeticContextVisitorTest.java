@@ -1,9 +1,11 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.arithmetic.*;
 import com.tazadum.glsl.language.GLSLParser;
 import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.language.ast.arithmetic.PostfixOperationNode;
+import com.tazadum.glsl.language.ast.arithmetic.PrefixOperationNode;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;
@@ -12,7 +14,6 @@ import org.antlr.v4.runtime.Token;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**

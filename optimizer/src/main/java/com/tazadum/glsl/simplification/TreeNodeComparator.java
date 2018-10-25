@@ -1,22 +1,26 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.output.IdentifierOutput;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.output.OutputVisitor;
-import com.tazadum.glsl.parser.finder.FunctionFinder;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.util.NodeFinder;
+import com.tazadum.glsl.language.output.IdentifierOutputMode;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputVisitor;
 
 public class TreeNodeComparator implements NodeComparator {
     private OutputConfig config;
 
     public TreeNodeComparator() {
-        config = new OutputConfig();
-        config.setIdentifiers(IdentifierOutput.None);
-        config.setMaxDecimals(5);
+        config = new OutputConfigBuilder()
+            .identifierMode(IdentifierOutputMode.None)
+            .significantDecimals(5)
+            .indentation(0)
+            .renderNewLines(false)
+            .build();
     }
 
     @Override
@@ -26,15 +30,13 @@ public class TreeNodeComparator implements NodeComparator {
         }
 
         OutputVisitor visitor = new OutputVisitor(config);
-
-        String sourceA = a.accept(visitor);
-        String sourceB = b.accept(visitor);
-
+        String sourceA = a.accept(visitor).get();
+        String sourceB = b.accept(visitor).get();
         return sourceA.equals(sourceB);
     }
 
     private boolean safeOperations(Node node) {
-        for (FunctionCallNode functionCallNode : FunctionFinder.findFunctionCalls(node)) {
+        for (FunctionCallNode functionCallNode : NodeFinder.findAll(node, FunctionCallNode.class)) {
             final FunctionPrototypeNode declarationNode = functionCallNode.getDeclarationNode();
 
             if (declarationNode.getPrototype().isBuiltIn()) {

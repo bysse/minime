@@ -1,9 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.GLSLOptimizerContext;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
 
@@ -16,14 +16,14 @@ import java.util.stream.Stream;
 public class BranchingOptimizerPipeline implements OptimizerPipeline {
     private final TreePruner treePruner;
     private final OutputConfig outputConfig;
-    private final Output output;
+    private final OutputRenderer output;
     private final List<Optimizer> optimizers;
     private boolean debug;
 
     public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, OptimizerType... types) {
         this.treePruner = treePruner;
         this.outputConfig = outputConfig;
-        this.output = new Output();
+        this.output = new OutputRenderer();
         this.optimizers = Stream.of(types)
                 .map(OptimizerType::instantiate)
                 .collect(Collectors.toList());
@@ -32,7 +32,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
     public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, EnumSet<OptimizerType> types) {
         this.treePruner = treePruner;
         this.outputConfig = outputConfig;
-        this.output = new Output();
+        this.output = new OutputRenderer();
         this.optimizers = types.stream()
                 .map(OptimizerType::instantiate)
                 .collect(Collectors.toList());

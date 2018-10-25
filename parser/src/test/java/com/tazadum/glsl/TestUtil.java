@@ -109,7 +109,7 @@ public class TestUtil {
         VariableRegistry variableRegistry = new VariableRegistryImpl();
         FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(getBuiltInFunctionRegistry(shaderType, profile));
         ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, functionRegistry);
-        parserContext.initialize(shaderType, profile);
+        parserContext.initializeVariables(shaderType, profile);
         return parserContext;
     }
 }

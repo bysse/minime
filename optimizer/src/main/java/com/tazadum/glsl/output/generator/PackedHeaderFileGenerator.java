@@ -1,14 +1,17 @@
 package com.tazadum.glsl.output.generator;// (C) King.com Ltd 2017
 
 import com.tazadum.glsl.GLSLOptimizerContext;
-import com.tazadum.glsl.ast.Identifier;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.language.TypeQualifier;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.output.OutputVisitor;
-import com.tazadum.glsl.parser.GLSLContext;
-import com.tazadum.glsl.parser.variable.VariableRegistry;
-import com.tazadum.glsl.parser.variable.VariableRegistryContext;
+import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.model.StorageQualifier;
+import com.tazadum.glsl.language.output.IdentifierOutputMode;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputVisitor;
+import com.tazadum.glsl.language.type.TypeQualifierList;
+import com.tazadum.glsl.language.variable.VariableRegistry;
+import com.tazadum.glsl.language.variable.VariableRegistryContext;
 
 import java.io.File;
 import java.util.Map;
@@ -20,8 +23,12 @@ public class PackedHeaderFileGenerator implements FileGenerator {
     private boolean multipleShaders;
     private static boolean functionWritten = false;
 
-    public PackedHeaderFileGenerator(String shaderFilename, OutputConfig outputConfig, boolean multipleShaders) {
-        this.outputConfig = new OutputConfig(outputConfig);
+    public PackedHeaderFileGenerator(String shaderFilename, boolean multipleShaders) {
+        this.outputConfig = new OutputConfigBuilder()
+            .renderNewLines(true)
+            .indentation(3)
+            .identifierMode(IdentifierOutputMode.Replaced)
+            .build();
         this.multipleShaders = multipleShaders;
         String name = new File(shaderFilename).getName();
         int index = name.lastIndexOf('.');
@@ -34,13 +41,10 @@ public class PackedHeaderFileGenerator implements FileGenerator {
 
     @Override
     public String generate(GLSLOptimizerContext context, String shaderGLSL) {
-        final boolean keepNewlines = outputConfig.isNewlines();
-        outputConfig.setNewlines(true);
-        outputConfig.setIndentation(3);
-        outputConfig.setCommentWithOriginalIdentifiers(true);
+        final boolean keepNewlines = true;
 
         final OutputVisitor visitor = new OutputVisitor(outputConfig);
-        String shader = context.getNode().accept(visitor);
+        String shader = context.getNode().accept(visitor).get();
 
         String def = "__" + id.toUpperCase() + "__";
 
@@ -65,7 +69,8 @@ public class PackedHeaderFileGenerator implements FileGenerator {
 
             VariableRegistryContext variableContext = entry.getValue();
             for (VariableDeclarationNode declarationNode : variableContext.getVariables()) {
-                if (TypeQualifier.UNIFORM != declarationNode.getFullySpecifiedType().getQualifier()) {
+                TypeQualifierList qualifiers = declarationNode.getFullySpecifiedType().getQualifiers();
+                if (qualifiers != null && qualifiers.contains(StorageQualifier.UNIFORM)) {
                     continue;
                 }
                 Identifier identifier = declarationNode.getIdentifier();

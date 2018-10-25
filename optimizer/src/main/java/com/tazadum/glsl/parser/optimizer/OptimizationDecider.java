@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
 
 /**
  * Created by Erik on 2016-10-20.

@@ -1,13 +1,10 @@
 package com.tazadum.glsl.util;
 
 import com.tazadum.glsl.GLSLOptimizerContext;
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CloneUtilsTest {
     @Test

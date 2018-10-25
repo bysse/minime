@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser.shaders;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import org.junit.jupiter.api.BeforeEach;

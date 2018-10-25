@@ -1056,11 +1056,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         if (ctx.INTCONSTANT() != null) {
             Numeric numeric = Numeric.create(ctx.INTCONSTANT().getText());
-            return new IntLeafNode(position, numeric);
+            return new NumericLeafNode(position, numeric);
         }
         if (ctx.FLOATCONSTANT() != null) {
             Numeric numeric = Numeric.create(ctx.FLOATCONSTANT().getText());
-            return new FloatLeafNode(position, numeric);
+            return new NumericLeafNode(position, numeric);
         }
         if (ctx.BOOLCONSTANT() != null) {
             return new BooleanLeafNode(position, Boolean.valueOf(ctx.BOOLCONSTANT().getText()));

@@ -2,7 +2,7 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.TestUtil;
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.arithmetic.IntLeafNode;
+import com.tazadum.glsl.language.ast.arithmetic.NumericLeafNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
@@ -155,7 +155,7 @@ class ParserTest {
                 new FullySpecifiedType(qualifiers, PredefinedType.INT),
                 "start",
                 null,
-                new IntLeafNode(SourcePosition.TOP, new Numeric(1, 0, PredefinedType.INT)),
+                new NumericLeafNode(SourcePosition.TOP, new Numeric(1, 0, PredefinedType.INT)),
                 null)
         );
 

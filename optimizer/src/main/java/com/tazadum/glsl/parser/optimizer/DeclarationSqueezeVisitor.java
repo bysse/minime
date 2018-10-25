@@ -1,23 +1,22 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
-import com.tazadum.glsl.language.GLSLType;
-import com.tazadum.glsl.language.TypeQualifier;
-import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.util.NodeFinder;
+import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.type.FullySpecifiedType;
+import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.TypeQualifier;
+import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.finder.NodeFinder;
-import com.tazadum.glsl.parser.finder.VariableFinder;
-import com.tazadum.glsl.parser.type.FullySpecifiedType;
-import com.tazadum.glsl.parser.variable.VariableRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -15,12 +15,12 @@ public class ControlFunctionSet implements FunctionSet {
     public void generate(BuiltInFunctionRegistry registry, GLSLProfile profile) {
         BuiltInFunctionRegistry.FunctionDeclarator def = registry.getFunctionDeclarator();
 
-        def.function("memoryBarrier", VOID, VOID);
-        def.function("memoryBarrierAtomicCounter", VOID, VOID);
-        def.function("memoryBarrierBuffer", VOID, VOID);
-        def.function("memoryBarrierShared", VOID, VOID);
-        def.function("memoryBarrierImage", VOID, VOID);
-        def.function("groupMemoryBarrier", VOID, VOID);
+        def.function("memoryBarrier", VOID);
+        def.function("memoryBarrierAtomicCounter", VOID);
+        def.function("memoryBarrierBuffer", VOID);
+        def.function("memoryBarrierShared", VOID);
+        def.function("memoryBarrierImage", VOID);
+        def.function("groupMemoryBarrier", VOID);
 
         def.function("anyInvocation", BOOL, BOOL);
         def.function("allInvocations", BOOL, BOOL);

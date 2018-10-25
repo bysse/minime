@@ -1,8 +1,8 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.type.FullySpecifiedType;
 import com.tazadum.glsl.parser.variable.VariableRegistry;

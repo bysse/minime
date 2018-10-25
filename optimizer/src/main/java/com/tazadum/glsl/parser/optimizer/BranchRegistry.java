@@ -1,6 +1,6 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;

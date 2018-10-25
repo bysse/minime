@@ -1,22 +1,24 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.*;
-import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
-import com.tazadum.glsl.ast.conditional.ReturnNode;
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
-import com.tazadum.glsl.language.BuiltInType;
-import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.ast.ReplacingASTVisitor;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.StatementListNode;
+import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.language.ast.conditional.ReturnNode;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.function.FunctionRegistry;
+import com.tazadum.glsl.language.model.NumericOperator;
+import com.tazadum.glsl.language.type.FullySpecifiedType;
+import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.finder.VariableFinder;
-import com.tazadum.glsl.parser.function.FunctionRegistry;
-import com.tazadum.glsl.parser.type.FullySpecifiedType;
-import com.tazadum.glsl.util.CloneUtils;
 import com.tazadum.glsl.util.IdentifierCreator;
 import com.tazadum.glsl.util.ReplaceUtil;
 
@@ -70,7 +72,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         FullySpecifiedType returnType = node.getFunctionPrototype().getReturnType();
-        if (BuiltInType.VOID.equals(returnType.getType())) {
+        if (PredefinedType.VOID.equals(returnType.getType())) {
             // if the return type is void, we can't inline it
             return null;
         }

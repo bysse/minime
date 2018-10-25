@@ -1,18 +1,17 @@
 package com.tazadum.glsl.util;
 
-import com.tazadum.glsl.ast.DefaultASTVisitor;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParentNode;
-import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
-import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
-import com.tazadum.glsl.ast.conditional.BreakLeafNode;
-import com.tazadum.glsl.ast.conditional.ContinueLeafNode;
-import com.tazadum.glsl.ast.conditional.DiscardLeafNode;
-import com.tazadum.glsl.ast.conditional.ReturnNode;
-import com.tazadum.glsl.ast.logical.BooleanLeafNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.language.ast.DefaultASTVisitor;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.arithmetic.NumericLeafNode;
+import com.tazadum.glsl.language.ast.conditional.BreakLeafNode;
+import com.tazadum.glsl.language.ast.conditional.ContinueLeafNode;
+import com.tazadum.glsl.language.ast.conditional.DiscardLeafNode;
+import com.tazadum.glsl.language.ast.conditional.ReturnNode;
+import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
 
 /**
  * Created by Erik on 2016-10-24.
@@ -67,13 +66,9 @@ public class IdVisitor extends DefaultASTVisitor<Void> {
         return output(node);
     }
 
-    @Override
-    public Void visitInt(IntLeafNode node) {
-        return output(node);
-    }
 
     @Override
-    public Void visitFloat(FloatLeafNode node) {
+    public Void visitNumeric(NumericLeafNode node) {
         return output(node);
     }
 

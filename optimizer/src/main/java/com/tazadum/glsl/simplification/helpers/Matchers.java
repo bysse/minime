@@ -1,15 +1,17 @@
 package com.tazadum.glsl.simplification.helpers;
 
-import com.tazadum.glsl.ast.HasNumeric;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.ParenthesisNode;
-import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
-import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
-import com.tazadum.glsl.language.Numeric;
-import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.NumericLeafNode;
+import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
+import com.tazadum.glsl.language.model.NumericOperator;
+import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.parser.TypeCombination;
 import com.tazadum.glsl.simplification.*;
 
 import java.util.function.Function;
+
+import static com.tazadum.glsl.language.type.PredefinedType.*;
 
 /**
  * Created by Erik on 2018-03-31.
@@ -63,14 +65,14 @@ public class Matchers {
     }
 
     public static NodeMatcher mLiteral(float value) {
-        final Numeric numeric = new Numeric(value, 0, true);
+        final Numeric numeric = new Numeric(value, 0, FLOAT);
         return new NodeMatcher((node) ->
                 node instanceof HasNumeric && numeric.equals(((HasNumeric) node).getValue())
         );
     }
 
     public static NodeMatcher mLiteral(int value) {
-        final Numeric numeric = new Numeric(value, 0, false);
+        final Numeric numeric = new Numeric(value, 0, INT);
         return new NodeMatcher((node) ->
                 node instanceof HasNumeric && numeric.equals(((HasNumeric) node).getValue())
         );
@@ -89,11 +91,11 @@ public class Matchers {
     }
 
     public static Matcher mInt() {
-        return new NodeMatcher((node) -> node instanceof IntLeafNode);
+        return new NodeMatcher((node) -> node instanceof NumericLeafNode && TypeCombination.anyOf(node.getType(), INT, UINT));
     }
 
     public static Matcher mFloat() {
-        return new NodeMatcher((node) -> node instanceof FloatLeafNode);
+        return new NodeMatcher((node) -> node instanceof NumericLeafNode && TypeCombination.anyOf(node.getType(), FLOAT, DOUBLE));
     }
 
 }

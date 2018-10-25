@@ -1,12 +1,12 @@
 package com.tazadum.glsl.ast;
 
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.util.NodeFinder;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.finder.NodeFinder;
-import com.tazadum.glsl.parser.finder.VariableFinder;
 
 public class ASTCloner {
     private final ParserContext clonedContext;
@@ -16,7 +16,7 @@ public class ASTCloner {
         this.clone = node.clone(null);
 
         // remap all VariableDeclarations in VariableNode
-        for (VariableNode variable : VariableFinder.findVariables(clone)) {
+        for (VariableNode variable : NodeFinder.findAll(clone, VariableNode.class)) {
             final VariableDeclarationNode variableDeclaration = variable.getDeclarationNode();
             if (variableDeclaration.isBuiltIn()) {
                 continue;

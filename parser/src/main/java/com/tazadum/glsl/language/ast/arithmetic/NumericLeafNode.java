@@ -9,14 +9,14 @@ import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class IntLeafNode extends LeafNode implements HasNumeric, HasConstState {
+public class NumericLeafNode extends LeafNode implements HasNumeric, HasConstState {
     private final Numeric value;
 
-    public IntLeafNode(SourcePosition position, Numeric value) {
+    public NumericLeafNode(SourcePosition position, Numeric value) {
         this(position, null, value);
     }
 
-    public IntLeafNode(SourcePosition position, ParentNode parentNode, Numeric value) {
+    public NumericLeafNode(SourcePosition position, ParentNode parentNode, Numeric value) {
         super(position, parentNode);
         this.value = value;
     }
@@ -27,12 +27,12 @@ public class IntLeafNode extends LeafNode implements HasNumeric, HasConstState {
 
     @Override
     public LeafNode clone(ParentNode newParent) {
-        return new IntLeafNode(getSourcePosition(), newParent, value);
+        return new NumericLeafNode(getSourcePosition(), newParent, value);
     }
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
-        return visitor.visitInt(this);
+        return visitor.visitNumeric(this);
     }
 
     @Override

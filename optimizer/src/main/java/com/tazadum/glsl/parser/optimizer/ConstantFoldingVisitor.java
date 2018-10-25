@@ -1,14 +1,20 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.*;
-import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
-import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
-import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.variable.FieldSelectionNode;
-import com.tazadum.glsl.language.BuiltInField;
-import com.tazadum.glsl.language.BuiltInType;
-import com.tazadum.glsl.language.Numeric;
+import com.tazadum.glsl.ast.ReplacingASTVisitor;
+import com.tazadum.glsl.exception.SourcePositionException;
+import com.tazadum.glsl.exception.TypeException;
+import com.tazadum.glsl.language.ast.LeafNode;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.arithmetic.NumericLeafNode;
+import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
+import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.language.type.NumericOperation;
+import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.parser.ParserContext;
 
 import java.util.ArrayList;
@@ -54,11 +60,11 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
         if (node.getDeclarationNode().getPrototype().isBuiltIn()) {
             switch (node.getDeclarationNode().getIdentifier().original()) {
                 case "vec2":
-                    return optimizeVectorConstruction(node, BuiltInType.VEC2);
+                    return optimizeVectorConstruction(node, PredefinedType.VEC2);
                 case "vec3":
-                    return optimizeVectorConstruction(node, BuiltInType.VEC3);
+                    return optimizeVectorConstruction(node, PredefinedType.VEC3);
                 case "vec4":
-                    return optimizeVectorConstruction(node, BuiltInType.VEC4);
+                    return optimizeVectorConstruction(node, PredefinedType.VEC4);
             }
         }
 
@@ -82,7 +88,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
         return null;
     }
 
-    private Node optimizeVectorConstruction(FunctionCallNode functionCall, BuiltInType type) {
+    private Node optimizeVectorConstruction(FunctionCallNode functionCall, PredefinedType type) {
         if (functionCall.getChildCount() == 0) {
             return null;
         }
@@ -104,7 +110,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
             }
         }
 
-        final int components = BuiltInType.elements(type);
+        final int components = type.components();
 
         Node parameterSource = null;
         StringBuilder replacementSelection = new StringBuilder();
@@ -196,41 +202,32 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
         final int previousScore = decider.score(node);
 
-        int decimals = 0;
-        double value = 0;
 
-        switch (node.getOperator()) {
-            case ADD:
-                value = left.getValue() + right.getValue();
-                decimals = Math.max(left.getDecimals(), right.getDecimals());
-                break;
-            case SUB:
-                value = left.getValue() - right.getValue();
-                decimals = Math.max(left.getDecimals(), right.getDecimals());
-                break;
-            case MUL:
-                value = left.getValue() * right.getValue();
-                decimals = left.getDecimals() + right.getDecimals();
-                break;
-            case DIV:
-                value = left.getValue() / right.getValue();
-                double reminder = left.getValue() % right.getValue();
-                if (reminder == 0.0) {
-                    decimals = 0;
-                } else {
-                    decimals = Math.max(2, left.getDecimals() + right.getDecimals());
-                }
-                break;
+        Numeric numeric = null;
+
+        try {
+            switch (node.getOperator()) {
+                case ADD:
+                    numeric = NumericOperation.add(left, right);
+                    break;
+                case SUB:
+                    numeric = NumericOperation.sub(left, right);
+                    break;
+                case MUL:
+                    numeric = NumericOperation.mul(left, right);
+                    break;
+                case DIV:
+                    numeric = NumericOperation.div(left, right);
+                    break;
+                case MOD:
+                    numeric = NumericOperation.mod(left, right);
+                    break;
+            }
+        } catch (TypeException e) {
+            throw new SourcePositionException(node, e.getMessage(), e);
         }
 
-        final Numeric numeric = new Numeric(value, decimals, decimals != 0);
-
-        Node result;
-        if (numeric.isFloat()) {
-            result = new FloatLeafNode(numeric);
-        } else {
-            result = new IntLeafNode(numeric);
-        }
+        Node result = new NumericLeafNode(node.getSourcePosition(), numeric);
 
         final int score = decider.score(result);
         if (score <= previousScore) {

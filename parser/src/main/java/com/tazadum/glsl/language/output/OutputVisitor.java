@@ -61,12 +61,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
-    public SourceBuffer visitInt(IntLeafNode node) {
-        return buffer.append(config.renderNumeric(node.getValue()));
-    }
-
-    @Override
-    public SourceBuffer visitFloat(FloatLeafNode node) {
+    public SourceBuffer visitNumeric(NumericLeafNode node) {
         return buffer.append(config.renderNumeric(node.getValue()));
     }
 

@@ -1,8 +1,8 @@
 package com.tazadum.glsl.simplification.helpers;
 
-import com.tazadum.glsl.ast.HasNumeric;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.language.Numeric;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
+import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.simplification.CaptureGroups;
 import com.tazadum.glsl.simplification.NodeComparator;
 import com.tazadum.glsl.simplification.TreeNodeComparator;

@@ -1,9 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.IdentifierOutput;
-import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ContextBasedMultiIdentifierShortenerTest {
     final private OutputSizeDecider decider = new OutputSizeDecider();
-    private Output output;
+    private OutputRenderer output;
 
     private ContextBasedMultiIdentifierShortener identifierShortener;
     private TypeChecker typeChecker;
@@ -55,7 +55,7 @@ public class ContextBasedMultiIdentifierShortenerTest {
 
     @BeforeEach
     public void setup() {
-        output = new Output();
+        output = new OutputRenderer();
         identifierShortener = new ContextBasedMultiIdentifierShortener(true);
         typeChecker = new TypeChecker();
         config = new OutputConfig();

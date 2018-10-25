@@ -1,15 +1,15 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Identifier;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputRenderer;
+import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.variable.ResolutionResult;
 import com.tazadum.glsl.util.IdGenerator;
 
 import java.util.*;
@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ContextBasedIdentifierShortener implements IdentifierShortener {
     private static final String DEFINE = "#define ";
-    private final Output output;
+    private final OutputRenderer output;
 
     private IdGenerator templateGenerator;
     private List<TokenReplacement> tokenReplacements;
@@ -31,7 +31,7 @@ public class ContextBasedIdentifierShortener implements IdentifierShortener {
 
     public ContextBasedIdentifierShortener(boolean deterministic) {
         this.deterministic = deterministic;
-        this.output = new Output();
+        this.output = new OutputRenderer();
         this.usedIdentifiers = new HashSet<>();
     }
 

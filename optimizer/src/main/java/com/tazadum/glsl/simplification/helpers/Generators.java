@@ -1,11 +1,13 @@
 package com.tazadum.glsl.simplification.helpers;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
-import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
-import com.tazadum.glsl.language.Numeric;
-import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.NumericLeafNode;
+import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.language.model.NumericOperator;
+import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.simplification.CaptureGroups;
+import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.function.Function;
 
@@ -26,12 +28,12 @@ public class Generators {
         return (storage) -> {
             Node left = a.apply(storage);
             Node right = b.apply(storage);
-            return new NumericOperationNode(operator, left, right);
+            return new NumericOperationNode(SourcePosition.TOP, operator, left, right);
         };
     }
 
     public static Function<CaptureGroups, Node> gNumeric(float value) {
-        return (storage) -> new FloatLeafNode(new Numeric(value, 0, true));
+        return (storage) -> new NumericLeafNode(SourcePosition.TOP, new Numeric(value, 0, PredefinedType.FLOAT));
     }
 
 }

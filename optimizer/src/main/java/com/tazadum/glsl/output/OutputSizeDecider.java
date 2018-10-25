@@ -1,22 +1,27 @@
 package com.tazadum.glsl.output;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.IdentifierOutputMode;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.parser.optimizer.OptimizationDecider;
 
 /**
  * Created by Erik on 2016-10-20.
  */
 public class OutputSizeDecider implements OptimizationDecider {
-    private final Output output;
+    private final OutputRenderer output;
     private final OutputConfig config;
 
     public OutputSizeDecider() {
-        output = new Output();
-        config = new OutputConfig();
-        config.setIdentifiers(IdentifierOutput.None);
-        config.setIndentation(0);
-        config.setNewlines(false);
-        config.setMaxDecimals(5);
+        output = new OutputRenderer();
+        config = new OutputConfigBuilder()
+            .identifierMode(IdentifierOutputMode.None)
+            .renderNewLines(false)
+            .indentation(0)
+            .significantDecimals(5)
+            .build();
     }
 
     public OutputConfig getConfig() {

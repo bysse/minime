@@ -1,8 +1,8 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
-import com.tazadum.glsl.language.NumericOperator;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.language.model.NumericOperator;
 
 /**
  * Created by Erik on 2018-03-30.

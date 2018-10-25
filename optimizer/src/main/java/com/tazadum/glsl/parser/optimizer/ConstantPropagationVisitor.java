@@ -1,24 +1,31 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.*;
-import com.tazadum.glsl.ast.arithmetic.NumericOperationNode;
-import com.tazadum.glsl.ast.function.FunctionCallNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.iteration.ForIterationNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
-import com.tazadum.glsl.language.NumericOperator;
-import com.tazadum.glsl.language.TypeQualifier;
-import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.ast.ReplacingASTVisitor;
+import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
+import com.tazadum.glsl.language.ast.traits.IterationNode;
+import com.tazadum.glsl.language.ast.traits.MutatingOperation;
+import com.tazadum.glsl.language.ast.util.NodeFinder;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.model.NumericOperator;
+import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.finder.NodeFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**

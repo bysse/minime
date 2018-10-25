@@ -1,9 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.GLSLOptimizerContext;
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
-import com.tazadum.glsl.output.Output;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
@@ -17,7 +17,7 @@ public abstract class BaseOptimizerTest {
     protected OptimizerPipeline pipeline;
     protected GLSLOptimizerContext optimizerContext;
 
-    protected Output output;
+    protected OutputRenderer output;
     protected OutputConfig outputConfig;
     protected OutputSizeDecider decider;
 
@@ -45,7 +45,7 @@ public abstract class BaseOptimizerTest {
             this.pipeline = new SingleShaderOptimizerPipeline(outputConfig, getOptimizerTypes());
         }
         this.optimizerContext = new GLSLOptimizerContext("test-shader");
-        this.output = new Output();
+        this.output = new OutputRenderer();
 
         decider = new OutputSizeDecider();
         decider.getConfig().setMaxDecimals(3);

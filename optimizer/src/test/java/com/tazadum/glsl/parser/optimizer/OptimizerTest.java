@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.output.Output;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
@@ -20,7 +20,7 @@ public class OptimizerTest {
     private static OpenGLForTesting openGL;
 
     private ParserContext parserContext;
-    private Output output;
+    private OutputRenderer output;
     private OutputConfig config;
 
     @BeforeAll
@@ -42,7 +42,7 @@ public class OptimizerTest {
     @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
-        output = new Output();
+        output = new OutputRenderer();
         config = new OutputConfig();
     }
 

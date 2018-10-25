@@ -1,10 +1,10 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.StatementListNode;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.StatementListNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;

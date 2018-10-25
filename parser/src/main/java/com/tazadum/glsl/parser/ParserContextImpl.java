@@ -19,8 +19,6 @@ import com.tazadum.glsl.util.SourcePosition;
 import java.util.Arrays;
 import java.util.Set;
 
-import static com.tazadum.glsl.language.type.PredefinedType.VEC4;
-
 public class ParserContextImpl implements ParserContext {
     private final TypeRegistry typeRegistry;
     private final VariableRegistry variableRegistry;
@@ -123,7 +121,7 @@ public class ParserContextImpl implements ParserContext {
     }
 
     @Override
-    public void initialize(ShaderType shaderType, GLSLProfile profile) {
+    public void initializeVariables(ShaderType shaderType, GLSLProfile profile) {
         switch (shaderType) {
             case COMPUTE:
                 variableRegistry.apply(globalContext(), new ComputeShaderVariableSet(profile));
@@ -148,12 +146,6 @@ public class ParserContextImpl implements ParserContext {
                 break;
             default:
                 throw new IllegalArgumentException("Unknown shader type " + shaderType);
-        }
-
-        if (shaderType == ShaderType.VERTEX && profile == GLSLProfile.COMPATIBILITY) {
-            final FunctionPrototypeNode node = new FunctionPrototypeNode(SourcePosition.TOP, "ftransform", new FullySpecifiedType(VEC4));
-            node.setPrototype(new FunctionPrototype(true, VEC4));
-            functionRegistry.declareFunction(node);
         }
     }
 

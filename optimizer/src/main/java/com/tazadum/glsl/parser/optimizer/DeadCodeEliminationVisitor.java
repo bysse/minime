@@ -1,16 +1,16 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
-import com.tazadum.glsl.ast.function.FunctionDefinitionNode;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationListNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.language.BuiltInType;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.function.FunctionPrototypeMatcher;
+import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.function.FunctionPrototypeMatcher;
 
 /**
  * Created by Erik on 2016-10-29.
@@ -23,8 +23,8 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
     public DeadCodeEliminationVisitor(ParserContext parserContext) {
         super(parserContext, true);
 
-        this.mainMatcher = new FunctionPrototypeMatcher(BuiltInType.VOID);
-        this.mainImageMatcher = new FunctionPrototypeMatcher(BuiltInType.VOID, BuiltInType.VEC4, BuiltInType.VEC2);
+        this.mainMatcher = new FunctionPrototypeMatcher(PredefinedType.VOID);
+        this.mainImageMatcher = new FunctionPrototypeMatcher(PredefinedType.VOID, PredefinedType.VEC4, PredefinedType.VEC2);
     }
 
     public void reset() {

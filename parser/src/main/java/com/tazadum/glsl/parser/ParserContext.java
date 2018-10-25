@@ -61,5 +61,5 @@ public interface ParserContext extends ContextAware {
      * @param shaderType The type of shader.
      * @param profile    The GLSL profile.
      */
-    void initialize(ShaderType shaderType, GLSLProfile profile);
+    void initializeVariables(ShaderType shaderType, GLSLProfile profile);
 }

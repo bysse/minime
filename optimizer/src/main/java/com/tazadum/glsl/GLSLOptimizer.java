@@ -1,27 +1,19 @@
 package com.tazadum.glsl;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.compression.Compressor;
 import com.tazadum.glsl.input.GLSLSource;
 import com.tazadum.glsl.input.Shader;
-import com.tazadum.glsl.language.BuiltInType;
-import com.tazadum.glsl.language.GLSLLexer;
-import com.tazadum.glsl.language.GLSLParser;
-import com.tazadum.glsl.language.TypeQualifier;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.IdentifierOutput;
-import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.generator.FileGenerator;
 import com.tazadum.glsl.output.generator.HeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PackedHeaderFileGenerator;
 import com.tazadum.glsl.output.generator.PassThroughGenerator;
-import com.tazadum.glsl.parser.GLSLContext;
-import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.GLSLLexer;
+import com.tazadum.glsl.parser.GLSLParser;
 import com.tazadum.glsl.parser.optimizer.*;
-import com.tazadum.glsl.parser.type.FullySpecifiedType;
-import com.tazadum.glsl.parser.variable.VariableRegistry;
-import com.tazadum.glsl.parser.visitor.ContextVisitor;
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -40,7 +32,7 @@ public class GLSLOptimizer {
     private final OutputWriter outputWriter;
     private final OutputProfile outputProfile;
     private final OutputConfig outputConfig;
-    private final Output output;
+    private final OutputRenderer output;
     private final HashMap<Option, Boolean> optionsMap;
 
     private ContextBasedMultiIdentifierShortener identifierShortener;
@@ -54,7 +46,7 @@ public class GLSLOptimizer {
         this.outputConfig.setIndentation(0);
         this.outputConfig.setOutputConst(false);
 
-        this.output = new Output();
+        this.output = new OutputRenderer();
 
         this.identifierShortener = new ContextBasedMultiIdentifierShortener(false);
 
@@ -63,23 +55,6 @@ public class GLSLOptimizer {
 
     public void setOptions(Map<Option, Boolean> options) {
         optionsMap.putAll(options);
-    }
-
-    private void addShaderToySupport(GLSLOptimizerContext optimizerContext) {
-        final ParserContext parserContext = optimizerContext.parserContext();
-        final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
-        final GLSLContext global = parserContext.globalContext();
-
-        variableRegistry.declareVariable(global, uniform(BuiltInType.VEC3, "iResolution"));
-        variableRegistry.declareVariable(global, uniform(BuiltInType.FLOAT, "iGlobalTime"));
-        variableRegistry.declareVariable(global, uniform(BuiltInType.FLOAT, "iTimeDelta"));
-        variableRegistry.declareVariable(global, uniform(BuiltInType.INT, "iFrame"));
-        // uniform float     iChannelTime[4];       // channel playback time (in seconds)
-        //uniform vec3      iChannelResolution[4]; // channel resolution (in pixels)
-        variableRegistry.declareVariable(global, uniform(BuiltInType.VEC4, "iMouse"));
-        //uniform samplerXX iChannel0..3;          // input channel. XX = 2D/Cube
-        variableRegistry.declareVariable(global, uniform(BuiltInType.VEC4, "iDate"));
-        variableRegistry.declareVariable(global, uniform(BuiltInType.FLOAT, "iSampleRate"));
     }
 
     public void processFiles(List<String> shaderFiles) {
@@ -120,20 +95,12 @@ public class GLSLOptimizer {
         output("--------------------------------------------------\n");
     }
 
-    private VariableDeclarationNode uniform(BuiltInType type, String identifier) {
-        final FullySpecifiedType fst = new FullySpecifiedType(TypeQualifier.UNIFORM, null, type);
-        return new VariableDeclarationNode(false, fst, identifier, null, null);
-    }
-
     private GLSLOptimizerContext execute(GLSLSource glslSource) {
         String shaderFilename = glslSource.getFilename();
         String shaderSource = glslSource.getContent();
 
         final GLSLOptimizerContext context = new GLSLOptimizerContext(shaderFilename);
 
-        if (option(ShaderToy)) {
-            addShaderToySupport(context);
-        }
 
         outputConfig.setNewlines(option(OutputLineBreaks));
         outputConfig.setImplicitConversionToFloat(true);
@@ -152,12 +119,15 @@ public class GLSLOptimizer {
         final int sourceSize = shaderSource.length();
         output("Input size:   %d bytes\n", sourceSize);
 
+
+        // TODO: iron out this class
         // updateIdentifiers the parser
-        final ContextVisitor visitor = new ContextVisitor(context.parserContext(), glslSource.getFileMapper());
-        final Node shaderNode = parser.translation_unit().accept(visitor);
+        //final ContextVisitor visitor = new ContextVisitor(context.parserContext(), glslSource.getFileMapper());
+        //final Node shaderNode = parser.translation_unit().accept(visitor);
+        Node shaderNode = null;
 
         // perform type checking
-        context.typeChecker().check(context.parserContext(), shaderNode);
+        //context.typeChecker().check(context.parserContext(), shaderNode);
 
         if (option(PassThrough)){
             context.setNode(shaderNode);

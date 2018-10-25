@@ -200,13 +200,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
-    public T visitInt(IntLeafNode node) {
-        visitLeafNode(node);
-        return null;
-    }
-
-    @Override
-    public T visitFloat(FloatLeafNode node) {
+    public T visitNumeric(NumericLeafNode node) {
         visitLeafNode(node);
         return null;
     }

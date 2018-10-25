@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.output.OutputConfig;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.parser.ParserContext;
 
 /**

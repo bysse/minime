@@ -1,9 +1,9 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.StatementListNode;
-import com.tazadum.glsl.ast.arithmetic.IntLeafNode;
 import com.tazadum.glsl.language.Numeric;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.StatementListNode;
+import com.tazadum.glsl.language.ast.arithmetic.IntLeafNode;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

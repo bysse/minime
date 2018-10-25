@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.ast.StatementListNode;
-import com.tazadum.glsl.language.GLSLListener;
+
+import com.tazadum.glsl.language.ast.StatementListNode;
 
 /**
  * @author erikb

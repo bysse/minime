@@ -1,17 +1,16 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.arithmetic.UnaryOperationNode;
-import com.tazadum.glsl.language.NumericOperator;
-import com.tazadum.glsl.language.UnaryOperator;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.PrefixOperationNode;
+import com.tazadum.glsl.language.model.UnaryOperator;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
-import static com.tazadum.glsl.language.NumericOperator.ADD;
-import static com.tazadum.glsl.language.NumericOperator.MUL;
+import static com.tazadum.glsl.language.model.NumericOperator.ADD;
+import static com.tazadum.glsl.language.model.NumericOperator.MUL;
 import static com.tazadum.glsl.simplification.helpers.Constraints.*;
 import static com.tazadum.glsl.simplification.helpers.Generators.*;
 import static com.tazadum.glsl.simplification.helpers.Matchers.*;
@@ -101,7 +100,7 @@ public class RuleSet {
         // pow(_1,2) = _1*_1;
         list.add(rule(
                 mFunc("pow", mNumeric(), mLiteral(2f)),
-                gOperation(NumericOperator.MUL, gGroup(0), gClone(0))
+            gOperation(MUL, gGroup(0), gClone(0))
                 ));
 
         // abs(_1) = _1
@@ -112,7 +111,7 @@ public class RuleSet {
 
         // abs(-_1) = _1
         list.add(rule(
-                mFunc("abs", mParent(UnaryOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
+            mFunc("abs", mParent(PrefixOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
                 gGroup(0)
                 ));
 

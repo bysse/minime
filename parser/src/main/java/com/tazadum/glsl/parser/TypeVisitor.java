@@ -486,12 +486,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     }
 
     @Override
-    public GLSLType visitInt(IntLeafNode node) {
-        return node.getType();
-    }
-
-    @Override
-    public GLSLType visitFloat(FloatLeafNode node) {
+    public GLSLType visitNumeric(NumericLeafNode node) {
         return node.getType();
     }
 }

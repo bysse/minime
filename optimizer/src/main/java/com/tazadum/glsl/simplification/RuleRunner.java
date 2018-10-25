@@ -1,7 +1,7 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.HasNumeric;
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.traits.HasNumeric;
 import com.tazadum.glsl.parser.ParserContext;
 
 import java.util.List;

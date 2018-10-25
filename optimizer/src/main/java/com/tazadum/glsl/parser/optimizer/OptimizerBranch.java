@@ -1,9 +1,10 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.output.IdentifierOutput;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.IdentifierOutputMode;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.parser.ParserContext;
 
 import java.util.*;
@@ -72,12 +73,19 @@ public class OptimizerBranch {
         List<OptimizerBranch> list = new ArrayList<>(branchSet.size());
 
         Set<String> sourceSet = new HashSet<>();
-        OutputConfig outputConfig = new OutputConfig();
-        outputConfig.setIdentifiers(IdentifierOutput.None);
-        Output output = new Output();
+
+        final OutputRenderer output = new OutputRenderer();
+        final OutputConfig config = new OutputConfigBuilder()
+            .identifierMode(IdentifierOutputMode.None)
+            .significantDecimals(5)
+            .indentation(0)
+            .renderNewLines(false)
+            .build();
+
+        // TODO: Must be a better way to compare node trees
 
         for (OptimizerBranch branch : branchSet) {
-            String source = output.render(branch.getNode(), outputConfig);
+            String source = output.render(branch.getNode(), config);
             if (sourceSet.add(source)) {
                 // only add the branch to the result list if the set operation is successful.
                 list.add(branch);

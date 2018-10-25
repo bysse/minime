@@ -1,6 +1,6 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
 
 import java.util.ArrayList;
 import java.util.HashSet;

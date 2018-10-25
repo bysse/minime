@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser.listener;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import com.tazadum.glsl.parser.visitor.ContextVisitor;

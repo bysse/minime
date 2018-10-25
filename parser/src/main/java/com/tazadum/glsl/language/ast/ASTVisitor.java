@@ -82,9 +82,7 @@ public interface ASTVisitor<T> {
 
     T visitNumericOperation(NumericOperationNode node);
 
-    T visitInt(IntLeafNode node);
-
-    T visitFloat(FloatLeafNode node);
+    T visitNumeric(NumericLeafNode node);
 
     T visitBitOperation(BitOperationNode node);
 

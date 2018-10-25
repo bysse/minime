@@ -4,6 +4,8 @@ import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
 import com.tazadum.glsl.parser.ShaderType;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 
+import static com.tazadum.glsl.language.type.PredefinedType.VEC4;
+
 /**
  * Created by erikb on 2018-10-23.
  */
@@ -26,6 +28,11 @@ public class FunctionSets {
         if (shaderType == ShaderType.FRAGMENT) {
             new FragmentShaderFunctionSet().generate(registry, profile);
         }
+
+        if (shaderType == ShaderType.VERTEX && profile == GLSLProfile.COMPATIBILITY) {
+            registry.getFunctionDeclarator().function("ftransform", VEC4);
+        }
+
 
         return registry;
     }

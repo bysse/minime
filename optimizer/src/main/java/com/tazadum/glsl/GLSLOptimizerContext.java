@@ -1,35 +1,24 @@
-package com.tazadum.glsl;// (C) King.com Ltd 2017
+package com.tazadum.glsl;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.ParserContextImpl;
-import com.tazadum.glsl.parser.function.FunctionRegistryImpl;
-import com.tazadum.glsl.parser.type.TypeChecker;
-import com.tazadum.glsl.parser.type.TypeRegistryImpl;
-import com.tazadum.glsl.parser.variable.VariableRegistryImpl;
 
 public class GLSLOptimizerContext {
     private final String shaderName;
 
-    private TypeChecker typeChecker;
     private ParserContext parserContext;
     private Node node;
     private String source;
     private String header;
 
-    public GLSLOptimizerContext(String shaderName) {
+    public GLSLOptimizerContext(String shaderName, ParserContext parserContext) {
         this.shaderName = shaderName;
-        this.typeChecker = new TypeChecker();
-        this.parserContext = new ParserContextImpl(new TypeRegistryImpl(), new VariableRegistryImpl(), new FunctionRegistryImpl());
+        this.parserContext = parserContext;
         this.header = "";
     }
 
     public String getShaderName() {
         return shaderName;
-    }
-
-    public TypeChecker typeChecker() {
-        return typeChecker;
     }
 
     public ParserContext parserContext() {

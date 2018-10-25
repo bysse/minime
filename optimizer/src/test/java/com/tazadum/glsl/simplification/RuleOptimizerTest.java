@@ -1,9 +1,9 @@
 package com.tazadum.glsl.simplification;
 
-import com.tazadum.glsl.ast.arithmetic.FloatLeafNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.BuiltInType;
 import com.tazadum.glsl.language.Numeric;
+import com.tazadum.glsl.language.ast.arithmetic.FloatLeafNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.parser.GLSLContext;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.optimizer.BaseOptimizerTest;

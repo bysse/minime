@@ -1,9 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
 import com.tazadum.glsl.GLSLOptimizerContext;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
 
@@ -14,14 +14,14 @@ import java.util.stream.Stream;
 
 public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
     private final OutputConfig outputConfig;
-    private final Output output;
+    private final OutputRenderer output;
     private final List<Optimizer> optimizers;
     private boolean debug;
 
     public SingleShaderOptimizerPipeline(OutputConfig outputConfig, OptimizerType... types) {
         assert outputConfig != null;
         this.outputConfig = outputConfig;
-        this.output = new Output();
+        this.output = new OutputRenderer();
         this.optimizers = Stream.of(types)
                 .map(OptimizerType::instantiate)
                 .collect(Collectors.toList());
@@ -30,7 +30,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
     public SingleShaderOptimizerPipeline(OutputConfig outputConfig, EnumSet<OptimizerType> types) {
         assert outputConfig != null;
         this.outputConfig = outputConfig;
-        this.output = new Output();
+        this.output = new OutputRenderer();
         this.optimizers = types.stream()
                 .map(OptimizerType::instantiate)
                 .collect(Collectors.toList());

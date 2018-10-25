@@ -1,6 +1,7 @@
 package com.tazadum.glsl.output;
 
-import com.tazadum.glsl.ast.Node;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,9 +12,9 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class OutputTest {
+public class OutputRendererTest {
     private ParserContext parserContext;
-    private Output output;
+    private OutputRenderer output;
     private OutputConfig config;
 
     public static Collection<String> loadShaders() {
@@ -23,7 +24,7 @@ public class OutputTest {
     @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
-        output = new Output();
+        output = new OutputRenderer();
         config = new OutputConfig();
     }
 

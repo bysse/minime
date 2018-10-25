@@ -1,16 +1,15 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Identifier;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.output.IdentifierOutput;
-import com.tazadum.glsl.output.Output;
-import com.tazadum.glsl.output.OutputConfig;
-import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputRenderer;
+import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.parser.variable.ResolutionResult;
 import com.tazadum.glsl.util.IdGenerator;
 
 import java.util.*;
@@ -20,7 +19,7 @@ import java.util.stream.Collectors;
  * Created by Erik on 2016-10-20.
  */
 public class ContextBasedMultiIdentifierShortener {
-    private final Output output;
+    private final OutputRenderer output;
     private final OutputConfig outputConfig;
 
     private Set<String> usedIdentifiers;
@@ -33,7 +32,7 @@ public class ContextBasedMultiIdentifierShortener {
 
     public ContextBasedMultiIdentifierShortener(boolean deterministic) {
         this.deterministic = deterministic;
-        this.output = new Output();
+        this.output = new OutputRenderer();
         this.usedIdentifiers = new HashSet<>();
         this.outputConfig = new OutputConfig();
         this.outputConfig.setNewlines(false);

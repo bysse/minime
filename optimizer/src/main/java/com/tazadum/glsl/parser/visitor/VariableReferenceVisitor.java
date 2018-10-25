@@ -1,12 +1,12 @@
 package com.tazadum.glsl.parser.visitor;
 
-import com.tazadum.glsl.ast.DefaultASTVisitor;
-import com.tazadum.glsl.ast.variable.ParameterDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.ast.variable.VariableNode;
-import com.tazadum.glsl.parser.GLSLContext;
+import com.tazadum.glsl.language.ast.DefaultASTVisitor;
+import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.variable.VariableRegistry;
 
 /**
  * Registers variable declarations and usages.
@@ -18,7 +18,7 @@ public class VariableReferenceVisitor extends DefaultASTVisitor<Void> {
         this.parserContext = parserContext;
     }
 
-    @Override
+
     public Void visitVariable(VariableNode node) {
         super.visitVariable(node);
 
@@ -28,7 +28,6 @@ public class VariableReferenceVisitor extends DefaultASTVisitor<Void> {
         return null;
     }
 
-    @Override
     public Void visitVariableDeclaration(VariableDeclarationNode node) {
         super.visitVariableDeclaration(node);
 
@@ -39,7 +38,6 @@ public class VariableReferenceVisitor extends DefaultASTVisitor<Void> {
         return null;
     }
 
-    @Override
     public Void visitParameterDeclaration(ParameterDeclarationNode node) {
         super.visitParameterDeclaration(node);
 

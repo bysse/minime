@@ -1,9 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.GLSLOptimizerContext;
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.language.GLSLLexer;
-import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.parser.function.FunctionRegistryImpl;
 import com.tazadum.glsl.parser.type.TypeRegistryImpl;
 import com.tazadum.glsl.parser.variable.VariableRegistryImpl;

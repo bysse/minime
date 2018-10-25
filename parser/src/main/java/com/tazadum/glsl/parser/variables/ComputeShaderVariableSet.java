@@ -21,6 +21,5 @@ public class ComputeShaderVariableSet extends VariableSet {
         add(variable(UVEC3, "gl_LocalInvocationID", IN));
         add(variable(UVEC3, "gl_GlobalInvocationID", IN));
         add(variable(INT, "gl_LocalInvocationIndex", IN));
-
     }
 }

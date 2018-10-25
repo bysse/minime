@@ -416,13 +416,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         throw new BadImplementationException();
     }
 
-    @Override
-    public ConstResult visitInt(IntLeafNode node) {
-        return number(node.getValue());
-    }
-
-    @Override
-    public ConstResult visitFloat(FloatLeafNode node) {
+    public ConstResult visitNumeric(NumericLeafNode node) {
         return number(node.getValue());
     }
 

@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.ast.Node;
-import com.tazadum.glsl.util.CloneUtils;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.util.CloneUtils;
 
 import java.util.*;
 

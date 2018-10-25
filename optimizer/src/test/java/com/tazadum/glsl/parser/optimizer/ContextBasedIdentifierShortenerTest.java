@@ -1,9 +1,9 @@
 package com.tazadum.glsl.parser.optimizer;
 
-import com.tazadum.glsl.ast.Node;
 import com.tazadum.glsl.language.GLSLParser;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.output.IdentifierOutput;
-import com.tazadum.glsl.output.Output;
 import com.tazadum.glsl.output.OutputConfig;
 import com.tazadum.glsl.output.OutputSizeDecider;
 import com.tazadum.glsl.parser.ParserContext;
@@ -24,7 +24,7 @@ public class ContextBasedIdentifierShortenerTest {
     final private OutputSizeDecider decider = new OutputSizeDecider();
 
     private ParserContext parserContext;
-    private Output output;
+    private OutputRenderer output;
     private ContextBasedIdentifierShortener identifierShortener;
     private TypeChecker typeChecker;
     private OutputConfig config;
@@ -32,7 +32,7 @@ public class ContextBasedIdentifierShortenerTest {
     @BeforeEach
     public void setup() {
         parserContext = TestUtils.parserContext();
-        output = new Output();
+        output = new OutputRenderer();
         identifierShortener = new ContextBasedIdentifierShortener(true);
         typeChecker = new TypeChecker();
         config = new OutputConfig();
