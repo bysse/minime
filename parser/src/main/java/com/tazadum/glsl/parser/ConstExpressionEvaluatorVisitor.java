@@ -2,7 +2,6 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.*;
 import com.tazadum.glsl.exception.NoSuchFieldException;
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.Node;
@@ -20,6 +19,7 @@ import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.function.ConstFunction;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 import static com.tazadum.glsl.exception.Errors.Coarse.*;
 import static com.tazadum.glsl.exception.Errors.Extras.*;

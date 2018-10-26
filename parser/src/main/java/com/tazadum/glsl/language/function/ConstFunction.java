@@ -1,7 +1,7 @@
 package com.tazadum.glsl.language.function;
 
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 /**
  * An index over functions that produces constant expressions.

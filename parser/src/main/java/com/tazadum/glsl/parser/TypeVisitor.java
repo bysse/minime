@@ -3,7 +3,6 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
@@ -24,6 +23,7 @@ import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.model.BitOperator;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.*;

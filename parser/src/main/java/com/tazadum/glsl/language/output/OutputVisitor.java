@@ -2,7 +2,6 @@ package com.tazadum.glsl.language.output;
 
 
 import com.tazadum.glsl.exception.BadImplementationException;
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
@@ -30,6 +29,7 @@ import com.tazadum.glsl.language.model.LayoutQualifier;
 import com.tazadum.glsl.language.model.LayoutQualifierId;
 import com.tazadum.glsl.language.model.SubroutineQualifier;
 import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.util.Provider;
 
 import java.util.Objects;

@@ -1,8 +1,8 @@
 package com.tazadum.glsl.language.model;
 
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 /**
  * Inputs and outputs that could be interpolated can be further qualified by at most one of the following

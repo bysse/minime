@@ -1,8 +1,8 @@
 package com.tazadum.glsl.language.model;
 
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.type.TypeQualifier;
 import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 /**
  * To ensure that a particular output variable is invariant, it is necessary to use the invariant

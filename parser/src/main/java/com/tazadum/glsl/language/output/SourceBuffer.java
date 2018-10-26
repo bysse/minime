@@ -1,6 +1,6 @@
 package com.tazadum.glsl.language.output;
 
-import com.tazadum.glsl.language.HasToken;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.util.Provider;
 
 /**

@@ -12,7 +12,7 @@ import static com.tazadum.glsl.language.type.PredefinedType.*;
  */
 public class TessellationShaderVariableSet extends VariableSet {
     public TessellationShaderVariableSet(GLSLProfile profile) {
-        super(profile, ShaderType.TESSELLATION_EVAL);
+        super(profile, ShaderType.TESSELLATION_EVALUATION);
         add(variable(INT, "gl_PatchVerticesIn", IN));
         add(variable(INT, "gl_PrimitiveID", IN));
         add(variable(INT, "gl_InvocationID", IN));

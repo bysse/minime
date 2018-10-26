@@ -26,15 +26,21 @@ public class CommandLineBase {
         TLogConfiguration.get().useGlobalConfiguration();
     }
 
+    public static final int RET_OK = 0;
+    public static final int RET_SYNTAX = 1;
+    public static final int RET_EXCEPTION = 2;
+
     private final Logger logger = LoggerFactory.getLogger(CommandLineBase.class);
     private final InputOutput NO_RESULT = null;
 
     private final OptionParser parser;
-    private final CLIOptions options;
+    private final CLIOptions[] options;
     private final String main;
     private final LoggerConfig loggerConfig;
+    private String header;
 
-    public CommandLineBase(CLIOptions options, String main) {
+    public CommandLineBase(String main, String header, CLIOptions... options) {
+        this.header = header;
         this.loggerConfig = TLogConfiguration.get().getConfig();
 
         this.loggerConfig.setTraceLabel("");
@@ -52,7 +58,9 @@ public class CommandLineBase {
         parser.accepts("v", "Increase output verbosity.");
         parser.accepts("vv", "Increase output verbosity even more.");
 
-        options.configure(parser);
+        for (CLIOptions option : options) {
+            option.configure(parser);
+        }
     }
 
     public InputOutput process(String[] args) {
@@ -67,12 +75,14 @@ public class CommandLineBase {
             }
 
             if (optionSet.has("h")) {
-                showHelp();
+                showHelp(true);
                 return NO_RESULT;
             }
 
-            if (!options.handle(optionSet, logger)) {
-                return NO_RESULT;
+            for (CLIOptions option : options) {
+                if (!option.handle(optionSet, logger)) {
+                    return NO_RESULT;
+                }
             }
 
             final List<?> arguments = optionSet.nonOptionArguments();
@@ -102,19 +112,24 @@ public class CommandLineBase {
                 return new InputOutput(inputPath, outputPath);
             }
 
-            return new InputOutput(inputPath, options.generateOutput(inputPath));
+            // get the last option module to generate output
+            final Path outputPath = options[options.length - 1].generateOutput(inputPath);
+            return new InputOutput(inputPath, outputPath);
         } catch (Exception e) {
             logger.error("Error parsing command line", e);
-            showHelp();
+            showHelp(false);
             return NO_RESULT;
         }
     }
 
-    private void showHelp() {
+    protected void showHelp(boolean showHeader) {
         try {
             PrintStream out = System.out;
-
-            out.format("Syntax: %s <options> <source file>\n\n", main);
+            if (showHeader) {
+                out.print(header);
+                out.print("\n");
+            }
+            out.format("\nSyntax: %s <options> <source file>\n\n", main);
 
             parser.printHelpOn(out);
         } catch (IOException e) {
@@ -126,7 +141,7 @@ public class CommandLineBase {
         private Path input;
         private Path output;
 
-        public InputOutput(Path input, Path output) {
+        InputOutput(Path input, Path output) {
             this.input = input;
             this.output = output;
         }

@@ -138,7 +138,7 @@ public class ParserContextImpl implements ParserContext {
             case GEOMETRY:
                 variableRegistry.apply(globalContext(), new GeometryShaderVariableSet(profile));
                 break;
-            case TESSELLATION_EVAL:
+            case TESSELLATION_EVALUATION:
                 variableRegistry.apply(globalContext(), new TessellationShaderVariableSet(profile));
                 break;
             case TESSELLATION_CONTROL:

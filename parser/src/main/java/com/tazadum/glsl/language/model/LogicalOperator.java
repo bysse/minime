@@ -1,7 +1,7 @@
 package com.tazadum.glsl.language.model;
 
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 public enum LogicalOperator implements HasToken {
     AND("&&", GLSLParser.AND_OP),

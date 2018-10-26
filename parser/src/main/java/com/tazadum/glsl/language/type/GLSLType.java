@@ -1,7 +1,7 @@
 package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.NoSuchFieldException;
-import com.tazadum.glsl.language.HasToken;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 public interface GLSLType extends HasToken {
     /**

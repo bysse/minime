@@ -1,11 +1,11 @@
 package com.tazadum.glsl.language.function;
 
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.parser.TypeCombination;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;

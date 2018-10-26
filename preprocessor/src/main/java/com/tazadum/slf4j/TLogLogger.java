@@ -209,9 +209,9 @@ public class TLogLogger extends MarkerIgnoringBase {
 
         PrintStream printStream = getPrintStream(level);
         if (config.isShowLoggerName()) {
-            printStream.print(label + name + ' ' + message);
+            printStream.println(label + name + ' ' + message);
         } else {
-            printStream.print(label + message);
+            printStream.println(label + message);
         }
         if (t != null) {
             t.printStackTrace(printStream);

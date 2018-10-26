@@ -1,6 +1,6 @@
 package com.tazadum.glsl.language.type;
 
-import com.tazadum.glsl.language.HasToken;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 public class ArrayType implements GLSLType, HasToken {
     public static final int UNKNOWN_LENGTH = -1;

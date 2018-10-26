@@ -2,8 +2,8 @@ package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.exception.NoSuchFieldException;
-import com.tazadum.glsl.language.HasToken;
 import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.preprocessor.model.HasToken;
 
 import java.util.function.Predicate;
 
