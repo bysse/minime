@@ -79,7 +79,7 @@ Date    Hours
 2018-10-23  6.5 Breaking apart custom functions and built-in function to optimize ParserContext creation.
 2018-10-24  6.0 All functions encoded! Added support for array constructors for PredefinedTypes.
 2018-10-25  4.5 Fixing a preprocessor main method and cleaning up the preprocessor error reporting. Starting to port the optimizer.
-2018-10-26  1.0 Fixing a compiler main.
+2018-10-26  1.5 Fixing a compiler main.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -93,8 +93,6 @@ Date    Hours
 // TODO: Register constructors when regsitering structure types (section 5.4.3)
 // TODO: refactor the whole optimizer pipeline and create a branch context.
 // TODO: add conditional formatting for scientific notation of numeric
-
-// TODO: Add format specification for compiler output format ie plain, C-header, etc
 
 
 
