@@ -8,11 +8,12 @@ import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.parser.TypeCombination.anyOf;
 
 public class Numeric implements Comparable<Numeric> {
+    private static final int MAX_PRECISION = 8;
     private BigDecimal value;
     private PredefinedType type;
 
     Numeric(BigDecimal value, PredefinedType type) {
-        this.value = value.stripTrailingZeros();
+        this.value = value.setScale(MAX_PRECISION, BigDecimal.ROUND_HALF_UP);
         this.type = type;
 
         assert type.category() == TypeCategory.Scalar : "Non scalar type passed to constructor";

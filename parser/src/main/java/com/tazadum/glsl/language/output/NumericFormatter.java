@@ -4,7 +4,6 @@ import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.language.type.PredefinedType;
 
 import java.math.BigDecimal;
-import java.util.Locale;
 
 /**
  * Created by erikb on 2018-10-15.
@@ -12,14 +11,14 @@ import java.util.Locale;
 public class NumericFormatter {
     private static final String ZERO = "0";
 
-    private int significatDigits;
+    private int significantDigits;
 
-    public NumericFormatter(int significatDigits) {
-        this.significatDigits = significatDigits;
+    public NumericFormatter(int significantDigits) {
+        this.significantDigits = significantDigits;
     }
 
-    public int getSignificatDigits() {
-        return significatDigits;
+    public int getSignificantDigits() {
+        return significantDigits;
     }
 
     public String format(Numeric numeric) {
@@ -42,8 +41,12 @@ public class NumericFormatter {
         }
 
         decimal = scale(decimal);
-
         String number = decimal.toPlainString();
+
+        if (number.indexOf('.') < 0) {
+            return renderInteger(decimal, PredefinedType.INT);
+        }
+
         if (number.startsWith("0")) {
             number = number.substring(1);
         } else if (number.startsWith("-0")) {
@@ -52,6 +55,10 @@ public class NumericFormatter {
 
         while (number.endsWith("0")) {
             number = number.substring(0, number.length() - 1);
+        }
+
+        if (number.length() == 0) {
+            return ZERO;
         }
 
         if (".".equals(number)) {
@@ -82,7 +89,7 @@ public class NumericFormatter {
 
     private BigDecimal scale(BigDecimal value) {
         int digits = value.precision();
-        if (digits <= significatDigits) {
+        if (digits <= significantDigits) {
             return value;
         }
 
@@ -93,9 +100,8 @@ public class NumericFormatter {
         BigDecimal original = value;
         int escape = 20;
         while (escape-- > 0) {
-
             BigDecimal rescaled = value.setScale(value.scale() - 1, BigDecimal.ROUND_HALF_UP);
-            if (rescaled.precision() != digits && rescaled.precision() >= significatDigits) {
+            if (rescaled.precision() != digits && rescaled.precision() >= significantDigits) {
                 digits = rescaled.precision();
                 value = rescaled;
                 continue;
@@ -118,7 +124,7 @@ public class NumericFormatter {
         }
 
         int intValue = decimal.intValue();
-        final String number = String.format(Locale.US, "%d", intValue);
+        String number = decimal.setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
         if (intValue >= 1000) {
             return exponentPositive1000(number) + typeSuffix;
         }

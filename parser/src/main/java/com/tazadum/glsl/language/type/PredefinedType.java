@@ -145,6 +145,18 @@ public enum PredefinedType implements GLSLType, HasToken {
         return null;
     }
 
+    public static PredefinedType find(TypeCategory category, Predicate<PredefinedType> predicate) {
+        for (PredefinedType type : values()) {
+            if (type.category() != category) {
+                continue;
+            }
+            if (predicate.test(type)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     private final String token;
     private final int id;
     private final TypeCategory category;
@@ -450,6 +462,11 @@ public enum PredefinedType implements GLSLType, HasToken {
                     return FLOAT;
             }
         }
+
+        if (category == TypeCategory.Scalar) {
+            return this;
+        }
+
         return null;
     }
 
@@ -484,4 +501,6 @@ public enum PredefinedType implements GLSLType, HasToken {
     public int rows() {
         return rows;
     }
+
+
 }

@@ -20,8 +20,8 @@ import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
+import com.tazadum.glsl.optimizer.Branch;
 import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.optimizer.OptimizerBranch;
 import com.tazadum.glsl.util.SourcePosition;
 
 /**
@@ -64,11 +64,11 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
      *
      * @return An instance of OptimizerBranch.
      */
-    public OptimizerBranch createBranch() {
+    public Branch createBranch() {
         if (firstNode == null) {
             throw new IllegalStateException("'firstNode' was null, has the visitor been used?");
         }
-        return OptimizerBranch.remap(parserContext, firstNode);
+        return Branch.remap(parserContext, firstNode);
     }
 
     @Override

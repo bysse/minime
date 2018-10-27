@@ -191,20 +191,16 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         if (expressionType instanceof PredefinedType) {
             final PredefinedType type = (PredefinedType) expressionType;
 
-            if (type.category() == Vector) {
+            if (type.category() == Vector || type.category() == Scalar) {
                 try {
-                    VectorField field = new VectorField(type, node.getSelection());
+                    VectorField field = new VectorField(type.baseType(), type, node.getSelection());
+
                     PredefinedType glslType = field.getType();
                     node.setType(glslType);
                     return glslType;
                 } catch (NoSuchFieldException | TypeException e) {
                     throw new SourcePositionException(node, ILLEGAL_SWIZZLE(node.getSelection()), e);
                 }
-            }
-
-            if (type.category() == Scalar) {
-                // just a more detailed error message
-                throw new SourcePositionException(node, SYNTAX_ERROR(node.getSelection(), INVALID_SWIZZLE));
             }
         }
 

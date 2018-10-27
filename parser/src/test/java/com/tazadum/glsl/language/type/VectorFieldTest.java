@@ -17,21 +17,22 @@ class VectorFieldTest {
     @DisplayName("test simple")
     public void test_1() throws NoSuchFieldException, TypeException {
         assertEquals(FLOAT, new VectorField(FLOAT, "x").getType());
-        assertEquals(VEC3, new VectorField(VEC3, "xyz").getType());
-        assertEquals(VEC4, new VectorField(VEC3, "rgbr").getType());
-        assertEquals(VEC2, new VectorField(VEC3, "tp").getType());
-        assertEquals(IVEC2, new VectorField(IVEC3, "xy").getType());
-        assertEquals(FLOAT, new VectorField(VEC3, "x").getType());
-        assertEquals(INT, new VectorField(IVEC3, "x").getType());
+        assertEquals(VEC3, new VectorField(FLOAT, "xyz").getType());
+        assertEquals(VEC4, new VectorField(FLOAT, "rgbr").getType());
+        assertEquals(VEC2, new VectorField(FLOAT, "tp").getType());
+        assertEquals(IVEC2, new VectorField(INT, "xy").getType());
+        assertEquals(FLOAT, new VectorField(FLOAT, "x").getType());
+        assertEquals(INT, new VectorField(INT, "x").getType());
     }
 
     @Test
     @DisplayName("test widening")
     public void test_2() throws NoSuchFieldException, TypeException {
-        assertEquals(VEC3, new VectorField(VEC2, "xyx").getType());
-        assertEquals(VEC4, new VectorField(VEC2, "xyxy").getType());
+        assertThrows(NoSuchFieldException.class, () -> new VectorField(BOOL, BVEC2, "xyz"));
+        assertThrows(NoSuchFieldException.class, () -> new VectorField(FLOAT, VEC2, "xyz"));
 
-        assertThrows(NoSuchFieldException.class, () -> new VectorField(BOOL, "xyz"));
-        assertThrows(NoSuchFieldException.class, () -> new VectorField(VEC2, "xyz"));
+        assertEquals(VEC3, new VectorField(FLOAT, "xyx").getType());
+        assertEquals(VEC4, new VectorField(FLOAT, "xyxy").getType());
+
     }
 }

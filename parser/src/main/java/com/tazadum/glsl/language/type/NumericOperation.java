@@ -6,7 +6,7 @@ import com.tazadum.glsl.parser.TypeCombination;
 import java.math.BigDecimal;
 
 /**
- * Implementation of the basic numeric operations using Numerics.
+ * Implementation of the basic operations using Numeric operands.
  */
 public class NumericOperation {
     public static Numeric add(Numeric a, Numeric b) throws TypeException {
@@ -22,7 +22,15 @@ public class NumericOperation {
     }
 
     public static Numeric div(Numeric a, Numeric b) throws TypeException {
-        return new Numeric(a.getValue().divide(b.getValue(), BigDecimal.ROUND_HALF_UP), negotiateType(a, b));
+        int scaleA = a.getValue().scale();
+        int scaleB = b.getValue().scale();
+
+        BigDecimal abd = a.getValue();
+        if (scaleA < scaleB) {
+            abd = abd.setScale(scaleB, BigDecimal.ROUND_HALF_UP);
+        }
+
+        return new Numeric(abd.divide(b.getValue(), BigDecimal.ROUND_HALF_UP), negotiateType(a, b));
     }
 
     public static Numeric mod(Numeric a, Numeric b) throws TypeException {
@@ -42,6 +50,9 @@ public class NumericOperation {
     }
 
     private static PredefinedType negotiateType(Numeric a, Numeric b) throws TypeException {
+        // float types wil force the expression to be float
+
+
         return (PredefinedType) TypeCombination.compatibleType(a.getType(), b.getType());
     }
 

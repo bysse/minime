@@ -49,8 +49,8 @@ public class OutputConfigBuilder {
     /**
      * The maximum number of significant decimals rendered.
      */
-    public OutputConfigBuilder significantDecimals(int maxDecimals) {
-        this.maxDecimals = maxDecimals;
+    public OutputConfigBuilder significantDecimals(int decimals) {
+        this.maxDecimals = decimals;
         return this;
     }
 
