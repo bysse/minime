@@ -73,6 +73,10 @@ public class OutputConfig {
         return keyword;
     }
 
+    public NumericFormatter getFormatter() {
+        return formatter;
+    }
+
     private boolean lastCharIs(StringBuilder builder, char ch) {
         return builder.length() > 0 && builder.charAt(builder.length() - 1) == ch;
     }

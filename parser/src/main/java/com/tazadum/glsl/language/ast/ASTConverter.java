@@ -1176,8 +1176,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     private int evaluateInt(Node node) {
         Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(parserContext, node);
-        if (anyOf(numeric.getType(), INT, UINT) && numeric.getValue() >= 0) {
-            return (int) numeric.getValue();
+        if (anyOf(numeric.getType(), INT, UINT) && numeric.signum() >= 0) {
+            return numeric.intValue();
         }
         throw new SourcePositionException(node, INCOMPATIBLE_TYPE(numeric.getType(), EXPECTED_NON_NEGATIVE_INTEGER));
     }

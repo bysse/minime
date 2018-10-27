@@ -3,49 +3,46 @@ package com.tazadum.glsl.language.type;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.parser.TypeCombination;
 
-import static com.tazadum.glsl.language.type.PredefinedType.INT;
-import static com.tazadum.glsl.language.type.PredefinedType.UINT;
-import static com.tazadum.glsl.parser.TypeCombination.anyOf;
+import java.math.BigDecimal;
 
+/**
+ * Implementation of the basic numeric operations using Numerics.
+ */
 public class NumericOperation {
     public static Numeric add(Numeric a, Numeric b) throws TypeException {
-        int decimals = Math.max(a.getDecimals(), b.getDecimals());
-        return new Numeric(a.getValue() + b.getValue(), decimals, negotiateType(a, b));
+        return new Numeric(a.getValue().add(b.getValue()), negotiateType(a, b));
     }
 
     public static Numeric sub(Numeric a, Numeric b) throws TypeException {
-        int decimals = Math.max(a.getDecimals(), b.getDecimals());
-        return new Numeric(a.getValue() - b.getValue(), decimals, negotiateType(a, b));
+        return new Numeric(a.getValue().subtract(b.getValue()), negotiateType(a, b));
     }
 
     public static Numeric mul(Numeric a, Numeric b) throws TypeException {
-        int decimals = Math.max(a.getDecimals(), b.getDecimals());
-        return new Numeric(a.getValue() * b.getValue(), decimals, negotiateType(a, b));
+        return new Numeric(a.getValue().multiply(b.getValue()), negotiateType(a, b));
     }
 
     public static Numeric div(Numeric a, Numeric b) throws TypeException {
-        int decimals = Math.max(a.getDecimals(), b.getDecimals());
-        PredefinedType type = negotiateType(a, b);
-
-        if (anyOf(type, INT, UINT)) {
-            return new Numeric((int) a.getValue() / (int) b.getValue(), decimals, type);
-        }
-
-        return new Numeric(a.getValue() / b.getValue(), decimals, type);
+        return new Numeric(a.getValue().divide(b.getValue(), BigDecimal.ROUND_HALF_UP), negotiateType(a, b));
     }
 
     public static Numeric mod(Numeric a, Numeric b) throws TypeException {
-        int decimals = Math.max(a.getDecimals(), b.getDecimals());
-        PredefinedType type = negotiateType(a, b);
+        return new Numeric(a.getValue().remainder(b.getValue()), negotiateType(a, b));
+    }
 
-        if (anyOf(type, INT, UINT)) {
-            return new Numeric((int) a.getValue() % (int) b.getValue(), decimals, type);
-        }
+    public static Numeric inc(Numeric a) {
+        return new Numeric(a.getValue().add(BigDecimal.ONE), a.getType());
+    }
 
-        return new Numeric(a.getValue() % b.getValue(), decimals, type);
+    public static Numeric dec(Numeric a) {
+        return new Numeric(a.getValue().subtract(BigDecimal.ONE), a.getType());
+    }
+
+    public static Numeric negate(Numeric a) {
+        return new Numeric(a.getValue().negate(), a.getType());
     }
 
     private static PredefinedType negotiateType(Numeric a, Numeric b) throws TypeException {
         return (PredefinedType) TypeCombination.compatibleType(a.getType(), b.getType());
     }
+
 }

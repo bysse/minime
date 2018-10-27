@@ -138,7 +138,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
     @Override
     public ConstResult visitBoolean(BooleanLeafNode node) {
         // TODO: sketchy handling
-        return number(1, 0, PredefinedType.BOOL);
+        return number(boolInt(node.getValue()), PredefinedType.BOOL);
     }
 
     @Override
@@ -196,10 +196,10 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
                 final ArrayType arrayType = (ArrayType) nodeType;
                 if (arrayType.hasDimension()) {
                     // the array type was explicitly specified, return the size
-                    return number(arrayType.getDimension(), 0, UINT);
+                    return number(arrayType.getDimension(), UINT);
                 } else {
                     // no dimension specified, look at the initializer
-                    return number(initializerList.getChildCount(), 0, UINT);
+                    return number(initializerList.getChildCount(), UINT);
                 }
             }
             return abort(node);
@@ -254,7 +254,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         if (!anyOf(indexType, INT, UINT)) {
             throw new SourcePositionException(indexNode, INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
         }
-        int index = (int) indexNumeric.getValue();
+        int index = indexNumeric.intValue();
         if (index < 0) {
             throw new SourcePositionException(indexNode, INCOMPATIBLE_TYPE(indexType, ARRAY_INDEX_NOT_INT));
         }
@@ -273,7 +273,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         Numeric right = expectNumeric(node.getRight().accept(this));
         Boolean value = node.getOperator().apply(left, right);
 
-        return number(boolInt(value), 0, PredefinedType.BOOL);
+        return number(boolInt(value), PredefinedType.BOOL);
     }
 
     @Override
@@ -283,11 +283,11 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
 
         switch (node.getOperator()) {
             case OR:
-                return number(boolInt(left.getValue() > 0 || right.getValue() > 0), 0, PredefinedType.BOOL);
+                return number(boolInt(left.boolValue() || right.boolValue()), PredefinedType.BOOL);
             case AND:
-                return number(boolInt(left.getValue() > 0 && right.getValue() > 0), 0, PredefinedType.BOOL);
+                return number(boolInt(left.boolValue() && right.boolValue()), PredefinedType.BOOL);
             case XOR:
-                return number(boolInt(left.getValue() > 0 ^ right.getValue() > 0), 0, PredefinedType.BOOL);
+                return number(boolInt(left.boolValue() ^ right.boolValue()), PredefinedType.BOOL);
         }
 
         throw new BadImplementationException();
@@ -321,9 +321,10 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
 
     @Override
     public ConstResult visitTernaryCondition(TernaryConditionNode node) {
+        // TODO: this is fucked up
         Numeric condition = expectNumeric(node.getCondition().accept(this));
         if (condition != null && condition.getType() == PredefinedType.BOOL) {
-            if (condition.getValue() > 0) {
+            if (condition.boolValue()) {
                 return node.getThen().accept(this);
             } else {
                 return node.getElse().accept(this);
@@ -338,15 +339,15 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
 
         switch (node.getOperator()) {
             case DECREASE:
-                return number(numeric.getValue() - 1, numeric.getDecimals(), numeric.getType());
+                return number(NumericOperation.dec(numeric));
             case INCREASE:
-                return number(numeric.getValue() + 1, numeric.getDecimals(), numeric.getType());
+                return number(NumericOperation.inc(numeric));
             case MINUS:
-                return number(-numeric.getValue(), numeric.getDecimals(), numeric.getType());
+                return number(NumericOperation.negate(numeric));
             case PLUS:
                 return number(numeric);
             case BANG:
-                return number(1 - numeric.getValue(), numeric.getDecimals(), PredefinedType.BOOL);
+                return number(boolInt(!numeric.boolValue()), PredefinedType.BOOL);
         }
         return abort(node);
     }
@@ -393,21 +394,21 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
                 throw new SourcePositionException(node, INCOMPATIBLE_TYPES(left.getType(), right.getType(), EXPECTED_INTEGER_SCALAR));
             }
 
-            final int lval = (int) left.getValue();
-            final int rval = (int) right.getValue();
             final PredefinedType basicType = (PredefinedType) type;
+            final int lval = left.intValue();
+            final int rval = right.intValue();
 
             switch (node.getOperator()) {
                 case SHIFT_LEFT:
-                    return number(lval << rval, 0, basicType);
+                    return number(lval << rval, basicType);
                 case SHIFT_RIGHT:
-                    return number(lval >> rval, 0, basicType);
+                    return number(lval >> rval, basicType);
                 case AND:
-                    return number(lval & rval, 0, basicType);
+                    return number(lval & rval, basicType);
                 case OR:
-                    return number(lval | rval, 0, basicType);
+                    return number(lval | rval, basicType);
                 case XOR:
-                    return number(lval ^ rval, 0, basicType);
+                    return number(lval ^ rval, basicType);
             }
         } catch (TypeException e) {
             throw SourcePositionException.wrap(node, e);
@@ -477,8 +478,8 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         return expectNumeric(result.getNode().accept(this));
     }
 
-    private ConstResult number(double value, int decimals, PredefinedType type) {
-        return number(new Numeric(value, decimals, type));
+    private ConstResult number(int value, PredefinedType type) {
+        return number(Numeric.createInt(value, type));
     }
 
     private ConstResult number(Numeric numeric) {

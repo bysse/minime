@@ -2,23 +2,19 @@ package com.tazadum.glsl.util;
 
 import org.junit.jupiter.api.Test;
 
-import static com.tazadum.glsl.util.StringUtils.cut;
-import static com.tazadum.glsl.util.StringUtils.isEmpty;
-import static com.tazadum.glsl.util.StringUtils.rtrim;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.tazadum.glsl.util.StringUtils.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class StringUtilsTest {
     @Test
-    public void testEmpty() {
+    void testEmpty() {
         assertTrue(isEmpty(null));
         assertTrue(isEmpty(""));
         assertFalse(isEmpty("a"));
     }
 
     @Test
-    public void testRtrim() {
+    void testRtrim() {
         assertEquals(null, rtrim(null));
         assertEquals("", rtrim(""));
         assertEquals("text", rtrim("text"));
@@ -27,7 +23,7 @@ class StringUtilsTest {
     }
 
     @Test
-    public void testCut() {
+    void testCut() {
         assertEquals("", cut(null, 1));
         assertEquals("", cut(null, 0));
 

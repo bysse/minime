@@ -80,6 +80,7 @@ Date    Hours
 2018-10-24  6.0 All functions encoded! Added support for array constructors for PredefinedTypes.
 2018-10-25  4.5 Fixing a preprocessor main method and cleaning up the preprocessor error reporting. Starting to port the optimizer.
 2018-10-26  1.5 Fixing a compiler main.
+2018-10-27  1.2 Upgrading Numeric to use BigDecimal.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

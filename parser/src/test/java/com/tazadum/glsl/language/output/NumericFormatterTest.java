@@ -12,42 +12,45 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Created by erikb on 2018-10-15.
  */
 class NumericFormatterTest {
-    private NumericFormatter formatter = new NumericFormatter(5);
+    private NumericFormatter formatter = new NumericFormatter(3);
 
     @ParameterizedTest(name = "test: {0}")
     @MethodSource("getCases")
     void testString(String expected, Numeric numeric) {
-        assertEquals(expected, formatter.format(numeric));
+        String format = formatter.format(numeric);
+        assertEquals(expected, format);
     }
 
     private static Arguments[] getCases() {
         return new Arguments[]{
-            Arguments.of("0", new Numeric(0, 2, FLOAT)),
-            Arguments.of("0", new Numeric(0, 2, DOUBLE)),
+            Arguments.of("0", Numeric.create("0", FLOAT)),
+            Arguments.of("0", Numeric.create("0", DOUBLE)),
 
-            Arguments.of("3", new Numeric(3.1, 0, FLOAT)),
-            Arguments.of("3.14159", new Numeric(Math.PI, 10, FLOAT)),
-            Arguments.of("10.2", new Numeric(10.15, 1, DOUBLE)),
-            Arguments.of(".1", new Numeric(0.100, 3, DOUBLE)),
-            Arguments.of("1e3", new Numeric(1000, 2, FLOAT)),
-            Arguments.of(".00011", new Numeric(0.00011, 5, FLOAT)),
-            Arguments.of("-4e3", new Numeric(-4000, 2, DOUBLE)),
-            Arguments.of("1e-4", new Numeric(0.0001, 4, FLOAT)),
-            Arguments.of("-.1", new Numeric(-0.1, 4, FLOAT)),
-            Arguments.of("-1e-4", new Numeric(-0.0001, 4, FLOAT)),
-            Arguments.of("-.00011", new Numeric(-0.00011, 5, FLOAT)),
+            Arguments.of("3", Numeric.create("3.1", INT)),
+            Arguments.of("3.1", Numeric.create("3.1", FLOAT)),
+            Arguments.of("3.14", Numeric.create("3.1415926535", FLOAT)),
+            Arguments.of("10.2", Numeric.create("10.15", DOUBLE)),
+            Arguments.of(".1", Numeric.create("0.100", DOUBLE)),
+            Arguments.of("1e3", Numeric.create("1000", FLOAT)),
+            Arguments.of(".00011", Numeric.create("0.00011", FLOAT)),
+            Arguments.of(".000123", Numeric.create("0.0001234", FLOAT)),
+            Arguments.of("-4e3", Numeric.create("-4000", DOUBLE)),
+            Arguments.of("1e-4", Numeric.create("0.0001", FLOAT)),
+            Arguments.of("-.1", Numeric.create("-0.1", FLOAT)),
+            Arguments.of("-1e-4", Numeric.create("-0.0001", FLOAT)),
+            Arguments.of("-.00011", Numeric.create("-0.00011", FLOAT)),
 
-            Arguments.of("0", new Numeric(0, 0, UINT)),
-            Arguments.of("0", new Numeric(0, 0, INT)),
-            Arguments.of("10", new Numeric(10, 0, INT)),
-            Arguments.of("10u", new Numeric(10, 0, UINT)),
-            Arguments.of("100", new Numeric(100, 0, INT)),
-            Arguments.of("1e3u", new Numeric(1000, 0, UINT)),
-            Arguments.of("4e3", new Numeric(4000, 0, INT)),
-            Arguments.of("4100", new Numeric(4100, 0, INT)),
-            Arguments.of("-2", new Numeric(-2, 0, INT)),
-            Arguments.of("-4e3", new Numeric(-4000, 0, INT)),
-            Arguments.of("-4100", new Numeric(-4100, 0, INT)),
+            Arguments.of("0", Numeric.create("0", UINT)),
+            Arguments.of("0", Numeric.create("0", INT)),
+            Arguments.of("10", Numeric.create("10", INT)),
+            Arguments.of("10u", Numeric.create("10", UINT)),
+            Arguments.of("100", Numeric.create("100", INT)),
+            Arguments.of("1e3u", Numeric.create("1000", UINT)),
+            Arguments.of("-4e3", Numeric.create("-4000", INT)),
+            Arguments.of("4e3", Numeric.create("4000", INT)),
+            Arguments.of("4100", Numeric.create("4100", INT)),
+            Arguments.of("-2", Numeric.create("-2", INT)),
+            Arguments.of("-4100", Numeric.create("-4100", INT)),
         };
     }
 }

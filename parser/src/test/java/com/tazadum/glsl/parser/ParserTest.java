@@ -155,7 +155,7 @@ class ParserTest {
                 new FullySpecifiedType(qualifiers, PredefinedType.INT),
                 "start",
                 null,
-                new NumericLeafNode(SourcePosition.TOP, new Numeric(1, 0, PredefinedType.INT)),
+                new NumericLeafNode(SourcePosition.TOP, Numeric.createInt(1, PredefinedType.INT)),
                 null)
         );
 

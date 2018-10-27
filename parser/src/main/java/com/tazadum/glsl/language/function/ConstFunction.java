@@ -42,7 +42,8 @@ public enum ConstFunction implements HasToken {
     }
 
     public Numeric apply(Numeric n) {
-        return new Numeric(apply(n.getValue()), n.getDecimals(), n.getType());
+        double value = apply(n.getValue().doubleValue());
+        return Numeric.createFloat(value, n.getType());
     }
 
     public double apply(double n) {

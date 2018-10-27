@@ -1,30 +1,49 @@
 package com.tazadum.glsl.language.type;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 
+import static com.tazadum.glsl.language.type.PredefinedType.INT;
+import static com.tazadum.glsl.language.type.PredefinedType.UINT;
+import static com.tazadum.glsl.parser.TypeCombination.anyOf;
+
 public class Numeric implements Comparable<Numeric> {
-    private double value;
-    private int decimals;
+    private BigDecimal value;
     private PredefinedType type;
 
-    public Numeric(double value, int decimals, PredefinedType type) {
-        this.value = value;
-        this.decimals = decimals;
+    Numeric(BigDecimal value, PredefinedType type) {
+        this.value = value.stripTrailingZeros();
         this.type = type;
 
         assert type.category() == TypeCategory.Scalar : "Non scalar type passed to constructor";
     }
 
-    public boolean hasFraction() {
-        return decimals > 0;
-    }
-
-    public int getDecimals() {
-        return decimals;
-    }
-
-    public double getValue() {
+    public BigDecimal getValue() {
         return value;
+    }
+
+    /**
+     * Returns the signum function of this Numeric.
+     *
+     * @return -1, 0, or 1 as the value of this Numeric is negative, zero, or positive.
+     */
+    public int signum() {
+        return value.signum();
+    }
+
+    public int intValue() {
+        return value.intValue();
+    }
+
+    public double doubleValue() {
+        return value.doubleValue();
+    }
+
+    /**
+     * Returns true if the value is positive otherwise false.
+     */
+    public boolean boolValue() {
+        return signum() > 0;
     }
 
     public boolean isFloat() {
@@ -35,9 +54,26 @@ public class Numeric implements Comparable<Numeric> {
         return type;
     }
 
+    /**
+     * Takes the type into consideration when comparing numbers.
+     */
     @Override
     public int compareTo(Numeric o) {
-        return (int) Math.signum(value - o.value);
+        if (isFloat()) {
+            if (o.isFloat()) {
+                // float VS float
+                return value.compareTo(o.value);
+            }
+            // float VS int
+            return Double.compare(o.doubleValue(), o.intValue());
+        }
+        int intValue = intValue();
+        if (o.isFloat()) {
+            // int VS float
+            return Double.compare(intValue, o.doubleValue());
+        }
+        // int VS int
+        return Integer.compare(intValue, o.intValue());
     }
 
     @Override
@@ -47,13 +83,34 @@ public class Numeric implements Comparable<Numeric> {
 
         Numeric numeric = (Numeric) o;
 
-        return Double.compare(numeric.value, value) == 0;
+        if (!value.equals(numeric.value)) return false;
+        return type == numeric.type;
     }
 
     @Override
     public int hashCode() {
-        long temp = Double.doubleToLongBits(value);
-        return (int) (temp ^ (temp >>> 32));
+        int result = value.hashCode();
+        result = 31 * result + type.hashCode();
+        return result;
+    }
+
+    public String toString() {
+        return String.format(Locale.US, "{%s, %s}", value.toPlainString(), type.token());
+    }
+
+    public static Numeric createFloat(double floatValue, PredefinedType type) {
+        return new Numeric(new BigDecimal(floatValue), type);
+    }
+
+    public static Numeric createInt(int intValue, PredefinedType type) {
+        if (anyOf(type, INT, UINT)) {
+            return new Numeric(new BigDecimal(intValue), type);
+        }
+        throw new IllegalArgumentException("Type must be either INT or UINT : " + type.name());
+    }
+
+    public static Numeric create(String number, PredefinedType type) {
+        return new Numeric(new BigDecimal(number), type);
     }
 
     public static Numeric create(String number) {
@@ -63,11 +120,11 @@ public class Numeric implements Comparable<Numeric> {
         // check for type suffixes
         if (last == 'u' || last == 'U') {
             // no need for special float handling since this is an unsigned int
-            double value = Double.parseDouble(number.substring(0, length));
-            return new Numeric(value, 0, PredefinedType.UINT);
+            String value = number.substring(0, length);
+            return new Numeric(new BigDecimal(value), UINT);
         }
 
-        PredefinedType type = PredefinedType.INT;
+        PredefinedType type = INT;
         if (last == 'f' || last == 'F') {
             type = PredefinedType.FLOAT;
             char prev = number.charAt(length - 1);
@@ -78,36 +135,16 @@ public class Numeric implements Comparable<Numeric> {
             number = number.substring(0, length);
         }
 
-        final double value = Double.parseDouble(number);
-
         int index = number.indexOf('.');
         if (index < 0) {
             // no dot found so this value has no decimals
-            return new Numeric(value, 0, type);
+            return new Numeric(new BigDecimal(number), type);
         }
 
-        if (type == PredefinedType.INT) {
+        if (type == INT) {
             type = PredefinedType.FLOAT;
         }
 
-        int decimals = number.length() - index - 1;
-
-        // remove trailing zeroes
-        for (int i = number.length() - 1; i > index; i--) {
-            if (number.charAt(i) != '0') {
-                break;
-            }
-            decimals--;
-        }
-
-        return new Numeric(value, decimals, type);
-    }
-
-    public String toString() {
-        return String.format(Locale.US, "{%f, %d, %s}", value, decimals, type.token());
-    }
-
-    public static Numeric abs(Numeric n) {
-        return new Numeric(Math.abs(n.getValue()), n.getDecimals(), n.getType());
+        return new Numeric(new BigDecimal(number), type);
     }
 }

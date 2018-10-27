@@ -3,6 +3,7 @@ package com.tazadum.glsl.language.output;
 import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.language.type.PredefinedType;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 
 /**
@@ -11,34 +12,38 @@ import java.util.Locale;
 public class NumericFormatter {
     private static final String ZERO = "0";
 
-    private int maxDecimals;
+    private int significatDigits;
 
-    public NumericFormatter(int maxDecimals) {
-        this.maxDecimals = maxDecimals;
+    public NumericFormatter(int significatDigits) {
+        this.significatDigits = significatDigits;
+    }
+
+    public int getSignificatDigits() {
+        return significatDigits;
     }
 
     public String format(Numeric numeric) {
+        BigDecimal decimal = numeric.getValue();
+
         switch (numeric.getType()) {
             case FLOAT:
             case DOUBLE:
-                return renderFloat(numeric);
+                return renderFloat(decimal, numeric.getType());
             case INT:
             case UINT:
             default:
-                return renderInteger(numeric);
+                return renderInteger(decimal, numeric.getType());
         }
     }
 
-    private String renderFloat(Numeric numeric) {
-        if (!numeric.hasFraction()) {
-            return renderInteger(numeric);
+    private String renderFloat(BigDecimal decimal, PredefinedType type) {
+        if (decimal.scale() <= 0) {
+            return renderInteger(decimal, PredefinedType.INT);
         }
 
-        final int decimals = Math.min(numeric.getDecimals(), maxDecimals);
-        final String format = String.format(Locale.US, "%%.%df", decimals);
-        final double value = numeric.getValue();
+        decimal = scale(decimal);
 
-        String number = String.format(Locale.US, format, value);
+        String number = decimal.toPlainString();
         if (number.startsWith("0")) {
             number = number.substring(1);
         } else if (number.startsWith("-0")) {
@@ -53,6 +58,7 @@ public class NumericFormatter {
             return ZERO;
         }
 
+        final double value = decimal.doubleValue();
         if (number.endsWith(".")) {
             number = number.substring(0, number.length() - 1);
             if (value >= 1000) {
@@ -74,21 +80,49 @@ public class NumericFormatter {
         return number;
     }
 
-    private String renderInteger(Numeric numeric) {
-        if (numeric.getValue() == 0) {
+    private BigDecimal scale(BigDecimal value) {
+        int digits = value.precision();
+        if (digits <= significatDigits) {
+            return value;
+        }
+
+        if (value.scale() == 0) {
+            return value;
+        }
+
+        BigDecimal original = value;
+        int escape = 20;
+        while (escape-- > 0) {
+
+            BigDecimal rescaled = value.setScale(value.scale() - 1, BigDecimal.ROUND_HALF_UP);
+            if (rescaled.precision() != digits && rescaled.precision() >= significatDigits) {
+                digits = rescaled.precision();
+                value = rescaled;
+                continue;
+            }
+            return value;
+        }
+
+        // value rendering escape
+        return original;
+    }
+
+    private String renderInteger(BigDecimal decimal, PredefinedType type) {
+        if (decimal.doubleValue() == 0.0) {
             return ZERO;
         }
 
         String typeSuffix = "";
-        if (numeric.getType() == PredefinedType.UINT) {
+        if (type == PredefinedType.UINT) {
             typeSuffix = "u";
         }
 
-        final String number = String.format(Locale.US, "%d", (int) numeric.getValue());
-        if (numeric.getValue() >= 1000) {
+        int intValue = decimal.intValue();
+        final String number = String.format(Locale.US, "%d", intValue);
+        if (intValue >= 1000) {
             return exponentPositive1000(number) + typeSuffix;
         }
-        if (numeric.getValue() <= -1000) {
+        if (intValue <= -1000) {
             return exponentNegative1000(number) + typeSuffix;
         }
         return number + typeSuffix;

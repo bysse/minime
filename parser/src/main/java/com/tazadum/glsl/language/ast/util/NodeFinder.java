@@ -5,8 +5,8 @@ import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.traits.MutatingOperation;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 
 /**
@@ -95,7 +95,7 @@ public class NodeFinder {
      * @param <T>      The subtype to Node to search for.
      * @return A Set of all nodes that were found.
      */
-    public static <T extends Node> Set<T> findAll(Node node, Class<T> nodeType) {
+    public static <T extends Node> SortedSet<T> findAll(Node node, Class<T> nodeType) {
         final NodeFinderVisitor<T> visitor = new NodeFinderVisitor<>(nodeType);
         node.accept(visitor);
         return visitor.getResult();
@@ -150,14 +150,14 @@ public class NodeFinder {
 
     private static class NodeFinderVisitor<T extends Node> extends DefaultASTVisitor<Boolean> {
         private Class<T> nodeType;
-        private Set<T> result;
+        private SortedSet<T> result;
 
         NodeFinderVisitor(Class<T> nodeType) {
             this.nodeType = nodeType;
-            this.result = new HashSet<>();
+            this.result = new TreeSet<>();
         }
 
-        public Set<T> getResult() {
+        public SortedSet<T> getResult() {
             return result;
         }
 

@@ -4,24 +4,20 @@ import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.parser.GLSLParser;
 import com.tazadum.glsl.preprocessor.model.HasToken;
 
-import java.util.function.BiFunction;
-
 public enum RelationalOperator implements HasToken {
-    LessThan("<", GLSLParser.LEFT_ANGLE, (a, b) -> a < b),
-    GreaterThan(">", GLSLParser.RIGHT_ANGLE, (a, b) -> a > b),
-    LessThanOrEqual("<=", GLSLParser.LE_OP, (a, b) -> a <= b),
-    GreaterThanOrEqual(">=", GLSLParser.GE_OP, (a, b) -> a >= b),
-    Equal("==", GLSLParser.EQUAL, (a, b) -> Double.compare(a, b) == 0),
-    NotEqual("!=", GLSLParser.NE_OP, (a, b) -> Double.compare(a, b) != 0),;
+    LessThan("<", GLSLParser.LEFT_ANGLE),
+    GreaterThan(">", GLSLParser.RIGHT_ANGLE),
+    LessThanOrEqual("<=", GLSLParser.LE_OP),
+    GreaterThanOrEqual(">=", GLSLParser.GE_OP),
+    Equal("==", GLSLParser.EQUAL),
+    NotEqual("!=", GLSLParser.NE_OP),;
 
     private final String token;
     private final int tokenId;
-    private final BiFunction<Double, Double, Boolean> function;
 
-    RelationalOperator(String token, int tokenId, BiFunction<Double, Double, Boolean> function) {
+    RelationalOperator(String token, int tokenId) {
         this.token = token;
         this.tokenId = tokenId;
-        this.function = function;
     }
 
     @Override
@@ -35,6 +31,23 @@ public enum RelationalOperator implements HasToken {
     }
 
     public Boolean apply(Numeric a, Numeric b) {
-        return function.apply(a.getValue(), b.getValue());
+        final int compVal = a.getValue().compareTo(b.getValue());
+
+        switch (this) {
+            case Equal:
+                return compVal == 0;
+            case NotEqual:
+                return compVal != 0;
+            case GreaterThan:
+                return compVal > 0;
+            case GreaterThanOrEqual:
+                return compVal >= 0;
+            case LessThan:
+                return compVal < 0;
+            case LessThanOrEqual:
+                return compVal <= 0;
+        }
+
+        throw new UnsupportedOperationException("Unsupported operation " + name());
     }
 }
