@@ -83,7 +83,7 @@ public class TestUtil {
 
     public static void typeCheck(Node node, ParserContext parserContext) {
         assert node != null : "Node is null";
-        node.accept(new TypeVisitor(parserContext));
+        node.accept(parserContext.getTypeVisitor());
     }
 
     public static String toString(Node node) {

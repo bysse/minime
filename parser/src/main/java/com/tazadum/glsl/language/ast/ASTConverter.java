@@ -1,9 +1,6 @@
 package com.tazadum.glsl.language.ast;
 
-import com.tazadum.glsl.exception.BadImplementationException;
-import com.tazadum.glsl.exception.SourcePositionException;
-import com.tazadum.glsl.exception.TypeException;
-import com.tazadum.glsl.exception.VariableException;
+import com.tazadum.glsl.exception.*;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.*;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
@@ -21,6 +18,7 @@ import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.type.*;
+import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.context.GLSLContext;
@@ -484,9 +482,15 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         // TODO: do something for constant expressions?
 
+        boolean allConstant = true;
         for (GLSLParser.InitializerContext initializer : ctx.initializer()) {
-            listNode.addChild(initializer.accept(this));
+            Node childNode = initializer.accept(this);
+            listNode.addChild(childNode);
+
+            allConstant |= isConst(childNode);
         }
+
+        listNode.setConstant(allConstant);
 
         return listNode;
     }
@@ -1045,8 +1049,14 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         final AssignmentOperator operator = HasToken.fromToken(ctx.assignment_operator(), AssignmentOperator.values());
         final Node lparam = ctx.unary_expression().accept(this);
-        final Node rparam = ctx.assignment_expression().accept(this);
 
+        // check if the lparam is declared as const
+        VariableNode target = NodeFinder.findAssignmentTarget(lparam);
+        if (target != null && target.getDeclarationNode().isConstant()) {
+            throw new SourcePositionException(lparam, Errors.Coarse.SYNTAX_ERROR(LVALUE_IS_CONST));
+        }
+
+        final Node rparam = ctx.assignment_expression().accept(this);
         return new AssignmentNode(SourcePosition.create(ctx.start), lparam, operator, rparam);
     }
 
@@ -1175,11 +1185,15 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     }
 
     private int evaluateInt(Node node) {
-        Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(parserContext, node);
-        if (anyOf(numeric.getType(), INT, UINT) && numeric.signum() >= 0) {
-            return numeric.intValue();
+        try {
+            Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(parserContext, node);
+            if (anyOf(numeric.getType(), INT, UINT) && numeric.signum() >= 0) {
+                return numeric.intValue();
+            }
+            throw new SourcePositionException(node, INCOMPATIBLE_TYPE(numeric.getType(), EXPECTED_NON_NEGATIVE_INTEGER));
+        } catch (NotConstExpressionException e) {
+            throw new SourcePositionException(node, e.getMessage(), e);
         }
-        throw new SourcePositionException(node, INCOMPATIBLE_TYPE(numeric.getType(), EXPECTED_NON_NEGATIVE_INTEGER));
     }
 
     @Override

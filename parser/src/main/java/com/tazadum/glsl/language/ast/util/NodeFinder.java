@@ -4,6 +4,9 @@ import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.traits.MutatingOperation;
+import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
+import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -47,6 +50,26 @@ public class NodeFinder {
             return null;
         }
         return findNearestMutableOperation(parent);
+    }
+
+    /**
+     * Search through a lvalue to find the target of an assignment.
+     * The search will stop at function calls.
+     *
+     * @param node Node to search from, inclusive.
+     * @return The assignment target or null if nothing was found.
+     */
+    public static VariableNode findAssignmentTarget(Node node) {
+        if (node instanceof VariableNode) {
+            return (VariableNode) node;
+        }
+        if (node instanceof ArrayIndexNode) {
+            return findAssignmentTarget(((ArrayIndexNode) node).getExpression());
+        }
+        if (node instanceof FieldSelectionNode) {
+            return findAssignmentTarget(((FieldSelectionNode) node).getExpression());
+        }
+        return null;
     }
 
     /**

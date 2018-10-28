@@ -98,7 +98,7 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     @Override
     public boolean isConstant() {
         Node initializer = getInitializer();
-        if (initializer != null && type.getQualifiers() != null && type.getQualifiers().contains(StorageQualifier.CONST)) {
+        if (initializer != null && type.getQualifiers().contains(StorageQualifier.CONST)) {
             return HasConstState.isConst(initializer);
         }
         return false;

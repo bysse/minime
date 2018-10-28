@@ -106,7 +106,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         if (node.getInitializer() != null) {
             buffer.append('=');
             node.getInitializer().accept(this);
-            buffer.append(';');
         }
         return buffer;
     }
@@ -118,7 +117,8 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             outputType(node.getFullySpecifiedType(), firstChild.getStructDeclaration());
             buffer.append(config.identifierSpacing());
         }
-        return outputChildCSV(node, 0, node.getChildCount());
+        outputChildCSV(node, 0, node.getChildCount());
+        return buffer.append(';');
     }
 
     @Override
@@ -256,7 +256,13 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     @Override
     public SourceBuffer visitFunctionCall(FunctionCallNode node) {
         if (node.getIdentifier() != null) {
-            buffer.append(config.identifier(node.getIdentifier()));
+            final FunctionPrototypeNode declarationNode = node.getDeclarationNode();
+            if (declarationNode != null && declarationNode.getPrototype().isBuiltIn()) {
+                // always output the names of built-in functions
+                buffer.append(node.getIdentifier().original());
+            } else {
+                buffer.append(config.identifier(node.getIdentifier()));
+            }
             outputArraySpecifier(node.getArraySpecifiers());
         }
         buffer.append('(');
@@ -516,7 +522,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     private boolean outputTypeQualifiers(TypeQualifierList typeQualifier) {
-        if (typeQualifier == null) {
+        if (typeQualifier == null || typeQualifier.isEmpty()) {
             return false;
         }
 

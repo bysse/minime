@@ -12,12 +12,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by Erik on 2016-10-22.
  */
-public class DereferenceVisitor extends DefaultASTVisitor<Void> {
-    private final Logger logger = LoggerFactory.getLogger(DereferenceVisitor.class);
+public class DereferencingVisitor extends DefaultASTVisitor<Void> {
+    private final Logger logger = LoggerFactory.getLogger(DereferencingVisitor.class);
 
     private ParserContextImpl parserContext;
 
-    public DereferenceVisitor(ParserContextImpl parserContext) {
+    public DereferencingVisitor(ParserContextImpl parserContext) {
         this.parserContext = parserContext;
     }
 

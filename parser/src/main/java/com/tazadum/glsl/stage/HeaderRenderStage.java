@@ -96,7 +96,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
             VariableRegistryContext variableContext = entry.getValue();
             for (VariableDeclarationNode declarationNode : variableContext.getVariables()) {
                 TypeQualifierList qualifiers = declarationNode.getFullySpecifiedType().getQualifiers();
-                if (qualifiers != null && qualifiers.contains(StorageQualifier.UNIFORM)) {
+                if (qualifiers.contains(StorageQualifier.UNIFORM)) {
                     continue;
                 }
 

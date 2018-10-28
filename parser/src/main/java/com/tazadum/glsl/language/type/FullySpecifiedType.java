@@ -11,7 +11,7 @@ public class FullySpecifiedType {
     }
 
     public FullySpecifiedType(TypeQualifierList qualifiers, GLSLType type) {
-        this.qualifiers = qualifiers;
+        this.qualifiers = qualifiers == null ? new TypeQualifierList() : qualifiers;
         this.type = type;
 
         assert type != null : "Provided type is null";

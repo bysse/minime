@@ -1,6 +1,7 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.TestUtil;
+import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
@@ -23,6 +24,7 @@ class ASTConvertionTest {
             differentOutput(
                 "const struct S{const struct T{const struct U{float v;} u;} t;} s={{{1}}};int a[s.t.u.v];",
                 "struct S{struct T{struct U{float v;} u;} t;} s={{{1}}};int a[1];"),
+            sameOutput("int a(){return 2;}int main(){int b=a(),x=0;for(int i=0;i<5;i++)x+=i*b;return x;}"),
             sameOutput("struct S{float f;};"),
             sameOutput("struct S{float a,b;};S create(){S s={1,2};return s;}"),
             sameOutput("float[] a=float[2](1,2);"),
@@ -113,5 +115,19 @@ class ASTConvertionTest {
         assertNotNull(result);
         assertNotNull(result.getDeclaration());
         assertTrue(result.getUsage().getUsageNodes().isEmpty());
+    }
+
+    @Test
+    @DisplayName("Test const assignment")
+    void testConst_1() {
+        final String source = "void f(){const int a=1;a=2;}";
+        ParserContext parserContext = TestUtil.parserContext();
+        ParserRuleContext context = TestUtil.parse(source);
+        try {
+            TestUtil.ast(context, parserContext);
+            fail("Const assignment should not work");
+        } catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof SourcePositionException, e.getMessage());
+        }
     }
 }

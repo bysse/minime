@@ -2,9 +2,13 @@ package com.tazadum.glsl.cli;
 
 import com.tazadum.glsl.cli.options.CompilerOptions;
 import com.tazadum.glsl.cli.options.OptimizerOptions;
+import com.tazadum.glsl.cli.options.OutputFormat;
 import com.tazadum.glsl.cli.options.PreprocessorOptions;
+import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.ShaderType;
 import com.tazadum.glsl.stage.*;
 import com.tazadum.glsl.util.Pair;
 import org.slf4j.Logger;
@@ -54,16 +58,25 @@ public class OptimizerMain {
             OptimizerStage optimizer = new OptimizerStage();
 
             // setup the rendering stage
-            final OutputConfigBuilder builder = new OutputConfigBuilder()
-                .identifierMode(IdentifierOutputMode.Replaced)
-                .indentation(compilerOption.getIndentation())
-                .renderNewLines(compilerOption.isNewLines());
+            Stage<Pair<Node, ParserContext>, String> renderStage;
 
-            for (String keyword : compilerOption.getKeywords()) {
-                builder.blacklistKeyword(keyword);
+            if (compilerOption.getOutputFormat() == OutputFormat.C_HEADER) {
+                final String shaderId = compilerOption.getShaderId();
+                final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
+
+                renderStage = new HeaderRenderStage(shaderId, shaderHeader, compilerOption.getIndentation(), compilerOption.getKeywords());
+            } else {
+                final OutputConfigBuilder builder = new OutputConfigBuilder()
+                    .identifierMode(IdentifierOutputMode.Original)
+                    .indentation(compilerOption.getIndentation())
+                    .renderNewLines(compilerOption.isNewLines());
+
+                for (String keyword : compilerOption.getKeywords()) {
+                    builder.blacklistKeyword(keyword);
+                }
+
+                renderStage = new RenderStage(builder.build());
             }
-
-            RenderStage render = new RenderStage(builder.build());
 
             // setup the output
             FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
@@ -72,8 +85,7 @@ public class OptimizerMain {
                 .create(preprocess)
                 .chain(compile)
                 .chain(optimizer)
-                .chain(render)
-                // TODO: insert format stage here and in the compiler
+                .chain(renderStage)
                 .chain(writerStage)
                 .build();
 
@@ -84,4 +96,14 @@ public class OptimizerMain {
             System.exit(RET_EXCEPTION);
         }
     }
+
+    private static String generateShaderHeader(ShaderType shaderType) {
+        if (shaderType != ShaderType.SHADER_TOY) {
+            return "";
+        }
+
+        // TODO: implement shader toy support
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
 }

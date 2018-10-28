@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Simplifies redundant constant expressions like vector constructions and swizzle operations.
  * Created by Erik on 2016-10-20.
  */
 public class ConstantFoldingVisitor extends ReplacingASTVisitor implements OptimizerVisitor {

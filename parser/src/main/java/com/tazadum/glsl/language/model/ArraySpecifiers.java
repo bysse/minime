@@ -25,6 +25,10 @@ public class ArraySpecifiers {
         return specifiers;
     }
 
+    public boolean isEmpty() {
+        return specifiers.isEmpty();
+    }
+
     /**
      * Transform a type into an array type;
      */

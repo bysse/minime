@@ -9,6 +9,7 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.TernaryConditionNode;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
+import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
@@ -330,8 +331,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitTernaryCondition(TernaryConditionNode node) {
-        final GLSLType thenType = node.getThen().getType();
-        final GLSLType elseType = node.getElse().getType();
+        final GLSLType thenType = node.getThen().accept(this);
+        final GLSLType elseType = node.getElse().accept(this);
 
         final GLSLType glslType = compatibleTypeNoException(thenType, elseType);
         if (glslType == null) {
@@ -344,8 +345,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
     @Override
     public GLSLType visitNumericOperation(NumericOperationNode node) {
         try {
-            GLSLType left = node.getLeft().getType();
-            GLSLType right = node.getRight().getType();
+            GLSLType left = node.getLeft().accept(this);
+            GLSLType right = node.getRight().accept(this);
 
             switch (node.getOperator()) {
                 case SUB:
@@ -368,7 +369,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitPrefixOperation(PrefixOperationNode node) {
-        final GLSLType type = node.getExpression().getType();
+        final GLSLType type = node.getExpression().accept(this);
 
         switch (node.getOperator()) {
             case BANG:
@@ -391,7 +392,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitPostfixOperation(PostfixOperationNode node) {
-        final GLSLType type = node.getExpression().getType();
+        final GLSLType type = node.getExpression().accept(this);
         if (ofAnyCategory(type, Scalar, Vector, Matrix)) {
             return type;
         }
@@ -474,6 +475,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         } catch (TypeException e) {
             throw new SourcePositionException(node, e.getMessage(), e);
         }
+    }
+
+    @Override
+    public GLSLType visitParenthesis(ParenthesisNode node) {
+        return node.getExpression().accept(this);
     }
 
     @Override

@@ -21,14 +21,10 @@ public class OptimizerOptions implements CLIOptions {
 
     @Override
     public void configure(OptionParser parser) {
-        //newlineSpec = parser.accepts("fnew-line", "If newlines are of be rendered in the output")
-        //    .withRequiredArg().ofType(Boolean.class).describedAs("value").defaultsTo(newlineDefault);
     }
 
     @Override
     public boolean handle(OptionSet optionSet, Logger logger) {
-        // handle new lines
-        //newLines = newlineSpec.value(optionSet);
 
         return true;
     }

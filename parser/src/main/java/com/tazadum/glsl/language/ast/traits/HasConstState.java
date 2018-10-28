@@ -11,8 +11,6 @@ public interface HasConstState {
     default void setConstant(boolean constant) {
     }
 
-    ;
-
     static boolean isConst(Node node) {
         if (node == null) {
             return true;

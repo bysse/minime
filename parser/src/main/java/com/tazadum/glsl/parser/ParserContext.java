@@ -15,6 +15,8 @@ import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 public interface ParserContext extends ContextAware {
     TypeRegistry getTypeRegistry();
 
+    TypeVisitor getTypeVisitor();
+
     VariableRegistry getVariableRegistry();
 
     FunctionRegistry getFunctionRegistry();

@@ -61,8 +61,7 @@ public class CompilerStage implements Stage<String, Pair<Node, ParserContext>> {
             Node node = parser.translation_unit().accept(astConverter);
 
             logger.trace("Type checking");
-            final TypeVisitor typeVisitor = new TypeVisitor(parserContext);
-            node.accept(typeVisitor);
+            node.accept(parserContext.getTypeVisitor());
 
             return StageData.from(Pair.create(node, parserContext), sourcePositionMapper);
         } catch (SourcePositionException e) {

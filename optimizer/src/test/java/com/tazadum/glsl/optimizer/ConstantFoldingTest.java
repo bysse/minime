@@ -31,11 +31,11 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     }
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         testInit(3);
     }
 
-    @ParameterizedTest(name = "optimize: {1}")
+    @ParameterizedTest(name = "case: {1}")
     @DisplayName("Optimizations that should work")
     @MethodSource("getPositiveCases")
     void testOptimizerPositive(String expected, String source) {
@@ -101,7 +101,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
         };
     }
 
-    @ParameterizedTest(name = "optimize: {0}")
+    @ParameterizedTest(name = "case: {0}")
     @DisplayName("Optimizations that should not be done")
     @MethodSource("getNegativeCases")
     void testOptimizerNegative(String source) {

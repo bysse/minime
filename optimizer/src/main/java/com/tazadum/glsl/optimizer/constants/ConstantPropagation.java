@@ -7,12 +7,13 @@ import com.tazadum.glsl.optimizer.OptimizerVisitor;
 import com.tazadum.glsl.parser.ParserContext;
 
 /**
+ * Propagates constants and resolves constant expressions.
  * Created by Erik on 2016-10-23.
  */
 public class ConstantPropagation extends BranchingOptimizer {
     @Override
     public String name() {
-        return "constant propagations";
+        return "constant propagation";
     }
 
     @Override

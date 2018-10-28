@@ -7,6 +7,7 @@ import com.tazadum.glsl.optimizer.OptimizerVisitor;
 import com.tazadum.glsl.parser.ParserContext;
 
 /**
+ * Simplifies redundant constant expressions like vector constructions and swizzle operations.
  * Created by Erik on 2016-10-20.
  */
 public class ConstantFolding extends BranchingOptimizer {
@@ -19,5 +20,4 @@ public class ConstantFolding extends BranchingOptimizer {
     protected OptimizerVisitor createVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider) {
         return new ConstantFoldingVisitor(context, branchRegistry, decider);
     }
-
 }

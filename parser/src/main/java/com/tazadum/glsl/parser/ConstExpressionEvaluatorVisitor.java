@@ -17,7 +17,6 @@ import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.function.ConstFunction;
-import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.preprocessor.model.HasToken;
 
@@ -452,7 +451,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
             abort(node);
         }
 
-        if (!declarationNode.getFullySpecifiedType().getQualifiers().contains(StorageQualifier.CONST)) {
+        if (!declarationNode.isConstant()) {
             // only const variables are allowed
             abort(node);
         }

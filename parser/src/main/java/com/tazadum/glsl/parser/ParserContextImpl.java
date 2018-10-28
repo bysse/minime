@@ -23,8 +23,11 @@ public class ParserContextImpl implements ParserContext {
     private final TypeRegistry typeRegistry;
     private final VariableRegistry variableRegistry;
     private final FunctionRegistry functionRegistry;
-    private final DereferenceVisitor dereferenceVisitor;
     private final ContextAware contextAware;
+
+    private final DereferencingVisitor dereferencingVisitor;
+    private final ReferencingVisitor referencingVisitor;
+    private final TypeVisitor typeVisitor;
 
     public ParserContextImpl(TypeRegistry typeRegistry, VariableRegistry variableRegistry, FunctionRegistry functionRegistry) {
         this(typeRegistry, variableRegistry, functionRegistry, new ContextAwareImpl());
@@ -34,8 +37,15 @@ public class ParserContextImpl implements ParserContext {
         this.typeRegistry = typeRegistry;
         this.variableRegistry = variableRegistry;
         this.functionRegistry = functionRegistry;
-        this.dereferenceVisitor = new DereferenceVisitor(this);
         this.contextAware = contextAware;
+
+        this.dereferencingVisitor = new DereferencingVisitor(this);
+        this.referencingVisitor = new ReferencingVisitor(this);
+        this.typeVisitor = new TypeVisitor(this);
+    }
+
+    public TypeVisitor getTypeVisitor() {
+        return typeVisitor;
     }
 
     private VariableDeclarationNode variable(PredefinedType type, String identifier) {
@@ -83,18 +93,16 @@ public class ParserContextImpl implements ParserContext {
 
     @Override
     public void dereferenceTree(Node node) {
-        node.accept(dereferenceVisitor);
+        node.accept(dereferencingVisitor);
     }
 
     @Override
     public void referenceTree(Node node) {
-        assert false : "Not implemented";
+        // add type information to the tree and register function-calls
+        node.accept(typeVisitor);
 
-        // add type information to the tree
-        //node.accept(new TypeVisitor(this));
-
-        // register all function-calls and variable usages
-        //node.accept(new VariableReferenceVisitor(this));
+        // register variable usages
+        node.accept(referencingVisitor);
     }
 
     @Override

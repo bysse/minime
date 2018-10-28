@@ -1,4 +1,4 @@
-package com.tazadum.glsl.ast;
+package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
@@ -6,15 +6,15 @@ import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.variable.VariableRegistry;
-import com.tazadum.glsl.parser.ParserContext;
 
 /**
  * Registers variable declarations and usages.
+ * This class doesn't touch function because they are registered in the TypeVisitor
  */
-public class VariableReferenceVisitor extends DefaultASTVisitor<Void> {
+public class ReferencingVisitor extends DefaultASTVisitor<Void> {
     private ParserContext parserContext;
 
-    public VariableReferenceVisitor(ParserContext parserContext) {
+    public ReferencingVisitor(ParserContext parserContext) {
         this.parserContext = parserContext;
     }
 

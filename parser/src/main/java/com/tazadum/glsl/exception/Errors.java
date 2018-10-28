@@ -90,6 +90,7 @@ public class Errors {
         INVALID_SWIZZLE("No valid swizzle type could be created."),
         INVALID_SWIZZLE_FOR_TYPE("Type does not have any fields."),
         INVALID_SWIZZLE_SCALAR("Swizzle operations not allowed on scalar types."),
+        LVALUE_IS_CONST("Lvalue is const and can't be assigned."),
 
         PRECISION_NOT_SUPPORTED("The type does not support precision declarations."),
 
@@ -104,7 +105,7 @@ public class Errors {
         MATRIX_VECTOR_DIM_DIFFERENT("Vector and matrix dimensions are wrong for this operation."),
         MATRIX_DIM_DIFFERENT("Matrix dimensions are wrong for this operation."),
 
-        TERNARY_TYPES_NOT_COMPATIBLE("Each branch in a ternary expression must have compatible types.");
+        TERNARY_TYPES_NOT_COMPATIBLE("Each branch in a ternary expression must have compatible types."),;
 
         public static String format(Extras extras) {
             if (extras == null) {

@@ -81,6 +81,7 @@ Date    Hours
 2018-10-25  4.5 Fixing a preprocessor main method and cleaning up the preprocessor error reporting. Starting to port the optimizer.
 2018-10-26  1.5 Fixing a compiler main.
 2018-10-27  4.0 Upgrading Numeric to use BigDecimal and fixing constant folding optimizations.
+2018-10-28  2.0 Fixing constant propagation.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
