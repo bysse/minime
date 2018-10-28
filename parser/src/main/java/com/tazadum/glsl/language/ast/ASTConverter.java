@@ -376,9 +376,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             listNode.setShared(isShared);
             listNode.addChild(declarationNode);
 
-            // register the declaration and usage of the type to enable easy look up for later passes
-            parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
-            parserContext.getTypeRegistry().usage(parserContext.currentContext(), originalType.getType(), declarationNode);
+            if (declarationNode.getIdentifier() != null) {
+                // register the declaration and usage of the type to enable easy look up for later passes
+                parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
+                parserContext.getTypeRegistry().usage(parserContext.currentContext(), originalType.getType(), declarationNode);
+            }
 
             return listNode;
         }
@@ -870,13 +872,12 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             baseType = new StructType(structDeclaration);
 
             // register the struct
-            parserContext.getTypeRegistry().declare(new FullySpecifiedType(baseType));
+            parserContext.getTypeRegistry().declare(baseType);
         } else if (specifierCtx.IDENTIFIER() != null) {
             // this is a reference to a struct declaration
             final String customTypeName = specifierCtx.IDENTIFIER().getText();
             try {
-                final FullySpecifiedType fullySpecifiedType = parserContext.getTypeRegistry().resolve(customTypeName);
-                baseType = fullySpecifiedType.getType();
+                baseType = parserContext.getTypeRegistry().resolve(customTypeName);
             } catch (TypeException e) {
                 throw new SourcePositionException(position, UNKNOWN_SYMBOL(customTypeName));
             }

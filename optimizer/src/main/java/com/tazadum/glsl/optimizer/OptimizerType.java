@@ -2,9 +2,13 @@ package com.tazadum.glsl.optimizer;
 
 import com.tazadum.glsl.optimizer.constants.ConstantFolding;
 import com.tazadum.glsl.optimizer.constants.ConstantPropagation;
+import com.tazadum.glsl.optimizer.deadcode.DeadCodeElimination;
 
 public enum OptimizerType {
-    //DeadCodeEliminationType(DeadCodeElimination.class),
+    /**
+     * Removes dead code or declarations from the shader.
+     */
+    DeadCodeEliminationType(DeadCodeElimination.class),
     /**
      * Simplifies redundant constant expressions like vector constructions and swizzle operations.
      */

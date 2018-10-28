@@ -121,6 +121,24 @@ public class StructType implements GLSLType {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        StructType that = (StructType) o;
+
+        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
+        return fieldMap != null ? fieldMap.equals(that.fieldMap) : that.fieldMap == null;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = identifier != null ? identifier.hashCode() : 0;
+        result = 31 * result + (fieldMap != null ? fieldMap.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public boolean isAssignableBy(GLSLType type) {
         return TypeComparator.isAssignable(this, type);
     }

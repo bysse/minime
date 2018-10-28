@@ -43,6 +43,4 @@ public class ConstantPropagationTest extends BaseOptimizerTest {
             Arguments.of("int b=0;int g(){return b++;}int a=g();int f(){return a;}", "int b=0;int g(){return b++;}int a=g();int f(){return a;}"),
         };
     }
-
-    ;
 }

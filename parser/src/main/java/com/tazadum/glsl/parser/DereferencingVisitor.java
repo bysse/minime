@@ -3,9 +3,12 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.StructType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +33,27 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     }
 
     @Override
+    public Void visitStructDeclarationNode(StructDeclarationNode node) {
+        parserContext.getTypeRegistry().undeclare(new StructType(node));
+        return null;
+    }
+
+    @Override
     public Void visitVariableDeclaration(VariableDeclarationNode node) {
         super.visitVariableDeclaration(node);
         parserContext.getVariableRegistry().dereference(node);
+
+        final GLSLType type = node.getType();
+        if (type instanceof StructType) {
+            final StructType structType = (StructType) type;
+
+            if (structType.getIdentifier() != null && node.getStructDeclaration() == null) {
+                // remove the type reference from this declaration node
+                parserContext.getTypeRegistry()
+                    .usagesOf(structType)
+                    .remove(node);
+            }
+        }
         return null;
     }
 

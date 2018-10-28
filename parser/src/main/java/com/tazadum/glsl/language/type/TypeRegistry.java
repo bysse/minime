@@ -7,11 +7,18 @@ import com.tazadum.glsl.parser.Usage;
 
 public interface TypeRegistry {
     /**
-     * Declares a new fully specified type.
+     * Declares a type.
      *
-     * @param fsType The non-null type to declare.
+     * @param type The non-null type to declare.
      */
-    void declare(FullySpecifiedType fsType);
+    void declare(GLSLType type);
+
+    /**
+     * Undeclares struct type.
+     *
+     * @param structType The non-null struct type to undeclare.
+     */
+    void undeclare(StructType structType);
 
     /**
      * Registers that a node uses a certain type.
@@ -29,16 +36,15 @@ public interface TypeRegistry {
      * @return The type with the given name.
      * @throws TypeException If the type couldn't be found.
      */
-    FullySpecifiedType resolve(String name) throws TypeException;
+    GLSLType resolve(String name) throws TypeException;
 
     /**
      * Returns all usages of a type.
      *
-     * @param fst The type to search for.
+     * @param type The type to search for.
      * @return The usages of a type.
-     * * @throws TypeException If the type couldn't be found.
      */
-    Usage<GLSLType> usagesOf(FullySpecifiedType fst) throws TypeException;
+    Usage<GLSLType> usagesOf(GLSLType type);
 
     /**
      * Remap all node based information onto a new AST and return it as a new TypeRegistry.
