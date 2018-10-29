@@ -68,64 +68,75 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
 
         final GLSLContext context = parserContext.findContext(declarationList);
         final ContextDeclarations declarations = contextMap.computeIfAbsent(context, ContextDeclarations::new);
+        final SortedSet<VariableDeclarationListNode> allTypeDeclarations = declarations.findDeclarations(declarationList.getFullySpecifiedType());
 
         // find earlier declaration lists of the same type
-        final VariableDeclarationListNode previousDeclaration = declarations.findDeclaration(declarationList.getFullySpecifiedType());
-        if (previousDeclaration == null || previousDeclaration.getId() >= declarationList.getId()) {
-            // no previous declarations found or the declaration is after the current node id.
-            declarations.register(declarationList);
-            return null;
-        }
+        for (VariableDeclarationListNode previousDeclaration : allTypeDeclarations) {
+            if (previousDeclaration.getId() >= declarationList.getId()) {
+                //the declaration is after the current node id. since the set is sorted in id order, so once the
+                // declarations are after the current declarationList no match will ever be found
+                declarations.register(declarationList);
+                return null;
+            }
 
-        // check if any of the variable initializers are modified between the current declaration of the variable
-        // and the intended declaration point earlier in the source code
-        for (int i = 0; i < declarationList.getChildCount(); i++) {
-            final VariableDeclarationNode declaration = declarationList.getChildAs(i);
+            // check if any of the variable initializers are modified between the current declaration of the variable
+            // and the intended declaration point earlier in the source code
+            for (int i = 0; i < declarationList.getChildCount(); i++) {
+                final VariableDeclarationNode declaration = declarationList.getChildAs(i);
 
-            // if the variable has no initializer it can be moved up safely
-            if (declaration.getInitializer() == null) {
+                // if the variable has no initializer it can be moved up safely
+                if (declaration.getInitializer() == null) {
+                    // move the declaration to the previously existing declaration list
+                    declarationList.removeChild(declaration);
+                    previousDeclaration.addChild(declaration);
+                    changes++;
+                    i--;
+                    continue;
+                }
+
+                // check if the initializer contains any functions or variables
+                final SortedSet<VariableNode> variables = NodeFinder.findAll(declaration, VariableNode.class);
+                final SortedSet<FunctionCallNode> functionCalls = NodeFinder.findAll(declaration, FunctionCallNode.class);
+
+                if (variables.isEmpty() && functionCalls.isEmpty()) {
+                    // no variables or function calls.
+                    declarationList.removeChild(declaration);
+                    previousDeclaration.addChild(declaration);
+                    changes++;
+                    i--;
+                    continue;
+                }
+
+                // since there can be quite a long list of declarations squeezed together we need to take the id of
+                // the last child in the list since that's the point where we would like to insert a new declaration.
+                final Node lastChild = previousDeclaration.getChild(previousDeclaration.getChildCount() - 1);
+                final int previousDeclarationId = lastChild.getId();
+
+                if (variablesMutated(variables, previousDeclarationId, declarationList.getId())) {
+                    // at least one of the variables used in the initializer was mutated somewhere
+                    // between the current declaration and the intended one.
+                    continue;
+                }
+
+                if (mutatingFunctions(variables, functionCalls, previousDeclarationId, declarationList.getId())) {
+                    continue;
+                }
+
                 // move the declaration to the previously existing declaration list
                 declarationList.removeChild(declaration);
                 previousDeclaration.addChild(declaration);
                 changes++;
                 i--;
-                continue;
             }
 
-            // check if the initializer contains any functions or variables
-            final SortedSet<VariableNode> variables = NodeFinder.findAll(declaration, VariableNode.class);
-            final SortedSet<FunctionCallNode> functionCalls = NodeFinder.findAll(declaration, FunctionCallNode.class);
-
-            if (variables.isEmpty() && functionCalls.isEmpty()) {
-                // no variables or function calls.
-                declarationList.removeChild(declaration);
-                previousDeclaration.addChild(declaration);
-                changes++;
-                i--;
-                continue;
+            if (changes > 0) {
+                return null;
             }
-
-            // since there can be quite a long list of declarations squeezed together we need to take the id of
-            // the last child in the list since that's the point where we would like to insert a new declaration.
-            final Node lastChild = previousDeclaration.getChild(previousDeclaration.getChildCount() - 1);
-            final int previousDeclarationId = lastChild.getId();
-
-            if (variablesMutated(variables, previousDeclarationId, declarationList.getId())) {
-                // at least one of the variables used in the initializer was mutated somewhere
-                // between the current declaration and the intended one.
-                continue;
-            }
-
-            if (mutatingFunctions(variables, functionCalls, previousDeclarationId, declarationList.getId())) {
-                continue;
-            }
-
-            // move the declaration to the previously existing declaration list
-            declarationList.removeChild(declaration);
-            previousDeclaration.addChild(declaration);
-            changes++;
-            i--;
         }
+
+        // no previous declarations found or the squeeze couldn't be made
+        // register this list as another squeeze point
+        declarations.register(declarationList);
 
         return null;
     }
@@ -329,6 +340,15 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
                 }
             }
             return null;
+        }
+
+        SortedSet<VariableDeclarationListNode> findDeclarations(FullySpecifiedType type) {
+            final TreeSet<VariableDeclarationListNode> nodes = typeMap.get(type);
+            if (nodes == null || nodes.isEmpty()) {
+                return Collections.emptySortedSet();
+            }
+            nodes.removeIf(node -> node.getChildCount() == 0);
+            return nodes;
         }
     }
 }

@@ -36,16 +36,14 @@ public class RuleSet {
     private Collection<Rule> arrangementRules() {
         List<Rule> list = new ArrayList<>();
 
-        // a * _1 = _1 * a
-        list.add(rule(
-                mMul(mNot(mNumeric()), mNumeric()),
-                gOperation(MUL, gGroup(1), gGroup(0))
+        list.add(rule("a * _1 = _1 * a",
+            mMul(mNot(mNumeric()), mNumeric()),
+            gOperation(MUL, gGroup(1), gGroup(0))
         ));
 
-        // _1 + a = a + _1
-        list.add(rule(
-                mAdd(mNumeric(), mNot(mNumeric())),
-                gOperation(ADD, gGroup(1), gGroup(0))
+        list.add(rule("_1 + a = a + _1",
+            mAdd(mNumeric(), mNot(mNumeric())),
+            gOperation(ADD, gGroup(1), gGroup(0))
         ));
 
         // -a + b = b - a
@@ -56,25 +54,18 @@ public class RuleSet {
     public Collection<Rule> simpleArithmeticRules() {
         List<Rule> list = new ArrayList<>();
 
-        // 0 * a = 0
-        list.add(rule(mMul(mLiteral(0f), mAny()), gGroup(0)));
-        // a * 0 = 0
-        list.add(rule(mMul(mAny(), mLiteral(0f)), gGroup(1)));
-        // 1 * a = a
-        list.add(rule(mMul(mLiteral(1f), mAny()), gGroup(1)));
-        // a * 1 = a
-        list.add(rule(mMul(mAny(), mLiteral(1f)), gGroup(0)));
-        // 0 + a = a
-        list.add(rule(mAdd(mLiteral(0f), mAny()), gGroup(1)));
-        // a + 0 = a
-        list.add(rule(mAdd(mAny(), mLiteral(0f)), gGroup(0)));
-        // a - 0 = a
-        list.add(rule(mSub(mAny(), mLiteral(0f)), gGroup(0)));
-        // _1 - _1 = 0
-        list.add(rule(
-                mSub(mNumeric(), mNumeric()),
-                cSame(0, 1, cSameNumeric()),
-                gNumeric(0)
+        list.add(rule("0 * a = 0", mMul(mLiteral(0f), mAny()), gGroup(0)));
+        list.add(rule("a * 0 = 0", mMul(mAny(), mLiteral(0f)), gGroup(1)));
+        list.add(rule("1 * a = a", mMul(mLiteral(1f), mAny()), gGroup(1)));
+        list.add(rule("a * 1 = a", mMul(mAny(), mLiteral(1f)), gGroup(0)));
+        list.add(rule("0 + a = a", mAdd(mLiteral(0f), mAny()), gGroup(1)));
+        list.add(rule("a + 0 = a", mAdd(mAny(), mLiteral(0f)), gGroup(0)));
+        list.add(rule("a - 0 = a", mSub(mAny(), mLiteral(0f)), gGroup(0)));
+
+        list.add(rule("_1 - _1 = 0",
+            mSub(mNumeric(), mNumeric()),
+            cSame(0, 1, cSameNumeric()),
+            gNumeric(0)
         ));
 
         return list;
@@ -84,36 +75,31 @@ public class RuleSet {
         List<Rule> list = new ArrayList<>();
 
         /*
-        // _1 * (_2 + a) = _1*_2 + _1*a
-        list.add(rule(
+        list.add(rule("_1 * (_2 + a) = _1*_2 + _1*a",
                 mMul(mNumeric(), mParen(mAdd(mNumeric(), mAny()))),
                 gOperation(ADD, gOperation(MUL, gGroup(0), gGroup(1)), gOperation(MUL, gClone(0), gGroup(2)))
         ));
         */
 
-        // pow(_1,1) = _1
-        list.add(rule(
-                mFunc("pow", mNumeric(), mLiteral(1f)),
-                gGroup(0)
+        list.add(rule("pow(_1,1) = _1",
+            mFunc("pow", mNumeric(), mLiteral(1f)),
+            gGroup(0)
         ));
 
-        // pow(_1,2) = _1*_1;
-        list.add(rule(
-                mFunc("pow", mNumeric(), mLiteral(2f)),
+        list.add(rule("pow(_1,2) = _1*_1;",
+            mFunc("pow", mNumeric(), mLiteral(2f)),
             gOperation(MUL, gGroup(0), gClone(0))
-                ));
+        ));
 
-        // abs(_1) = _1
-        list.add(rule(
-                mFunc("abs", mNumeric()),
-                gGroup(0)
-                ));
+        list.add(rule("abs(_1) = _1",
+            mFunc("abs", mNumeric()),
+            gGroup(0)
+        ));
 
-        // abs(-_1) = _1
-        list.add(rule(
+        list.add(rule("abs(-_1) = _1",
             mFunc("abs", mParent(PrefixOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
-                gGroup(0)
-                ));
+            gGroup(0)
+        ));
 
         // length(abs(a)) = length(a)
 
@@ -121,16 +107,14 @@ public class RuleSet {
         // sqrt(_1) = _2
 
 
-        // sin(0) = 0
-        list.add(rule(
-                mFunc("sin", mLiteral(0f)),
-                gGroup(0)
-            ));
+        list.add(rule("sin(0) = 0",
+            mFunc("sin", mLiteral(0f)),
+            gGroup(0)
+        ));
 
-        // cos(0) = 1
-        list.add(rule(
-                mFunc("cos", mLiteral(0f)),
-                gNumeric(1)
+        list.add(rule("cos(0) = 1",
+            mFunc("cos", mLiteral(0f)),
+            gNumeric(1)
         ));
 
         return list;
@@ -139,24 +123,21 @@ public class RuleSet {
     private Collection<Rule> divisionRules() {
         List<Rule> list = new ArrayList<>();
 
-        // 0 / a = 0
-        list.add(rule(
-                mDiv(mNumeric(), mAny()),
-                gNumeric(0)
+        list.add(rule("0 / a = 0",
+            mDiv(mNumeric(), mAny()),
+            gNumeric(0)
         ));
 
-        // _1 / _1 = 1
-        list.add(rule(
-                mDiv(mNumeric(), mNumeric()),
-                cSame(0, 1, cSameNumeric()),
-                gNumeric(1)
+        list.add(rule("_1 / _1 = 1",
+            mDiv(mNumeric(), mNumeric()),
+            cSame(0, 1, cSameNumeric()),
+            gNumeric(1)
         ));
 
-        // a / a = 1
-        list.add(rule(
-                mDiv(mAny(), mAny()),
-                cSame(0, 1, cSameTree()),
-                gNumeric(1)
+        list.add(rule("a / a = 1",
+            mDiv(mAny(), mAny()),
+            cSame(0, 1, cSameTree()),
+            gNumeric(1)
         ));
 
         // (a+b)/a = 1 + b/a
@@ -164,11 +145,11 @@ public class RuleSet {
         return list;
     }
 
-    private Rule rule(Matcher matcher, Function<CaptureGroups, Node> generator) {
-        return new RewriteRule(matcher, generator);
+    private Rule rule(String name, Matcher matcher, Function<CaptureGroups, Node> generator) {
+        return new RewriteRule(name, matcher, generator);
     }
 
-    private Rule rule(Matcher matcher, Function<CaptureGroups, Boolean> constraints, Function<CaptureGroups, Node> generator) {
-        return new RewriteRule(matcher, constraints, generator);
+    private Rule rule(String name, Matcher matcher, Function<CaptureGroups, Boolean> constraints, Function<CaptureGroups, Node> generator) {
+        return new RewriteRule(name, matcher, constraints, generator);
     }
 }

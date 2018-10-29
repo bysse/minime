@@ -64,18 +64,19 @@ public class Matchers {
         return new FunctionCallMatcher(function, argumentMatchers);
     }
 
+    public static NodeMatcher mLiteral(String value) {
+        final Numeric numeric = Numeric.create(value);
+        return new NodeMatcher((node) -> compare(numeric, node));
+    }
+
     public static NodeMatcher mLiteral(float value) {
         final Numeric numeric = Numeric.createFloat(value, FLOAT);
-        return new NodeMatcher((node) ->
-            node instanceof HasNumeric && numeric.compareTo(((HasNumeric) node).getValue()) == 0
-        );
+        return new NodeMatcher((node) -> compare(numeric, node));
     }
 
     public static NodeMatcher mLiteral(int value) {
         final Numeric numeric = Numeric.createInt(value, INT);
-        return new NodeMatcher((node) ->
-            node instanceof HasNumeric && numeric.compareTo(((HasNumeric) node).getValue()) == 0
-        );
+        return new NodeMatcher((node) -> compare(numeric, node));
     }
 
     public static Matcher mAny() {
@@ -98,4 +99,14 @@ public class Matchers {
         return new NodeMatcher((node) -> node instanceof NumericLeafNode && TypeCombination.anyOf(node.getType(), FLOAT, DOUBLE));
     }
 
+    private static boolean compare(Numeric a, Node n) {
+        if (n instanceof HasNumeric) {
+            return compare(a, ((HasNumeric) n).getValue());
+        }
+        return false;
+    }
+
+    private static boolean compare(Numeric a, Numeric b) {
+        return 0 == a.compareTo(b);
+    }
 }

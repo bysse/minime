@@ -3,6 +3,7 @@ package com.tazadum.glsl.optimizer;
 import com.tazadum.glsl.optimizer.constants.ConstantFolding;
 import com.tazadum.glsl.optimizer.constants.ConstantPropagation;
 import com.tazadum.glsl.optimizer.deadcode.DeadCodeElimination;
+import com.tazadum.glsl.optimizer.simplification.RuleOptimizer;
 import com.tazadum.glsl.optimizer.squeeze.DeclarationSqueeze;
 
 public enum OptimizerType {
@@ -22,7 +23,10 @@ public enum OptimizerType {
      * Squeezes multiple variable declarations into a single line.
      */
     DeclarationSqueezeType(DeclarationSqueeze.class),
-    //ArithmeticOptimizerType(RuleOptimizer.class),
+    /**
+     * Pattern matching based arithmetic simplifications.
+     */
+    ArithmeticOptimizerType(RuleOptimizer.class),
     //FunctionInline(FunctionInlineOptimizer.class)
     ;
 

@@ -66,7 +66,7 @@ public class Numeric implements Comparable<Numeric> {
                 return value.compareTo(o.value);
             }
             // float VS int
-            return Double.compare(o.doubleValue(), o.intValue());
+            return Double.compare(doubleValue(), o.intValue());
         }
         int intValue = intValue();
         if (o.isFloat()) {

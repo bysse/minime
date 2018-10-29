@@ -59,6 +59,9 @@ public class DeclarationSqueezeTest extends BaseOptimizerTest {
             Arguments.of(
                 "uniform float x;float a=2;void main(){float b=x+a;}",
                 "uniform float x;float a=2;void main(){float b=x+a;}"),
+            Arguments.of(
+                "void main(){float a=0;vec3 b=vec3(a);a++;vec3 c=vec3(a),d=c+vec3(a);}",
+                "void main(){float a=0;vec3 b=vec3(a);a++;vec3 c=vec3(a);vec3 d=c+vec3(a);}"),
         };
     }
 }

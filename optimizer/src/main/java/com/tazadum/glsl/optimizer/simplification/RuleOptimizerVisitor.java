@@ -1,4 +1,4 @@
-package com.tazadum.glsl.parser.optimizer;
+package com.tazadum.glsl.optimizer.simplification;
 
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
@@ -13,18 +13,18 @@ import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.optimizer.OptimizationDecider;
-import com.tazadum.glsl.optimizer.OptimizerContext;
 import com.tazadum.glsl.optimizer.OptimizerVisitor;
-import com.tazadum.glsl.optimizer.simplification.Rule;
-import com.tazadum.glsl.optimizer.simplification.RuleRunner;
+import com.tazadum.glsl.parser.ParserContext;
 
 import java.util.List;
 
 /**
+ * Pattern matching based arithmetic simplifications.
  * Created by Erik on 2016-10-20.
  */
 public class RuleOptimizerVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
@@ -33,8 +33,8 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor implements Optimiz
     private List<Rule> ruleSet;
     private int changes = 0;
 
-    public RuleOptimizerVisitor(OptimizerContext context, OptimizationDecider decider, List<Rule> ruleSet) {
-        super(context.parserContext(), false, true);
+    public RuleOptimizerVisitor(ParserContext context, OptimizationDecider decider, List<Rule> ruleSet) {
+        super(context, false, true);
         this.decider = decider;
         this.ruleSet = ruleSet;
         this.ruleRunner = new RuleRunner();
@@ -197,5 +197,15 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor implements Optimiz
             return replacement;
         }
         return super.visitNumericOperation(node);
+    }
+
+    @Override
+    public Node visitStructDeclarationNode(StructDeclarationNode node) {
+        Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
+        if (replacement != null) {
+            changes++;
+            return replacement;
+        }
+        return super.visitStructDeclarationNode(node);
     }
 }
