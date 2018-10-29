@@ -6,9 +6,11 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputRenderer;
+import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
 
@@ -22,15 +24,18 @@ public class ContextBasedMultiIdentifierShortener {
     private final OutputRenderer output;
     private final OutputConfig outputConfig;
 
+    private final boolean deterministic;
+    private final boolean keepUniforms;
+
     private int iteration = 0;
-    private boolean deterministic;
 
     private List<ShaderData> shaders = new ArrayList<>();
     private Map<String, List<Identifier>> appliedIdentifiers;
     private IdGenerator idGeneratorTemplate;
 
-    public ContextBasedMultiIdentifierShortener(boolean deterministic, OutputConfig outputConfig) {
+    public ContextBasedMultiIdentifierShortener(boolean deterministic, OutputConfig outputConfig, boolean keepUniforms) {
         this.deterministic = deterministic;
+        this.keepUniforms = keepUniforms;
         this.output = new OutputRenderer();
         this.outputConfig = outputConfig.edit()
             .renderNewLines(false)
@@ -206,6 +211,13 @@ public class ContextBasedMultiIdentifierShortener {
             if (usage.getTarget().isBuiltIn()) {
                 // skip built in variables
                 continue;
+            }
+            if (keepUniforms) {
+                TypeQualifierList qualifiers = usage.getTarget().getFullySpecifiedType().getQualifiers();
+                if (qualifiers.contains(StorageQualifier.UNIFORM)) {
+                    // skip uniform declarations
+                    continue;
+                }
             }
             nodeMap.put(usage.getTarget(), usage.getUsageNodes().size());
         }

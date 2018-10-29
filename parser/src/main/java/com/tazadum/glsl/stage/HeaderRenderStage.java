@@ -40,7 +40,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         if (index > 0) {
             shaderName = shaderName.substring(0, index);
         }
-        this.shaderId = shaderName.replaceAll("\\.", "_");
+        this.shaderId = shaderName.replaceAll("\\.", "_").replaceAll(" ", "_").replaceAll("__+", "_");
 
         this.outputConfig = outputConfig.edit()
             .renderNewLines(true)

@@ -12,6 +12,7 @@ import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.parser.functions.FunctionSets;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.Pair;
+import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -65,7 +66,8 @@ public class CompilerStage implements Stage<String, Pair<Node, ParserContext>> {
 
             return StageData.from(Pair.create(node, parserContext), sourcePositionMapper);
         } catch (SourcePositionException e) {
-            final String message = e.getSourcePosition().format() + ": " + e.getMessage();
+            final SourcePositionId sourcePositionId = sourcePositionMapper.map(e.getSourcePosition());
+            final String message = sourcePositionId.format() + ": " + e.getMessage();
             throw new StageException(message, e);
         }
     }

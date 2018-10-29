@@ -50,6 +50,13 @@ public class CompilerMain {
                 preprocess.define(pair.getFirst(), pair.getSecond());
             }
 
+            Stage<String, String> postPreprocess = new NoOpStage();
+            if (preprocessorOption.outputIntermediateResult()) {
+                // if intermediate results are requested
+                final Path outputPath = preprocessorOption.generateOutput(inputOutput.getInput());
+                postPreprocess = new FileWriterStage(outputPath);
+            }
+
             // setup the compiler stage
             CompilerStage compile = new CompilerStage(compilerOption.getShaderType(), compilerOption.getProfile());
 
@@ -64,7 +71,7 @@ public class CompilerMain {
                 .build();
 
             if (compilerOption.getOutputFormat() == OutputFormat.C_HEADER) {
-                final String shaderId = compilerOption.getShaderId();
+                final String shaderId = compilerOption.getShaderId(inputOutput.getInput());
                 final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
 
                 renderStage = new HeaderRenderStage(shaderId, shaderHeader, config);
@@ -77,6 +84,7 @@ public class CompilerMain {
 
             StagePipeline<Path, String> pipeline = StagePipeline
                 .create(preprocess)
+                .chain(postPreprocess)
                 .chain(compile)
                 .chain(renderStage)
                 .chain(writerStage)

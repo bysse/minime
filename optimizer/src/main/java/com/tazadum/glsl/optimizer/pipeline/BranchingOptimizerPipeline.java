@@ -39,7 +39,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 .collect(Collectors.toList());
     }
 
-    public Node optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
+    public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
         final OutputSizeDecider decider = new OutputSizeDecider(outputConfig.getFormatter().getSignificantDigits());
         final ParserContext parserContext = optimizerContext.parserContext();
         final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
@@ -125,24 +125,24 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
             }
 
             // the input shader couldn't be optimized further
-            return shaderNode;
+            return new Branch(parserContext, shaderNode);
         }
 
         if (acceptedBranches.size() == 1) {
-            return acceptedBranches.get(0).getNode();
+            return acceptedBranches.get(0);
         }
 
         minSize = Integer.MAX_VALUE;
-        Node minNode = null;
+        Branch minBranch = null;
         for (Branch branch : acceptedBranches) {
             int size = output.render(branch.getNode(), outputConfig).length();
 
             if (size < minSize) {
                 minSize = size;
-                minNode = branch.getNode();
+                minBranch = branch;
             }
         }
 
-        return minNode;
+        return minBranch;
     }
 }

@@ -38,7 +38,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
     }
 
     @Override
-    public Node optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
+    public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
         final OutputSizeDecider decider = new OutputSizeDecider(outputConfig.getFormatter().getSignificantDigits());
         final ParserContext parserContext = optimizerContext.parserContext();
         final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
@@ -77,6 +77,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
             }
 
         } while (iterationChanges > 0);
-        return node;
+
+        return new Branch(parserContext, node);
     }
 }

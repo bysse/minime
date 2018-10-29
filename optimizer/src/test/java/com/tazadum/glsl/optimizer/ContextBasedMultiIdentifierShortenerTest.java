@@ -45,7 +45,7 @@ public class ContextBasedMultiIdentifierShortenerTest extends BaseTest {
         testInit();
 
         outputConfig = outputConfig.edit().identifierMode(IdentifierOutputMode.Replaced).build();
-        identifierShortener = new ContextBasedMultiIdentifierShortener(true, outputConfig);
+        identifierShortener = new ContextBasedMultiIdentifierShortener(true, outputConfig, false);
     }
 
     @Test

@@ -34,8 +34,8 @@ public class OptimizerMain {
             OptimizerMain.class.getName(),
             "GLSL Minifier.",
             preprocessorOption,
-            compilerOption,
-            optimizerOption
+            optimizerOption,
+            compilerOption
         );
 
         InputOutput inputOutput = cli.process(args);
@@ -52,30 +52,35 @@ public class OptimizerMain {
                 preprocess.define(pair.getFirst(), pair.getSecond());
             }
 
+            Stage<String, String> postPreprocess = new NoOpStage();
+            if (preprocessorOption.outputIntermediateResult()) {
+                // if intermediate results are requested
+                final Path outputPath = preprocessorOption.generateOutput(inputOutput.getInput());
+                postPreprocess = new FileWriterStage(outputPath);
+            }
+
             // setup the compiler stage
             CompilerStage compile = new CompilerStage(compilerOption.getShaderType(), compilerOption.getProfile());
 
-            // setup the optimizer stage
-            OptimizerStage optimizer = new OptimizerStage();
-
-            // setup the rendering stage
-            Stage<Pair<Node, ParserContext>, String> renderStage;
-
-            final OutputConfig config = new OutputConfigBuilder()
+            OutputConfig config = new OutputConfigBuilder()
                 .identifierMode(IdentifierOutputMode.Original)
                 .indentation(compilerOption.getIndentation())
                 .renderNewLines(compilerOption.isNewLines())
                 .blacklistKeyword(compilerOption.getKeywords())
                 .build();
 
+            // setup the optimizer stage
+            // TODO: Add a report generator?
+            OptimizerStage optimizer = new OptimizerStage(optimizerOption, config);
+
+            // setup the rendering stage
+            Stage<Pair<Node, ParserContext>, String> renderStage;
 
             if (compilerOption.getOutputFormat() == OutputFormat.C_HEADER) {
-                final String shaderId = compilerOption.getShaderId();
+                final String shaderId = compilerOption.getShaderId(inputOutput.getInput());
                 final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
-
                 renderStage = new HeaderRenderStage(shaderId, shaderHeader, config);
             } else {
-
                 renderStage = new RenderStage(config);
             }
 
@@ -84,6 +89,7 @@ public class OptimizerMain {
 
             StagePipeline<Path, String> pipeline = StagePipeline
                 .create(preprocess)
+                .chain(postPreprocess)
                 .chain(compile)
                 .chain(optimizer)
                 .chain(renderStage)
