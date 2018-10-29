@@ -69,22 +69,23 @@ public class CommonFunctionSet implements FunctionSet {
         declarator.function("max", GenUType, GenUType, UINT);
 
         declarator.function("clamp", GenFType, GenFType, GenFType, GenFType);
-        declarator.function("clamp", GenFType, GenFType, GenFType, FLOAT);
+        declarator.function("clamp", GenFType, GenFType, FLOAT, FLOAT);
         declarator.function("clamp", GenDType, GenDType, GenDType, GenDType);
-        declarator.function("clamp", GenDType, GenDType, GenDType, DOUBLE);
+        declarator.function("clamp", GenDType, GenDType, DOUBLE, DOUBLE);
         declarator.function("clamp", GenIType, GenIType, GenIType, GenIType);
-        declarator.function("clamp", GenIType, GenIType, GenIType, INT);
+        declarator.function("clamp", GenIType, GenIType, INT, INT);
         declarator.function("clamp", GenUType, GenUType, GenUType, GenUType);
-        declarator.function("clamp", GenUType, GenUType, GenUType, UINT);
+        declarator.function("clamp", GenUType, GenUType, UINT, UINT);
 
         declarator.function("mix", GenFType, GenFType, GenFType, GenFType);
         declarator.function("mix", GenFType, GenFType, GenFType, FLOAT);
         declarator.function("mix", GenDType, GenDType, GenDType, GenDType);
         declarator.function("mix", GenDType, GenDType, GenDType, DOUBLE);
         declarator.function("mix", GenIType, GenIType, GenIType, GenIType);
-        declarator.function("mix", GenIType, GenIType, GenIType, INT);
-        declarator.function("mix", GenUType, GenUType, GenUType, GenUType);
-        declarator.function("mix", GenUType, GenUType, GenUType, UINT);
+
+        declarator.function("mix", GenIType, GenIType, GenIType, GenBType);
+        declarator.function("mix", GenUType, GenUType, GenUType, GenBType);
+        declarator.function("mix", GenBType, GenBType, GenBType, GenBType);
 
         declarator.function("step", GenFType, GenFType, GenFType);
         declarator.function("step", GenFType, FLOAT, GenFType);

@@ -91,7 +91,9 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             if (!noSemiColon(child)) {
                 buffer.appendSemicolon();
             }
-            buffer.append(config.newLine());
+            if (buffer.lastCharacter() != '\n') {
+                buffer.append(config.newLine());
+            }
         }
         return buffer;
     }
@@ -237,13 +239,17 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     @Override
     public SourceBuffer visitFunctionDefinition(FunctionDefinitionNode node) {
         node.getFunctionPrototype().accept(this);
-        buffer.append('{').append(config.newLine());
+        buffer.append('{');
 
-        Identifier identifier = node.getFunctionPrototype().getIdentifier();
-        if (!identifier.original().equals(identifier.token())) {
-            // Append the original function name as a comment if it's different from the original name
-            buffer.append(" /* ").append(identifier.original()).append(" */").append(config.newLine());
+        if (config.isOriginalIdentifiers()) {
+            Identifier identifier = node.getFunctionPrototype().getIdentifier();
+            if (!identifier.original().equals(identifier.token())) {
+                // Append the original function name as a comment if it's different from the original name
+                buffer.append(" /* ").append(identifier.original()).append(" */");
+            }
         }
+
+        buffer.append(config.newLine());
 
         enterScope();
         node.getStatements().accept(this);

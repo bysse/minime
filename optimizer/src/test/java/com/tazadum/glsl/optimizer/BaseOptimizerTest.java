@@ -29,6 +29,6 @@ public abstract class BaseOptimizerTest extends BaseTest {
         Node node = compile(parserContext, source);
 
         OptimizerContext context = new OptimizerContext(parserContext);
-        return pipeline.optimize(context, node, true).getNode();
+        return pipeline.optimize(context, node, true, null).getNode();
     }
 }

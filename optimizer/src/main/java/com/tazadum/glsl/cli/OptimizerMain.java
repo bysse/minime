@@ -16,6 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.util.Set;
+import java.util.TreeSet;
 
 import static com.tazadum.glsl.cli.CommandLineBase.*;
 
@@ -27,7 +29,7 @@ public class OptimizerMain {
         Logger logger = LoggerFactory.getLogger(OptimizerMain.class);
 
         PreprocessorOptions preprocessorOption = new PreprocessorOptions();
-        CompilerOptions compilerOption = new CompilerOptions(0, false);
+        CompilerOptions compilerOption = new CompilerOptions(3, true);
         OptimizerOptions optimizerOption = new OptimizerOptions();
 
         CommandLineBase cli = new CommandLineBase(
@@ -46,6 +48,16 @@ public class OptimizerMain {
         }
 
         try {
+            // global setup
+            final boolean small = optimizerOption.isOptimizeSmall();
+            final Set<String> blacklistedKeywords = new TreeSet<>();
+
+            if (small) {
+                // add ignored keywords for the small profile
+                blacklistedKeywords.add("const");
+                blacklistedKeywords.add("in");
+            }
+
             // setup the preprocessor
             PreprocessorStage preprocess = new PreprocessorStage(preprocessorOption.getGLSLVersion());
             for (Pair<String, String> pair : preprocessorOption.getObjectLike()) {
@@ -61,17 +73,22 @@ public class OptimizerMain {
 
             // setup the compiler stage
             CompilerStage compile = new CompilerStage(compilerOption.getShaderType(), compilerOption.getProfile());
+            blacklistedKeywords.addAll(compilerOption.getKeywords());
 
             OutputConfig config = new OutputConfigBuilder()
-                .identifierMode(IdentifierOutputMode.Original)
-                .indentation(compilerOption.getIndentation())
-                .renderNewLines(compilerOption.isNewLines())
-                .blacklistKeyword(compilerOption.getKeywords())
+                .identifierMode(IdentifierOutputMode.Replaced)
+                .indentation(get(compilerOption.getIndentation(), small, 0))
+                .renderNewLines(get(compilerOption.isNewLines(), small, false))
+                .blacklistKeyword(blacklistedKeywords)
+                .originalIdentifiers(true)
                 .build();
 
             // setup the optimizer stage
-            // TODO: Add a report generator?
-            OptimizerStage optimizer = new OptimizerStage(optimizerOption, config);
+            final OptimizerReport report = new OptimizerReport();
+            final SizeStage startSize = new SizeStage(report, OptimizerReport.START);
+            final SizeStage finalSize = new SizeStage(report, OptimizerReport.END);
+
+            OptimizerStage optimizer = new OptimizerStage(optimizerOption, config, report);
 
             // setup the rendering stage
             Stage<Pair<Node, ParserContext>, String> renderStage;
@@ -89,14 +106,19 @@ public class OptimizerMain {
 
             StagePipeline<Path, String> pipeline = StagePipeline
                 .create(preprocess)
+                .chain(startSize)
                 .chain(postPreprocess)
                 .chain(compile)
                 .chain(optimizer)
                 .chain(renderStage)
+                .chain(finalSize)
                 .chain(writerStage)
                 .build();
 
+            report.mark();
             pipeline.process(new PathStageData(inputOutput.getInput()));
+            report.display();
+
             System.exit(RET_OK);
         } catch (StageException e) {
             logger.error(e.getMessage(), e);
@@ -111,6 +133,14 @@ public class OptimizerMain {
 
         // TODO: implement shader toy support
         throw new UnsupportedOperationException("Not implemented");
+    }
+
+    private static int get(int value, boolean control, int override) {
+        return control ? override : value;
+    }
+
+    private static boolean get(boolean value, boolean control, boolean override) {
+        return control ? override : value;
     }
 
 }

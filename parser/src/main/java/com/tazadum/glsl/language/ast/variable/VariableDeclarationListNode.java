@@ -41,7 +41,7 @@ public class VariableDeclarationListNode extends ParentNode implements HasShared
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(getSourcePosition(), type));
+        return CloneUtils.cloneChildren(this, new VariableDeclarationListNode(getSourcePosition(), newParent, type));
     }
 
     @Override

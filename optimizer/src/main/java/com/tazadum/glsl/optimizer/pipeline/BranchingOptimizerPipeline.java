@@ -1,5 +1,6 @@
 package com.tazadum.glsl.optimizer.pipeline;
 
+import com.tazadum.glsl.cli.OptimizerReport;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputRenderer;
@@ -39,7 +40,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 .collect(Collectors.toList());
     }
 
-    public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
+    public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput, OptimizerReport report) {
         final OutputSizeDecider decider = new OutputSizeDecider(outputConfig.getFormatter().getSignificantDigits());
         final ParserContext parserContext = optimizerContext.parserContext();
         final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
@@ -56,7 +57,11 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
             totalChanges = 0;
 
             if (showOutput) {
-                logger.info(String.format("Iteration #%d: %d branches, %d bytes", iteration++, acceptedBranches.size(), minSize));
+                logger.info(String.format("Iteration %d: (%d branches, %d bytes)", iteration++, acceptedBranches.size(), minSize));
+            }
+
+            if (report != null) {
+                report.addBranches(acceptedBranches.size());
             }
 
             for (Optimizer optimizer : optimizers) {
@@ -116,8 +121,16 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 acceptedBranches.addAll(Branch.unique(discoveredBranches));
             }
 
+            if (report != null) {
+                report.addChanges(totalChanges);
+            }
+
             previousSize = minSize;
         } while (totalChanges > 0);
+
+        if (report != null) {
+            report.setIterations(iteration);
+        }
 
         if (acceptedBranches.isEmpty()) {
             if (!inputBranch) {

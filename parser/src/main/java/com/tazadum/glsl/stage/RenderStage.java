@@ -23,7 +23,7 @@ public class RenderStage implements Stage<Pair<Node, ParserContext>, String> {
     @Override
     public StageData<String> process(StageData<Pair<Node, ParserContext>> input) {
         try {
-            logger.trace("Rendering the AST to a source string");
+            logger.trace("* Rendering the AST to a source string");
 
             final Node node = input.getData().getFirst();
             final String source = node.accept(new OutputVisitor(outputConfig)).get();

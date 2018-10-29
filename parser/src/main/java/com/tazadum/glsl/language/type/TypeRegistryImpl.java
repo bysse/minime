@@ -49,10 +49,10 @@ public class TypeRegistryImpl implements TypeRegistry {
         if (identifier != null) {
             GLSLType glslType = typeMap.remove(identifier.original());
             if (glslType != null) {
-                logger.debug("Removing declaration of {}", identifier.original());
+                logger.trace("  - Removing declaration of {}", identifier.original());
                 usageMap.remove(glslType);
 
-                // TODO: do somwthing with the usage
+                // TODO: do something with the usage
             }
         }
 

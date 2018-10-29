@@ -59,8 +59,7 @@ public class CompilerOptions implements CLIOptions {
 
         shaderIdSpec = parser.accepts("id", "Set the shader id, used for C-header generation.")
             .availableIf(formatSpec)
-            .withRequiredArg().describedAs("id")
-            .defaultsTo(GLSLProfile.COMPATIBILITY.token());
+            .withRequiredArg().describedAs("id");
 
         blacklistSpec = parser.accepts("no-render", "Black lists a keyword that will be omitted from rendering.")
             .withRequiredArg().describedAs("keyword");
@@ -68,7 +67,7 @@ public class CompilerOptions implements CLIOptions {
         indentationSpec = parser.accepts("fidentation", "The number of spaces to use for output indentation")
             .withRequiredArg().ofType(Integer.class).describedAs("int").defaultsTo(indentationDefault);
 
-        newlineSpec = parser.accepts("fnew-line", "If newlines are of be rendered in the output")
+        newlineSpec = parser.accepts("fnew-line", "Control if newline characters are rendered in the output")
             .withRequiredArg().ofType(Boolean.class).describedAs("value").defaultsTo(newlineDefault);
     }
 
@@ -150,7 +149,7 @@ public class CompilerOptions implements CLIOptions {
         String name = inputPath.toFile().getName();
         switch (outputFormat) {
             case PLAIN:
-                return inputPath.toAbsolutePath().getParent().resolve(name + ".o.glsl");
+                return inputPath.toAbsolutePath().getParent().resolve(name + ".min.glsl");
             case C_HEADER:
                 return inputPath.toAbsolutePath().getParent().resolve(name + ".h");
             default:
@@ -190,7 +189,10 @@ public class CompilerOptions implements CLIOptions {
         return profile;
     }
 
-    public String getShaderId() {
+    public String getShaderId(Path inputPath) {
+        if (shaderId == null) {
+            return inputPath.toFile().getName();
+        }
         return shaderId;
     }
 

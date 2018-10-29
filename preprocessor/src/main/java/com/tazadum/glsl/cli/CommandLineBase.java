@@ -108,7 +108,11 @@ public class CommandLineBase {
             }
 
             if (optionSet.has("o")) {
-                Path outputPath = Paths.get(Objects.toString(optionSet.valuesOf("o")));
+                Path outputPath = Paths.get(Objects.toString(optionSet.valueOf("o")));
+                if (!outputPath.isAbsolute()) {
+                    outputPath = inputPath.toAbsolutePath().getParent().resolve(outputPath);
+                }
+
                 return new InputOutput(inputPath, outputPath);
             }
 

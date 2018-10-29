@@ -14,6 +14,7 @@ public class OutputConfig {
     private static final String EMPTY_STRING = "";
 
     private final boolean renderNewLine;
+    private final boolean originalIdentifiers;
     private final String indentation;
     private final int indentationCount;
     private final IdentifierOutputMode identifierMode;
@@ -24,7 +25,8 @@ public class OutputConfig {
                  int indentation,
                  Set<String> keywordBlacklist,
                  IdentifierOutputMode identifierMode,
-                 NumericFormatter formatter
+                 NumericFormatter formatter,
+                 boolean originalIdentifiers
     ) {
         this.renderNewLine = renderNewLine;
         this.indentationCount = indentation;
@@ -32,6 +34,7 @@ public class OutputConfig {
         this.keywordBlacklist = keywordBlacklist;
         this.identifierMode = identifierMode;
         this.formatter = formatter;
+        this.originalIdentifiers = originalIdentifiers;
     }
 
     public OutputConfigBuilder edit() {
@@ -41,6 +44,7 @@ public class OutputConfig {
         builder.significantDecimals(formatter.getSignificantDigits());
         builder.identifierMode(identifierMode);
         builder.blacklistKeyword(new HashSet<>(keywordBlacklist));
+        builder.originalIdentifiers(originalIdentifiers);
 
         return builder;
     }
@@ -68,6 +72,13 @@ public class OutputConfig {
 
     public String identifierSpacing() {
         return identifierMode == IdentifierOutputMode.None ? "" : " ";
+    }
+
+    /**
+     * Returns true if original identifiers should be added as comments in the output.
+     */
+    public boolean isOriginalIdentifiers() {
+        return originalIdentifiers;
     }
 
     public void appendSemicolon(StringBuilder builder) {

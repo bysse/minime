@@ -1,5 +1,6 @@
 package com.tazadum.glsl.optimizer.pipeline;
 
+import com.tazadum.glsl.cli.OptimizerReport;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputRenderer;
@@ -38,7 +39,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
     }
 
     @Override
-    public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput) {
+    public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput, OptimizerReport report) {
         final OutputSizeDecider decider = new OutputSizeDecider(outputConfig.getFormatter().getSignificantDigits());
         final ParserContext parserContext = optimizerContext.parserContext();
         final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
@@ -52,11 +53,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
             if (showOutput || logger.isDebugEnabled()) {
                 final String source = output.render(node, outputConfig);
                 final int size = source.length();
-                logger.info(String.format("Iteration #%d: %d bytes", iteration++, size));
-
-                if (logger.isDebugEnabled()) {
-                    logger.debug("> SOURCE: " + source);
-                }
+                logger.info(String.format("Iteration %d: %d bytes", iteration++, size));
             }
 
             for (Optimizer optimizer : optimizers) {
@@ -70,7 +67,6 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
                         logger.info(String.format("  - %s: %d changes", optimizer.name(), changes));
                         if (logger.isDebugEnabled()) {
                             final String source = output.render(node, outputConfig);
-                            logger.debug("  > SOURCE: " + source);
                         }
                     }
                 }

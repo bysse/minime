@@ -52,6 +52,11 @@ public class Usage<T> {
         return false;
     }
 
+    /**
+     * Remaps the entire structure to another Node tree.
+     *
+     * @param base Base to remapp to.
+     */
     public Usage<T> remap(Node base) {
         return remap(base, this.target);
     }

@@ -1,5 +1,6 @@
 package com.tazadum.glsl.stage;
 
+import com.tazadum.glsl.cli.OptimizerReport;
 import com.tazadum.glsl.cli.options.OptimizerOptions;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.language.ast.Node;
@@ -14,17 +15,22 @@ import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.util.Pair;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by erikb on 2018-10-26.
  */
 public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Node, ParserContext>> {
+    private final Logger logger = LoggerFactory.getLogger(OptimizerStage.class);
     private final OptimizerOptions options;
     private final OutputConfig outputConfig;
+    private final OptimizerReport report;
 
-    public OptimizerStage(OptimizerOptions options, OutputConfig outputConfig) {
+    public OptimizerStage(OptimizerOptions options, OutputConfig outputConfig, OptimizerReport report) {
         this.options = options;
         this.outputConfig = outputConfig;
+        this.report = report;
     }
 
     @Override
@@ -39,7 +45,8 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
         final OptimizerContext context = new OptimizerContext(inputData.getSecond());
 
         try {
-            Branch result = pipeline.optimize(context, inputData.getFirst(), true);
+            logger.info("* Running the optimizer");
+            Branch result = pipeline.optimize(context, inputData.getFirst(), true, report);
 
             Node node = result.getNode();
             ParserContext parserContext = result.getContext();
@@ -57,6 +64,7 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     }
 
     private void optimizeIdentifiers(Node node, ParserContext parserContext, boolean keepUniformIdentifiers) {
+        logger.info("* Minifying identifiers");
         ContextBasedMultiIdentifierShortener shortener = new ContextBasedMultiIdentifierShortener(false, outputConfig, keepUniformIdentifiers);
         shortener.register(parserContext, node);
         shortener.apply();

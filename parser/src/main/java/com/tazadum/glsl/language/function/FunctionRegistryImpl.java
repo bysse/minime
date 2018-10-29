@@ -127,7 +127,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
         if (usage != null) {
             for (Node reference : usage.getUsageNodes()) {
                 if (reference instanceof FunctionCallNode) {
-                    logger.debug("Setting declaration reference to null for {}", reference);
+                    logger.trace("Setting declaration reference to null for {}", reference);
                     ((FunctionCallNode) reference).setDeclarationNode(null);
                 }
             }

@@ -64,6 +64,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
             Arguments.of("4.29", "9/2.1"),
             Arguments.of("1", "(1)"),
             Arguments.of("1", "(((1)))"),
+            Arguments.of("v2*v2", "v2*(v2)"),
             Arguments.of(".0121", ".11*.11"),
             Arguments.of("6", "3*2"),
             Arguments.of("3", "(1+2)"),

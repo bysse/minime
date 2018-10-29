@@ -42,6 +42,7 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     public Void visitVariableDeclaration(VariableDeclarationNode node) {
         super.visitVariableDeclaration(node);
         parserContext.getVariableRegistry().dereference(node);
+        parserContext.getTypeRegistry().usagesOf(node.getType()).remove(node);
 
         final GLSLType type = node.getType();
         if (type instanceof StructType) {
@@ -73,7 +74,7 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     public Void visitFunctionCall(FunctionCallNode node) {
         super.visitFunctionCall(node);
         if (parserContext.getFunctionRegistry().dereference(node)) {
-            logger.debug("Removing usage for {}", node);
+            logger.trace("Removing usage for {}", node);
         }
         return null;
     }

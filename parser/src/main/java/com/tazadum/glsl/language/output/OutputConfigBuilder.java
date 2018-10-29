@@ -13,6 +13,7 @@ public class OutputConfigBuilder {
     private int indentation = 0;
     private int maxDecimals = 5;
     private IdentifierOutputMode identifierMode = IdentifierOutputMode.Original;
+    private boolean originalIdentifiers = false;
 
     /**
      * Indicate if new lines should be rendered to the output.
@@ -64,13 +65,22 @@ public class OutputConfigBuilder {
         return this;
     }
 
+    /**
+     * Set to true if original identifiers should be added as comments in the output.
+     */
+    public OutputConfigBuilder originalIdentifiers(boolean originalIdentifiers) {
+        this.originalIdentifiers = originalIdentifiers;
+        return this;
+    }
+
     public OutputConfig build() {
         return new OutputConfig(
             renderNewLines,
             indentation,
             keywordBlacklist,
             identifierMode,
-            new NumericFormatter(maxDecimals)
+            new NumericFormatter(maxDecimals),
+            originalIdentifiers
         );
     }
 }

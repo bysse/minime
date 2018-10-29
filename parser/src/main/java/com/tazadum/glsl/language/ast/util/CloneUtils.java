@@ -60,16 +60,26 @@ public class CloneUtils {
         return node;
     }
 
+    /**
+     * Finds the node with the same id in another Node tree.
+     *
+     * @param base Base of the tree to start searching in.
+     * @param node The node to find in the base-tree.
+     * @return
+     */
     public static <T extends Node> T remap(Node base, T node) {
         final Node remappedNode = base.find(node.getId());
-
-        if (!remappedNode.getClass().equals(node.getClass())) {
-            throw new IllegalStateException("The remapped node has a different class for node id = " + node.getId());
-        }
 
         if (remappedNode == null) {
             throw new IllegalStateException("Unable to find node with id " + node.getId() + " in the new node tree.");
         }
+
+        if (!remappedNode.getClass().equals(node.getClass())) {
+            String message = String.format("The remapped node has a different class for node id=%d : %s != %s",
+                node.getId(), node.getClass().getSimpleName(), remappedNode.getClass().getSimpleName());
+            throw new IllegalStateException(message);
+        }
+
         return (T) remappedNode;
     }
 
