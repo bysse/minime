@@ -8,7 +8,6 @@ import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
-import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputVisitor;
 import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.language.variable.VariableRegistry;
@@ -18,9 +17,7 @@ import com.tazadum.glsl.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.CharBuffer;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,9 +32,9 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
     private final String shaderHeader; // only used for shader toy shaders where the uniforms are not included in the source
     private final String indentation;
 
-    public HeaderRenderStage(String shaderName, String shaderHeader, int indentation, Set<String> keywordBlacklist) {
+    public HeaderRenderStage(String shaderName, String shaderHeader, OutputConfig outputConfig) {
         this.shaderHeader = shaderHeader;
-        this.indentation = CharBuffer.allocate(indentation).toString().replace('\0', ' ');
+        this.indentation = outputConfig.indentation();
 
         int index = shaderName.lastIndexOf('.');
         if (index > 0) {
@@ -45,16 +42,10 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         }
         this.shaderId = shaderName.replaceAll("\\.", "_");
 
-        OutputConfigBuilder builder = new OutputConfigBuilder()
+        this.outputConfig = outputConfig.edit()
             .renderNewLines(true)
-            .indentation(indentation)
-            .identifierMode(IdentifierOutputMode.Replaced);
-
-        for (String keyword : keywordBlacklist) {
-            builder.blacklistKeyword(keyword);
-        }
-
-        this.outputConfig = builder.build();
+            .identifierMode(IdentifierOutputMode.Replaced)
+            .build();
     }
 
     @Override

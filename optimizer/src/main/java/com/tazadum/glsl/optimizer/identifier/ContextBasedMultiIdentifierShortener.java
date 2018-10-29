@@ -1,16 +1,16 @@
-package com.tazadum.glsl.parser.optimizer;
+package com.tazadum.glsl.optimizer.identifier;
 
+import com.tazadum.glsl.ast.id.IdGenerator;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputRenderer;
-import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
-import com.tazadum.glsl.ast.id.IdGenerator;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,7 +22,6 @@ public class ContextBasedMultiIdentifierShortener {
     private final OutputRenderer output;
     private final OutputConfig outputConfig;
 
-    private Set<String> usedIdentifiers;
     private int iteration = 0;
     private boolean deterministic;
 
@@ -30,21 +29,17 @@ public class ContextBasedMultiIdentifierShortener {
     private Map<String, List<Identifier>> appliedIdentifiers;
     private IdGenerator idGeneratorTemplate;
 
-    public ContextBasedMultiIdentifierShortener(boolean deterministic) {
+    public ContextBasedMultiIdentifierShortener(boolean deterministic, OutputConfig outputConfig) {
         this.deterministic = deterministic;
         this.output = new OutputRenderer();
-        this.usedIdentifiers = new HashSet<>();
-        this.outputConfig = new OutputConfig();
-        this.outputConfig.setNewlines(false);
-        this.outputConfig.setIndentation(0);
-        this.outputConfig.setIdentifiers(IdentifierOutput.None);
+        this.outputConfig = outputConfig.edit()
+            .renderNewLines(false)
+            .indentation(0)
+            .identifierMode(IdentifierOutputMode.None)
+            .build();
     }
 
-    public void register(ParserContext parserContext, Node shaderNode, OutputConfig templateOutputConfig) {
-        // copy relevant parts of the output configuration
-        outputConfig.setOutputConst(templateOutputConfig.isOutputConst());
-        outputConfig.setMaxDecimals(templateOutputConfig.getMaxDecimals());
-
+    public void register(ParserContext parserContext, Node shaderNode) {
         // render the shader
         final String shaderContent = output.render(shaderNode, outputConfig);
 
@@ -80,14 +75,13 @@ public class ContextBasedMultiIdentifierShortener {
                 // generate a new identifier
                 final String replacement = generator.next();
                 if (isIdentifierInUse(parserContext, context, node, replacement)) {
-                    // another variable or function has the cSame name as the proposed identifier
+                    // another variable or function has the same name as the proposed identifier
                     continue;
                 }
 
                 // set the identifier
                 final Identifier identifier = getNodeIdentifier(node);
                 identifier.replacement(replacement);
-                usedIdentifiers.add(replacement);
                 appliedIdentifiers.computeIfAbsent(replacement, (key) -> new ArrayList<>()).add(identifier);
                 break;
             }
@@ -102,7 +96,7 @@ public class ContextBasedMultiIdentifierShortener {
 
         if (deterministic) {
             // make the unit tests stable
-            Collections.sort(list, (a, b) -> {
+            list.sort((a, b) -> {
                 int ret = appliedIdentifiers.get(b).size() - appliedIdentifiers.get(a).size();
                 if (ret != 0) {
                     return ret;
@@ -111,9 +105,9 @@ public class ContextBasedMultiIdentifierShortener {
             });
 
         } else if (iteration > 0) {
-            // sorting is stable so a shuffle could change the sorted order
+            // sorting is stable so a shuffle might change the sorted order
             Collections.shuffle(list);
-            Collections.sort(list, (a, b) -> appliedIdentifiers.get(b).size() - appliedIdentifiers.get(a).size());
+            list.sort((a, b) -> appliedIdentifiers.get(b).size() - appliedIdentifiers.get(a).size());
 
             if (iteration > 50) {
                 Collections.shuffle(list);
@@ -156,7 +150,7 @@ public class ContextBasedMultiIdentifierShortener {
         if (node instanceof FunctionPrototypeNode) {
             final FunctionPrototypeNode prototypeNode = (FunctionPrototypeNode) node;
             final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(prototypeNode);
-            // for each usage of the function, check if a variable with the cSame name is reachable
+            // for each usage of the function, check if a variable with the same name is reachable
             for (Node usage : nodeUsage.getUsageNodes()) {
                 final GLSLContext usageContext = parserContext.findContext(usage);
                 if (isVariableReachable(parserContext, usageContext, identifier)) {
@@ -181,7 +175,7 @@ public class ContextBasedMultiIdentifierShortener {
 
     private boolean isVariableReachable(ParserContext parserContext, GLSLContext context, String identifier) {
         try {
-            final ResolutionResult resolve = parserContext.getVariableRegistry().resolve(context, identifier, Identifier.Mode.Replacement);
+            parserContext.getVariableRegistry().resolve(context, identifier, Identifier.Mode.Replacement);
             return true;
         } catch (Exception e) {
             return false;
@@ -221,7 +215,7 @@ public class ContextBasedMultiIdentifierShortener {
 
     private List<Node> sortByUsage(Map<Node, Integer> map) {
         final List<Node> list = new ArrayList<>(map.keySet());
-        Collections.sort(list, (a, b) -> map.get(b) - map.get(a));
+        list.sort((a, b) -> map.get(b) - map.get(a));
         return list;
     }
 
@@ -231,26 +225,26 @@ public class ContextBasedMultiIdentifierShortener {
         final List<Node> nodeUsageList;
         final String shaderContent;
 
-        public ShaderData(ParserContext parserContext, Map<Node, Integer> nodeUsageMap, List<Node> nodeUsageList, String shaderContent) {
+        ShaderData(ParserContext parserContext, Map<Node, Integer> nodeUsageMap, List<Node> nodeUsageList, String shaderContent) {
             this.parserContext = parserContext;
             this.nodeUsageMap = nodeUsageMap;
             this.nodeUsageList = nodeUsageList;
             this.shaderContent = shaderContent;
         }
 
-        public ParserContext getParserContext() {
+        ParserContext getParserContext() {
             return parserContext;
         }
 
-        public Map<Node, Integer> getNodeUsageMap() {
+        Map<Node, Integer> getNodeUsageMap() {
             return nodeUsageMap;
         }
 
-        public List<Node> getNodeUsageList() {
+        List<Node> getNodeUsageList() {
             return nodeUsageList;
         }
 
-        public String getShaderContent() {
+        String getShaderContent() {
             return shaderContent;
         }
     }

@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.type.Numeric;
 
 import java.nio.CharBuffer;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -12,11 +13,12 @@ import java.util.Set;
 public class OutputConfig {
     private static final String EMPTY_STRING = "";
 
-    private boolean renderNewLine;
-    private String indentation;
-    private Set<String> keywordBlacklist;
-    private IdentifierOutputMode identifierMode;
-    private NumericFormatter formatter;
+    private final boolean renderNewLine;
+    private final String indentation;
+    private final int indentationCount;
+    private final IdentifierOutputMode identifierMode;
+    private final NumericFormatter formatter;
+    private final Set<String> keywordBlacklist;
 
     OutputConfig(boolean renderNewLine,
                  int indentation,
@@ -25,10 +27,22 @@ public class OutputConfig {
                  NumericFormatter formatter
     ) {
         this.renderNewLine = renderNewLine;
+        this.indentationCount = indentation;
         this.indentation = CharBuffer.allocate(indentation).toString().replace('\0', ' ');
         this.keywordBlacklist = keywordBlacklist;
         this.identifierMode = identifierMode;
         this.formatter = formatter;
+    }
+
+    public OutputConfigBuilder edit() {
+        OutputConfigBuilder builder = new OutputConfigBuilder();
+        builder.renderNewLines(renderNewLine);
+        builder.indentation(indentationCount);
+        builder.significantDecimals(formatter.getSignificantDigits());
+        builder.identifierMode(identifierMode);
+        builder.blacklistKeyword(new HashSet<>(keywordBlacklist));
+
+        return builder;
     }
 
     public String newLine() {

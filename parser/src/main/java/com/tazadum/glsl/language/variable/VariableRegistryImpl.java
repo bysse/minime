@@ -82,7 +82,7 @@ public class VariableRegistryImpl implements VariableRegistry {
             throw new VariableException("Undeclared identifier " + identifier);
         }
 
-        // mAdd usage to the result
+        // add usage to the result
         final Usage<VariableDeclarationNode> variableUsage = usageMap.computeIfAbsent(declarationNode, Usage::new);
         return new ResolutionResultImpl(context, declarationNode, variableUsage);
     }

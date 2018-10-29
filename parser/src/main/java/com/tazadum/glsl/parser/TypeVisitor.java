@@ -20,6 +20,7 @@ import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
+import com.tazadum.glsl.language.model.AssignmentOperator;
 import com.tazadum.glsl.language.model.BitOperator;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.*;
@@ -318,10 +319,18 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             throw new SourcePositionException(node, SYNTAX_ERROR(OPAQUE_TYPE_LVALUE));
         }
 
-        if (left.isAssignableBy(right)) {
-            return left;
+        if (node.getOperator() == AssignmentOperator.EQUAL) {
+            if (left.isAssignableBy(right)) {
+                return left;
+            }
+            throw new SourcePositionException(node, INCOMPATIBLE_TYPES(left, right, NO_CONVERSION));
         }
-        throw new SourcePositionException(node, INCOMPATIBLE_TYPES(left, right, NO_CONVERSION));
+
+        try {
+            return TypeCombination.arithmeticResult(left, right);
+        } catch (TypeException e) {
+            throw new SourcePositionException(node, e.getMessage(), e);
+        }
     }
 
     @Override

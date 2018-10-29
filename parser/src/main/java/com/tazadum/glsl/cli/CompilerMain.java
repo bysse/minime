@@ -5,6 +5,7 @@ import com.tazadum.glsl.cli.options.OutputFormat;
 import com.tazadum.glsl.cli.options.PreprocessorOptions;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
+import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.ShaderType;
@@ -55,22 +56,20 @@ public class CompilerMain {
             // setup the rendering stage
             Stage<Pair<Node, ParserContext>, String> renderStage;
 
+            final OutputConfig config = new OutputConfigBuilder()
+                .identifierMode(IdentifierOutputMode.Original)
+                .indentation(compilerOption.getIndentation())
+                .renderNewLines(compilerOption.isNewLines())
+                .blacklistKeyword(compilerOption.getKeywords())
+                .build();
+
             if (compilerOption.getOutputFormat() == OutputFormat.C_HEADER) {
                 final String shaderId = compilerOption.getShaderId();
                 final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
 
-                renderStage = new HeaderRenderStage(shaderId, shaderHeader, compilerOption.getIndentation(), compilerOption.getKeywords());
+                renderStage = new HeaderRenderStage(shaderId, shaderHeader, config);
             } else {
-                final OutputConfigBuilder builder = new OutputConfigBuilder()
-                    .identifierMode(IdentifierOutputMode.Original)
-                    .indentation(compilerOption.getIndentation())
-                    .renderNewLines(compilerOption.isNewLines());
-
-                for (String keyword : compilerOption.getKeywords()) {
-                    builder.blacklistKeyword(keyword);
-                }
-
-                renderStage = new RenderStage(builder.build());
+                renderStage = new RenderStage(config);
             }
 
             // setup the output
