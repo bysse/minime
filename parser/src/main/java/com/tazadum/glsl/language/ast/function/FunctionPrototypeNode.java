@@ -17,6 +17,8 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     private FullySpecifiedType returnType;
     private FunctionPrototype prototype;
     private GLSLContext context;
+    private boolean mutatesGlobalState = false;
+    private boolean usesGlobalState = true;
     private boolean shared;
 
     public FunctionPrototypeNode(SourcePosition position, String functionName, FullySpecifiedType returnType) {
@@ -70,13 +72,14 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final FunctionPrototypeNode prototypeNode = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(getSourcePosition(), newParent, identifier, returnType));
-
+        final FunctionPrototypeNode node = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(getSourcePosition(), newParent, identifier, returnType));
+        node.setMutatesGlobalState(mutatesGlobalState);
+        node.setUsesGlobalState(usesGlobalState);
         if (newParent instanceof GLSLContext) {
-            prototypeNode.setContext((GLSLContext) newParent);
+            node.setContext((GLSLContext) newParent);
         }
 
-        return prototypeNode;
+        return node;
     }
 
     @Override
@@ -87,6 +90,22 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     @Override
     public GLSLType getType() {
         return returnType.getType();
+    }
+
+    public void setMutatesGlobalState(boolean value) {
+        mutatesGlobalState = value;
+    }
+
+    public boolean mutatesGlobalState() {
+        return mutatesGlobalState;
+    }
+
+    public boolean usesGlobalState() {
+        return usesGlobalState;
+    }
+
+    public void setUsesGlobalState(boolean usesGlobalState) {
+        this.usesGlobalState = usesGlobalState;
     }
 
     public String toString() {

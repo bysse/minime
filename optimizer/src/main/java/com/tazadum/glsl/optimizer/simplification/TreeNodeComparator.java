@@ -1,9 +1,7 @@
 package com.tazadum.glsl.optimizer.simplification;
 
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
-import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
@@ -44,12 +42,8 @@ public class TreeNodeComparator implements NodeComparator {
                 continue;
             }
 
-            final ParentNode functionDefinition = declarationNode.getParentNode();
-            if (functionDefinition instanceof FunctionDefinitionNode) {
-                final FunctionDefinitionNode definition = (FunctionDefinitionNode) functionDefinition;
-                if (definition.usesGlobalState() || definition.mutatesGlobalState()) {
-                    return false;
-                }
+            if (declarationNode.usesGlobalState() || declarationNode.mutatesGlobalState()) {
+                return false;
             }
         }
         return true;

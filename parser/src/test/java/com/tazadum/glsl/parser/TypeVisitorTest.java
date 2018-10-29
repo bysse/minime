@@ -24,10 +24,10 @@ class TypeVisitorTest {
         ParserContext parserContext = TestUtil.parserContext();
         ParserRuleContext context = TestUtil.parse(source);
 
-        Node node = TestUtil.ast(context, parserContext);
-        assertNotNull(node);
-
         try {
+            Node node = TestUtil.ast(context, parserContext);
+            assertNotNull(node);
+
             TestUtil.typeCheck(node, parserContext);
 
             if (sourcePosition != null) {
@@ -60,10 +60,11 @@ class TypeVisitorTest {
             ok("uniform vec2 a[2];void main(){vec3 b=a[1].xxx;}"),
             ok("int p(vec2 a){return int(a.x);}void main(){float b=p(vec2(1,2));}"),
             ok("vec2 a=vec2(1.0),b=vec2(1.0,2),c=vec2(ivec2(1)),d=vec2(vec3(1));"),
-
+            ok("struct{float a;} s;void main(){float b=s.a;}"),
             notOk("float a=1;int b=a;", 1, 16),
             notOk("uniform vec2 a[2];void main(){vec3 b=a[1].xyz;}", 1, 42),
             notOk("uniform vec2 a[2];void main(){vec3 b=a[1].yx;}", 1, 37),
+            notOk("struct{float a;} s;void main(){float b=a;}", 1, 39),
         };
     }
 

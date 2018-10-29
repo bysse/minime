@@ -1,5 +1,6 @@
 package com.tazadum.glsl;
 
+import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.language.ast.ASTConverter;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
@@ -76,6 +77,8 @@ public class TestUtil {
             SourcePositionMapper mapper = new SourcePositionMapper();
             mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
             return context.accept(new ASTConverter(mapper, parserContext));
+        } catch (SourcePositionException e) {
+            throw e;
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -5,7 +5,6 @@ import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.arithmetic.*;
 import com.tazadum.glsl.language.ast.conditional.TernaryConditionNode;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
@@ -104,8 +103,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         final FunctionPrototypeNode functionPrototype = node.getFunctionPrototype();
 
         // starting assumptions
-        node.setMutatesGlobalState(false);
-        node.setUsesGlobalState(true);
+        functionPrototype.setMutatesGlobalState(false);
+        functionPrototype.setUsesGlobalState(true);
 
         // check if the parameters are writable
         for (int i = 0; i < functionPrototype.getChildCount(); i++) {
@@ -115,7 +114,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 continue;
             }
             if (qualifiers.contains(StorageQualifier.OUT)) {
-                node.setMutatesGlobalState(true);
+                functionPrototype.setMutatesGlobalState(true);
                 break;
             }
         }
@@ -131,17 +130,13 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 continue;
             }
 
-            final ParentNode functionDefinition = declarationNode.getParentNode();
-            if (functionDefinition instanceof FunctionDefinitionNode) {
-                // we found custom functions that was used in this function
-                final FunctionDefinitionNode definition = (FunctionDefinitionNode) functionDefinition;
-                if (definition.mutatesGlobalState()) {
-                    node.setMutatesGlobalState(true);
-                    break;
-                }
-                if (!definition.usesGlobalState()) {
-                    node.setUsesGlobalState(false);
-                }
+            // we found custom functions that was used in this function
+            if (declarationNode.mutatesGlobalState()) {
+                functionPrototype.setMutatesGlobalState(true);
+                break;
+            }
+            if (!declarationNode.usesGlobalState()) {
+                functionPrototype.setUsesGlobalState(false);
             }
         }
 
@@ -155,9 +150,9 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
             // check if this is a global variable
             if (parserContext.globalContext().equals(parserContext.findContext(declarationNode))) {
-                node.setUsesGlobalState(false);
+                functionPrototype.setUsesGlobalState(false);
                 if (NodeFinder.isMutated(variableNode)) {
-                    node.setMutatesGlobalState(true);
+                    functionPrototype.setMutatesGlobalState(true);
                     break;
                 }
             }

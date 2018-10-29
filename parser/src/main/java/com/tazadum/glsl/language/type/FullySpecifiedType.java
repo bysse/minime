@@ -27,16 +27,6 @@ public class FullySpecifiedType {
         return type;
     }
 
-    /**
-     * Returns the first subtype that is not an array.
-     */
-    public GLSLType getNonArrayType() {
-        if (type instanceof ArrayType) {
-            return ((ArrayType) type).fieldType(null);
-        }
-        return type;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,7 +34,8 @@ public class FullySpecifiedType {
 
         FullySpecifiedType that = (FullySpecifiedType) o;
 
-        return qualifiers == that.qualifiers && type.equals(that.type);
+        if (qualifiers != null ? !qualifiers.equals(that.qualifiers) : that.qualifiers != null) return false;
+        return type.equals(that.type);
     }
 
     @Override

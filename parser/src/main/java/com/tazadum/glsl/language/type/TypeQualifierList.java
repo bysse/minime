@@ -47,6 +47,21 @@ public class TypeQualifierList {
         return get(type.getClass()).anyMatch(t -> t == type);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TypeQualifierList that = (TypeQualifierList) o;
+
+        return qualifiers.equals(that.qualifiers);
+    }
+
+    @Override
+    public int hashCode() {
+        return qualifiers.hashCode();
+    }
+
     public String toString() {
         if (qualifiers.isEmpty()) {
             return "";

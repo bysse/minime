@@ -45,6 +45,12 @@ public interface FunctionRegistry {
 
     List<FunctionPrototypeNode> resolve(String identifier, Identifier.Mode mode);
 
+    /**
+     * Returns all usages of a function.
+     *
+     * @param node
+     * @return
+     */
     Usage<FunctionPrototypeNode> resolve(FunctionPrototypeNode node);
 
     List<Usage<FunctionPrototypeNode>> getUsedFunctions();

@@ -7,7 +7,6 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
-import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.language.ast.traits.HasConstState;
@@ -211,7 +210,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
         for (FunctionCallNode functionCall : functionCalls) {
             final FunctionPrototypeNode declarationNode = functionCall.getDeclarationNode();
             if (!declarationNode.getPrototype().isBuiltIn()) {
-                if (((FunctionDefinitionNode) declarationNode.getParentNode()).mutatesGlobalState()) {
+                if (declarationNode.mutatesGlobalState()) {
                     // if the function mutates global state abort
                     return false;
                 }
