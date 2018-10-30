@@ -334,17 +334,81 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return null;
         }
 
+        // get the node ids for the interval
+        final int startId = insertion.statementList.getChild(insertion.index).getId();
+        final int endId = functionCall.getId();
+
         // we need to determine if statements can be inserted at this point without trashing the shader
         // 1. The globals used in the function, they must not be mutated between declaration and insertion point
         // 2. The globals mutated in the function, they must not be used between declaration and insertion point
         if (functionPrototype.usesGlobalState() || functionPrototype.mutatesGlobalState()) {
-            // get the node ids for the interval
-            final int startId = insertion.statementList.getChild(insertion.index).getId();
-            final int endId = functionCall.getId();
-
             if (!validateInsertionRange(functionDefinition, startId, endId, 10)) {
                 return null;
             }
+        }
+
+        int latestDeclaration = startId;
+        for (VariableNode variableNode : NodeFinder.findAll(functionCall, VariableNode.class)) {
+            // find where all variables used in the function call are declared
+            int declarationId = variableNode.getDeclarationNode().getId();
+            if (declarationId > latestDeclaration) {
+                latestDeclaration = declarationId;
+            }
+        }
+
+        if (latestDeclaration > startId) {
+            // we have variable declarations after between the insertion point and the function call
+            final Node statement = NodeFinder.findNearestStatement(functionCall);
+            if (statement == null || !(statement instanceof VariableDeclarationListNode)) {
+                return null;
+            }
+
+            if (!insertion.statementList.hasEqualId(statement.getParentNode())) {
+                // check that the insertion statement list is in fact the same as the declarationList parent
+                return null;
+            }
+
+            final VariableDeclarationNode declaration = NodeFinder.findNearestVariableDeclaration(functionCall);
+            if (declaration == null) {
+                // the function call was not part of a variable declaration
+                return null;
+            }
+
+            final VariableDeclarationListNode declarationList = (VariableDeclarationListNode) statement;
+            final int index = declarationList.indexOf(declaration);
+            if (declarationList.getChildCount() <= 1 || index == 0) {
+                // the function call is the only child in a declaration list
+                // this is a vary hard condition to satisfy considering that the insertion point
+                // should be the statement before the declaration and that there's something between them...
+                return null;
+            }
+
+            // we need to split up the variable declaration list into two lists and move the declarations
+            // that are done after 'index' to the new declaration list
+
+            final VariableDeclarationListNode newList = new VariableDeclarationListNode(
+                declarationList.getSourcePosition(),
+                declarationList.getFullySpecifiedType()
+            );
+
+            // move the declarations after 'index' to the new list
+            for (int i = index; i < declarationList.getChildCount(); i++) {
+                final Node node = declarationList.getChild(index);
+                declarationList.removeChild(node);
+                newList.addChild(node);
+            }
+
+            int insertIndex = insertion.statementList.indexOf(declarationList);
+            if (insertIndex < 0) {
+                // this is strange or a bug
+                return null;
+            }
+
+            // insert the new declaration list into the AST
+            insertion.statementList.insertChild(insertIndex + 1, newList);
+
+            // update the insertion point
+            insertion.index = insertIndex + 1;
         }
 
         // build the argument list and create variable declarations
@@ -563,7 +627,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     }
 
     /**
-     * Determines a valid insertion point for extra statements as close to a function call as possible
+     * Return the closest possible insertion point for statements without breaking
+     * apart declarations.
      */
     private InsertPoint findInsertionPoint(FunctionCallNode functionCall) {
         // find the closes statement to the function call
@@ -582,8 +647,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             logger.trace("Inconsistencies in the AST found along function call : " + functionCall.getIdentifier().original());
             return null;
         }
-
-        // TODO: check where arguments to the function call are declared
 
         return new InsertPoint(statementList, index);
     }

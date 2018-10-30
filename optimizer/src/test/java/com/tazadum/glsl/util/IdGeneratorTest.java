@@ -43,9 +43,10 @@ public class IdGeneratorTest {
 
     @Test
     public void testGeneration_2() throws Exception {
-        IdGenerator generator = IdGenerator.create("float=0.;void(){float=tan(0.)*tan(0.);}");
+        IdGenerator generator = IdGenerator.create("bbaaccc");
+        assertEquals("c", generator.next());
         assertEquals("a", generator.next());
-        assertEquals("t", generator.next());
+        assertEquals("b", generator.next());
 
     }
 }

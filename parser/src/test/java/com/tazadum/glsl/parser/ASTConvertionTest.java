@@ -126,8 +126,8 @@ class ASTConvertionTest {
         try {
             TestUtil.ast(context, parserContext);
             fail("Const assignment should not work");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof SourcePositionException, e.getMessage());
+        } catch (SourcePositionException e) {
+            System.out.println(e.getSourcePosition().format() + " " + e.getMessage());
         }
     }
 }

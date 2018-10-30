@@ -14,6 +14,7 @@ import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -56,12 +57,19 @@ public class ContextBasedMultiIdentifierShortener {
     public void apply() {
         // concatenate all of the source to find frequently used characters
         final String content = shaders.stream()
-                .map(ShaderData::getShaderContent)
-                .collect(Collectors.joining("\n"));
+            .map(ShaderData::getShaderContent)
+            .collect(Collectors.joining("\n"));
 
-        idGeneratorTemplate = IdGenerator.create(content);
+        if (deterministic) {
+            byte[] bytes = content.getBytes(StandardCharsets.UTF_8);
+            Arrays.sort(bytes);
+            idGeneratorTemplate = IdGenerator.create(new String(bytes, StandardCharsets.UTF_8));
+            appliedIdentifiers = new TreeMap<>();
+        } else {
+            idGeneratorTemplate = IdGenerator.create(content);
+            appliedIdentifiers = new HashMap<>();
+        }
 
-        appliedIdentifiers = new HashMap<>();
         for (ShaderData shaderData : shaders) {
             applyToShader(shaderData, idGeneratorTemplate);
         }
@@ -71,6 +79,17 @@ public class ContextBasedMultiIdentifierShortener {
         final Map<GLSLContext, IdGenerator> contextGeneratorMap = new HashMap<>();
         final List<Node> nodeUsageList = shaderData.getNodeUsageList();
         final ParserContext parserContext = shaderData.getParserContext();
+
+        if (deterministic) {
+            final Map<Node, Integer> nodeUsageMap = shaderData.getNodeUsageMap();
+            nodeUsageList.sort((a, b) -> {
+                int ret = nodeUsageMap.get(b) - nodeUsageMap.get(a);
+                if (ret != 0) {
+                    return ret;
+                }
+                return a.compareTo(b);
+            });
+        }
 
         for (Node node : nodeUsageList) {
             final GLSLContext context = parserContext.findContext(node);
@@ -197,7 +216,7 @@ public class ContextBasedMultiIdentifierShortener {
     }
 
     private Map<Node, Integer> getNodeUsageCountMap(ParserContext parserContext) {
-        final Map<Node, Integer> nodeMap = new HashMap<>();
+        Map<Node, Integer> nodeMap = new HashMap<>();
 
         for (Usage<FunctionPrototypeNode> usage : parserContext.getFunctionRegistry().getUsedFunctions()) {
             if (usage.getTarget().getPrototype().isBuiltIn()) {

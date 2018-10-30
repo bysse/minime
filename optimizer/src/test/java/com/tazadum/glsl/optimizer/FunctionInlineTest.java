@@ -47,7 +47,6 @@ public class FunctionInlineTest extends BaseOptimizerTest {
 
     private static Arguments[] getPositiveCases() {
         return new Arguments[]{
-            /*
             Arguments.of( // single line void function
                 "void main(){iv+=1;}",
                 "void f(int b){ iv+=b; } void main(){ f(1); }"),
@@ -75,11 +74,9 @@ public class FunctionInlineTest extends BaseOptimizerTest {
             Arguments.of(
                 "void main(){float b=1;float c=(2+b)+1;fv=c;}",
                 "float func(float a){ float c=a+1; return c; } void main(){ float b=1;fv=func(2+b); }"),
-                */
-            Arguments.of(
-                "void main(){float b=1;float c=(2+b)+1;float d=c;fv=d;}",
-                "float func(float a){ float c=a+1; return c; } void main(){ float b=1,d=func(2+b);fv=d; }"),
-/*
+            Arguments.of( // declaration of dependent variable 'b' hinders inline
+                "void main(){float b=1;float c=b;float d=c;fv=d;}",
+                "float F(float a){ float c=a; return c; } void main(){ float b=1,d=F(b);fv=d; }"),
             Arguments.of(
                 "void main(){fv=2;}",
                 "float func(float a){ return a; } void main(){ fv=func(2); }"),
@@ -92,7 +89,6 @@ public class FunctionInlineTest extends BaseOptimizerTest {
             Arguments.of(
                 "mat4 M;void main(){fv=M[1].x;}",
                 "mat4 M;float col(int i){ return M[i]; } void main(){ fv=col(1).x; }"),
-                */
         };
     }
 

@@ -6,6 +6,7 @@ import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.traits.MutatingOperation;
 import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 
 import java.util.SortedSet;
@@ -122,6 +123,24 @@ public class NodeFinder {
             return null;
         }
         return findNearestFunctionCall(parent);
+    }
+
+    /**
+     * Searches through the parents of a node until it hits a statement list
+     * to try and find out if the node is part of a variable declaration.
+     *
+     * @param node Node to search from, inclusive.
+     * @return The function node or null if nothing was found.
+     */
+    public static VariableDeclarationNode findNearestVariableDeclaration(Node node) {
+        if (node instanceof VariableDeclarationNode) {
+            return (VariableDeclarationNode) node;
+        }
+        final ParentNode parent = node.getParentNode();
+        if (parent == null || node instanceof StatementListNode) {
+            return null;
+        }
+        return findNearestVariableDeclaration(parent);
     }
 
     /**
