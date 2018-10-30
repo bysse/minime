@@ -1,10 +1,14 @@
 package com.tazadum.glsl.parser;
 
+import com.tazadum.glsl.exception.SourcePositionException;
+import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
+import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 
 /**
@@ -18,11 +22,20 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
         this.parserContext = parserContext;
     }
 
-
     public Void visitVariable(VariableNode node) {
         super.visitVariable(node);
 
         VariableRegistry registry = parserContext.getVariableRegistry();
+
+        // make sure we have a valid declaration node
+        try {
+            GLSLContext context = parserContext.findContext(node);
+            ResolutionResult result = registry.resolve(context, node.getDeclarationNode().getIdentifier().original(), Identifier.Mode.Original);
+            node.setDeclarationNode(result.getDeclaration());
+        } catch (VariableException e) {
+            throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
+        }
+
         registry.registerVariableUsage(node);
 
         return null;
@@ -31,8 +44,8 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
     public Void visitVariableDeclaration(VariableDeclarationNode node) {
         super.visitVariableDeclaration(node);
 
-        GLSLContext context = parserContext.findContext(node);
         VariableRegistry registry = parserContext.getVariableRegistry();
+        GLSLContext context = parserContext.findContext(node);
         registry.declareVariable(context, node);
 
         return null;

@@ -94,10 +94,6 @@ public class TestUtil {
         return node.accept(new OutputVisitor(outputConfig)).get();
     }
 
-    public static ParserContext parserContext() {
-        return parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY);
-    }
-
     private static BuiltInFunctionRegistry builtInRegistry = null;
 
     public static BuiltInFunctionRegistry getBuiltInFunctionRegistry(ShaderType shaderType, GLSLProfile profile) {
@@ -108,11 +104,28 @@ public class TestUtil {
         return builtInRegistry;
     }
 
+    public static ParserContext parserContext() {
+        return parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, true);
+    }
+
     public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile) {
+        return parserContext(shaderType, profile, true);
+    }
+
+    public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile, boolean builtIn) {
+        BuiltInFunctionRegistry builtInRegistry;
+        if (builtIn) {
+            builtInRegistry = getBuiltInFunctionRegistry(shaderType, profile);
+        } else {
+            builtInRegistry = new BuiltInFunctionRegistryImpl();
+        }
+
         VariableRegistry variableRegistry = new VariableRegistryImpl();
-        FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(getBuiltInFunctionRegistry(shaderType, profile));
+        FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(builtInRegistry);
         ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, functionRegistry);
-        parserContext.initializeVariables(shaderType, profile);
+        if (builtIn) {
+            parserContext.initializeVariables(shaderType, profile);
+        }
         return parserContext;
     }
 }

@@ -102,6 +102,26 @@ public class ParentNode implements Node {
         return (Iterable<T>) childNodes;
     }
 
+    protected ParentNode insertChild(int index, Node node) {
+        if (node == null) {
+            throw new IllegalArgumentException("Node is null.");
+        }
+        if (node.getParentNode() != null) {
+            node.getParentNode().removeChild(node);
+        }
+        node.setParentNode(this);
+        if (index < 0) {
+            index = 0;
+        }
+        if (index >= getChildCount()) {
+            return addChild(node);
+        }
+
+        childNodes.add(index, node);
+        invalidateId();
+        return this;
+    }
+
     public ParentNode addChild(Node node) {
         if (node == null) {
             throw new IllegalArgumentException("Node is null.");

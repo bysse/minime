@@ -11,11 +11,15 @@ public abstract class BaseOptimizerTest extends BaseTest {
     protected abstract OptimizerType[] getOptimizerTypes();
 
     protected void testInit() {
-        testInit(0);
+        testInit(0, true);
     }
 
     protected void testInit(int branchDepth) {
-        super.testInit();
+        testInit(branchDepth, true);
+    }
+
+    protected void testInit(int branchDepth, boolean useBuiltIn) {
+        super.testInit(useBuiltIn);
 
         if (branchDepth > 0) {
             TreePruner pruner = TreePruner.byIterationDepth(branchDepth);

@@ -8,7 +8,9 @@ import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.parser.GLSLParser;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.ShaderType;
 import com.tazadum.glsl.parser.TypeVisitor;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
@@ -26,7 +28,11 @@ public abstract class BaseTest {
     }
 
     protected void testInit() {
-        parserContext = TestUtil.parserContext();
+        testInit(true);
+    }
+
+    protected void testInit(boolean useBuiltIn) {
+        parserContext = TestUtil.parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, useBuiltIn);
         outputConfig = new OutputConfigBuilder()
             .renderNewLines(false)
             .indentation(0)

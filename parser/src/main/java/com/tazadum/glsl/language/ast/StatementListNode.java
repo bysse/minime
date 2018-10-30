@@ -14,6 +14,11 @@ public class StatementListNode extends ParentNode {
         return CloneUtils.cloneChildren(this, new StatementListNode(getSourcePosition()));
     }
 
+    public StatementListNode insertChild(int index, Node node) {
+        super.insertChild(index, node);
+        return this;
+    }
+
     @Override
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitStatementList(this);

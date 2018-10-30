@@ -68,4 +68,20 @@ public class Usage<T> {
         }
         return usage;
     }
+
+    public String toString() {
+        if (nodes.size() > 10) {
+            return String.format("%d usage nodes", nodes.size());
+        }
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < nodes.size(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(Objects.toString(nodes.get(i)));
+        }
+        return "{" + builder.toString() + "}";
+
+    }
 }

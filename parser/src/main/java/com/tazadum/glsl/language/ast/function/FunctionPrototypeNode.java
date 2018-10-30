@@ -66,6 +66,10 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
         addChild(parameter);
     }
 
+    public ParameterDeclarationNode getParameter(int index) {
+        return getChildAs(index);
+    }
+
     public void setShared(boolean shared) {
         this.shared = shared;
     }

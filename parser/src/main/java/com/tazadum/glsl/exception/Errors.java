@@ -79,6 +79,7 @@ public class Errors {
 
         EXPECTED_SCALAR("Expected operands of scalar type"),
         EXPECTED_NON_OPAQUE("Expected operands of non-opaque type scalar, vector or matrix."),
+        EXPECTED_RETURN("Expected return"),
 
         NOT_INDEXABLE("The expression is not of type array or matrix."),
         ARRAY_INDEX_NOT_INT("Array indices must be expressed as a non-negative integer of type int or uint."),
@@ -90,6 +91,7 @@ public class Errors {
         INVALID_SWIZZLE("No valid swizzle type could be created."),
         INVALID_SWIZZLE_FOR_TYPE("Type does not have any fields."),
         INVALID_SWIZZLE_SCALAR("Swizzle operations not allowed on scalar types."),
+        RECURSION_NOT_SUPPORTED("Function call causes a recursion loop. This is not supported in GLSL."),
         LVALUE_IS_CONST("Lvalue is const and can't be assigned."),
 
         PRECISION_NOT_SUPPORTED("The type does not support precision declarations."),

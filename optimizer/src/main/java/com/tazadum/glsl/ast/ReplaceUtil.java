@@ -42,6 +42,10 @@ public class ReplaceUtil {
     }
 
     public static <T extends ParentNode> T replace(ParserContext context, T parent, Node nodeToRemove, Node replacement) {
+        return replace(context, parent, nodeToRemove, replacement, true, true);
+    }
+
+    public static <T extends ParentNode> T replace(ParserContext context, T parent, Node nodeToRemove, Node replacement, boolean dereference, boolean reference) {
         ReplacingASTVisitor visitor = new ReplacingASTVisitor(context, true) {
             protected void processParentNode(ParentNode node) {
                 for (int i = 0; i < node.getChildCount(); i++) {
@@ -50,12 +54,17 @@ public class ReplaceUtil {
                         continue;
                     }
                     if (nodeToRemove.hasEqualId(child)) {
-                        parserContext.dereferenceTree(child);
+                        if (dereference) {
+                            parserContext.dereferenceTree(child);
+                        }
                         if (replacement.equals(REMOVE)) {
                             node.removeChild(child);
                             i--;
                         } else {
                             node.setChild(i, replacement);
+                            if (reference) {
+                                parserContext.referenceTree(replacement);
+                            }
                         }
                     } else {
                         child.accept(this);

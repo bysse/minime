@@ -8,6 +8,8 @@ import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class VariableDeclarationListNode extends ParentNode implements HasSharedState {
     private FullySpecifiedType type;
     private boolean shared;
@@ -56,6 +58,13 @@ public class VariableDeclarationListNode extends ParentNode implements HasShared
 
     @Override
     public String toString() {
-        return getId() + ": VariableDeclarationList(type='" + type + "')";
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < getChildCount(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(Objects.toString(getChild(i)));
+        }
+        return getId() + ": VariableDeclarationList(type='" + type + "') { " + builder + "}";
     }
 }

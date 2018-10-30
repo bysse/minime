@@ -35,6 +35,22 @@ public class NodeFinder {
     }
 
     /**
+     * Searches through all parents for a node until the predicate return true or
+     * we run out of nodes.
+     *
+     * @param node     Node to start the search with ie inclusive.
+     * @param nodeType The type of node to search for.
+     * @return The found node or null.
+     */
+    public static <T extends Node> T findParent(Node node, Class<T> nodeType) {
+        Node result = findParent(node, (n) -> nodeType.isAssignableFrom(n.getClass()));
+        if (result == null) {
+            return null;
+        }
+        return (T) result;
+    }
+
+    /**
      * Searches through the parents of a node until it hits a statement list
      * to try and find out if the statement contains a mutable operation.
      *
@@ -50,6 +66,24 @@ public class NodeFinder {
             return null;
         }
         return findNearestMutableOperation(parent);
+    }
+
+    /**
+     * Searches through the parents of a node until it hits a statement list
+     * then returns the statement which was part of the tree.
+     *
+     * @param node Node to search from, inclusive.
+     * @return The statement or null if nothing was found.
+     */
+    public static Node findNearestStatement(Node node) {
+        final ParentNode parent = node.getParentNode();
+        if (parent == null) {
+            return null;
+        }
+        if (parent instanceof StatementListNode) {
+            return node;
+        }
+        return findNearestStatement(parent);
     }
 
     /**

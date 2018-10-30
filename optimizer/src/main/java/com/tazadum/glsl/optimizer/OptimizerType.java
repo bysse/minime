@@ -27,7 +27,10 @@ public enum OptimizerType {
      * Pattern matching based arithmetic simplifications.
      */
     ArithmeticOptimizerType(RuleOptimizer.class),
-    //FunctionInline(FunctionInlineOptimizer.class)
+    /**
+     * Find appropriate functions to inline.
+     */
+    FunctionInline(com.tazadum.glsl.optimizer.inline.FunctionInline.class)
     ;
 
     private Class<? extends Optimizer> optimizer;

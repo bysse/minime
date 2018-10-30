@@ -36,7 +36,10 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     @Override
     public StageData<Pair<Node, ParserContext>> process(StageData<Pair<Node, ParserContext>> input) {
         // TODO: Make a smarter tree pruning algorithm
-        final TreePruner pruner = TreePruner.byIterationDepth(options.iterationMaxDepth());
+        final TreePruner pruner = TreePruner.or(
+            TreePruner.byIterationDepth(options.iterationMaxDepth()),
+            TreePruner.bySizeDifference(1024) // TODO: this should also some from config
+        );
         final BranchingOptimizerPipeline pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, getOptimizers());
 
         // setup the optimizer context

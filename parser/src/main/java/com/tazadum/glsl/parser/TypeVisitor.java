@@ -105,7 +105,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
         // starting assumptions
         functionPrototype.setMutatesGlobalState(false);
-        functionPrototype.setUsesGlobalState(true);
+        functionPrototype.setUsesGlobalState(false);
 
         // check if the parameters are writable
         for (int i = 0; i < functionPrototype.getChildCount(); i++) {
@@ -150,8 +150,8 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             }
 
             // check if this is a global variable
-            if (parserContext.globalContext().equals(parserContext.findContext(declarationNode))) {
-                functionPrototype.setUsesGlobalState(false);
+            if (parserContext.findContext(declarationNode).isGlobal()) {
+                functionPrototype.setUsesGlobalState(true);
                 if (NodeFinder.isMutated(variableNode)) {
                     functionPrototype.setMutatesGlobalState(true);
                     break;
