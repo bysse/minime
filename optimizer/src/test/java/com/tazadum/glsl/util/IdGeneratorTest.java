@@ -47,6 +47,10 @@ public class IdGeneratorTest {
         assertEquals("c", generator.next());
         assertEquals("a", generator.next());
         assertEquals("b", generator.next());
+        assertEquals("C", generator.next());
+        assertEquals("A", generator.next());
+        assertEquals("B", generator.next());
+        assertEquals("d", generator.next());
 
     }
 }

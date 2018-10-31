@@ -68,7 +68,7 @@ public class OutputConfigBuilder {
     /**
      * Set to true if original identifiers should be added as comments in the output.
      */
-    public OutputConfigBuilder originalIdentifiers(boolean originalIdentifiers) {
+    public OutputConfigBuilder showOriginalIdentifiers(boolean originalIdentifiers) {
         this.originalIdentifiers = originalIdentifiers;
         return this;
     }

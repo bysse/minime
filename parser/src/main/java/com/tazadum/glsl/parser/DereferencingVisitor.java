@@ -32,7 +32,13 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     @Override
     public Void visitVariable(VariableNode node) {
         if (parserContext.getVariableRegistry().dereference(node)) {
-            logger.debug("Removing usage for variable {}", node);
+            final VariableDeclarationNode declarationNode = node.getDeclarationNode();
+
+            if (declarationNode == null) {
+                logger.debug("Removing usage for unresolved variable");
+            } else {
+                logger.debug("Removing usage for variable {}", declarationNode.getIdentifier().original());
+            }
         }
         return null;
     }

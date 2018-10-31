@@ -1,6 +1,7 @@
 package com.tazadum.glsl.optimizer.constants;
 
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
+import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
@@ -27,9 +28,9 @@ import com.tazadum.glsl.parser.Usage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Propagates constants and resolves constant expressions.
@@ -86,39 +87,37 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
             return null;
         }
 
-        List<NodeUsage> newNodeUsage = new ArrayList<>();
-        boolean firstNode = true;
+        logger.trace("Propagating declaration of {}", node.getIdentifier().original());
+
+        final Set<Node> deferredDeRef = new TreeSet<>();
 
         for (Node usageNode : usageNodes) {
             final VariableNode variableNode = (VariableNode) usageNode;
             if (NodeFinder.isMutated(variableNode)) {
                 // one of the usage nodes is being mutated or is closely part of a mutating operation
                 // the safest action here is to abort the entire propagation of the value.
-                return null;
+                // note that this should be checked by isConstant
+                throw new BadImplementationException();
             }
 
-            Node initializer = node.getInitializer();
-
-            // No need to clone the first node because the references will follow the node.
-            if (!firstNode) {
-                // we need to clone the initializer because it's going to be insert in multiple places in the AST
-                initializer = initializer.clone(null);
-            }
+            // we need to clone the initializer because it's going to be insert in multiple places in the AST
+            Node initializer = node.getInitializer().clone(null);
 
             final ParentNode parentNode = variableNode.getParentNode();
             if (initializerNeedWrapping(initializer, parentNode)) {
                 initializer = new ParenthesisNode(variableNode.getSourcePosition(), initializer);
             }
 
+            deferredDeRef.add(variableNode);
             parentNode.replaceChild(variableNode, initializer);
 
             // make sure all new nodes are registered properly
-            if (!firstNode) {
-                parserContext.referenceTree(initializer);
-            }
-
-            firstNode = false;
+            parserContext.referenceTree(initializer);
             changes++;
+        }
+
+        for (Node deRef : deferredDeRef) {
+            parserContext.dereferenceTree(deRef);
         }
 
         return ReplacingASTVisitor.REMOVE;

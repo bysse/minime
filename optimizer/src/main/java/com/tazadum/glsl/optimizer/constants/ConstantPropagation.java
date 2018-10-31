@@ -13,7 +13,7 @@ import com.tazadum.glsl.parser.ParserContext;
 public class ConstantPropagation extends BranchingOptimizer {
     @Override
     public String name() {
-        return "constant propagation";
+        return "propagation";
     }
 
     @Override

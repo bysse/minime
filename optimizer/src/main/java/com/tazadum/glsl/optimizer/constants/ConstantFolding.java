@@ -13,7 +13,7 @@ import com.tazadum.glsl.parser.ParserContext;
 public class ConstantFolding extends BranchingOptimizer {
     @Override
     public String name() {
-        return "constant folding";
+        return "folding";
     }
 
     @Override

@@ -44,7 +44,7 @@ public class OutputConfig {
         builder.significantDecimals(formatter.getSignificantDigits());
         builder.identifierMode(identifierMode);
         builder.blacklistKeyword(new HashSet<>(keywordBlacklist));
-        builder.originalIdentifiers(originalIdentifiers);
+        builder.showOriginalIdentifiers(originalIdentifiers);
 
         return builder;
     }

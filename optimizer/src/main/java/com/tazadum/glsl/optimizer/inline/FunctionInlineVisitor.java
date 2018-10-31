@@ -188,7 +188,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return null;
         }
 
-        // check if the inline decision of this function already has been taken
+        // check if the inline decision for this function already has been taken
         if (!branchRegistry.claimPoint(definitionNode, FunctionInline.class)) {
             // this node has already been considered for optimization
             // ie in another branch this function call has already been inlined

@@ -80,7 +80,7 @@ public class OptimizerMain {
                 .indentation(get(compilerOption.getIndentation(), small, 0))
                 .renderNewLines(get(compilerOption.isNewLines(), small, false))
                 .blacklistKeyword(blacklistedKeywords)
-                .originalIdentifiers(true)
+                .showOriginalIdentifiers(true)
                 .build();
 
             // setup the optimizer stage

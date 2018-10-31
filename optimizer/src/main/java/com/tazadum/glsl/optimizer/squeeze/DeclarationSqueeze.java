@@ -13,7 +13,7 @@ import com.tazadum.glsl.parser.ParserContext;
 public class DeclarationSqueeze extends BranchingOptimizer {
     @Override
     public String name() {
-        return "declarations squeezes";
+        return "squeeze";
     }
 
     @Override

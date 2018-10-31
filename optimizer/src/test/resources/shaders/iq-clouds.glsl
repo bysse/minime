@@ -33,7 +33,7 @@ float noise( in vec3 x )
 	f = f*f*(3.0-2.0*f);
 	
 	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-	vec2 rg = texture2D( iChannel0, (uv+ 0.5)/256.0, -100.0 ).yx;
+	vec2 rg = texture( iChannel0, (uv+ 0.5)/256.0, -100.0 ).yx;
 	return mix( rg.x, rg.y, f.z );
 }
 #endif
@@ -42,7 +42,7 @@ vec4 map( in vec3 p )
 {
 	float d = 0.2 - p.y;
 
-	vec3 q = p - vec3(1.0,0.1,0.0)*iGlobalTime;
+	vec3 q = p - vec3(1.0,0.1,0.0)*iTime;
 	float f;
     f  = 0.5000*noise( q ); q = q*2.02;
     f += 0.2500*noise( q ); q = q*2.03;
@@ -100,9 +100,9 @@ vec4 raymarch( in vec3 ro, in vec3 rd )
 	return clamp( sum, 0.0, 1.0 );
 }
 
-void main(void)
+void mainImage( out vec4 fragColor, in vec2 fragCoord )
 {
-	vec2 q = gl_FragCoord.xy / iResolution.xy;
+	vec2 q = fragCoord.xy / iResolution.xy;
     vec2 p = -1.0 + 2.0*q;
     p.x *= iResolution.x/ iResolution.y;
     vec2 mo = -1.0 + 2.0*iMouse.xy / iResolution.xy;
@@ -125,5 +125,5 @@ void main(void)
 	col = mix( col, res.xyz, res.w );
 	col += 0.1*vec3(1.0,0.4,0.2)*pow( sun, 3.0 );
 	    
-    gl_FragColor = vec4( col, 1.0 );
+    fragColor = vec4( col, 1.0 );
 }

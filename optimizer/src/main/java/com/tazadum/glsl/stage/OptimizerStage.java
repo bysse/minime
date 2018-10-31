@@ -67,24 +67,18 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     }
 
     private void optimizeIdentifiers(Node node, ParserContext parserContext, boolean keepUniformIdentifiers) {
-        logger.info("* Minifying identifiers");
+        logger.info("Minifying identifiers");
         ContextBasedMultiIdentifierShortener shortener = new ContextBasedMultiIdentifierShortener(false, outputConfig, keepUniformIdentifiers);
         shortener.register(parserContext, node);
         shortener.apply();
+
+        //String source = new OutputRenderer().render(node, outputConfig);
+        //logger.info("  - identifiers  {} bytes", source.length());
 
         // TODO: iterate
     }
 
     private OptimizerType[] getOptimizers() {
         return OptimizerType.values();
-        /*
-        return new OptimizerType[] {
-            OptimizerType.DeadCodeEliminationType,
-            OptimizerType.ConstantFoldingType,
-            OptimizerType.ConstantPropagationType,
-            OptimizerType.DeclarationSqueezeType,
-            OptimizerType.ArithmeticOptimizerType
-        };
-        */
     }
 }

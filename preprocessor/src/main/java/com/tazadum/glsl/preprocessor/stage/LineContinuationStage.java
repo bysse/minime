@@ -26,7 +26,6 @@ public class LineContinuationStage implements Stage {
 
         this.mapper = new SourcePositionMapper();
         this.mapper.remap(SourcePosition.TOP, SourcePositionId.create(source.getSourceId(), SourcePosition.TOP));
-
     }
 
     @Override
@@ -89,7 +88,7 @@ public class LineContinuationStage implements Stage {
             index--;
         }
 
-        if (line.charAt(index) != '\\') {
+        if (index >= 0 && line.charAt(index) != '\\') {
             return false;
         }
 

@@ -15,7 +15,6 @@ import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.antlr.v4.runtime.Token;
 
 public abstract class BaseTest {
     protected ParserContext parserContext;
@@ -63,10 +62,6 @@ public abstract class BaseTest {
 
             return node;
         } catch (Exception e) {
-            System.out.println("Dumping source tokens:");
-            for (Token token : TestUtil.getTokens(TestUtil.tokenStream(source))) {
-                System.out.println("  " + token);
-            }
             throw e;
         }
     }

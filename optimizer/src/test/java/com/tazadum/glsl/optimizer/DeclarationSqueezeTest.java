@@ -62,6 +62,16 @@ public class DeclarationSqueezeTest extends BaseOptimizerTest {
             Arguments.of(
                 "void main(){float a=0;vec3 b=vec3(a);a++;vec3 c=vec3(a),d=c+vec3(a);}",
                 "void main(){float a=0;vec3 b=vec3(a);a++;vec3 c=vec3(a);vec3 d=c+vec3(a);}"),
+            Arguments.of(
+                "void main(vec2 p){vec3 ro=4*normalize(vec3(cos(2.75-3*p.x),.7+(p.y+1),sin(2.75-3*p.x))),ta=vec3(0,1,0),ww=normalize(ta-ro),uu=normalize(cross(vec3(0,1,0),ww)),vv=normalize(cross(ww,uu)),rd=normalize(p.x*uu+p.y*vv+1.5*ww);}",
+                "void main(vec2 p){vec3 ro=4.0*normalize(vec3(cos(2.75-3*p.x),.7+(p.y+1),sin(2.75-3.0*p.x)));" +
+                    "vec3 ta=vec3(0,1,0);" +
+                    "vec3 ww = normalize( ta - ro);" +
+                    "vec3 uu = normalize(cross( vec3(0.0,1.0,0.0), ww ));" +
+                    "vec3 vv = normalize(cross(ww,uu));" +
+                    "vec3 rd = normalize( p.x*uu + p.y*vv + 1.5*ww );}"
+
+            )
         };
     }
 }

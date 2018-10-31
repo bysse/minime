@@ -40,6 +40,16 @@ class LineContinuationStageTest {
     }
 
     @Test
+    @DisplayName("Test empty line")
+    public void test_empty_line() throws IOException {
+        Stage stage = process("A\n\nB");
+        assertEquals("A", stage.readLine());
+        assertEquals("", stage.readLine());
+        assertEquals("B", stage.readLine());
+        assertNull(stage.readLine());
+    }
+
+    @Test
     @DisplayName("Test line continuation")
     public void test_continuation() throws IOException {
         Stage stage = process("line 1\\\nmore line 1\nline 2");

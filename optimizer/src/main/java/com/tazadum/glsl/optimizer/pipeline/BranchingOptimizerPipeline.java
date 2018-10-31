@@ -9,6 +9,7 @@ import com.tazadum.glsl.parser.ParserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
@@ -27,8 +28,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         this.outputConfig = outputConfig;
         this.output = new OutputRenderer();
         this.optimizers = Stream.of(types)
-                .map(OptimizerType::instantiate)
-                .collect(Collectors.toList());
+            .map(OptimizerType::instantiate)
+            .collect(Collectors.toList());
     }
 
     public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, EnumSet<OptimizerType> types) {
@@ -36,8 +37,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         this.outputConfig = outputConfig;
         this.output = new OutputRenderer();
         this.optimizers = types.stream()
-                .map(OptimizerType::instantiate)
-                .collect(Collectors.toList());
+            .map(OptimizerType::instantiate)
+            .collect(Collectors.toList());
     }
 
     public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput, OptimizerReport report) {
@@ -57,61 +58,71 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
             totalChanges = 0;
 
             if (showOutput) {
-                logger.info(String.format("Iteration %d: (%d branches, %d bytes)", iteration++, acceptedBranches.size(), minSize));
+                logger.info(String.format("* Iteration %d: branches=%d", iteration++, acceptedBranches.size()));
             }
 
             if (report != null) {
                 report.addBranches(acceptedBranches.size());
             }
 
-            for (Optimizer optimizer : optimizers) {
-                int branchCount = 0;
-                int batchMinSize = Integer.MAX_VALUE;
-                Branch batchMinBranch = null;
+            Branch batchMinBranch = null;
+            int batchMinSize = Integer.MAX_VALUE;
+            int removedBranches = 0;
 
-                for (Branch branch : acceptedBranches) {
-                    Node node = branch.getNode();
-                    ParserContext context = branch.getContext();
+            // run through all optimizers one branch at a time
+            int branchIndex = 0;
+            for (Branch branch : acceptedBranches) {
+                if (showOutput) {
+                    logger.info("   * Branch {}:", branchIndex++);
+                }
+                Node node = branch.getNode();
+                ParserContext context = branch.getContext();
 
-                    // don't act on the input branch
-                    if (!inputBranch) {
-                        // check the size of this branch
-                        int branchSize = output.render(node, outputConfig).length();
-                        int sizeDifference = branchSize - previousSize;
-                        minSize = Math.min(minSize, branchSize);
+                int branchChanges = 0;
+                int branchesDiscovered = 0;
+                int branchSizeBefore = output.render(node, outputConfig).length();
 
-                        // keep track of the smallest in the batch
-                        if (branchSize < batchMinSize) {
-                            batchMinSize = branchSize;
-                            batchMinBranch = branch;
-                        }
-
-                        if (treePruner.prune(iteration, sizeDifference)) {
-                            // this tree is pruned and excluded from further exploration
-                            continue;
-                        }
-                    }
-
+                for (Optimizer optimizer : optimizers) {
                     final Optimizer.OptimizerResult result = optimizer.run(context, branchRegistry, decider, node);
                     int changes = result.getChanges();
-                    if (changes <= 0) {
-                        continue;
-                    }
                     totalChanges += changes;
+                    branchChanges += changes;
 
                     List<Branch> branches = result.getBranches();
-                    branchCount += branches.size();
+                    branchesDiscovered += branches.size() - 1;
                     discoveredBranches.addAll(branches);
 
-                    inputBranch = false;
+                    if (changes > 0) {
+                        logger.info(String.format("      - %-12s %d", optimizer.name(), changes));
+                    }
+                }
+
+                // check the size of this branch
+                int branchSizeAfter = output.render(node, outputConfig).length();
+                int sizeDifference = minSize - branchSizeAfter;
+                minSize = Math.min(minSize, branchSizeAfter);
+
+                if (treePruner.prune(iteration, sizeDifference)) {
+                    // this tree is pruned and excluded from further exploration
+                    logger.info("      + branch summary: removed");
+                    removedBranches++;
+                    continue;
+                }
+
+                // keep track of the smallest in the batch
+                if (branchSizeAfter < batchMinSize) {
+                    batchMinSize = branchSizeAfter;
+                    batchMinBranch = branch;
                 }
 
                 if (showOutput) {
-                    int branches = Math.max(0, branchCount);
-                    if (branches > 0) {
-                        logger.info(String.format("  - %s: %d+%d changes", optimizer.name(), totalChanges, branches));
+                    if (branchChanges == 0 && branchSizeAfter - branchSizeBefore == 0 && branchesDiscovered == 0) {
+                        logger.info("      - no modifications");
                     } else {
-                        logger.info(String.format("  - %s: %d+0 changes", optimizer.name(), totalChanges));
+                        logger.info("      - branch summary:");
+                        logger.info("         - modifications:   {}", branchChanges);
+                        logger.info("         - size difference: {}", branchSizeAfter - branchSizeBefore);
+                        logger.info("         - new branches:    {}", branchesDiscovered);
                     }
                 }
 
@@ -119,10 +130,17 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                     // propagate the smallest branch to the next batch
                     discoveredBranches.add(batchMinBranch);
                 }
+            }
 
-                // enforce branch uniqueness and add all of them to the list of accepted nodes
-                acceptedBranches.clear();
-                acceptedBranches.addAll(Branch.unique(discoveredBranches));
+            // after all branches has been processed enforce branch uniqueness and add all of them to the list of accepted nodes
+            acceptedBranches.clear();
+            acceptedBranches.addAll(Branch.unique(discoveredBranches));
+
+
+            if (showOutput) {
+                logger.info("   * Summary:");
+                logger.info("      - pruned branches: {}", removedBranches);
+                logger.info("      - size difference: {}", minSize - previousSize);
             }
 
             if (report != null) {
@@ -161,5 +179,13 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         }
 
         return minBranch;
+    }
+
+    private String pad(String name, int n) {
+        int diff = n - name.length();
+        if (diff > 0) {
+            name += CharBuffer.allocate(diff).toString().replace('\0', ' ');
+        }
+        return name;
     }
 }

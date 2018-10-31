@@ -21,8 +21,8 @@ public class OptimizerOptions implements CLIOptions {
     private boolean keepAllIdentifiers;
     private boolean keepUniformIdentifiers;
     private boolean optimizeSmall;
-    private int maxDepth;
-    private int branchMaxSize;
+    private int maxDepth = 5;
+    private int branchMaxSize = 1024;
 
 
     public OptimizerOptions() {
@@ -35,10 +35,10 @@ public class OptimizerOptions implements CLIOptions {
         parser.accepts(OPTIMIZE_SMALL, "Set standard settings for small output");
 
         maxDepthSpec = parser.accepts("max-depth", "Change the max depth of the optimizer search tree.")
-            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(5);
+            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxDepth);
 
         maxSizeSpec = parser.accepts("max-size", "The maximum size difference towards the smallest branch until a branch gets pruned")
-            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(1024);
+            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(branchMaxSize);
     }
 
     @Override
