@@ -19,7 +19,7 @@ public abstract class BaseOptimizerTest extends BaseTest {
     }
 
     protected void testInit(int branchDepth, boolean useBuiltIn) {
-        super.testInit(useBuiltIn);
+        super.testInit(useBuiltIn, useBuiltIn);
 
         if (branchDepth > 0) {
             TreePruner pruner = TreePruner.byIterationDepth(branchDepth);

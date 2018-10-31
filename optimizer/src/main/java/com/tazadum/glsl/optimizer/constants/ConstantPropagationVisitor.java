@@ -1,7 +1,6 @@
 package com.tazadum.glsl.optimizer.constants;
 
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
-import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
@@ -96,10 +95,12 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
             if (NodeFinder.isMutated(variableNode)) {
                 // one of the usage nodes is being mutated or is closely part of a mutating operation
                 // the safest action here is to abort the entire propagation of the value.
-                // note that this should be checked by isConstant
-                throw new BadImplementationException();
+                return null;
             }
+        }
 
+        for (Node usageNode : usageNodes) {
+            final VariableNode variableNode = (VariableNode) usageNode;
             // we need to clone the initializer because it's going to be insert in multiple places in the AST
             Node initializer = node.getInitializer().clone(null);
 

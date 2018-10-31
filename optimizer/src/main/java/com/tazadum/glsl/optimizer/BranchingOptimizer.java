@@ -11,11 +11,12 @@ public abstract class BranchingOptimizer implements Optimizer {
     protected abstract OptimizerVisitor createVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider);
 
     @Override
-    public OptimizerResult run(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider optimizationDecider, Node node) {
+    public OptimizerResult run(BranchRegistry branchRegistry, OptimizationDecider optimizationDecider, Branch branch) {
         List<Branch> branches = new ArrayList<>();
-        OptimizerVisitor visitor = createVisitor(context, branchRegistry, optimizationDecider);
+        OptimizerVisitor visitor = createVisitor(branch.getContext(), branchRegistry, optimizationDecider);
 
         int changes, totalChanges = 0;
+        Node node = branch.getNode();
         do {
             visitor.reset();
             Node accept = node.accept(visitor);
@@ -28,8 +29,6 @@ public abstract class BranchingOptimizer implements Optimizer {
             }
         } while (changes > 0);
 
-        branches.add(0, new Branch(context, node));
-
-        return new OptimizerResult(totalChanges, branches);
+        return new OptimizerResult(totalChanges, new Branch(branch.getContext(), node), branches);
     }
 }

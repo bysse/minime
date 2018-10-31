@@ -75,30 +75,29 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 if (showOutput) {
                     logger.info("   * Branch {}:", branchIndex++);
                 }
-                Node node = branch.getNode();
-                ParserContext context = branch.getContext();
 
                 int branchChanges = 0;
                 int branchesDiscovered = 0;
-                int branchSizeBefore = output.render(node, outputConfig).length();
+                int branchSizeBefore = output.render(branch.getNode(), outputConfig).length();
 
                 for (Optimizer optimizer : optimizers) {
-                    final Optimizer.OptimizerResult result = optimizer.run(context, branchRegistry, decider, node);
+                    final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, decider, branch);
                     int changes = result.getChanges();
                     totalChanges += changes;
                     branchChanges += changes;
 
                     List<Branch> branches = result.getBranches();
-                    branchesDiscovered += branches.size() - 1;
+                    branchesDiscovered += branches.size();
                     discoveredBranches.addAll(branches);
 
                     if (changes > 0) {
+                        branch = result.getInputBranch();
                         logger.info(String.format("      - %-12s %d", optimizer.name(), changes));
                     }
                 }
 
                 // check the size of this branch
-                int branchSizeAfter = output.render(node, outputConfig).length();
+                int branchSizeAfter = output.render(branch.getNode(), outputConfig).length();
                 int sizeDifference = minSize - branchSizeAfter;
                 minSize = Math.min(minSize, branchSizeAfter);
 

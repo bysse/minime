@@ -1,8 +1,5 @@
 package com.tazadum.glsl.optimizer;
 
-import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.parser.ParserContext;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,19 +9,21 @@ import java.util.List;
 public interface Optimizer {
     String name();
 
-    OptimizerResult run(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider optimizationDecider, Node node);
+    OptimizerResult run(BranchRegistry branchRegistry, OptimizationDecider optimizationDecider, Branch branch);
 
     class OptimizerResult {
         private int changes = 0;
+        private Branch inputBranch;
         private List<Branch> branches = new ArrayList<>();
 
-        public OptimizerResult(int changes, Branch node) {
+        public OptimizerResult(int changes, Branch inputBranch) {
             this.changes = changes;
-            this.branches.add(node);
+            this.inputBranch = inputBranch;
         }
 
-        public OptimizerResult(int changes, List<Branch> branches) {
+        public OptimizerResult(int changes, Branch inputBranch, List<Branch> branches) {
             this.changes = changes;
+            this.inputBranch = inputBranch;
             this.branches = branches;
         }
 
@@ -32,8 +31,12 @@ public interface Optimizer {
             return changes;
         }
 
+        public Branch getInputBranch() {
+            return inputBranch;
+        }
+
         public boolean hasBranches() {
-            return branches.size() > 1;
+            return !branches.isEmpty();
         }
 
         public List<Branch> getBranches() {

@@ -20,6 +20,10 @@ public class VariableRegistryContext {
         this.variables = new HashSet<>();
     }
 
+    public GLSLContext getContext() {
+        return context;
+    }
+
     public void declare(VariableDeclarationNode variableNode) {
         variables.add(variableNode);
     }

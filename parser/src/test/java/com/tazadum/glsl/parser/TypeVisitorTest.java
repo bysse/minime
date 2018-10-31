@@ -53,6 +53,7 @@ class TypeVisitorTest {
             ok("int[] a={1,2,3};int[3] b=a;"),
             ok("float[] a=float[3](1,2,3);vec2 b=vec2(a[0]);"),
             ok("float[] a=float[](1,2,3);vec2 b=vec2(a[0]);"),
+            ok("float b=1;vec3 a=vec3(1,2,3)*b;"),
             ok("void f(mat2 a){a[0][1]=1.0;}"),
             ok("void f(mat2 a){a[0]=vec2(1);}"),
             ok("int a=1;float b=a;"),

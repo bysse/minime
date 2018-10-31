@@ -32,7 +32,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
 
     @BeforeEach
     void setup() {
-        testInit(3, false);
+        testInit(3, true);
     }
 
     @ParameterizedTest(name = "case: {1}")

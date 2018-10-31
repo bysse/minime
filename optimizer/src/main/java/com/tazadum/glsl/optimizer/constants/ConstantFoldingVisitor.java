@@ -294,7 +294,6 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
         final int previousScore = decider.score(node);
 
-
         Numeric numeric = null;
 
         try {

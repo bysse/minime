@@ -105,16 +105,16 @@ public class TestUtil {
     }
 
     public static ParserContext parserContext() {
-        return parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, true);
+        return parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, true, true);
     }
 
     public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile) {
-        return parserContext(shaderType, profile, true);
+        return parserContext(shaderType, profile, true, true);
     }
 
-    public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile, boolean builtIn) {
+    public static ParserContext parserContext(ShaderType shaderType, GLSLProfile profile, boolean useBuiltInFunctions, boolean useBuiltInVariables) {
         BuiltInFunctionRegistry builtInRegistry;
-        if (builtIn) {
+        if (useBuiltInFunctions) {
             builtInRegistry = getBuiltInFunctionRegistry(shaderType, profile);
         } else {
             builtInRegistry = new BuiltInFunctionRegistryImpl();
@@ -123,7 +123,7 @@ public class TestUtil {
         VariableRegistry variableRegistry = new VariableRegistryImpl();
         FunctionRegistryImpl functionRegistry = new FunctionRegistryImpl(builtInRegistry);
         ParserContextImpl parserContext = new ParserContextImpl(new TypeRegistryImpl(), variableRegistry, functionRegistry);
-        if (builtIn) {
+        if (useBuiltInVariables) {
             parserContext.initializeVariables(shaderType, profile);
         }
         return parserContext;

@@ -78,7 +78,6 @@ public class VariableSet {
         add(variable(INT, "gl_MinProgramTexelOffset", CONST));
         add(variable(INT, "gl_MaxProgramTexelOffset", CONST));
         add(variable(INT, "gl_MaxImageUnits", CONST));
-        add(variable(INT, "gl_MaxFragmentImageUniforms", CONST));
         add(variable(INT, "gl_MaxSamples", CONST));
         add(variable(INT, "gl_MaxImageSamples", CONST));
         add(variable(INT, "gl_MaxClipDistances", CONST));

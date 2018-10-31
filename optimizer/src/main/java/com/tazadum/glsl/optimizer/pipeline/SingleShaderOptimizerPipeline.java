@@ -44,29 +44,30 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
         final ParserContext parserContext = optimizerContext.parserContext();
         final BranchRegistry branchRegistry = optimizerContext.branchRegistry();
 
-        Node node = shaderNode;
+        Branch branch = new Branch(parserContext, shaderNode);
 
         int iterationChanges, iteration = 0;
         do {
             iterationChanges = 0;
 
             if (showOutput || logger.isDebugEnabled()) {
-                final String source = output.render(node, outputConfig);
+                final String source = output.render(branch.getNode(), outputConfig);
                 final int size = source.length();
                 logger.info(String.format("Iteration %d: %d bytes", iteration++, size));
             }
 
+
             for (Optimizer optimizer : optimizers) {
-                final Optimizer.OptimizerResult result = optimizer.run(parserContext, branchRegistry, decider, node);
+                final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, decider, branch);
                 int changes = result.getChanges();
                 if (changes > 0 ) {
-                    node = result.getBranches().get(0).getNode();
+                    branch = result.getInputBranch();
                     iterationChanges += changes;
 
                     if (showOutput || logger.isDebugEnabled()) {
                         logger.info(String.format("  - %s: %d changes", optimizer.name(), changes));
                         if (logger.isDebugEnabled()) {
-                            final String source = output.render(node, outputConfig);
+                            final String source = output.render(branch.getNode(), outputConfig);
                         }
                     }
                 }
@@ -74,6 +75,6 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
 
         } while (iterationChanges > 0);
 
-        return new Branch(parserContext, node);
+        return branch;
     }
 }

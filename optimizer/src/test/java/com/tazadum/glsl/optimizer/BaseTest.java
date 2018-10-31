@@ -27,11 +27,11 @@ public abstract class BaseTest {
     }
 
     protected void testInit() {
-        testInit(true);
+        testInit(true, true);
     }
 
-    protected void testInit(boolean useBuiltIn) {
-        parserContext = TestUtil.parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, useBuiltIn);
+    protected void testInit(boolean useBuiltInFunctions, boolean useBuiltInVariables) {
+        parserContext = TestUtil.parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, useBuiltInFunctions, useBuiltInVariables);
         outputConfig = new OutputConfigBuilder()
             .renderNewLines(false)
             .indentation(0)

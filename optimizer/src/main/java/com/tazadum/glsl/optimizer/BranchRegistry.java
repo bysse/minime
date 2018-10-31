@@ -83,12 +83,24 @@ public class BranchRegistry {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Location location = (Location) o;
-            return Objects.equals(tag, location.tag) && Objects.equals(node.get(), location.node.get());
+            if (!tag.equals(location.tag)) {
+                return false;
+            }
+            Node node = this.node.get();
+            Node onode = location.node.get();
+            if (node == null || onode == null) {
+                return false;
+            }
+            return node.getId() == onode.getId();
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(node.get(), tag);
+            Node node = this.node.get();
+            if (node != null) {
+                return Objects.hash(node.getId(), tag);
+            }
+            return Objects.hash(tag);
         }
     }
 }
