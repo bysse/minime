@@ -29,7 +29,7 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
     private int changes = 0;
 
     public DeadCodeEliminationVisitor(ParserContext parserContext) {
-        super(parserContext, true);
+        super(parserContext, true, false);
 
         this.mainMatcher = new FunctionPrototypeMatcher(PredefinedType.VOID);
         this.mainImageMatcher = new FunctionPrototypeMatcher(PredefinedType.VOID, PredefinedType.VEC4, PredefinedType.VEC2);
@@ -113,15 +113,16 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
         super.visitFunctionDefinition(node);
 
         // see if the functions are special and needs to be protected
-        final String functionName = node.getFunctionPrototype().getIdentifier().original();
-        if ("main".equals(functionName) && mainMatcher.matches(node.getFunctionPrototype().getPrototype())) {
+        final FunctionPrototypeNode functionPrototype = node.getFunctionPrototype();
+        final String functionName = functionPrototype.getIdentifier().original();
+        if ("main".equals(functionName) && mainMatcher.matches(functionPrototype.getPrototype())) {
             return null;
         }
-        if ("mainImage".equals(functionName) && mainImageMatcher.matches(node.getFunctionPrototype().getPrototype())) {
+        if ("mainImage".equals(functionName) && mainImageMatcher.matches(functionPrototype.getPrototype())) {
             return null;
         }
 
-        final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(node.getFunctionPrototype());
+        final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(functionPrototype);
         if (nodeUsage.getUsageNodes().isEmpty()) {
             // remove functions that aren't used
             changes++;

@@ -16,11 +16,13 @@ public class OptimizerOptions implements CLIOptions {
     private static final String OPTIMIZE_SMALL = "Os";
 
     private OptionSpec<Integer> maxDepthSpec;
+    private OptionSpec<Integer> maxSizeSpec;
 
     private boolean keepAllIdentifiers;
     private boolean keepUniformIdentifiers;
-    private int maxDepth;
     private boolean optimizeSmall;
+    private int maxDepth;
+    private int branchMaxSize;
 
 
     public OptimizerOptions() {
@@ -35,14 +37,17 @@ public class OptimizerOptions implements CLIOptions {
         maxDepthSpec = parser.accepts("max-depth", "Change the max depth of the optimizer search tree.")
             .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(5);
 
+        maxSizeSpec = parser.accepts("max-size", "The maximum size difference towards the smallest branch until a branch gets pruned")
+            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(1024);
     }
 
     @Override
     public boolean handle(OptionSet optionSet, Logger logger) {
         this.keepAllIdentifiers = optionSet.has(KEEP_IDENTIFIERS);
         this.keepUniformIdentifiers = optionSet.has(KEEP_UNIFORMS);
-        this.maxDepth = maxDepthSpec.value(optionSet);
         this.optimizeSmall = optionSet.has(OPTIMIZE_SMALL);
+        this.maxDepth = maxDepthSpec.value(optionSet);
+        this.branchMaxSize = maxSizeSpec.value(optionSet);
 
         return true;
     }
@@ -67,5 +72,9 @@ public class OptimizerOptions implements CLIOptions {
 
     public boolean isOptimizeSmall() {
         return optimizeSmall;
+    }
+
+    public int branchMaxSize() {
+        return branchMaxSize;
     }
 }

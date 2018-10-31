@@ -25,6 +25,7 @@ public class ParserContextImpl implements ParserContext {
     private final FunctionRegistry functionRegistry;
     private final ContextAware contextAware;
 
+    private final ContextVisitor contextVisitor;
     private final DereferencingVisitor dereferencingVisitor;
     private final ReferencingVisitor referencingVisitor;
     private final TypeVisitor typeVisitor;
@@ -39,6 +40,7 @@ public class ParserContextImpl implements ParserContext {
         this.functionRegistry = functionRegistry;
         this.contextAware = contextAware;
 
+        this.contextVisitor = new ContextVisitor();
         this.dereferencingVisitor = new DereferencingVisitor(this);
         this.referencingVisitor = new ReferencingVisitor(this);
         this.typeVisitor = new TypeVisitor(this);
@@ -86,11 +88,6 @@ public class ParserContextImpl implements ParserContext {
         return functionRegistry;
     }
 
-    //@Override
-    //public BranchRegistry getBranchRegistry() {
-    //    return branchRegistry;
-    //}
-
     @Override
     public void dereferenceTree(Node node) {
         node.accept(dereferencingVisitor);
@@ -98,6 +95,9 @@ public class ParserContextImpl implements ParserContext {
 
     @Override
     public void referenceTree(Node node) {
+        // make sure the context nodes are connected
+        node.accept(contextVisitor);
+
         // add type information to the tree and register function-calls
         node.accept(typeVisitor);
 
@@ -121,11 +121,12 @@ public class ParserContextImpl implements ParserContext {
     public ParserContext remap(Node base) {
         final TypeRegistry typeRegistryRemap = typeRegistry.remap(base);
         final ContextAware contextAwareRemap = contextAware.remap(base);
+
         final VariableRegistry variableRegistryCopy = variableRegistry.remap(base, contextAwareRemap);
         final FunctionRegistry functionRegistryCopy = functionRegistry.remap(base);
         //final BranchRegistry branchRegistryCopy = branchRegistry.remap();
         //return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, branchRegistryCopy, contextAwareRemap);
-        return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, contextAwareRemap);
+        return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, contextAware);
     }
 
     @Override
@@ -175,6 +176,20 @@ public class ParserContextImpl implements ParserContext {
     @Override
     public GLSLContext globalContext() {
         return contextAware.globalContext();
+    }
+
+    @Override
+    public boolean removeContext(GLSLContext context) {
+        if (contextAware.removeContext(context)) {
+            variableRegistry.dereference(context);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void addContext(GLSLContext context) {
+        contextAware.addContext(context);
     }
 
     @Override

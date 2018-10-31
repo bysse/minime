@@ -48,6 +48,8 @@ public interface VariableRegistry {
 
     boolean dereference(VariableDeclarationNode node);
 
+    boolean dereference(GLSLContext context);
+
     Map<GLSLContext, VariableRegistryContext> getDeclarationMap();
 
     VariableRegistry remap(Node base, ContextAware contextAwareRemap);

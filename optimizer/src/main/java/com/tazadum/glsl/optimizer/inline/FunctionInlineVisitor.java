@@ -71,6 +71,12 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     private Map<FunctionPrototypeNode, Integer> originalUsageCountMap = new HashMap<>();
     private List<Branch> branches;
 
+    @Override
+    public Node visitStatementList(StatementListNode node) {
+        processParentNode(node);
+        return node;
+    }
+
     public FunctionInlineVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider) {
         super(context, true, true);
         this.branchRegistry = branchRegistry;
@@ -221,6 +227,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             final StatementListNode statementList = (StatementListNode) functionCall.getParentNode();
             final ArgumentList argumentList = buildArgumentList(functionCall, functionPrototype, statementList, statementList.indexOf(functionCall));
             final StatementListNode parent = (StatementListNode) functionCall.getParentNode();
+            final InlineContext inlineContext = new InlineContext(identifierGenerator);
 
             for (int i = 0; i < statements.getChildCount(); i++) {
                 Node node = CloneUtils.clone(statements.getChild(i), null);
@@ -228,7 +235,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                     continue;
                 }
 
-                Node statement = remapVariables(node, argumentList.nodes, null, true, false);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true, false);
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
             }
@@ -244,11 +251,12 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         // clone the expression in the return statement of the function
         Node expression = ((ReturnNode) returnStatement).getExpression();
         Node expressionToInline = CloneUtils.clone(expression, null);
+        InlineContext inlineContext = new InlineContext(identifierGenerator);
 
         if (mutatedParameterMap.get(functionPrototype).isEmpty()) {
             // no parameter re-declarations needed because there's nothing that mutates them in the function
             final List<Node> functionArguments = buildArgumentList(functionCall, functionPrototype, null, 0).nodes;
-            final Node node = remapVariables(expressionToInline, functionArguments, returnStatement, false, false);
+            final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false, false);
             changes++;
             return node;
         }
@@ -274,7 +282,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         final List<Node> functionArguments = buildArgumentList(functionCall, functionPrototype, insertion.statementList, insertion.index).nodes;
-        final Node node = remapVariables(expressionToInline, functionArguments, returnStatement, false, false);
+        final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false, false);
         changes++;
         return node;
     }
@@ -299,13 +307,14 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             final StatementListNode statementList = (StatementListNode) functionCall.getParentNode();
             final ArgumentList argumentList = buildArgumentList(functionCall, functionPrototype, statementList, statementList.indexOf(functionCall));
             final StatementListNode parent = (StatementListNode) functionCall.getParentNode();
+            final InlineContext inlineContext = new InlineContext(identifierGenerator);
 
             for (int i = 0; i < statements.getChildCount(); i++) {
                 Node node = CloneUtils.clone(statements.getChild(i), null);
                 if (node instanceof ReturnNode) {
                     continue;
                 }
-                Node statement = remapVariables(node, argumentList.nodes, null, true, false);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true, false);
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
             }
@@ -413,11 +422,12 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
         // build the argument list and create variable declarations
         final ArgumentList argumentList = buildArgumentList(functionCall, functionPrototype, insertion.statementList, insertion.index);
+        final InlineContext inlineContext = new InlineContext(identifierGenerator);
 
         for (int i = 0; i < statements.getChildCount() - 1; i++) {
             // clone and map all statements
             Node node = CloneUtils.clone(statements.getChild(i), null);
-            Node statement = remapVariables(node, argumentList.nodes, null, true, false);
+            Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true, false);
 
             // insert the statements at the insertion point
             insertion.statementList.insertChild(argumentList.index + i, statement);
@@ -427,7 +437,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         // replace the function call node with the expression in the return node
         final ReturnNode returnNode = (ReturnNode) lastChild;
         final Node expression = CloneUtils.clone(returnNode.getExpression(), null);
-        final Node node = remapVariables(expression, argumentList.nodes, returnNode, false, false);
+        final Node node = remapVariables(inlineContext, expression, argumentList.nodes, returnNode, false, false);
 
         changes++;
         return node;
@@ -526,9 +536,17 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
      * @param dereference       If removed nodes should be dereferenced.
      * @param reference         Iff add nodes should be referenced.
      */
-    private Node remapVariables(Node expression, List<Node> functionArguments, Node returnStatement, boolean dereference, boolean reference) {
+    private Node remapVariables(InlineContext context, Node expression, List<Node> functionArguments, Node returnStatement, boolean dereference, boolean reference) {
         // try to find all parameter usage in the expression
         SortedSet<VariableNode> variables = NodeFinder.findAll(expression, VariableNode.class);
+
+        // rename all variable declarations in the expression
+        for (VariableDeclarationNode declarationNode : NodeFinder.findAll(expression, VariableDeclarationNode.class)) {
+            if (declarationNode instanceof ParameterDeclarationNode) {
+                continue;
+            }
+            declarationNode.getIdentifier().changeOriginal(context.get(declarationNode));
+        }
 
         for (VariableNode variable : variables) {
             // iterate through all variables in the return expression and replace them
@@ -536,7 +554,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             final VariableDeclarationNode declarationNode = variable.getDeclarationNode();
             if (!(declarationNode instanceof ParameterDeclarationNode)) {
                 // this variable is not one of the function parameters
-                // it's probably a global variable or a nasty BUG!!!
                 continue;
             }
 
@@ -666,7 +683,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         List<Node> nodes;
         int index;
 
-        public ArgumentList(List<Node> nodes, int index) {
+        ArgumentList(List<Node> nodes, int index) {
             this.nodes = nodes;
             this.index = index;
         }
@@ -679,6 +696,19 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         InsertPoint(StatementListNode statementList, int index) {
             this.statementList = statementList;
             this.index = index;
+        }
+    }
+
+    private static class InlineContext {
+        private final IdentifierCreator generator;
+        private final Map<VariableDeclarationNode, String> identifierMap = new HashMap<>();
+
+        InlineContext(IdentifierCreator generator) {
+            this.generator = generator;
+        }
+
+        String get(VariableDeclarationNode declarationNode) {
+            return identifierMap.computeIfAbsent(declarationNode, (node) -> generator.get());
         }
     }
 }

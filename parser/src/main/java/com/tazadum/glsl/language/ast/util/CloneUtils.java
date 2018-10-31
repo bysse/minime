@@ -1,5 +1,6 @@
 package com.tazadum.glsl.language.ast.util;
 
+import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
@@ -13,6 +14,7 @@ import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.context.GLSLContextImpl;
 import com.tazadum.glsl.language.type.Numeric;
+import com.tazadum.glsl.parser.ContextVisitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,8 @@ import java.util.List;
  * Created by Erik on 2016-10-07.
  */
 public class CloneUtils {
+    private static ContextVisitor contextVisitor = new ContextVisitor();
+
     public static <T extends Node> T clone(T node, ParentNode parent) {
         if (node == null) {
             return null;
@@ -29,6 +33,9 @@ public class CloneUtils {
         if (parent == null) {
             clonedNode.calculateId(node.getId());
         }
+
+        clonedNode.accept(contextVisitor);
+
         return clonedNode;
     }
 
@@ -110,7 +117,7 @@ public class CloneUtils {
             }
         }
 
-        throw new IllegalStateException("Unable to remap the GLSLContext");
+        throw new BadImplementationException("Unable to remap context for : " + context);
     }
 
     public static boolean equal(Node nodeA, Node nodeB) {

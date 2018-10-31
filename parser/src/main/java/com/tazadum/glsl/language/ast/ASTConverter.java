@@ -21,6 +21,7 @@ import com.tazadum.glsl.language.ast.type.*;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
+import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.ConstFunction;
 import com.tazadum.glsl.language.function.FunctionPrototype;
@@ -55,10 +56,12 @@ import static com.tazadum.glsl.parser.TypeCombination.anyOf;
 public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
     private ParserContext parserContext;
+    private ContextAware contextAware;
 
     public ASTConverter(SourcePositionMapper mapper, ParserContext parserContext) {
         this.mapper = mapper;
         this.parserContext = parserContext;
+        this.contextAware = parserContext;
     }
 
     private static <T extends HasToken & TypeQualifier> T from(ParserRuleContext ctx, T... values) {
@@ -158,8 +161,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         VariableDeclarationNode declarationNode = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, null, initializer, null);
 
         // register the declaration and usage of the type to enable easy look up for later passes
-        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
-        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), declarationNode);
+        parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
+        parserContext.getTypeRegistry().usage(contextAware.currentContext(), fullySpecifiedType.getType(), declarationNode);
 
         final VariableDeclarationListNode listNode = new VariableDeclarationListNode(position, fullySpecifiedType);
         listNode.addChild(declarationNode);
@@ -199,11 +202,11 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     public Node visitIteration_do_while_statement(GLSLParser.Iteration_do_while_statementContext ctx) {
         final DoWhileIterationNode node = new DoWhileIterationNode(SourcePosition.create(ctx.start));
 
-        parserContext.enterContext(node);
+        contextAware.enterContext(node);
 
         node.setStatement(ctx.statement_with_scope().accept(this));
 
-        parserContext.exitContext();
+        contextAware.exitContext();
 
         node.setCondition(ctx.expression().accept(this));
         return node;
@@ -237,7 +240,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitIteration_for_statement(GLSLParser.Iteration_for_statementContext ctx) {
         final ForIterationNode node = new ForIterationNode(SourcePosition.create(ctx.start));
-        parserContext.enterContext(node);
+        contextAware.enterContext(node);
 
         node.setInitialization(ctx.for_init_statement().accept(this));
 
@@ -251,7 +254,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             node.setStatement(ctx.statement_no_new_scope().accept(this));
         }
 
-        parserContext.exitContext();
+        contextAware.exitContext();
         return node;
     }
 
@@ -378,8 +381,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
             if (declarationNode.getIdentifier() != null) {
                 // register the declaration and usage of the type to enable easy look up for later passes
-                parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
-                parserContext.getTypeRegistry().usage(parserContext.currentContext(), originalType.getType(), declarationNode);
+                parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
+                parserContext.getTypeRegistry().usage(contextAware.currentContext(), originalType.getType(), declarationNode);
             }
 
             return listNode;
@@ -409,8 +412,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         listNode.addChild(declarationNode);
 
         // register the declaration and usage of the type to enable easy look up for later passes
-        parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
-        parserContext.getTypeRegistry().usage(parserContext.currentContext(), fullySpecifiedType.getType(), declarationNode);
+        parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
+        parserContext.getTypeRegistry().usage(contextAware.currentContext(), fullySpecifiedType.getType(), declarationNode);
 
         return listNode;
     }
@@ -468,7 +471,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         final ParameterDeclarationNode declarationNode = new ParameterDeclarationNode(position, type, identifier, arraySpecifiers);
         if (identifier != null && type.getType() != PredefinedType.VOID) {
-            parserContext.getVariableRegistry().declareVariable(parserContext.currentContext(), declarationNode);
+            parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
         }
         return declarationNode;
     }
@@ -924,9 +927,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         node.setCondition(ctx.condition().accept(this));
 
         if (ctx.statement_no_new_scope() != null) {
-            parserContext.enterContext(node);
+            contextAware.enterContext(node);
             node.setStatement(ctx.statement_no_new_scope().accept(this));
-            parserContext.exitContext();
+            contextAware.exitContext();
         }
 
         return node;
@@ -937,13 +940,13 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final FunctionDefinitionNode node = new FunctionDefinitionNode(position, null, null);
 
-        parserContext.enterContext(node);
+        contextAware.enterContext(node);
 
         final FunctionPrototypeNode prototype = NodeUtil.cast(ctx.function_prototype().accept(this));
         node.setFunctionPrototype(prototype);
         node.setStatements(NodeUtil.cast(ctx.compound_statement_no_new_scope().accept(this)));
 
-        parserContext.exitContext();
+        contextAware.exitContext();
         parserContext.getFunctionRegistry().declareFunction(prototype);
 
         return node;
@@ -1083,7 +1086,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         // this is a variable
         final VariableRegistry variableRegistry = parserContext.getVariableRegistry();
-        final GLSLContext currentContext = parserContext.currentContext();
+        final GLSLContext currentContext = contextAware.currentContext();
 
         final String identifier = ctx.variable_identifier().IDENTIFIER().getText();
         try {
@@ -1122,13 +1125,13 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final Node selector = ctx.expression().accept(this);
         SwitchNode node = new SwitchNode(SourcePosition.create(ctx.start), selector);
 
-        parserContext.enterContext(node);
+        contextAware.enterContext(node);
 
         for (GLSLParser.Switch_case_statementContext childCtx : ctx.switch_case_statement()) {
             node.addChild(childCtx.accept(this));
         }
 
-        parserContext.exitContext();
+        contextAware.exitContext();
 
         return node;
     }

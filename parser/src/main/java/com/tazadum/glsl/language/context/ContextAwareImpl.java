@@ -13,6 +13,10 @@ public class ContextAwareImpl implements ContextAware {
     private Stack<GLSLContext> stack = new Stack<>();
     private Set<GLSLContext> contexts = new HashSet<>();
 
+    public ContextAwareImpl(GLSLContext globalContext) {
+        this.globalContext = enterContext(globalContext);
+    }
+
     public ContextAwareImpl() {
         this.globalContext = enterContext(new GLSLContextImpl());
     }
@@ -54,6 +58,23 @@ public class ContextAwareImpl implements ContextAware {
     }
 
     @Override
+    public boolean removeContext(GLSLContext context) {
+        if (!stack.peek().equals(globalContext)) {
+            throw new IllegalStateException("Can't remove a context while the stack is populated!");
+        }
+
+        return contexts.removeIf(context::equals);
+    }
+
+    @Override
+    public void addContext(GLSLContext context) {
+        if (context.getParent() == null) {
+            throw new IllegalArgumentException("Context needs to have a parent context");
+        }
+        contexts.add(context);
+    }
+
+    @Override
     public Set<GLSLContext> contexts() {
         return contexts;
     }
@@ -62,14 +83,14 @@ public class ContextAwareImpl implements ContextAware {
     public ContextAware remap(Node base) {
         final GLSLContext global = new GLSLContextImpl();
 
-        final Set<GLSLContext> contextsRemapped = new HashSet<>();
+        final Set<GLSLContext> remappedContexts = new HashSet<>();
         for (GLSLContext context : contexts) {
             if (context.getParent() == null) {
-                contextsRemapped.add(global);
+                remappedContexts.add(global);
             } else {
                 final GLSLContext remap = CloneUtils.remap(base, context);
                 remap.setParent(CloneUtils.remap(base, context.getParent()));
-                contextsRemapped.add(remap);
+                remappedContexts.add(remap);
             }
         }
 
@@ -78,10 +99,11 @@ public class ContextAwareImpl implements ContextAware {
             if (context.getParent() == null) {
                 stackRemapped.push(global);
             } else {
-                stackRemapped.push(CloneUtils.remap(base, context));
+                GLSLContext remap = CloneUtils.remap(base, context);
+                stackRemapped.push(remap);
             }
         }
 
-        return new ContextAwareImpl(contextsRemapped, global, stackRemapped);
+        return new ContextAwareImpl(remappedContexts, global, stackRemapped);
     }
 }

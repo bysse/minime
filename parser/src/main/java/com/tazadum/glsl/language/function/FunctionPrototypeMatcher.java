@@ -65,6 +65,7 @@ public class FunctionPrototypeMatcher {
      * @return True if the prototype/call matches.
      */
     public boolean matches(FunctionPrototype prototype) {
+        assert prototype != null : "Function prototype is null";
         GLSLType[] parameters = prototype.getParameterTypes();
 
         if (parameterTypes.length != parameters.length) {

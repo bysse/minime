@@ -21,8 +21,6 @@ public interface ParserContext extends ContextAware {
 
     FunctionRegistry getFunctionRegistry();
 
-    //BranchRegistry getBranchRegistry();
-
     /**
      * Dereference all variable / function usages and declarations
      * that are found in the sub-tree from this context.

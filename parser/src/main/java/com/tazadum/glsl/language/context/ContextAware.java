@@ -14,6 +14,10 @@ public interface ContextAware {
 
     GLSLContext globalContext();
 
+    boolean removeContext(GLSLContext context);
+
+    void addContext(GLSLContext context);
+
     Set<GLSLContext> contexts();
 
     ContextAware remap(Node base);

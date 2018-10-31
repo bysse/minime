@@ -41,7 +41,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
     private int changes = 0;
 
     public ConstantPropagationVisitor(ParserContext parserContext, BranchRegistry branchRegistry, OptimizationDecider decider) {
-        super(parserContext, false);
+        super(parserContext, true, false);
         this.decider = decider;
     }
 
@@ -120,8 +120,6 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
             firstNode = false;
             changes++;
         }
-
-        variableRegistry.dereference(node);
 
         return ReplacingASTVisitor.REMOVE;
     }

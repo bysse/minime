@@ -230,19 +230,6 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
             typeMap.computeIfAbsent(node.getFullySpecifiedType(), (key) -> new TreeSet<>()).add(node);
         }
 
-        VariableDeclarationListNode findDeclaration(FullySpecifiedType type) {
-            final TreeSet<VariableDeclarationListNode> nodes = typeMap.get(type);
-            if (nodes == null || nodes.isEmpty()) {
-                return null;
-            }
-            for (VariableDeclarationListNode node : nodes) {
-                if (node.getChildCount() > 0) {
-                    return node;
-                }
-            }
-            return null;
-        }
-
         SortedSet<VariableDeclarationListNode> findDeclarations(FullySpecifiedType type) {
             final TreeSet<VariableDeclarationListNode> nodes = typeMap.get(type);
             if (nodes == null || nodes.isEmpty()) {

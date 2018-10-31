@@ -77,6 +77,7 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     @Override
     public ParentNode clone(ParentNode newParent) {
         final FunctionPrototypeNode node = CloneUtils.cloneChildren(this, new FunctionPrototypeNode(getSourcePosition(), newParent, identifier, returnType));
+        node.setPrototype(prototype);
         node.setMutatesGlobalState(mutatesGlobalState);
         node.setUsesGlobalState(usesGlobalState);
         if (newParent instanceof GLSLContext) {
@@ -114,8 +115,8 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
 
     public String toString() {
         if (prototype != null) {
-            return prototype.toString();
+            return "function(" + identifier + "): " + prototype.toString();
         }
-        return "function(" + identifier + ")";
+        return "function(" + identifier + "): n/a";
     }
 }

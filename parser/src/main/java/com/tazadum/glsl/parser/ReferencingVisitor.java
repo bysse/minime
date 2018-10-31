@@ -4,6 +4,13 @@ import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.conditional.SwitchNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
+import com.tazadum.glsl.language.ast.iteration.DoWhileIterationNode;
+import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
+import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
@@ -29,8 +36,10 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
 
         // make sure we have a valid declaration node
         try {
+            String identifier = node.getDeclarationNode().getIdentifier().original();
             GLSLContext context = parserContext.findContext(node);
-            ResolutionResult result = registry.resolve(context, node.getDeclarationNode().getIdentifier().original(), Identifier.Mode.Original);
+
+            ResolutionResult result = registry.resolve(context, identifier, Identifier.Mode.Original);
             node.setDeclarationNode(result.getDeclaration());
         } catch (VariableException e) {
             throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
@@ -58,6 +67,59 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declareVariable(context, node);
 
+        return null;
+    }
+
+    @Override
+    public Void visitWhileIteration(WhileIterationNode node) {
+        visitContext(node, node);
+        return super.visitWhileIteration(node);
+    }
+
+    @Override
+    public Void visitForIteration(ForIterationNode node) {
+        visitContext(node, node);
+        return super.visitForIteration(node);
+    }
+
+    @Override
+    public Void visitDoWhileIteration(DoWhileIterationNode node) {
+        visitContext(node, node);
+        return super.visitDoWhileIteration(node);
+    }
+
+    @Override
+    public Void visitFunctionDefinition(FunctionDefinitionNode node) {
+        visitContext(node, node);
+        return super.visitFunctionDefinition(node);
+    }
+
+    @Override
+    public Void visitSwitch(SwitchNode node) {
+        visitContext(node, node);
+        return super.visitSwitch(node);
+    }
+
+    private void visitContext(GLSLContext context, Node node) {
+        if (context.getParent() == null) {
+            GLSLContext parent = findContext(node.getParentNode());
+            if (parent != null) {
+                context.setParent(parent);
+                parserContext.addContext(context);
+            }
+        } else {
+            parserContext.addContext(context);
+        }
+    }
+
+    private GLSLContext findContext(Node node) {
+        if (node instanceof GLSLContext) {
+            return (GLSLContext) node;
+        }
+        final ParentNode parentNode = node.getParentNode();
+        if (parentNode != null) {
+            return findContext(parentNode);
+        }
         return null;
     }
 }

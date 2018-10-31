@@ -106,9 +106,13 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                     inputBranch = false;
                 }
 
-                if (showOutput || logger.isDebugEnabled()) {
+                if (showOutput) {
                     int branches = Math.max(0, branchCount);
-                    logger.debug(String.format("  - %s: %d changes and +%d branches", optimizer.name(), totalChanges, branches));
+                    if (branches > 0) {
+                        logger.info(String.format("  - %s: %d+%d changes", optimizer.name(), totalChanges, branches));
+                    } else {
+                        logger.info(String.format("  - %s: %d+0 changes", optimizer.name(), totalChanges));
+                    }
                 }
 
                 if (batchMinBranch != null) {

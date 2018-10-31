@@ -30,6 +30,10 @@ public class Identifier implements Comparable<Identifier> {
         this.replacement = replacement;
     }
 
+    public void changeOriginal(String original) {
+        this.original = original;
+    }
+
     public String token() {
         return replacement == null ? original : replacement;
     }

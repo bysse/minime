@@ -84,6 +84,7 @@ Date    Hours
 2018-10-28  4.0 Fixing constant propagation and dead code elimination.
 2018-10-29  7.5 Fixing declaration squeeze and identifier shortener. Working on the executable.
 2018-10-30  7.0 Function inlining...
+2018-10-31  2.5 Fixing function inlining. The drop-shader compiles.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

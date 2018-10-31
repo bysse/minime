@@ -2,6 +2,7 @@ package com.tazadum.glsl.optimizer.simplification;
 
 import com.tazadum.glsl.ast.ReplacingASTVisitor;
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.arithmetic.BitOperationNode;
 import com.tazadum.glsl.language.ast.arithmetic.NumericOperationNode;
 import com.tazadum.glsl.language.ast.arithmetic.PostfixOperationNode;
 import com.tazadum.glsl.language.ast.arithmetic.PrefixOperationNode;
@@ -34,7 +35,7 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor implements Optimiz
     private int changes = 0;
 
     public RuleOptimizerVisitor(ParserContext context, OptimizationDecider decider, List<Rule> ruleSet) {
-        super(context, false, true);
+        super(context, true, true);
         this.decider = decider;
         this.ruleSet = ruleSet;
         this.ruleRunner = new RuleRunner();
@@ -207,5 +208,15 @@ public class RuleOptimizerVisitor extends ReplacingASTVisitor implements Optimiz
             return replacement;
         }
         return super.visitStructDeclarationNode(node);
+    }
+
+    @Override
+    public Node visitBitOperation(BitOperationNode node) {
+        Node replacement = ruleRunner.runRuleSet(parserContext, ruleSet, node);
+        if (replacement != null) {
+            changes++;
+            return replacement;
+        }
+        return super.visitBitOperation(node);
     }
 }

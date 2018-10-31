@@ -65,6 +65,9 @@ public class FunctionInlineTest extends BaseOptimizerTest {
             Arguments.of( // multi line void function
                 "void main(){iv+=1;fv++;}",
                 "void f(int b){ iv+=b;fv++; } void main(){ f(1); }"),
+            Arguments.of( // multi line function
+                "void main(){int _gen0=1;for(int _gen1=0;_gen1<2;_gen1++)_gen0*=1;iv=_gen0;}",
+                "int f(int a,int b){ int c=1;for(int i=0;i<b;i++){c*=a;} return c; } void main(){ iv=f(1,2); }"),
             Arguments.of( // multi line void function with parameter mutation
                 "void main(){int _gen0=1;iv+=++_gen0;fv++;}",
                 "void f(int b){ iv+=++b;fv++; } void main(){ f(1); }"),
@@ -72,10 +75,10 @@ public class FunctionInlineTest extends BaseOptimizerTest {
                 "void main(){int _gen0=1+1;_gen0+=1;iv=_gen0;}",
                 "int f(int a){ a+=1; return a; } void main(){ iv=f(1+1); }"),
             Arguments.of(
-                "void main(){float b=1;float c=(2+b)+1;fv=c;}",
+                "void main(){float b=1;float _gen0=(2+b)+1;fv=_gen0;}",
                 "float func(float a){ float c=a+1; return c; } void main(){ float b=1;fv=func(2+b); }"),
             Arguments.of( // declaration of dependent variable 'b' hinders inline
-                "void main(){float b=1;float c=b;float d=c;fv=d;}",
+                "void main(){float b=1;float _gen0=b;float d=_gen0;fv=d;}",
                 "float F(float a){ float c=a; return c; } void main(){ float b=1,d=F(b);fv=d; }"),
             Arguments.of(
                 "void main(){fv=2;}",

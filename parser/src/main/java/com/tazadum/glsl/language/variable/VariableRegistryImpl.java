@@ -108,7 +108,7 @@ public class VariableRegistryImpl implements VariableRegistry {
             return false;
         }
 
-        // remove mAny usage of the variable
+        // remove any usage of the variable
         final Usage<VariableDeclarationNode> usage = usageMap.get(declarationNode);
         if (usage == null) {
             return false;
@@ -139,6 +139,19 @@ public class VariableRegistryImpl implements VariableRegistry {
             }
         }
 
+        return false;
+    }
+
+    @Override
+    public boolean dereference(GLSLContext context) {
+        VariableRegistryContext registryContext = declarationMap.get(context);
+        if (registryContext != null) {
+            for (VariableDeclarationNode declarationNode : registryContext.getVariables()) {
+                dereference(declarationNode);
+            }
+            declarationMap.remove(context);
+            return true;
+        }
         return false;
     }
 

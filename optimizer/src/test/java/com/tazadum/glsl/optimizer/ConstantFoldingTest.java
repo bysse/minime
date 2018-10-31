@@ -39,7 +39,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     @DisplayName("Optimizations that should work")
     @MethodSource("getPositiveCases")
     void testOptimizerPositive(String expected, String source) {
-        GLSLContext context = parserContext.currentContext();
+        GLSLContext context = parserContext.globalContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(FLOAT), "v1", null, null, null));
         registry.declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(VEC2), "v2", null, null, null));
@@ -106,7 +106,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     @DisplayName("Optimizations that should not be done")
     @MethodSource("getNegativeCases")
     void testOptimizerNegative(String source) {
-        GLSLContext context = parserContext.currentContext();
+        GLSLContext context = parserContext.globalContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(INT), "i1", null, null, null));
         registry.declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(IVEC3), "i3", null, null, null));

@@ -82,4 +82,8 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
     public boolean isGlobal() {
         return false;
     }
+
+    public String toString() {
+        return "for-iteration(id=" + getId() + ")";
+    }
 }

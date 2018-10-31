@@ -1,8 +1,13 @@
 package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
+import com.tazadum.glsl.language.ast.conditional.SwitchNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.iteration.DoWhileIterationNode;
+import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
+import com.tazadum.glsl.language.ast.iteration.WhileIterationNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
@@ -27,7 +32,7 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     @Override
     public Void visitVariable(VariableNode node) {
         if (parserContext.getVariableRegistry().dereference(node)) {
-            logger.debug("Removing usage for {}", node);
+            logger.debug("Removing usage for variable {}", node);
         }
         return null;
     }
@@ -47,13 +52,7 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
         final GLSLType type = node.getType();
         if (type instanceof StructType) {
             final StructType structType = (StructType) type;
-
-            if (structType.getIdentifier() != null && node.getStructDeclaration() == null) {
-                // remove the type reference from this declaration node
-                parserContext.getTypeRegistry()
-                    .usagesOf(structType)
-                    .remove(node);
-            }
+            // TODO: check if it's an inline declaration and take action
         }
         return null;
     }
@@ -74,8 +73,43 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     public Void visitFunctionCall(FunctionCallNode node) {
         super.visitFunctionCall(node);
         if (parserContext.getFunctionRegistry().dereference(node)) {
-            logger.trace("Removing usage for {}", node);
+            logger.trace("Removing usage of function {}", node);
         }
+        return null;
+    }
+
+    @Override
+    public Void visitWhileIteration(WhileIterationNode node) {
+        super.visitWhileIteration(node);
+        parserContext.removeContext(node);
+        return null;
+    }
+
+    @Override
+    public Void visitForIteration(ForIterationNode node) {
+        super.visitForIteration(node);
+        parserContext.removeContext(node);
+        return null;
+    }
+
+    @Override
+    public Void visitDoWhileIteration(DoWhileIterationNode node) {
+        super.visitDoWhileIteration(node);
+        parserContext.removeContext(node);
+        return null;
+    }
+
+    @Override
+    public Void visitFunctionDefinition(FunctionDefinitionNode node) {
+        super.visitFunctionDefinition(node);
+        parserContext.removeContext(node);
+        return null;
+    }
+
+    @Override
+    public Void visitSwitch(SwitchNode node) {
+        super.visitSwitch(node);
+        parserContext.removeContext(node);
         return null;
     }
 }
