@@ -11,14 +11,22 @@ import java.math.BigDecimal;
 public class NumericFormatter {
     private static final String ZERO = "0";
 
-    private int significantDigits;
+    private final int significantDigits;
+    private final boolean shaderToy;
+    private final String floatSuffix;
 
-    public NumericFormatter(int significantDigits) {
+    public NumericFormatter(int significantDigits, boolean shaderToy) {
         this.significantDigits = significantDigits;
+        this.shaderToy = shaderToy;
+        this.floatSuffix = shaderToy ? "." : "";
     }
 
     public int getSignificantDigits() {
         return significantDigits;
+    }
+
+    public boolean isShaderToy() {
+        return shaderToy;
     }
 
     public String format(Numeric numeric) {
@@ -37,14 +45,14 @@ public class NumericFormatter {
 
     private String renderFloat(BigDecimal decimal, PredefinedType type) {
         if (decimal.scale() <= 0) {
-            return renderInteger(decimal, PredefinedType.INT);
+            return renderInteger(decimal, PredefinedType.FLOAT);
         }
 
         decimal = scale(decimal);
         String number = decimal.toPlainString();
 
         if (number.indexOf('.') < 0) {
-            return renderInteger(decimal, PredefinedType.INT);
+            return renderInteger(decimal, PredefinedType.FLOAT);
         }
 
         if (number.startsWith("0")) {
@@ -58,11 +66,11 @@ public class NumericFormatter {
         }
 
         if (number.length() == 0) {
-            return ZERO;
+            return ZERO + floatSuffix;
         }
 
         if (".".equals(number)) {
-            return ZERO;
+            return ZERO + floatSuffix;
         }
 
         final double value = decimal.doubleValue();
@@ -74,6 +82,7 @@ public class NumericFormatter {
             if (value <= -1000) {
                 return exponentNegative1000(number);
             }
+            number += floatSuffix;
         } else if (number.startsWith(".")) {
             if (0 < value && value < 0.001) {
                 return exponentPositiveTiny(number);
@@ -130,6 +139,9 @@ public class NumericFormatter {
         }
         if (intValue <= -1000) {
             return exponentNegative1000(number) + typeSuffix;
+        }
+        if (type == PredefinedType.FLOAT) {
+            return number + typeSuffix + floatSuffix;
         }
         return number + typeSuffix;
     }

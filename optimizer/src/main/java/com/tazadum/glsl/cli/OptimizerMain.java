@@ -98,7 +98,7 @@ public class OptimizerMain {
                 final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
                 renderStage = new HeaderRenderStage(shaderId, shaderHeader, config);
             } else {
-                renderStage = new RenderStage(config);
+                renderStage = new RenderStage(config, compilerOption.getOutputFormat());
             }
 
             // setup the output

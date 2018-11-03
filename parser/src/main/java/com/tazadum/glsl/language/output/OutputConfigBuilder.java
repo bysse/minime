@@ -14,6 +14,7 @@ public class OutputConfigBuilder {
     private int maxDecimals = 5;
     private IdentifierOutputMode identifierMode = IdentifierOutputMode.Original;
     private boolean originalIdentifiers = false;
+    private boolean shaderToy = false;
 
     /**
      * Indicate if new lines should be rendered to the output.
@@ -66,6 +67,15 @@ public class OutputConfigBuilder {
     }
 
     /**
+     * Enable or disable ShaderToy output formatting, which means that
+     * int to float implicit conversion is ignored.
+     */
+    public OutputConfigBuilder shaderToy(boolean enabled) {
+        this.shaderToy = enabled;
+        return this;
+    }
+
+    /**
      * Set to true if original identifiers should be added as comments in the output.
      */
     public OutputConfigBuilder showOriginalIdentifiers(boolean originalIdentifiers) {
@@ -79,7 +89,7 @@ public class OutputConfigBuilder {
             indentation,
             keywordBlacklist,
             identifierMode,
-            new NumericFormatter(maxDecimals),
+            new NumericFormatter(maxDecimals, shaderToy),
             originalIdentifiers
         );
     }

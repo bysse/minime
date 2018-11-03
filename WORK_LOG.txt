@@ -86,7 +86,7 @@ Date    Hours
 2018-10-30  7.0 Function inlining...
 2018-10-31  6.5 Fixing function inlining. The drop-shader compiles. Usage references are wrong...
 2018-11-02  1.5 Narrowing down on the problem.
-2018-11-02  1.0 Seems to be working now.
+2018-11-02  1.5 Allocating identifiers seems to be working. Fixing ShaderToy output.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

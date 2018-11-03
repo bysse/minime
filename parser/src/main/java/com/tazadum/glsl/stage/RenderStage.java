@@ -1,5 +1,6 @@
 package com.tazadum.glsl.stage;
 
+import com.tazadum.glsl.cli.options.OutputFormat;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.OutputConfig;
@@ -16,8 +17,12 @@ public class RenderStage implements Stage<Pair<Node, ParserContext>, String> {
     private final Logger logger = LoggerFactory.getLogger(RenderStage.class);
     private final OutputConfig outputConfig;
 
-    public RenderStage(OutputConfig outputConfig) {
-        this.outputConfig = outputConfig;
+    public RenderStage(OutputConfig outputConfig, OutputFormat outputFormat) {
+        if (outputFormat == OutputFormat.SHADERTOY) {
+            this.outputConfig = outputConfig.edit().shaderToy(true).build();
+        } else {
+            this.outputConfig = outputConfig;
+        }
     }
 
     @Override

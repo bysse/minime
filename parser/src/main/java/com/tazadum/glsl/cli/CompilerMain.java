@@ -76,7 +76,7 @@ public class CompilerMain {
 
                 renderStage = new HeaderRenderStage(shaderId, shaderHeader, config);
             } else {
-                renderStage = new RenderStage(config);
+                renderStage = new RenderStage(config, compilerOption.getOutputFormat());
             }
 
             // setup the output

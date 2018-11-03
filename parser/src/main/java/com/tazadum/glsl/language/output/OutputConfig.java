@@ -42,6 +42,7 @@ public class OutputConfig {
         builder.renderNewLines(renderNewLine);
         builder.indentation(indentationCount);
         builder.significantDecimals(formatter.getSignificantDigits());
+        builder.shaderToy(formatter.isShaderToy());
         builder.identifierMode(identifierMode);
         builder.blacklistKeyword(new HashSet<>(keywordBlacklist));
         builder.showOriginalIdentifiers(originalIdentifiers);
