@@ -18,6 +18,6 @@ public class FunctionInline extends BranchingOptimizer {
 
     @Override
     protected OptimizerVisitor createVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider) {
-        return new FunctionInlineVisitor(context, branchRegistry, decider);
+        return new FunctionInlineVisitor(context, branchRegistry);
     }
 }

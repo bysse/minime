@@ -11,7 +11,6 @@ import com.tazadum.glsl.parser.GLSLParser;
 import com.tazadum.glsl.parser.ParserContext;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -22,13 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 2016-07-31
  */
 public class ArithmeticContextVisitorTest {
-    private ParserContext parserContext;
-
-    @BeforeEach
-    public void setUp() {
-        this.parserContext = TestUtil.parserContext();
-    }
-
     @Test
     public void test_numeric_simple_operations() {
         assertEquals(NumericOperator.ADD, parse(NumericOperationNode.class, "1 + 1").getOperator());
@@ -80,6 +72,7 @@ public class ArithmeticContextVisitorTest {
         parse(PrefixOperationNode.class, "+1--");
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Node> T parse(Class<T> type, String source) {
         try {
 

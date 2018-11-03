@@ -18,7 +18,6 @@ import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
-import com.tazadum.glsl.optimizer.OptimizationDecider;
 import com.tazadum.glsl.optimizer.OptimizerVisitor;
 import com.tazadum.glsl.parser.ParserContext;
 
@@ -29,14 +28,12 @@ import java.util.List;
  * Created by Erik on 2016-10-20.
  */
 public class RuleOptimizerVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
-    private final OptimizationDecider decider;
     private final RuleRunner ruleRunner;
     private List<Rule> ruleSet;
     private int changes = 0;
 
-    public RuleOptimizerVisitor(ParserContext context, OptimizationDecider decider, List<Rule> ruleSet) {
+    public RuleOptimizerVisitor(ParserContext context, List<Rule> ruleSet) {
         super(context, true, true);
-        this.decider = decider;
         this.ruleSet = ruleSet;
         this.ruleRunner = new RuleRunner();
     }

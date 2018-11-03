@@ -50,6 +50,7 @@ public class NodeFinder {
      * @param nodeType The type of node to search for.
      * @return The found node or null.
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Node> T findParent(Node node, Class<T> nodeType) {
         Node result = findParent(node, (n) -> nodeType.isAssignableFrom(n.getClass()));
         if (result == null) {
@@ -245,6 +246,7 @@ public class NodeFinder {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected <P extends ParentNode> void visitChildren(P node) {
             if (nodeType.isAssignableFrom(node.getClass())) {
                 result.add((T) node);
@@ -253,6 +255,7 @@ public class NodeFinder {
         }
 
         @Override
+        @SuppressWarnings("unchecked")
         protected void visitLeafNode(LeafNode leafNode) {
             if (nodeType.isAssignableFrom(leafNode.getClass())) {
                 result.add((T) leafNode);

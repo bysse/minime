@@ -264,7 +264,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         final SourcePosition position = SourcePosition.create(context.start);
         final GLSLParser.Type_specifier_no_arrayContext specifierCtx = context.type_specifier_no_array();
 
-        String functionName = null;
+        String functionName;
         if (specifierCtx.struct_specifier() != null) {
             throw new SourcePositionException(position, SYNTAX_ERROR(INVALID_STRUCT_DECLARATION));
         } else if (specifierCtx.IDENTIFIER() != null) {
@@ -492,7 +492,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             Node childNode = initializer.accept(this);
             listNode.addChild(childNode);
 
-            allConstant |= isConst(childNode);
+            allConstant &= isConst(childNode);
         }
 
         listNode.setConstant(allConstant);
@@ -1190,7 +1190,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
     private int evaluateInt(Node node) {
         try {
-            Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(parserContext, node);
+            Numeric numeric = ConstExpressionEvaluatorVisitor.evaluate(node);
             if (anyOf(numeric.getType(), INT, UINT) && numeric.signum() >= 0) {
                 return numeric.intValue();
             }

@@ -31,6 +31,6 @@ public class RuleOptimizer extends BranchingOptimizer {
 
     @Override
     protected OptimizerVisitor createVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider) {
-        return new RuleOptimizerVisitor(context, decider, ruleSet);
+        return new RuleOptimizerVisitor(context, ruleSet);
     }
 }

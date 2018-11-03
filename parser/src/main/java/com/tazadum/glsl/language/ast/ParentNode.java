@@ -94,10 +94,12 @@ public class ParentNode implements Node {
         return childNodes.get(index);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Node> T getChildAs(int index) {
         return (T) getChild(index);
     }
 
+    @SuppressWarnings("unchecked")
     public <T extends Node> Iterable<T> getChildren(Class<T> nodeType) {
         return (Iterable<T>) childNodes;
     }

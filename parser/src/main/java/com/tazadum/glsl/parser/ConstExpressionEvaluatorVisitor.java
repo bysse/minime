@@ -101,18 +101,13 @@ import static com.tazadum.glsl.parser.TypeCombination.compatibleType;
  * Created by erikb on 2018-10-16.
  */
 public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpressionEvaluatorVisitor.ConstResult> {
-    private final ParserContext parserContext;
 
     private int escape = 10000;
     private boolean variablesAllowed = true;
     private GLSLType structFieldType = null;
 
-    ConstExpressionEvaluatorVisitor(ParserContext parserContext) {
-        this.parserContext = parserContext;
-    }
-
-    public static Numeric evaluate(ParserContext parserContext, Node node) {
-        ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor(parserContext);
+    public static Numeric evaluate(Node node) {
+        ConstExpressionEvaluatorVisitor visitor = new ConstExpressionEvaluatorVisitor();
         ConstResult result = node.accept(visitor);
         while (!result.isNumeric()) {
             result = result.getNode().accept(visitor);
@@ -463,7 +458,7 @@ public class ConstExpressionEvaluatorVisitor extends DefaultASTVisitor<ConstExpr
         }
 
         if (initializer instanceof InitializerListNode) {
-            return (InitializerListNode) initializer;
+            return initializer;
         }
 
         // wrap initializer in a list

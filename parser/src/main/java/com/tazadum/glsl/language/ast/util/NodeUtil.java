@@ -18,6 +18,7 @@ import java.util.SortedSet;
  * Created by erikb on 2018-10-13.
  */
 public class NodeUtil {
+    @SuppressWarnings("unchecked")
     public static <T extends Node> T cast(Node node) {
         return (T) node;
     }

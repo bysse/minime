@@ -19,12 +19,11 @@ import static com.tazadum.glsl.preprocessor.model.BoolIntLogic.isTrue;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ExpressionEvaluatorTest {
-    private MacroRegistry registry;
     private ExpressionEvaluator evaluator;
 
     @BeforeEach
     public void globalSetup() {
-        registry = new MacroRegistry();
+        MacroRegistry registry = new MacroRegistry();
         registry.define("EXIST", "1");
         evaluator = new ExpressionEvaluator(registry);
     }
@@ -62,6 +61,7 @@ class ExpressionEvaluatorTest {
         }, "Symbols are not allowed after macro substitution");
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends Node> T parse(Class<T> type, String source) {
         ParserRuleContext context = TestUtil.parse(source);
 

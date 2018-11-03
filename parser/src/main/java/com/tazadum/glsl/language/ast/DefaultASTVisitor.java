@@ -259,7 +259,7 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
         return null;
     }
 
-    protected <T extends ParentNode> void visitChildren(T node) {
+    protected <V extends ParentNode> void visitChildren(V node) {
         for (int i = 0; i < node.getChildCount(); i++) {
             Node child = node.getChild(i);
             if (child != null) {

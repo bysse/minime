@@ -25,6 +25,7 @@ import java.util.List;
 public class CloneUtils {
     private static ContextVisitor contextVisitor = new ContextVisitor();
 
+    @SuppressWarnings("unchecked")
     public static <T extends Node> T clone(T node, ParentNode parent) {
         if (node == null) {
             return null;
@@ -72,8 +73,8 @@ public class CloneUtils {
      *
      * @param base Base of the tree to start searching in.
      * @param node The node to find in the base-tree.
-     * @return
      */
+    @SuppressWarnings("unchecked")
     public static <T extends Node> T remap(Node base, T node) {
         final Node remappedNode = base.find(node.getId());
 

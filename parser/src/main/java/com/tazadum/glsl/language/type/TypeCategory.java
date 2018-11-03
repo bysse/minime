@@ -8,5 +8,5 @@ public enum TypeCategory {
     Scalar,
     Vector,
     Matrix,
-    Opaque;
+    Opaque
 }

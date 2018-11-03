@@ -6,7 +6,7 @@ import java.util.Arrays;
  * Created by Erik on 2016-10-29.
  */
 public class IdGenerator {
-    private String alphabet = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
+    private static final String alphabet = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNoOpPqQrRsStTuUvVwWxXyYzZ";
     private String frequent;
     private int index;
 

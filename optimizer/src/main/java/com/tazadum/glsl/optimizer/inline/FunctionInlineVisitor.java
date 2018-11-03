@@ -29,7 +29,6 @@ import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.optimizer.Branch;
 import com.tazadum.glsl.optimizer.BranchRegistry;
-import com.tazadum.glsl.optimizer.OptimizationDecider;
 import com.tazadum.glsl.optimizer.OptimizerVisitor;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
@@ -65,7 +64,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
     private final Logger logger = LoggerFactory.getLogger(FunctionInlineVisitor.class);
     private final BranchRegistry branchRegistry;
-    private final OptimizationDecider decider;
     private int changes = 0;
 
     private Map<FunctionPrototypeNode, FunctionDefinitionNode> potentialFunctionMap = new HashMap<>();
@@ -79,10 +77,9 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         return null;
     }
 
-    public FunctionInlineVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider) {
+    public FunctionInlineVisitor(ParserContext context, BranchRegistry branchRegistry) {
         super(context, true, true);
         this.branchRegistry = branchRegistry;
-        this.decider = decider;
         this.branches = new ArrayList<>();
     }
 
@@ -236,7 +233,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                     continue;
                 }
 
-                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true, false);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
             }
@@ -256,7 +253,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         if (mutatedParameterMap.get(functionPrototype).isEmpty()) {
             // no parameter re-declarations needed because there's nothing that mutates them in the function
             final List<Node> functionArguments = buildArgumentList(functionCall, functionPrototype, null, 0).nodes;
-            final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false, false);
+            final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false);
             changes++;
             return node;
         }
@@ -282,7 +279,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         final List<Node> functionArguments = buildArgumentList(functionCall, functionPrototype, insertion.statementList, insertion.index).nodes;
-        final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false, false);
+        final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false);
         changes++;
         return node;
     }
@@ -313,7 +310,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 if (node instanceof ReturnNode) {
                     continue;
                 }
-                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true, false);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
 
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
@@ -432,7 +429,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         for (int i = 0; i < statements.getChildCount() - 1; i++) {
             // clone the node and remap the variables
             Node node = CloneUtils.clone(statements.getChild(i), null);
-            Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true, false);
+            Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
 
             renameVariableDeclarations(lookup, statement);
 
@@ -444,7 +441,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         // replace the function call node with the expression in the return node
         final ReturnNode returnNode = (ReturnNode) lastChild;
         final Node expression = CloneUtils.clone(returnNode.getExpression(), null);
-        final Node node = remapVariables(inlineContext, expression, argumentList.nodes, returnNode, false, false);
+        final Node node = remapVariables(inlineContext, expression, argumentList.nodes, returnNode, false);
 
         renameVariableDeclarations(lookup, node);
 
@@ -560,15 +557,13 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
     /**
      * Remaps all function parameters found in the expression and remaps them to the arguments used in the functionCall.
-     *
+     *  @param context           The InlineContext to use for generating new identifier names.
      * @param expression        The expression to remap variables in
-     * @param context           The InlineContext to use for generating new identifier names.
      * @param functionArguments The arguments for the function.
      * @param returnStatement   An optional return statement that is used for single line functions.
      * @param dereference       If removed nodes should be dereferenced.
-     * @param reference         Iff add nodes should be referenced.
      */
-    private Node remapVariables(InlineContext context, Node expression, List<Node> functionArguments, Node returnStatement, boolean dereference, boolean reference) {
+    private Node remapVariables(InlineContext context, Node expression, List<Node> functionArguments, Node returnStatement, boolean dereference) {
         // try to find all parameter usage in the expression
         SortedSet<VariableNode> variables = NodeFinder.findAll(expression, VariableNode.class);
 
@@ -609,7 +604,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             } else if (expression instanceof ParentNode) {
                 // replace the variable with a cloned version of the function call argument
                 // make sure that no referencing or de-referencing takes place, it's handled by the base class
-                ReplaceUtil.replace(parserContext, (ParentNode) expression, variable, clonedParameter, dereference, reference);
+                ReplaceUtil.replace(parserContext, (ParentNode) expression, variable, clonedParameter, dereference, false);
             } else {
                 throw new UnsupportedOperationException("The inline state is unknown or not supported");
             }
@@ -726,7 +721,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     private static class InlineContext {
         private final IdentifierCreator generator;
         private final Map<VariableDeclarationNode, String> identifierMap = new HashMap<>();
-        private final Map<String, String> identifierReMap = new HashMap<>();
 
         InlineContext(IdentifierCreator generator) {
             this.generator = generator;
@@ -734,10 +728,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
         String get(VariableDeclarationNode declarationNode) {
             return identifierMap.computeIfAbsent(declarationNode, (node) -> generator.get());
-        }
-
-        void remap(String oldIdentifier, String newIdentifier) {
-            identifierReMap.put(oldIdentifier, newIdentifier);
         }
     }
 }

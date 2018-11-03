@@ -35,7 +35,9 @@ class LineContinuationStageTest {
     @DisplayName("Test empty source")
     public void test_empty() throws IOException {
         Stage stage = process("");
+        assertEquals(0, stage.getLineNumber());
         assertEquals("", stage.readLine());
+        assertEquals(1, stage.getLineNumber());
         assertNull(stage.readLine());
     }
 
@@ -43,8 +45,11 @@ class LineContinuationStageTest {
     @DisplayName("Test empty line")
     public void test_empty_line() throws IOException {
         Stage stage = process("A\n\nB");
+        assertEquals(0, stage.getLineNumber());
         assertEquals("A", stage.readLine());
+        assertEquals(1, stage.getLineNumber());
         assertEquals("", stage.readLine());
+        assertEquals(2, stage.getLineNumber());
         assertEquals("B", stage.readLine());
         assertNull(stage.readLine());
     }
@@ -67,8 +72,11 @@ class LineContinuationStageTest {
     public void test_continuation_warning() throws IOException {
         Stage stage = process("line 1\\ \nmore line 1");
 
+        assertEquals(0, stage.getLineNumber());
         assertEquals("line 1more line 1", stage.readLine());
+        assertEquals(1, stage.getLineNumber());
         assertNull(stage.readLine());
+        assertEquals(1, stage.getLineNumber());
 
         final List<String> warnings = logKeeper.getWarnings();
         assertEquals(1, warnings.size());
