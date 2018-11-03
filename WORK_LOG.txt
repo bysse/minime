@@ -90,17 +90,13 @@ Date    Hours
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
-// TODO: Inline functions of multiple lines
-// TODO: Inline functions that mutates global state if they are only used once
 // TODO: Add more complex arithmetic simplifications
-// TODO: Verify that functions have a return statement
 
 // TODO: Fix type checking !!
-// TODO: Check all constructor functions
+// TODO: Verify that functions have a return statement
+
 // TODO: Register constructors when regsitering structure types (section 5.4.3)
 // TODO: add conditional formatting for scientific notation of numeric
-
-// TODO: max iteration depth not honored in BranchingOptimizerPipeline
 
 
 // NOTE: Field selection from different sets is allowed.

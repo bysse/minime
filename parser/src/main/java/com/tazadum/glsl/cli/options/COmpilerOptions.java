@@ -148,6 +148,7 @@ public class CompilerOptions implements CLIOptions {
     public Path generateOutput(Path inputPath) {
         String name = inputPath.toFile().getName();
         switch (outputFormat) {
+            case SHADERTOY:
             case PLAIN:
                 return inputPath.toAbsolutePath().getParent().resolve(name + ".min.glsl");
             case C_HEADER:

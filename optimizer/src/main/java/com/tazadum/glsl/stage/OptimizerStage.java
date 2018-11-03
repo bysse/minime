@@ -40,7 +40,7 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
             TreePruner.byIterationDepth(options.iterationMaxDepth()),
             TreePruner.bySizeDifference(options.branchMaxSize())
         );
-        final BranchingOptimizerPipeline pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, getOptimizers());
+        final BranchingOptimizerPipeline pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, options.iterationMaxDepth(), getOptimizers());
 
         // setup the optimizer context
         final SourcePositionMapper sourcePositionMapper = input.getMapper();

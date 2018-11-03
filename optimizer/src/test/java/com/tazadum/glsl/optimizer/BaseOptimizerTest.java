@@ -23,7 +23,7 @@ public abstract class BaseOptimizerTest extends BaseTest {
 
         if (branchDepth > 0) {
             TreePruner pruner = TreePruner.byIterationDepth(branchDepth);
-            this.pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, getOptimizerTypes());
+            this.pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, 20, getOptimizerTypes());
         } else {
             this.pipeline = new SingleShaderOptimizerPipeline(outputConfig, getOptimizerTypes());
         }
