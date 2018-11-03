@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class ContextBasedMultiIdentifierShortenerTest extends BaseTest {
+public class ContextLookupBasedMultiIdentifierShortenerTest extends BaseTest {
     private ContextBasedMultiIdentifierShortener identifierShortener;
 
     static final String SHADER_1 = "  uniform vec3 iResolution;\n" +

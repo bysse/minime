@@ -33,8 +33,8 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     protected ParserContext parserContext;
     protected Node firstNode;
 
-    private boolean dereference;
-    private boolean reference;
+    protected boolean dereference;
+    protected boolean reference;
 
     /**
      * Constructs a base visitor.

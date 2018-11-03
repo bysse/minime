@@ -37,7 +37,7 @@ public class StructDeclarationNode extends ParentNode implements UnresolvedNode 
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        StructDeclarationNode node = new StructDeclarationNode(getSourcePosition(), newParent, identifier);
+        StructDeclarationNode node = new StructDeclarationNode(getSourcePosition(), newParent, new Identifier(identifier));
         return CloneUtils.cloneChildren(this, node);
     }
 

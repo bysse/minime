@@ -67,7 +67,7 @@ public class FunctionCallNode extends ParentNode implements HasConstState {
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(getSourcePosition(), newParent, identifier, arraySpecifiers));
+        FunctionCallNode clone = CloneUtils.cloneChildren(this, new FunctionCallNode(getSourcePosition(), newParent, new Identifier(identifier), arraySpecifiers));
         // we don't clone the declaration here
         clone.setDeclarationNode(declarationNode);
         return clone;

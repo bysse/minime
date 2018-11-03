@@ -106,7 +106,7 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
     @Override
     public ParentNode clone(ParentNode newParent) {
-        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, identifier, arraySpecifiers, null, null);
+        final VariableDeclarationNode node = new VariableDeclarationNode(getSourcePosition(), newParent, builtIn, type, new Identifier(identifier), arraySpecifiers, null, null);
         return CloneUtils.cloneChildren(this, node);
     }
 

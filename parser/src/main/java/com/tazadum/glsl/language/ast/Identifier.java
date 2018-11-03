@@ -18,6 +18,11 @@ public class Identifier implements Comparable<Identifier> {
         return get(identifier);
     }
 
+    public Identifier(Identifier identifier) {
+        this.original = identifier.original;
+        this.replacement = identifier.replacement;
+    }
+
     public Identifier(String original) {
         this.original = original;
     }

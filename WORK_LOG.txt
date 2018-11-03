@@ -85,6 +85,8 @@ Date    Hours
 2018-10-29  7.5 Fixing declaration squeeze and identifier shortener. Working on the executable.
 2018-10-30  7.0 Function inlining...
 2018-10-31  6.5 Fixing function inlining. The drop-shader compiles. Usage references are wrong...
+2018-11-02  1.5 Narrowing down on the problem.
+2018-11-02  1.0 Seems to be working now.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
@@ -99,6 +101,7 @@ Date    Hours
 // TODO: add conditional formatting for scientific notation of numeric
 
 // TODO: max iteration depth not honored in BranchingOptimizerPipeline
+
 
 // NOTE: Field selection from different sets is allowed.
 // NOTE: Multi level array constructors must have specified size.

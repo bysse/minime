@@ -3,7 +3,6 @@ package com.tazadum.glsl.language.variable;
 import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
@@ -15,7 +14,9 @@ import com.tazadum.glsl.parser.variables.VariableSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class VariableRegistryImpl implements VariableRegistry {
@@ -152,39 +153,6 @@ public class VariableRegistryImpl implements VariableRegistry {
             return true;
         }
         return false;
-    }
-
-    void diagnostics() {
-        Map<String, List<VariableDeclarationNode>> dups = new TreeMap<>();
-        for (VariableDeclarationNode declarationNode : usageMap.keySet()) {
-            dups.computeIfAbsent(
-                declarationNode.getIdentifier().original(),
-                (key) -> new ArrayList<>()
-            ).add(declarationNode);
-        }
-
-        for (Map.Entry<String, List<VariableDeclarationNode>> entry : dups.entrySet()) {
-            List<VariableDeclarationNode> declarations = entry.getValue();
-            if (declarations.size() > 1) {
-                System.out.println("Investigating: " + entry.getKey());
-
-                Map<Node, VariableDeclarationNode> parentMap = new HashMap<>();
-                for (int i = 1; i < declarations.size(); i++) {
-                    VariableDeclarationNode declarationNode = declarations.get(i);
-                    ParentNode parentNode = declarationNode.getParentNode();
-                    if (parentNode == null) {
-                        System.out.println("  - Null parent node for " + declarationNode);
-                    } else {
-                        if (parentMap.containsKey(parentNode)) {
-                            System.out.println("  - Same parent for " + declarationNode + " and " + parentMap.get(parentNode));
-                        } else {
-                            parentMap.put(parentNode, declarationNode);
-                        }
-                    }
-                }
-
-            }
-        }
     }
 
     @Override

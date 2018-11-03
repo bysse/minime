@@ -10,6 +10,8 @@ import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.optimizer.BaseTest;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.util.Pair;
+import com.tazadum.glsl.util.SourcePosition;
+import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -48,7 +50,7 @@ class OptimizerStageTest extends BaseTest {
     void test() {
         String source = "uniform float iTime;void dead(){}\n" +
             "float noise(vec3 w){return w.x+w.y+w.z;}\n" +
-            "float FUN(float a){ return 2*a;}\n" +
+            "float FUN(float a){ int b=1;return b+2*a;}\n" +
             "vec4 map( in vec3 p ) {\n" +
             " float d = 0.2 - p.y;\n" +
             " vec3 q = p - vec3(1.0,0.1,0.0)*iTime;\n" +
@@ -66,8 +68,10 @@ class OptimizerStageTest extends BaseTest {
             "void main() { gl_FragColor=map(vec3(1.0));}";
 
         Node node = compile(parserContext, source);
+        SourcePositionMapper mapper = new SourcePositionMapper();
+        mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
 
-        StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), new SourcePositionMapper()));
+        StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), mapper));
         Node optimizedNode = data.getData().getFirst();
 
         System.out.println("");

@@ -17,6 +17,13 @@ import java.util.function.Predicate;
  * Created by Erik on 2016-10-23.
  */
 public class NodeFinder {
+    public static Node findAncestor(Node node) {
+        while (node != null && node.getParentNode() != null) {
+            node = node.getParentNode();
+        }
+        return node;
+    }
+
     /**
      * Searches through all parents to a node until the predicate return true or
      * we run out of nodes.
