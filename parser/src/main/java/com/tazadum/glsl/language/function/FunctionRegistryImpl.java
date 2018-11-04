@@ -169,6 +169,11 @@ public class FunctionRegistryImpl implements FunctionRegistry {
         return functionMap.isEmpty();
     }
 
+    @Override
+    public BuiltInFunctionRegistry getBuiltInFunctionRegistry() {
+        return builtInRegistry;
+    }
+
     private Set<FunctionPrototypeNode> remap(Node base, Set<FunctionPrototypeNode> nodes) {
         final Set<FunctionPrototypeNode> remapped = new HashSet<>(nodes.size());
         for (FunctionPrototypeNode node : nodes) {

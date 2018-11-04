@@ -4,7 +4,6 @@ import com.tazadum.glsl.language.ast.Node;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
-import java.util.Objects;
 
 public class BranchRegistry {
     private static final int PRE_ALLOC = 1000;
@@ -46,6 +45,7 @@ public class BranchRegistry {
      * @return True is the point is available otherwise false will be returned.
      */
     public boolean claimPoint(Node node, String tag) {
+        pointSet.removeIf(location -> location.getNode() == null);
         return pointSet.add(new Location(node, tag));
     }
 
@@ -60,10 +60,12 @@ public class BranchRegistry {
     private static class Location {
         private WeakReference<Node> node;
         private String tag;
+        private int id;
 
         public Location(Node node, String tag) {
             this.node = new WeakReference<>(node);
             this.tag = tag;
+            this.id = node.getId();
         }
 
         public boolean isInvalid() {
@@ -74,6 +76,10 @@ public class BranchRegistry {
             return node.get();
         }
 
+        public int getId() {
+            return id;
+        }
+
         public String getTag() {
             return tag;
         }
@@ -82,25 +88,18 @@ public class BranchRegistry {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
+
             Location location = (Location) o;
-            if (!tag.equals(location.tag)) {
-                return false;
-            }
-            Node node = this.node.get();
-            Node onode = location.node.get();
-            if (node == null || onode == null) {
-                return false;
-            }
-            return node.getId() == onode.getId();
+
+            if (id != location.id) return false;
+            return tag != null ? tag.equals(location.tag) : location.tag == null;
         }
 
         @Override
         public int hashCode() {
-            Node node = this.node.get();
-            if (node != null) {
-                return Objects.hash(node.getId(), tag);
-            }
-            return Objects.hash(tag);
+            int result = tag != null ? tag.hashCode() : 0;
+            result = 31 * result + id;
+            return result;
         }
     }
 }

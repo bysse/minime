@@ -129,7 +129,7 @@ public class VariableRegistryImpl implements VariableRegistry {
                     for (Node reference : usage.getUsageNodes()) {
                         if (reference instanceof VariableNode) {
                             logger.trace("  +  Setting declaration reference to null for usage of variable {}", reference);
-                            ((VariableNode) reference).setDeclarationNode(null);
+                            //((VariableNode) reference).setDeclarationNode(null);
                         }
                     }
                 }

@@ -98,9 +98,16 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 }
 
                 // check the size of this branch
-                int branchSizeAfter = output.render(branch.getNode(), outputConfig).length();
+                String branchSource = output.render(branch.getNode(), outputConfig);
+                int branchSizeAfter = branchSource.length();
                 int sizeDifference = minSize - branchSizeAfter;
                 minSize = Math.min(minSize, branchSizeAfter);
+
+                // keep track of the smallest in the batch so it's not pruned
+                if (branchSizeAfter < batchMinSize) {
+                    batchMinSize = branchSizeAfter;
+                    batchMinBranch = branch;
+                }
 
                 if (treePruner.prune(iteration, sizeDifference)) {
                     // this tree is pruned and excluded from further exploration
@@ -109,11 +116,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                     continue;
                 }
 
-                // keep track of the smallest in the batch
-                if (branchSizeAfter < batchMinSize) {
-                    batchMinSize = branchSizeAfter;
-                    batchMinBranch = branch;
-                }
+                discoveredBranches.add(branch);
 
                 if (showOutput) {
                     if (branchChanges == 0 && branchesDiscovered == 0) {
@@ -123,15 +126,15 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                         logger.info("         - modifications:   {}", branchChanges);
                         logger.info("         - size difference: {}", branchSizeAfter - branchSizeBefore);
                         if (branchesDiscovered > 0) {
-                            logger.info("         - new branches:    {}", branchesDiscovered);
+                            logger.info("         - branches:    {}", branchesDiscovered);
                         }
                     }
                 }
+            }
 
-                if (batchMinBranch != null) {
-                    // propagate the smallest branch to the next batch
-                    discoveredBranches.add(batchMinBranch);
-                }
+            if (batchMinBranch != null) {
+                // always propagate the smallest branch to the next batch
+                discoveredBranches.add(batchMinBranch);
             }
 
             // after all branches has been processed enforce branch uniqueness and add all of them to the list of accepted nodes

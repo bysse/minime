@@ -190,14 +190,11 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         // check if the inline decision for this function already has been taken
-        if (!functionInlineMap.computeIfAbsent(definitionNode, (node) -> branchRegistry.claimPoint(node, FunctionInline.class))) {
+        if (!shouldBeOptimized(definitionNode)) {
             // this node has already been considered for optimization
             // ie in another branch this function call has already been inlined
             return null;
         }
-
-        // create a branch to explore that possibility that not inlining is smaller
-        branches.add(createBranch());
 
         if (statementsInFunction == 1) {
             // special case logic for functions with only a single statement
@@ -205,6 +202,19 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         return multiStatementFunction(functionCall, definitionNode, voidFunction);
+    }
+
+    private boolean shouldBeOptimized(FunctionDefinitionNode node) {
+        Boolean optimized = functionInlineMap.get(node);
+        if (optimized == null) {
+            optimized = branchRegistry.claimPoint(node, FunctionInline.class);
+            functionInlineMap.put(node, optimized);
+            if (optimized) {
+                // create a branch to explore that possibility that not inlining is smaller
+                branches.add(createBranch());
+            }
+        }
+        return optimized;
     }
 
     private Node singleStatementFunction(FunctionCallNode functionCall, FunctionDefinitionNode functionDefinition, boolean voidFunction) {
@@ -428,8 +438,9 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         //OutputRenderer renderer = new OutputRenderer();
         //OutputConfig config = new OutputConfigBuilder().identifierMode(IdentifierOutputMode.Original).build();
 
-        GLSLContext newContext = parserContext.findContext(insertion.statementList);
-        ContextAwareLookup lookup = new ContextAwareLookup(newContext);
+        // create a ContextAwareLookup for the insertion point
+        GLSLContext insertionContext = parserContext.findContext(insertion.statementList);
+        ContextAwareLookup lookup = new ContextAwareLookup(insertionContext);
 
         for (int i = 0; i < statements.getChildCount() - 1; i++) {
             // clone the node and remap the variables

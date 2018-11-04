@@ -30,9 +30,13 @@ public abstract class BaseOptimizerTest extends BaseTest {
     }
 
     protected Node optimize(String source) {
+        return optimizeBranch(source).getNode();
+    }
+
+    protected Branch optimizeBranch(String source) {
         Node node = compile(parserContext, source);
 
         OptimizerContext context = new OptimizerContext(parserContext);
-        return pipeline.optimize(context, node, true, null).getNode();
+        return pipeline.optimize(context, node, true, null);
     }
 }

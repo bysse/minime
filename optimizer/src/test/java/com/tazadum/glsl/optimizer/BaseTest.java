@@ -43,7 +43,7 @@ public abstract class BaseTest {
     }
 
     protected String toString(Node node) {
-        return output.render(node, outputConfig);
+        return output.render(node, outputConfig).trim();
     }
 
     protected String toString(Node node, OutputConfig outputConfig) {

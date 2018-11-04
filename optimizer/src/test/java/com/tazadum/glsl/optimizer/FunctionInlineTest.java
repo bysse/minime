@@ -1,18 +1,30 @@
 package com.tazadum.glsl.optimizer;
 
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
+import com.tazadum.glsl.language.function.FunctionRegistry;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.variable.VariableRegistry;
+import com.tazadum.glsl.language.variable.VariableRegistryContext;
+import com.tazadum.glsl.parser.Usage;
+import com.tazadum.glsl.parser.functions.ConstructorsFunctionSet;
+import com.tazadum.glsl.preprocessor.language.GLSLProfile;
+import com.tazadum.slf4j.TLogConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.slf4j.event.Level;
 
-import static com.tazadum.glsl.language.type.PredefinedType.FLOAT;
-import static com.tazadum.glsl.language.type.PredefinedType.INT;
+import java.util.List;
+import java.util.Map;
+
+import static com.tazadum.glsl.language.type.PredefinedType.*;
 import static com.tazadum.glsl.util.SourcePosition.TOP;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -28,7 +40,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
 
     @BeforeEach
     void setup() {
-        testInit(3, false);
+        testInit(5, false);
     }
 
     @ParameterizedTest(name = "case: {1}")
@@ -93,6 +105,61 @@ public class FunctionInlineTest extends BaseOptimizerTest {
                 "mat4 M;void main(){fv=M[1].x;}",
                 "mat4 M;float col(int i){ return M[i]; } void main(){ fv=col(1).x; }"),
         };
+    }
+
+    @Test
+    void testOptimizerReferences() {
+        TLogConfiguration.get().useGlobalConfiguration();
+        TLogConfiguration.get().getConfig().setLogLevel(Level.TRACE);
+
+        GLSLContext context = parserContext.currentContext();
+        outputConfig = outputConfig.edit().renderNewLines(true).indentation(3).build();
+
+        // add constructors
+        BuiltInFunctionRegistry builtInRegistry = parserContext.getFunctionRegistry().getBuiltInFunctionRegistry();
+        new ConstructorsFunctionSet().generate(builtInRegistry, GLSLProfile.COMPATIBILITY);
+
+        parserContext.getVariableRegistry()
+            .declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(VEC3), "gl_FragColor", null, null, null));
+
+        String source = "uniform float time;\n" +
+            "float tiny(vec3 T) { return T.x; }\n" +
+            "float small(vec3 S, float Sa) { vec3 Sq=Sa*S; return Sq; }\n" +
+            "vec3 medium(in vec3 M) {\n" +
+            "    float Mc = time * tiny(M);\n" +
+            "    Mc += tiny(M);\n" +
+            "    Mc += tiny(M);\n" +
+            "    Mc += small(M, Mc);\n" +
+            "    return Mc*M;\n" +
+            "}\n" +
+            "void main() {\n" +
+            "    gl_FragColor = medium(vec3(1,0,0));\n" +
+            "}";
+
+        Branch result = optimizeBranch(source);
+        VariableRegistry variableRegistry = result.getContext().getVariableRegistry();
+        FunctionRegistry functionRegistry = result.getContext().getFunctionRegistry();
+
+        Map<GLSLContext, VariableRegistryContext> variableDeclarations = variableRegistry.getDeclarationMap();
+        List<Usage<FunctionPrototypeNode>> usedFunctions = functionRegistry.getUsedFunctions();
+
+        String expected = "uniform float time;\n" +
+            "vec3 medium(in vec3 M){\n" +
+            "   float Mc=time*M.x;\n" +
+            "   Mc+=M.x;\n" +
+            "   Mc+=M.x;\n" +
+            "   vec3 _gen0=Mc*M;\n" +
+            "   Mc+=_gen0;\n" +
+            "   return Mc*M;\n" +
+            "}\n" +
+            "void main(){\n" +
+            "   gl_FragColor=medium(vec3(1,0,0));\n" +
+            "}";
+
+        assertEquals(expected, toString(result.getNode()));
+        assertEquals(2, variableDeclarations.size(), "only 2 contexts, global and medium");
+        assertEquals(2, usedFunctions.size(), "only 2 functions, vec3 and medium");
+
     }
 
     private void sourceEquals(String expected, String actual) {

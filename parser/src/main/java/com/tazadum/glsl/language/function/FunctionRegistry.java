@@ -66,4 +66,6 @@ public interface FunctionRegistry {
     FunctionRegistry remap(ContextAware contextAware, Node base);
 
     boolean isEmpty();
+
+    BuiltInFunctionRegistry getBuiltInFunctionRegistry();
 }

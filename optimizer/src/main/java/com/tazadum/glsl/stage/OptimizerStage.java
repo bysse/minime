@@ -72,13 +72,19 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
         shortener.register(parserContext, node);
         shortener.apply();
 
-        //String source = new OutputRenderer().render(node, outputConfig);
-        //logger.info("  - identifiers  {} bytes", source.length());
-
         // TODO: iterate
     }
 
     private OptimizerType[] getOptimizers() {
         return OptimizerType.values();
+        /*
+        return new OptimizerType[] {
+            OptimizerType.ArithmeticOptimizerType,
+            OptimizerType.DeclarationSqueezeType,
+            OptimizerType.ConstantPropagationType,
+            OptimizerType.ConstantFoldingType,
+            OptimizerType.FunctionInline
+        };
+        */
     }
 }

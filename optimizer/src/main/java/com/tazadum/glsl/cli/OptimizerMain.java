@@ -25,6 +25,8 @@ import static com.tazadum.glsl.cli.CommandLineBase.*;
  * Created by erikb on 2018-10-24.
  */
 public class OptimizerMain {
+    public static boolean noExit = false;
+
     public static void main(String[] args) {
         Logger logger = LoggerFactory.getLogger(OptimizerMain.class);
 
@@ -43,7 +45,9 @@ public class OptimizerMain {
         InputOutput inputOutput = cli.process(args);
         if (inputOutput == null) {
             cli.showHelp(false);
-            System.exit(RET_SYNTAX);
+            if (!noExit) {
+                System.exit(RET_SYNTAX);
+            }
             return;
         }
 
@@ -119,10 +123,14 @@ public class OptimizerMain {
             pipeline.process(new PathStageData(inputOutput.getInput()));
             report.display();
 
-            System.exit(RET_OK);
+            if (!noExit) {
+                System.exit(RET_OK);
+            }
         } catch (StageException e) {
             logger.error(e.getMessage(), e);
-            System.exit(RET_EXCEPTION);
+            if (!noExit) {
+                System.exit(RET_EXCEPTION);
+            }
         }
     }
 
