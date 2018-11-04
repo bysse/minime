@@ -52,7 +52,7 @@ public interface VariableRegistry {
 
     Map<GLSLContext, VariableRegistryContext> getDeclarationMap();
 
-    VariableRegistry remap(Node base, ContextAware contextAwareRemap);
+    VariableRegistry remap(ContextAware contextAware, Node base);
 
     boolean isEmpty();
 

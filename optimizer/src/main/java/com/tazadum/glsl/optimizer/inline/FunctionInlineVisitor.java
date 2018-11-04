@@ -71,6 +71,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     private Map<FunctionPrototypeNode, Integer> originalUsageCountMap = new HashMap<>();
     private List<Branch> branches;
 
+    private Map<FunctionDefinitionNode, Boolean> functionInlineMap = new HashMap<>();
+
     @Override
     public Node visitStatementList(StatementListNode node) {
         processParentNode(node);
@@ -100,7 +102,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
     @Override
     public Node visitFunctionDefinition(FunctionDefinitionNode node) {
-        super.visitFunctionDefinition(node);
+        node.getStatements().accept(this);
 
         // try to find out if the function is suitable to inline
         // if it is we add it to potentialFunctions
@@ -188,20 +190,19 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         // check if the inline decision for this function already has been taken
-        if (!branchRegistry.claimPoint(definitionNode, FunctionInline.class)) {
+        if (!functionInlineMap.computeIfAbsent(definitionNode, (node) -> branchRegistry.claimPoint(node, FunctionInline.class))) {
             // this node has already been considered for optimization
             // ie in another branch this function call has already been inlined
             return null;
         }
 
+        // create a branch to explore that possibility that not inlining is smaller
+        branches.add(createBranch());
+
         if (statementsInFunction == 1) {
             // special case logic for functions with only a single statement
             return singleStatementFunction(functionCall, definitionNode, voidFunction);
         }
-
-        // there's a low probability that this will be smaller after inlining
-        // but let's create a branch to explore that possibility
-        branches.add(createBranch());
 
         return multiStatementFunction(functionCall, definitionNode, voidFunction);
     }
@@ -305,12 +306,16 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             final ArgumentList argumentList = buildArgumentList(functionCall, functionPrototype, statementList, statementList.indexOf(functionCall));
             final StatementListNode parent = (StatementListNode) functionCall.getParentNode();
 
+            GLSLContext newContext = parserContext.findContext(parent);
+            ContextAwareLookup lookup = new ContextAwareLookup(newContext);
+
             for (int i = 0; i < statements.getChildCount(); i++) {
                 Node node = CloneUtils.clone(statements.getChild(i), null);
                 if (node instanceof ReturnNode) {
                     continue;
                 }
                 Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
+                renameVariableDeclarations(lookup, statement);
 
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
@@ -428,8 +433,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
         for (int i = 0; i < statements.getChildCount() - 1; i++) {
             // clone the node and remap the variables
-            Node node = CloneUtils.clone(statements.getChild(i), null);
-            Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
+            Node node = statements.getChild(i);
+            Node statement = remapVariables(inlineContext, CloneUtils.clone(node, null), argumentList.nodes, null, true);
 
             renameVariableDeclarations(lookup, statement);
 
@@ -527,12 +532,10 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                     return false;
                 }
             }
-
         }
 
         return true;
     }
-
 
     private void renameVariableDeclarations(ContextAwareLookup lookup, Node expression) {
         for (VariableDeclarationNode declarationNode : NodeFinder.findAll(expression, VariableDeclarationNode.class)) {
@@ -603,7 +606,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 break;
             } else if (expression instanceof ParentNode) {
                 // replace the variable with a cloned version of the function call argument
-                // make sure that no referencing or de-referencing takes place, it's handled by the base class
+                // make sure that no referencing takes place, it's handled by the base class
                 ReplaceUtil.replace(parserContext, (ParentNode) expression, variable, clonedParameter, dereference, false);
             } else {
                 throw new UnsupportedOperationException("The inline state is unknown or not supported");

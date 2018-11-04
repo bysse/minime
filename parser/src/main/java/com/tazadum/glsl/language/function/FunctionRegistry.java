@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.parser.Usage;
 
@@ -62,7 +63,7 @@ public interface FunctionRegistry {
     /**
      * Remap the function registry after a new Node hierarchy.
      */
-    FunctionRegistry remap(Node base);
+    FunctionRegistry remap(ContextAware contextAware, Node base);
 
     boolean isEmpty();
 }

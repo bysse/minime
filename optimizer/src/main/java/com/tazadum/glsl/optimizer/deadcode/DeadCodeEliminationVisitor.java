@@ -16,14 +16,18 @@ import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.optimizer.OptimizerVisitor;
 import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.parser.Usage;
+import org.slf4j.Logger;
 
 import java.util.List;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Removes dead code or declarations from the shader.
  * Created by Erik on 2016-10-29.
  */
 public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements OptimizerVisitor {
+    private final Logger logger = getLogger(DeadCodeEliminationVisitor.class);
     private final FunctionPrototypeMatcher mainMatcher;
     private final FunctionPrototypeMatcher mainImageMatcher;
     private int changes = 0;
@@ -77,6 +81,8 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
                 return null;
             }
 
+            logger.trace("Removing unused type declaration {}", node.getType());
+
             changes++;
             return REMOVE;
         }
@@ -88,6 +94,8 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
             // the variable is being used, abort
             return null;
         }
+
+        logger.trace("Removing unused variable declaration {}", node.getIdentifier().original());
 
         changes++;
         return REMOVE;
@@ -102,6 +110,8 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
         super.visitVariableDeclarationList(node);
         if (node.getChildCount() == 0) {
             // remove empty declaration lists
+            logger.trace("Removing empty variable declaration list");
+
             changes++;
             return REMOVE;
         }
@@ -125,6 +135,8 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
         final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(functionPrototype);
         if (nodeUsage.getUsageNodes().isEmpty()) {
             // remove functions that aren't used
+            logger.trace("Removing unused function {}", functionName);
+
             changes++;
             return REMOVE;
         }

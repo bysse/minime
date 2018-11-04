@@ -9,6 +9,8 @@ import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.PredefinedType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class ReturnNode extends FixedChildParentNode {
 
     public ReturnNode(SourcePosition position) {
@@ -47,5 +49,9 @@ public class ReturnNode extends FixedChildParentNode {
             return getExpression().getType();
         }
         return PredefinedType.VOID;
+    }
+
+    public String toString() {
+        return "return " + Objects.toString(getExpression());
     }
 }

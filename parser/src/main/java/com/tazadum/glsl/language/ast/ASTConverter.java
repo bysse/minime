@@ -65,7 +65,6 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     }
 
     private static <T extends HasToken & TypeQualifier> T from(ParserRuleContext ctx, T... values) {
-        final SourcePosition position = SourcePosition.create(ctx.start);
         return HasToken.fromToken(ctx, values);
     }
 

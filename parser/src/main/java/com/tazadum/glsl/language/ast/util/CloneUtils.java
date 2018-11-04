@@ -79,7 +79,7 @@ public class CloneUtils {
         final Node remappedNode = base.find(node.getId());
 
         if (remappedNode == null) {
-            throw new IllegalStateException("Unable to find node with id " + node.getId() + " in the new node tree.");
+            throw new IllegalStateException("Unable to find node with id " + node.getId() + " in the new node tree : " + node.getClass());
         }
 
         if (!remappedNode.getClass().equals(node.getClass())) {

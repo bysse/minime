@@ -56,6 +56,21 @@ public class Identifier implements Comparable<Identifier> {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Identifier that = (Identifier) o;
+
+        return original.equals(that.original);
+    }
+
+    @Override
+    public int hashCode() {
+        return original.hashCode();
+    }
+
+    @Override
     public int compareTo(Identifier o) {
         return original.compareTo(o.original);
     }

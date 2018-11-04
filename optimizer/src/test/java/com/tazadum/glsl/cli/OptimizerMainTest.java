@@ -8,6 +8,6 @@ import org.junit.jupiter.api.Test;
 class OptimizerMainTest {
     @Test
     void test() {
-        OptimizerMain.main(new String[]{"-format", "shadertoy", "-type", "st", "-vv", "-o", "output.min.glsl", "src/test/resources/shaders/iq-clouds.glsl"});
+        OptimizerMain.main(new String[]{"-format", "shadertoy", "-type", "st", "-o", "output.min.glsl", "src/test/resources/shaders/iq-clouds.glsl"});
     }
 }

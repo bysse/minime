@@ -2,7 +2,11 @@ package com.tazadum.glsl.parser;
 
 
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.function.FunctionCallNode;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.ast.variable.VariableNode;
 
 import java.util.*;
 
@@ -64,7 +68,14 @@ public class Usage<T> {
     public Usage<T> remap(Node base, T target) {
         final Usage<T> usage = new Usage<>(target);
         for (Node node : nodes) {
-            usage.add(CloneUtils.remap(base, node));
+            Node remapped = CloneUtils.remap(base, node);
+            if (remapped instanceof VariableNode && target instanceof VariableDeclarationNode) {
+                ((VariableNode) remapped).setDeclarationNode((VariableDeclarationNode) target);
+            }
+            if (remapped instanceof FunctionCallNode && target instanceof FunctionPrototypeNode) {
+                ((FunctionCallNode) remapped).setDeclarationNode((FunctionPrototypeNode) target);
+            }
+            usage.add(remapped);
         }
         return usage;
     }

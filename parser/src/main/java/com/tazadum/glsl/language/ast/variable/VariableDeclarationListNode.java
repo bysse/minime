@@ -65,6 +65,6 @@ public class VariableDeclarationListNode extends ParentNode implements HasShared
             }
             builder.append(Objects.toString(getChild(i)));
         }
-        return getId() + ": VariableDeclarationList(type='" + type + "') { " + builder + "}";
+        return getId() + ": " + type + " " + builder;
     }
 }

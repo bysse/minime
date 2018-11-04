@@ -5,6 +5,7 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.parser.Usage;
 import org.slf4j.Logger;
@@ -133,7 +134,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
         if (usage != null) {
             for (Node reference : usage.getUsageNodes()) {
                 if (reference instanceof FunctionCallNode) {
-                    logger.trace("Setting declaration reference to null for {}", reference);
+                    logger.trace("Setting declaration reference to null for function call {}", reference);
                     ((FunctionCallNode) reference).setDeclarationNode(null);
                 }
             }
@@ -143,17 +144,21 @@ public class FunctionRegistryImpl implements FunctionRegistry {
     }
 
     @Override
-    public FunctionRegistry remap(Node base) {
+    public FunctionRegistry remap(ContextAware contextAware, Node base) {
         final ConcurrentMap<String, Set<FunctionPrototypeNode>> functionMapRemapped = new ConcurrentHashMap<>();
         functionMap.forEach((name, set) -> functionMapRemapped.put(name, remap(base, set)));
 
         final ConcurrentMap<FunctionPrototypeNode, Usage<FunctionPrototypeNode>> usageMapRemapped = new ConcurrentHashMap<>();
         usageMap.forEach((prototype, usage) -> {
             if (!prototype.getPrototype().isBuiltIn()) {
+                // only remap custom functions since built-in are not part of the AST
                 prototype = CloneUtils.remap(base, prototype);
             }
 
-            usageMapRemapped.put(prototype, usage.remap(base, prototype));
+            if (!usage.getUsageNodes().isEmpty()) {
+                // only remap functions in use
+                usageMapRemapped.put(prototype, usage.remap(base, prototype));
+            }
         });
 
         return new FunctionRegistryImpl(builtInRegistry, functionMapRemapped, usageMapRemapped);
@@ -168,7 +173,7 @@ public class FunctionRegistryImpl implements FunctionRegistry {
         final Set<FunctionPrototypeNode> remapped = new HashSet<>(nodes.size());
         for (FunctionPrototypeNode node : nodes) {
             if (node.getPrototype().isBuiltIn()) {
-                // built in function, reuse node
+                // this node is a predefined variable which is ok to reuse
                 remapped.add(node);
             } else {
                 remapped.add(CloneUtils.remap(base, node));

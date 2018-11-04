@@ -121,14 +121,14 @@ public class VariableRegistryImpl implements VariableRegistry {
     public boolean dereference(VariableDeclarationNode node) {
         for (Map.Entry<GLSLContext, VariableRegistryContext> entry : declarationMap.entrySet()) {
             if (entry.getValue().undeclare(node)) {
-                logger.debug("    - Removing variable {}", node.getIdentifier().original());
+                logger.debug("Removing variable {}", node.getIdentifier().original());
 
                 // remove all usages of the node
                 Usage<VariableDeclarationNode> usage = usageMap.get(node);
                 if (usage != null) {
                     for (Node reference : usage.getUsageNodes()) {
                         if (reference instanceof VariableNode) {
-                            logger.debug("  - Setting declaration reference to null for {}", reference);
+                            logger.trace("  +  Setting declaration reference to null for usage of variable {}", reference);
                             ((VariableNode) reference).setDeclarationNode(null);
                         }
                     }
@@ -156,21 +156,24 @@ public class VariableRegistryImpl implements VariableRegistry {
     }
 
     @Override
-    public VariableRegistry remap(Node base, ContextAware contextAware) {
-        final Map<GLSLContext, VariableRegistryContext> declarationMapCopy = new ConcurrentHashMap<>();
-        declarationMap.forEach((context, registry) -> {
-            VariableRegistryContext registryContext = registry.remap(contextAware, base);
-            declarationMapCopy.put(registryContext.getContext(), registryContext);
-        });
-
+    public VariableRegistry remap(ContextAware contextAware, Node base) {
         final Map<VariableDeclarationNode, Usage<VariableDeclarationNode>> usageMapCopy = new ConcurrentHashMap<>();
         usageMap.forEach((declaration, usage) -> {
             if (!declaration.isBuiltIn()) {
-                // only remap custom functions
+                // only remap custom variables since built-in are not part of the AST
                 declaration = CloneUtils.remap(base, declaration);
             }
 
-            usageMapCopy.put(declaration, usage.remap(base, declaration));
+            if (!usage.getUsageNodes().isEmpty()) {
+                // only remap variables in use
+                usageMapCopy.put(declaration, usage.remap(base, declaration));
+            }
+        });
+
+        final Map<GLSLContext, VariableRegistryContext> declarationMapCopy = new ConcurrentHashMap<>();
+        declarationMap.forEach((context, registry) -> {
+            VariableRegistryContext registryContext = registry.remap(contextAware, base, usageMap);
+            declarationMapCopy.put(registryContext.getContext(), registryContext);
         });
 
         return new VariableRegistryImpl(declarationMapCopy, usageMapCopy);

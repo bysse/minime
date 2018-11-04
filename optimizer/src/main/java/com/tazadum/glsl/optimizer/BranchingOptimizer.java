@@ -25,6 +25,9 @@ public abstract class BranchingOptimizer implements Optimizer {
 
             if (accept != null) {
                 node = accept;
+            }
+
+            if (changes > 0) {
                 branches.addAll(visitor.getBranches());
             }
         } while (changes > 0);

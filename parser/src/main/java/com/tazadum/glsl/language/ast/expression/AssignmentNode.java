@@ -10,6 +10,8 @@ import com.tazadum.glsl.language.model.AssignmentOperator;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class AssignmentNode extends FixedChildParentNode implements MutatingOperation {
     private final AssignmentOperator operator;
 
@@ -50,5 +52,9 @@ public class AssignmentNode extends FixedChildParentNode implements MutatingOper
     @Override
     public GLSLType getType() {
         return getLeft().getType();
+    }
+
+    public String toString() {
+        return Objects.toString(getLeft()) + " " + operator.token() + " " + Objects.toString(getRight());
     }
 }

@@ -6,17 +6,17 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.HasSharedState;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.variable.ParameterDeclarationNode;
-import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class FunctionPrototypeNode extends ParentNode implements HasSharedState {
     private Identifier identifier;
     private FullySpecifiedType returnType;
     private FunctionPrototype prototype;
-    private GLSLContext context;
     private boolean mutatesGlobalState = false;
     private boolean usesGlobalState = true;
     private boolean shared;
@@ -31,14 +31,6 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
         super(position, parentNode);
         this.identifier = identifier;
         this.returnType = returnType;
-    }
-
-    public GLSLContext getContext() {
-        return context;
-    }
-
-    public void setContext(GLSLContext context) {
-        this.context = context;
     }
 
     public Identifier getIdentifier() {
@@ -80,9 +72,6 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
         node.setPrototype(prototype);
         node.setMutatesGlobalState(mutatesGlobalState);
         node.setUsesGlobalState(usesGlobalState);
-        if (newParent instanceof GLSLContext) {
-            node.setContext((GLSLContext) newParent);
-        }
 
         return node;
     }
@@ -114,9 +103,17 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     }
 
     public String toString() {
-        if (prototype != null) {
-            return "function(" + identifier + "): " + prototype.toString();
+        StringBuilder builder = new StringBuilder();
+        builder.append(returnType).append(' ').append(identifier.original());
+
+        builder.append('(');
+        for (int i = 0; i < getChildCount(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(Objects.toString(getParameter(i)));
         }
-        return "function(" + identifier + "): n/a";
+        builder.append(')');
+        return builder.toString();
     }
 }

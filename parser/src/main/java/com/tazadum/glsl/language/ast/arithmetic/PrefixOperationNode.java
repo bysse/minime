@@ -11,6 +11,8 @@ import com.tazadum.glsl.language.model.UnaryOperator;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 /**
  * Created by Erik on 2016-10-07.
  */
@@ -60,5 +62,9 @@ public class PrefixOperationNode extends FixedChildParentNode implements Mutatin
     @Override
     public GLSLType getType() {
         return getExpression().getType();
+    }
+
+    public String toString() {
+        return operator.token() + Objects.toString(getExpression());
     }
 }

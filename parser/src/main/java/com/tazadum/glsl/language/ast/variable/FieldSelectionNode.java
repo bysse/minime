@@ -10,6 +10,8 @@ import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 /**
  * Created by Erik on 2016-10-07.
  */
@@ -64,6 +66,6 @@ public class FieldSelectionNode extends FixedChildParentNode implements HasMutab
     }
 
     public String toString() {
-        return "FieldSelection(" + selection + ")";
+        return Objects.toString(getExpression()) + "." + selection;
     }
 }

@@ -13,8 +13,10 @@ import com.tazadum.glsl.util.Pair;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
+import com.tazadum.slf4j.TLogConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.event.Level;
 
 import static com.tazadum.glsl.util.SourcePosition.TOP;
 
@@ -26,6 +28,9 @@ class OptimizerStageTest extends BaseTest {
 
     @BeforeEach
     void setUp() {
+        TLogConfiguration.get().useGlobalConfiguration();
+        TLogConfiguration.get().getConfig().setLogLevel(Level.TRACE);
+
         testInit(true, false);
 
         OptimizerOptions options = new OptimizerOptions();
@@ -48,24 +53,22 @@ class OptimizerStageTest extends BaseTest {
 
     @Test
     void test() {
-        String source = "uniform float iTime;void dead(){}\n" +
-            "float noise(vec3 w){return w.x+w.y+w.z;}\n" +
-            "float FUN(float a){ int b=1;return b+2*a;}\n" +
-            "vec4 map( in vec3 p ) {\n" +
-            " float d = 0.2 - p.y;\n" +
-            " vec3 q = p - vec3(1.0,0.1,0.0)*iTime;\n" +
-            " float f;\n" +
-            " f  = 0.5000*noise( q ); q = q*2.02;\n" +
-            " f += 0.2500*noise( q ); q = q*2.03;\n" +
-            " f += 0.1250*noise( q ); q = q*2.01;\n" +
-            " f += 0.0625*noise( q );\n" +
-            " d += 3.0 * f+FUN(1.0);\n" +
-            " d = clamp( d, 0.0, 1.0 );\n" +
-            " vec4 res = vec4( d );\n" +
-            " res.xyz = mix( 1.15*vec3(1.0,0.95,0.8), vec3(0.7,0.7,0.7), res.x );\n" +
-            " return res;\n" +
+        String source = "uniform float time;\n" +
+            "float small(vec3 v, float a) { vec3 q=a*v-vec3(1,2,3); return q.x+q.y+q.z; }\n" +
+            "float tiny(vec3 v) { return 2.*v.x; }\n" +
+            "vec3 medium(in vec3 p) {\n" +
+            "    float A = 1.0 - p.y;\n" +
+            "    vec3 B = p - vec3(A,1,0)*time;\n" +
+            "    float C = 1. * tiny(B);\n" +
+            "    C += tiny(B);\n" +
+            "    C += tiny(B);\n" +
+            "    C += small(A*B, C);\n" +
+            "    vec4 D = vec4(B, C);\n" +
+            "    return D.xyz;\n" +
             "}\n" +
-            "void main() { gl_FragColor=map(vec3(1.0));}";
+            "void main() {\n" +
+            "    gl_FragColor = vec4(medium(vec3(1,0,0)) + medium(vec3(0,1,0)), 0.5);\n" +
+            "}";
 
         Node node = compile(parserContext, source);
         SourcePositionMapper mapper = new SourcePositionMapper();

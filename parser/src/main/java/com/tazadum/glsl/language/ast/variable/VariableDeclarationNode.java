@@ -11,6 +11,8 @@ import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class VariableDeclarationNode extends FixedChildParentNode implements HasSharedState, HasConstState {
     protected final boolean builtIn;
     protected FullySpecifiedType type;
@@ -122,6 +124,11 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
 
     @Override
     public String toString() {
-        return "VariableDeclaration('" + identifier + "')";
+        Node initializer = getInitializer();
+        if (initializer == null) {
+            return identifier.original();
+        }
+
+        return identifier.original() + "=" + Objects.toString(initializer);
     }
 }

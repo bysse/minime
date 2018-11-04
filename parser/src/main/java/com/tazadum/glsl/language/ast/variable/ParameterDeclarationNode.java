@@ -28,4 +28,10 @@ public class ParameterDeclarationNode extends VariableDeclarationNode {
     public <T> T accept(ASTVisitor<T> visitor) {
         return visitor.visitParameterDeclaration(this);
     }
+
+    @Override
+    public String toString() {
+        return getFullySpecifiedType().toString() + " " + identifier;
+    }
+
 }

@@ -3,10 +3,11 @@ package com.tazadum.glsl.language.ast.variable;
 import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.traits.HasDeclarationReference;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class VariableNode extends LeafNode {
+public class VariableNode extends LeafNode implements HasDeclarationReference<VariableDeclarationNode> {
     /**
      * The VariableDeclarationNode is not a child in the AST.
      * It's only a reference to the declaration of the variable.
@@ -18,10 +19,12 @@ public class VariableNode extends LeafNode {
         this.declarationNode = declarationNode;
     }
 
+    @Override
     public VariableDeclarationNode getDeclarationNode() {
         return declarationNode;
     }
 
+    @Override
     public void setDeclarationNode(VariableDeclarationNode declarationNode) {
         this.declarationNode = declarationNode;
     }
@@ -60,8 +63,8 @@ public class VariableNode extends LeafNode {
     @Override
     public String toString() {
         if (declarationNode == null) {
-            return "Variable('unresolved')";
+            return "'unresolved variable'";
         }
-        return "Variable('" + declarationNode.getIdentifier() + "')";
+        return declarationNode.getIdentifier().original();
     }
 }

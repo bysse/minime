@@ -8,6 +8,8 @@ import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class ParenthesisNode extends FixedChildParentNode {
     public ParenthesisNode(SourcePosition position, Node node) {
         super(position, 1);
@@ -42,5 +44,10 @@ public class ParenthesisNode extends FixedChildParentNode {
     @Override
     public GLSLType getType() {
         return getExpression().getType();
+    }
+
+    @Override
+    public String toString() {
+        return "(" + Objects.toString(getExpression()) + ")";
     }
 }

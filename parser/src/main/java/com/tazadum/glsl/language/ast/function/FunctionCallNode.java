@@ -4,12 +4,15 @@ import com.tazadum.glsl.language.ast.ASTVisitor;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.traits.HasConstState;
+import com.tazadum.glsl.language.ast.traits.HasDeclarationReference;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
-public class FunctionCallNode extends ParentNode implements HasConstState {
+import java.util.Objects;
+
+public class FunctionCallNode extends ParentNode implements HasConstState, HasDeclarationReference<FunctionPrototypeNode> {
     private Identifier identifier;
     private ArraySpecifiers arraySpecifiers;
     private FunctionPrototypeNode declarationNode;
@@ -38,16 +41,22 @@ public class FunctionCallNode extends ParentNode implements HasConstState {
         return identifier;
     }
 
+    public void setLocalIdentifier(Identifier identifier) {
+        this.identifier = identifier;
+    }
+
     public ArraySpecifiers getArraySpecifiers() {
         return arraySpecifiers;
     }
 
-    public void setDeclarationNode(FunctionPrototypeNode declarationNode) {
-        this.declarationNode = declarationNode;
-    }
-
+    @Override
     public FunctionPrototypeNode getDeclarationNode() {
         return declarationNode;
+    }
+
+    @Override
+    public void setDeclarationNode(FunctionPrototypeNode declarationNode) {
+        this.declarationNode = declarationNode;
     }
 
     @Override
@@ -58,11 +67,6 @@ public class FunctionCallNode extends ParentNode implements HasConstState {
     @Override
     public void setConstant(boolean constant) {
         this.constant = constant;
-    }
-
-    @Override
-    public String toString() {
-        return identifier.toString();
     }
 
     @Override
@@ -81,5 +85,17 @@ public class FunctionCallNode extends ParentNode implements HasConstState {
     @Override
     public GLSLType getType() {
         return declarationNode.getType();
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < getChildCount(); i++) {
+            if (i > 0) {
+                builder.append(", ");
+            }
+            builder.append(Objects.toString(getChild(i)));
+        }
+        return identifier.original() + "(" + builder.toString() + ")";
     }
 }

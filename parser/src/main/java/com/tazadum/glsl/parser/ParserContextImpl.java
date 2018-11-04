@@ -119,13 +119,15 @@ public class ParserContextImpl implements ParserContext {
 
     @Override
     public ParserContext remap(Node base) {
-        final TypeRegistry typeRegistryRemap = typeRegistry.remap(base);
-        final ContextAware contextAwareRemap = contextAware.remap(base);
+        // build the context map
+        final ContextAware contextAwareRemap = new ContextAwareImpl();
+        base.accept(new ContextAwareVisitor(contextAwareRemap));
 
-        final VariableRegistry variableRegistryCopy = variableRegistry.remap(base, contextAwareRemap);
-        final FunctionRegistry functionRegistryCopy = functionRegistry.remap(base);
-        //final BranchRegistry branchRegistryCopy = branchRegistry.remap();
-        //return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, branchRegistryCopy, contextAwareRemap);
+        final TypeRegistry typeRegistryRemap = typeRegistry.remap(base);
+
+        final VariableRegistry variableRegistryCopy = variableRegistry.remap(contextAwareRemap, base);
+        final FunctionRegistry functionRegistryCopy = functionRegistry.remap(contextAwareRemap, base);
+
         return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, contextAware);
     }
 

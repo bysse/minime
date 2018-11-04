@@ -6,14 +6,15 @@ import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.parser.Usage;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class VariableRegistryContext {
     private final GLSLContext context;
     private Set<VariableDeclarationNode> variables;
-
 
     public VariableRegistryContext(GLSLContext context) {
         this.context = context;
@@ -45,9 +46,14 @@ public class VariableRegistryContext {
         return null;
     }
 
-    public VariableRegistryContext remap(ContextAware contextAware, Node base) {
+    public VariableRegistryContext remap(ContextAware contextAware, Node base, Map<VariableDeclarationNode, Usage<VariableDeclarationNode>> usageMap) {
         final VariableRegistryContext remapped = new VariableRegistryContext(CloneUtils.remapContext(contextAware, this.context));
         for (VariableDeclarationNode node : variables) {
+            Usage<VariableDeclarationNode> usage = usageMap.get(node);
+            if (usage == null || usage.getUsageNodes().isEmpty()) {
+                // ignore variables that aren't used
+                continue;
+            }
             if (node.isBuiltIn()) {
                 // this node is a predefined variable which is ok to reuse
                 remapped.declare(node);

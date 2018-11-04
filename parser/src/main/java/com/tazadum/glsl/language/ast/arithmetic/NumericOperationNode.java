@@ -11,6 +11,8 @@ import com.tazadum.glsl.language.model.NumericOperator;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 /**
  * Created by Erik on 2016-10-10.
  */
@@ -24,6 +26,7 @@ public class NumericOperationNode extends FixedChildParentNode implements HasMut
 
     public NumericOperationNode(SourcePosition position, NumericOperator operator, Node left, Node right) {
         this(position, null, operator);
+
         setLeft(left);
         setRight(right);
     }
@@ -76,5 +79,9 @@ public class NumericOperationNode extends FixedChildParentNode implements HasMut
     @Override
     public void setType(GLSLType type) {
         this.type = type;
+    }
+
+    public String toString() {
+        return Objects.toString(getLeft()) + " " + operator.token() + " " + Objects.toString(getRight());
     }
 }

@@ -44,4 +44,8 @@ public class NumericLeafNode extends LeafNode implements HasNumeric, HasConstSta
     public boolean isConstant() {
         return true;
     }
+
+    public String toString() {
+        return value.getValue().toPlainString();
+    }
 }

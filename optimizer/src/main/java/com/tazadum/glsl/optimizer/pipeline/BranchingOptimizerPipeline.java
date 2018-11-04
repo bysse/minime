@@ -116,13 +116,15 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 }
 
                 if (showOutput) {
-                    if (branchChanges == 0 && branchSizeAfter - branchSizeBefore == 0 && branchesDiscovered == 0) {
+                    if (branchChanges == 0 && branchesDiscovered == 0) {
                         logger.info("      - no modifications");
                     } else {
                         logger.info("      - branch summary:");
                         logger.info("         - modifications:   {}", branchChanges);
                         logger.info("         - size difference: {}", branchSizeAfter - branchSizeBefore);
-                        logger.info("         - new branches:    {}", branchesDiscovered);
+                        if (branchesDiscovered > 0) {
+                            logger.info("         - new branches:    {}", branchesDiscovered);
+                        }
                     }
                 }
 
