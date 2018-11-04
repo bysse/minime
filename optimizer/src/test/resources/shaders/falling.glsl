@@ -49,7 +49,7 @@ vec4 cloudField(vec3 p) {
 }
 
 float waterHeight(vec3 q) {
-	float d = .2*iGlobalTime;
+	float d = .2*iTime;
 	vec3 p = .15*q + d;
 	p.y = 0.;
 	return .5*fbm(p, d) + 0.0025*noise( 32.*p )
@@ -89,7 +89,7 @@ vec2 field(vec3 q, float d, int nowater) {
 	if (nowater < 1) {
 		float k = smoothstep(0., 1., 200. / d);
 		h.x = q.y
-			+ noise( 0.01*vec3(q.x, 0., q.z) + iGlobalTime )
+			+ noise( 0.01*vec3(q.x, 0., q.z) + iTime )
 			+ (1. - k)*.1*noise( 0.1*vec3(q.x, 0., q.z))		// FLICKERY
 			;
 
@@ -98,7 +98,7 @@ vec2 field(vec3 q, float d, int nowater) {
 	}
 
 
-	float y = 8. + .5*sin(iGlobalTime);
+	float y = 8. + .5*sin(iTime);
 	if (dot(q,q) < 4e6) {
 		float a = noise(20.*floor((vec3(q.x, 0., q.z))/128.));
 		y += 200. * smoothstep(0., 1., a) - 3.;
@@ -107,7 +107,7 @@ vec2 field(vec3 q, float d, int nowater) {
 
 	float e = min(
 		max(sdTriPrism(q + vec3(0, y, 0), vec2(20, 11)), -sdTriPrism(q + vec3(5, y, -5), vec2(10, 12))),
-		sdTriPrism(q + vec3(5.5, y+.5*sin(4.+iGlobalTime), -5.5), vec2(5, 11))
+		sdTriPrism(q + vec3(5.5, y+.5*sin(4.+iTime), -5.5), vec2(5, 11))
 		);
 
 	return e<h.x?vec2(e, 1.5):h;
@@ -220,12 +220,12 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 	vec2 uv = -1. + 2. * fragCoord.xy / iResolution.xy;
 	uv.x *= iResolution.x / iResolution.y;
 
-	float s0  = 2. * smoothstep(0., 1., (iGlobalTime -  0.)*.04);
-	float s25 = smoothstep(0., 1., (iGlobalTime - 25.)*.08);
-	float s40 = smoothstep(0., 1., (iGlobalTime - 35.)*.06);
-	float s45 = smoothstep(0., 1., (iGlobalTime - 45.)*.12);
+	float s0  = 2. * smoothstep(0., 1., (iTime -  0.)*.04);
+	float s25 = smoothstep(0., 1., (iTime - 25.)*.08);
+	float s40 = smoothstep(0., 1., (iTime - 35.)*.06);
+	float s45 = smoothstep(0., 1., (iTime - 45.)*.12);
 
-	float h1 = clamp(iGlobalTime - 25., 0., 10.);
+	float h1 = clamp(iTime - 25., 0., 10.);
 
 	vec2 look = vec2(
 		// left-right
@@ -234,10 +234,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 		,
 		// up-down
 		0.75 - .30*s0
-		-.30*(smoothstep(0., 1., (iGlobalTime - 20.)*.10) - s25)
-		+ .25 * sin(3.14*smoothstep(0., 1., (iGlobalTime - 35.)*.20))
+		-.30*(smoothstep(0., 1., (iTime - 20.)*.10) - s25)
+		+ .25 * sin(3.14*smoothstep(0., 1., (iTime - 35.)*.20))
 		- .3 * s40 + .3 * s45*s45
-		+ .5 * smoothstep(0., 1., (iGlobalTime - 55.) * .1)
+		+ .5 * smoothstep(0., 1., (iTime - 55.) * .1)
 	);
 
 	vec3 cp = vec3(
@@ -247,10 +247,10 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 		// y
 		111.
 		- 125.*s25
-		+ 5. * clamp(iGlobalTime-35., 0., 5.)
+		+ 5. * clamp(iTime-35., 0., 5.)
 		+   80.*s40
 		-   80.*s45
-		- 100. * clamp(iGlobalTime - 54.8, 0., .3) - 10. * clamp(iGlobalTime - 55.1, 0., 15.)
+		- 100. * clamp(iTime - 54.8, 0., .3) - 10. * clamp(iTime - 55.1, 0., 15.)
 		,
 		// z
 		5178.
@@ -290,8 +290,8 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord ) {
 
 	color = above ? color + sunAmount * (1.-tr.a) : color * exp(-attenuation*(wh - cp.y)) * min(1.+ rd.y, 1.);
 
-	color +=    smoothstep(0., 1., 1.-.1*iGlobalTime);		// FADE IN
-	color *= 1.-smoothstep(0., 1., .2*iGlobalTime-12.3);	// FADE OUT
+	color +=    smoothstep(0., 1., 1.-.1*iTime);	// FADE IN
+	color *= 1.-smoothstep(0., 1., .2*iTime-12.3);	// FADE OUT
 
 	// gamma + contrast
 	color = pow( min(color, 1.), vec3(0.44) );

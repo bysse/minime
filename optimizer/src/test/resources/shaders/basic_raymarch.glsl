@@ -35,7 +35,7 @@ vec3 march(vec3 pos,vec3 dir){
 void mainImage(out vec4 fragColor,in vec2 fragCoord){
     vec2 uv=-1.+2.*(fragCoord.xy/iResolution.xy);
     uv.x*=iResolution.x/iResolution.y;
-    vec3 cp=vec3(cos(iGlobalTime)*3.,sin(iGlobalTime)*3.,-3.);
+    vec3 cp=vec3(cos(iTime)*3.,sin(iTime)*3.,-3.);
     vec3 ct=vec3(0.,0.,0.);
     vec3 cd=normalize(ct-cp);
     vec3 side=cross(vec3(0.,1.,0.),cd);
