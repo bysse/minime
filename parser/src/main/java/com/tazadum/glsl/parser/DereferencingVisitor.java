@@ -31,13 +31,14 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
 
     @Override
     public Void visitVariable(VariableNode node) {
+        int id = node.getId();
         if (parserContext.getVariableRegistry().dereference(node)) {
             final VariableDeclarationNode declarationNode = node.getDeclarationNode();
 
             if (declarationNode == null) {
-                logger.debug("Removing usage for unresolved variable");
+                logger.debug("Removing usage for unresolved variable {}", id);
             } else {
-                logger.debug("Removing usage for variable {}", declarationNode.getIdentifier().original());
+                logger.debug("Removing usage for variable {}:{}", id, declarationNode.getIdentifier().original());
             }
         }
         return null;

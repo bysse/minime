@@ -82,6 +82,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
                 int branchSizeBefore = output.render(branch.getNode(), outputConfig).length();
 
                 for (Optimizer optimizer : optimizers) {
+
+                    //System.out.println("WORKING WITH " + branch.getContext().id());
                     final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, decider, branch);
                     int changes = result.getChanges();
                     totalChanges += changes;

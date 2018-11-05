@@ -131,6 +131,16 @@ public class ParserContextImpl implements ParserContext {
         return new ParserContextImpl(typeRegistryRemap, variableRegistryCopy, functionRegistryCopy, contextAwareRemap);
     }
 
+    public String id() {
+        return String.format("%x|%x|%x|%x",
+            System.identityHashCode(this),
+            System.identityHashCode(contextAware),
+            System.identityHashCode(functionRegistry),
+            System.identityHashCode(variableRegistry)
+
+        );
+    }
+
     @Override
     public void initializeVariables(ShaderType shaderType, GLSLProfile profile) {
         switch (shaderType) {

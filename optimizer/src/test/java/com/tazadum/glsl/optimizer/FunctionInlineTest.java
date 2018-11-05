@@ -6,7 +6,9 @@ import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.BuiltInFunctionRegistry;
 import com.tazadum.glsl.language.function.FunctionRegistry;
+import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
+import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistryContext;
 import com.tazadum.glsl.parser.Usage;
@@ -159,6 +161,50 @@ public class FunctionInlineTest extends BaseOptimizerTest {
         assertEquals(expected, toString(result.getNode()));
         assertEquals(2, variableDeclarations.size(), "only 2 contexts, global and medium");
         assertEquals(2, usedFunctions.size(), "only 2 functions, vec3 and medium");
+    }
+
+    @Test
+    void testOptimizerReferences2() {
+        TLogConfiguration.get().useGlobalConfiguration();
+        TLogConfiguration.get().getConfig().setLogLevel(Level.TRACE);
+
+        GLSLContext context = parserContext.currentContext();
+        outputConfig = outputConfig.edit().renderNewLines(true).indentation(3).build();
+
+        // add constructors
+        BuiltInFunctionRegistry builtInRegistry = parserContext.getFunctionRegistry().getBuiltInFunctionRegistry();
+        new ConstructorsFunctionSet().generate(builtInRegistry, GLSLProfile.COMPATIBILITY);
+
+        TypeQualifierList uniform = new TypeQualifierList();
+        uniform.add(StorageQualifier.UNIFORM);
+
+        parserContext.getVariableRegistry()
+            .declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(VEC3), "gl_FragColor", null, null, null));
+        parserContext.getVariableRegistry()
+            .declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(uniform, FLOAT), "time", null, null, null));
+
+        String source =
+            "float small(vec3 S, float Sa) { S+=vec3(S); return S.x; }\n" +
+                "vec3 medium(in vec3 M) {\n" +
+                "    float Mc = time;\n" +
+                "    Mc += small(M+vec3(1,0,0), Mc);\n" +
+                "    Mc += small(M+vec3(0,1,0), Mc+time);\n" +
+                "    return Mc*M;\n" +
+                "}\n" +
+                "void main() {\n" +
+                "    gl_FragColor = medium(vec3(1,0,0));\n" +
+                "}";
+
+        Branch result = optimizeBranch(source);
+        VariableRegistry variableRegistry = result.getContext().getVariableRegistry();
+        FunctionRegistry functionRegistry = result.getContext().getFunctionRegistry();
+
+        Map<GLSLContext, VariableRegistryContext> variableDeclarations = variableRegistry.getDeclarationMap();
+        List<Usage<FunctionPrototypeNode>> usedFunctions = functionRegistry.getUsedFunctions();
+
+        System.out.println(toString(result.getNode()));
+        assertEquals(2, variableDeclarations.size(), "only 2 contexts and main");
+        assertEquals(2, usedFunctions.size(), "only 2 functions, two flavors of vec3");
 
     }
 

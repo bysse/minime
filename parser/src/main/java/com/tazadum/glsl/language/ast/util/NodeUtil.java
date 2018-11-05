@@ -2,6 +2,7 @@ package com.tazadum.glsl.language.ast.util;
 
 
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.*;
@@ -133,4 +134,19 @@ public class NodeUtil {
         return false;
     }
 
+    public static int treeHash(Node node) {
+        if (node == null) {
+            return 0;
+        }
+        if (node instanceof ParentNode) {
+            ParentNode parent = (ParentNode) node;
+            int hash = System.identityHashCode(parent.getClass());
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                hash ^= treeHash(parent.getChild(i));
+            }
+            return hash;
+        }
+
+        return System.identityHashCode(node.getClass());
+    }
 }

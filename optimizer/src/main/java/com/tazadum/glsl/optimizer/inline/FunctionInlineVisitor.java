@@ -571,7 +571,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
     /**
      * Remaps all function parameters found in the expression and remaps them to the arguments used in the functionCall.
-     *  @param context           The InlineContext to use for generating new identifier names.
+     *
+     * @param context           The InlineContext to use for generating new identifier names.
      * @param expression        The expression to remap variables in
      * @param functionArguments The arguments for the function.
      * @param returnStatement   An optional return statement that is used for single line functions.

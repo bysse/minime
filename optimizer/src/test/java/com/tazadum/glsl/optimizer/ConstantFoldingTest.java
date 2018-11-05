@@ -52,6 +52,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
 
     private static Arguments[] getPositiveCases() {
         return new Arguments[]{
+            Arguments.of("1", "vec3(1,2,3).x"),
             Arguments.of("2", "1+1"),
             Arguments.of("4", "2*2"),
             Arguments.of("3", "6/2"),

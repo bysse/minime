@@ -26,7 +26,7 @@ public class RuleOptimizer extends BranchingOptimizer {
 
     @Override
     public String name() {
-        return "intrinsics";
+        return "patterns";
     }
 
     @Override

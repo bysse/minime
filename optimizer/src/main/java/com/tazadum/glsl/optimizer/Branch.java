@@ -51,6 +51,9 @@ public class Branch {
      */
     public static Branch remap(ParserContext context, Node node) {
         final Node clone = node.clone(null);
+
+        //System.out.println(String.format("NODE: %x -> %x", NodeUtil.treeHash(node), NodeUtil.treeHash(clone)));
+
         final ParserContext parserContext = context.remap(clone);
         return new Branch(parserContext, clone);
     }

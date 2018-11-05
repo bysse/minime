@@ -91,6 +91,18 @@ public class VectorField {
     }
 
     /**
+     * Returns the 0-base index of the component.
+     *
+     * @param fieldIndex The field index.
+     */
+    public int indexOf(int fieldIndex) {
+        if (fieldIndex < 0 || fieldIndex >= field.length) {
+            return -1;
+        }
+        return field[fieldIndex];
+    }
+
+    /**
      * Returns true if the components in the field are in order.
      *
      * @return true if the components are in order.

@@ -14,6 +14,7 @@ import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.traits.HasNumeric;
+import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.optimizer.Branch;
@@ -40,7 +41,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
     private List<Branch> branches;
 
     public ConstantFoldingVisitor(ParserContext parserContext, BranchRegistry branchRegistry, OptimizationDecider decider) {
-        super(parserContext, false);
+        super(parserContext, true, true);
         this.branchRegistry = branchRegistry;
         this.decider = decider;
 
@@ -90,6 +91,31 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
             PredefinedType type = (PredefinedType) expressionType;
             try {
                 VectorField field = new VectorField(type.baseType(), type, node.getSelection());
+
+                if (type.category() == TypeCategory.Vector &&
+                    field.components() <= type.components() &&
+                    node.getExpression() instanceof FunctionCallNode) {
+
+                    // this could be a constructor call with a field selection
+                    final FunctionCallNode functionCall = (FunctionCallNode) node.getExpression();
+                    final PredefinedType functionType = HasToken.fromString(functionCall.getIdentifier().original(), PredefinedType.values());
+
+                    if (type == functionType) {
+                        // this is a constructor of a basic type
+                        if (field.components() == 1) {
+                            // extract one of the components and replace the entire node with that
+                            Node argument = functionCall.getChild(field.indexOf(0));
+
+                            changes++;
+                            return CloneUtils.clone(argument, null);
+                        }
+
+                        // TODO: this could be optimized further vec3(1,2,3).xz, but watch out for strange vector
+                        // initializations with arguments of different sizes.
+                    }
+
+                }
+
                 if (!field.componentsInOrder()) {
                     // if the fields are not in order there's nothing we can do
                     return null;

@@ -1,7 +1,6 @@
 package com.tazadum.glsl.optimizer.simplification;
 
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.traits.HasNumeric;
 import com.tazadum.glsl.parser.ParserContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,16 +29,10 @@ public class RuleRunner {
         }
         logger.trace("    - Applying rule {}", rule.getName());
 
-        Node replacement = rule.replacement();
-        for (Node removed : rule.removedNodes()) {
-            if (removed instanceof HasNumeric) {
-                continue;
-            }
+        // always dereference a matching node, the replacement will be
+        // referenced by ReplacingASTVisitor later on.
+        parserContext.dereferenceTree(node);
 
-            // Dereference node
-            parserContext.dereferenceTree(removed);
-        }
-
-        return replacement;
+        return rule.replacement();
     }
 }

@@ -17,12 +17,15 @@ import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.variable.ResolutionResult;
 import com.tazadum.glsl.language.variable.VariableRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Registers variable declarations and usages.
  * This class doesn't touch function because they are registered in the TypeVisitor
  */
 public class ReferencingVisitor extends DefaultASTVisitor<Void> {
+    private final Logger logger = LoggerFactory.getLogger(ReferencingVisitor.class);
     private ParserContext parserContext;
 
     public ReferencingVisitor(ParserContext parserContext) {
@@ -41,6 +44,8 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
 
             ResolutionResult result = registry.resolve(context, identifier, Identifier.Mode.Original);
             node.setDeclarationNode(result.getDeclaration());
+
+            logger.debug("Adding usage for variable {}:{}", node.getId(), identifier);
         } catch (VariableException e) {
             throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
         }
