@@ -15,12 +15,15 @@ public class OptimizerOptions implements CLIOptions {
     private static final String KEEP_UNIFORMS = "fkeep-uniforms";
     private static final String OPTIMIZE_SMALL = "Os";
 
+    private OptionSpec<Integer> maxIterationSpec;
     private OptionSpec<Integer> maxDepthSpec;
     private OptionSpec<Integer> maxSizeSpec;
 
     private boolean keepAllIdentifiers;
     private boolean keepUniformIdentifiers;
     private boolean optimizeSmall;
+
+    private int maxIterations = 50;
     private int maxDepth = 5;
     private int branchMaxSize = 1024;
 
@@ -34,8 +37,11 @@ public class OptimizerOptions implements CLIOptions {
         parser.accepts(KEEP_UNIFORMS, "Don't change the identifiers on the uniforms.");
         parser.accepts(OPTIMIZE_SMALL, "Set standard settings for small output");
 
-        maxDepthSpec = parser.accepts("max-depth", "Change the max depth of the optimizer search tree.")
-            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxDepth);
+        maxDepthSpec = parser.accepts("max-depth", "Change the max depth of a speculative optimization branch.")
+                .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxDepth);
+
+        maxIterationSpec = parser.accepts("max-iterations", "Set the maximum number of iterations to run.")
+            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxIterations);
 
         maxSizeSpec = parser.accepts("max-size", "The maximum size difference towards the smallest branch until a branch gets pruned")
             .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(branchMaxSize);
@@ -47,6 +53,7 @@ public class OptimizerOptions implements CLIOptions {
         this.keepUniformIdentifiers = optionSet.has(KEEP_UNIFORMS);
         this.optimizeSmall = optionSet.has(OPTIMIZE_SMALL);
         this.maxDepth = maxDepthSpec.value(optionSet);
+        this.maxIterations = maxIterationSpec.value(optionSet);
         this.branchMaxSize = maxSizeSpec.value(optionSet);
 
         return true;
@@ -67,8 +74,10 @@ public class OptimizerOptions implements CLIOptions {
     }
 
     public int iterationMaxDepth() {
-        return maxDepth;
+        return maxIterations;
     }
+
+    public int branchMaxDepth() { return maxDepth; }
 
     public boolean isOptimizeSmall() {
         return optimizeSmall;
