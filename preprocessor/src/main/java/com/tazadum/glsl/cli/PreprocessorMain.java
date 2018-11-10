@@ -21,6 +21,7 @@ public class PreprocessorMain {
         CommandLineBase cli = new CommandLineBase(
             PreprocessorMain.class.getName(),
             "GLSL Preprocessor.",
+            false,
             options
         );
 

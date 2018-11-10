@@ -15,6 +15,7 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -26,9 +27,9 @@ public class CommandLineBase {
         TLogConfiguration.get().useGlobalConfiguration();
     }
 
-    public static final int RET_OK = 0;
-    public static final int RET_SYNTAX = 1;
-    public static final int RET_EXCEPTION = 2;
+    static final int RET_OK = 0;
+    static final int RET_SYNTAX = 1;
+    static final int RET_EXCEPTION = 2;
 
     private final Logger logger = LoggerFactory.getLogger(CommandLineBase.class);
     private final InputOutput NO_RESULT = null;
@@ -37,15 +38,22 @@ public class CommandLineBase {
     private final CLIOptions[] options;
     private final String main;
     private final LoggerConfig loggerConfig;
-    private String header;
+    private final String header;
+    private final boolean multipleInputs;
+    private final List<InputOutput> inputOutputs;
 
-    public CommandLineBase(String main, String header, CLIOptions... options) {
+    private boolean singleOutput = false;
+
+    CommandLineBase(String main, String header, boolean multipleInputs, CLIOptions... options) {
         this.header = header;
+        this.multipleInputs = multipleInputs;
         this.loggerConfig = TLogConfiguration.get().getConfig();
 
         this.loggerConfig.setTraceLabel("");
         this.loggerConfig.setDebugLabel("");
         this.loggerConfig.setInfoLabel("");
+
+        this.inputOutputs = new ArrayList<>();
 
         this.options = options;
         this.main = main;
@@ -53,7 +61,6 @@ public class CommandLineBase {
         this.parser.formatHelpWith(new Formatter(120, 5));
 
         parser.accepts("o", "Name of the output file.").withRequiredArg().describedAs("FILE");
-
         parser.accepts("h", "Shows this help screen.");
         parser.accepts("v", "Increase output verbosity.");
         parser.accepts("vv", "Increase output verbosity even more.");
@@ -91,34 +98,48 @@ public class CommandLineBase {
                 return NO_RESULT;
             }
 
-            if (arguments.size() > 1) {
+            if (!multipleInputs && arguments.size() > 1) {
                 logger.error("Multiple input files specified! Only one is supported.");
                 return NO_RESULT;
             }
 
-            final Path inputPath = Paths.get(Objects.toString(arguments.get(0)));
-            if (!Files.exists(inputPath)) {
-                logger.error("File does not exist : {}", inputPath.toAbsolutePath());
-                return NO_RESULT;
-            }
+            singleOutput = multipleInputs && optionSet.has("o");
 
-            if (!Files.isReadable(inputPath)) {
-                logger.error("Can't read file : {}", inputPath.toAbsolutePath());
-                return NO_RESULT;
-            }
-
-            if (optionSet.has("o")) {
-                Path outputPath = Paths.get(Objects.toString(optionSet.valueOf("o")));
-                if (!outputPath.isAbsolute()) {
-                    outputPath = inputPath.toAbsolutePath().getParent().resolve(outputPath);
+            for (Object argument : arguments) {
+                final Path inputPath = Paths.get(Objects.toString(argument));
+                if (!Files.exists(inputPath)) {
+                    logger.error("File does not exist : {}", inputPath.toAbsolutePath());
+                    return NO_RESULT;
                 }
 
-                return new InputOutput(inputPath, outputPath);
+                if (!Files.isReadable(inputPath)) {
+                    logger.error("Can't read file : {}", inputPath.toAbsolutePath());
+                    return NO_RESULT;
+                }
+
+                if (optionSet.has("o")) {
+                    final String output = Objects.toString(optionSet.valueOf("o"));
+
+                    Path outputPath = Paths.get(output);
+                    if (!outputPath.isAbsolute()) {
+                        outputPath = inputPath.toAbsolutePath().getParent().resolve(outputPath);
+                    }
+
+                    if (Files.isDirectory(outputPath)) {
+                        // if the outputPath is a directory, store all files in there
+                        outputPath = outputPath.resolve(inputPath.getFileName());
+                        singleOutput = false;
+                    }
+
+                    inputOutputs.add(new InputOutput(inputPath, outputPath));
+                } else {
+                    // get the last option module to generate output
+                    final Path outputPath = options[options.length - 1].generateOutput(inputPath);
+                    inputOutputs.add(new InputOutput(inputPath, outputPath));
+                }
             }
 
-            // get the last option module to generate output
-            final Path outputPath = options[options.length - 1].generateOutput(inputPath);
-            return new InputOutput(inputPath, outputPath);
+            return inputOutputs.get(0);
         } catch (Exception e) {
             logger.error("Error parsing command line", e);
             showHelp(false);
@@ -126,7 +147,15 @@ public class CommandLineBase {
         }
     }
 
-    protected void showHelp(boolean showHeader) {
+    boolean isSingleOutput() {
+        return singleOutput;
+    }
+
+    List<InputOutput> getInputOutputs() {
+        return inputOutputs;
+    }
+
+    void showHelp(boolean showHeader) {
         try {
             PrintStream out = System.out;
             if (showHeader) {

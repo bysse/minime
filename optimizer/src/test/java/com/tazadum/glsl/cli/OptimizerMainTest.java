@@ -8,6 +8,12 @@ import org.junit.jupiter.api.Test;
 class OptimizerMainTest {
     @Test
     void test() {
-        OptimizerMain.main(new String[]{"-vv", "-format", "shadertoy", "-type", "st", "-o", "output.min.glsl", "src/test/resources/shaders/falling.glsl"});
+        OptimizerMain.main(new String[]{
+            "-vv", "-format", "c",
+            "-type", "f",
+            "-o", "output.h",
+            "src/test/resources/shaders/first.glsl",
+            "src/test/resources/shaders/second.glsl"
+        });
     }
 }

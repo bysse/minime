@@ -31,6 +31,7 @@ public class CompilerMain {
         CommandLineBase cli = new CommandLineBase(
             CompilerMain.class.getName(),
             "GLSL Parser and type checker.",
+            false,
             preprocessorOption,
             compilerOption
         );

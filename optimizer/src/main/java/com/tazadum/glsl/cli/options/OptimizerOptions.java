@@ -16,7 +16,6 @@ public class OptimizerOptions implements CLIOptions {
     private static final String OPTIMIZE_SMALL = "Os";
 
     private OptionSpec<Integer> maxIterationSpec;
-    private OptionSpec<Integer> maxDepthSpec;
     private OptionSpec<Integer> maxSizeSpec;
 
     private boolean keepAllIdentifiers;
