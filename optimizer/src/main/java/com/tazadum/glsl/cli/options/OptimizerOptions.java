@@ -23,8 +23,7 @@ public class OptimizerOptions implements CLIOptions {
     private boolean keepUniformIdentifiers;
     private boolean optimizeSmall;
 
-    private int maxIterations = 50;
-    private int maxDepth = 5;
+    private int maxIterations = 25;
     private int branchMaxSize = 1024;
 
 
@@ -36,9 +35,6 @@ public class OptimizerOptions implements CLIOptions {
         parser.accepts(KEEP_IDENTIFIERS, "Don't change any identifiers in the output.");
         parser.accepts(KEEP_UNIFORMS, "Don't change the identifiers on the uniforms.");
         parser.accepts(OPTIMIZE_SMALL, "Set standard settings for small output");
-
-        maxDepthSpec = parser.accepts("max-depth", "Change the max depth of a speculative optimization branch.")
-                .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxDepth);
 
         maxIterationSpec = parser.accepts("max-iterations", "Set the maximum number of iterations to run.")
             .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxIterations);
@@ -52,7 +48,6 @@ public class OptimizerOptions implements CLIOptions {
         this.keepAllIdentifiers = optionSet.has(KEEP_IDENTIFIERS);
         this.keepUniformIdentifiers = optionSet.has(KEEP_UNIFORMS);
         this.optimizeSmall = optionSet.has(OPTIMIZE_SMALL);
-        this.maxDepth = maxDepthSpec.value(optionSet);
         this.maxIterations = maxIterationSpec.value(optionSet);
         this.branchMaxSize = maxSizeSpec.value(optionSet);
 
@@ -76,8 +71,6 @@ public class OptimizerOptions implements CLIOptions {
     public int iterationMaxDepth() {
         return maxIterations;
     }
-
-    public int branchMaxDepth() { return maxDepth; }
 
     public boolean isOptimizeSmall() {
         return optimizeSmall;
