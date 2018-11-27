@@ -89,6 +89,8 @@ Date    Hours
 2018-11-03  1.5 Allocating identifiers seems to be working. Fixing ShaderToy output.
 2018-11-04  7.0 Some of the bugs are fixed, the optimizer is not crashing anymore.
 2018-11-05  2.5 Found bug in the pattern matcher where things weren't de-referenced properly.
+2018-11-27  0.5 Changed shared state to strings.
+
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 

@@ -19,7 +19,7 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
     private FunctionPrototype prototype;
     private boolean mutatesGlobalState = false;
     private boolean usesGlobalState = true;
-    private boolean shared;
+    private String unit;
 
     public FunctionPrototypeNode(SourcePosition position, String functionName, FullySpecifiedType returnType) {
         super(position);
@@ -49,11 +49,6 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
         this.prototype = prototype;
     }
 
-    @Override
-    public boolean isShared() {
-        return shared;
-    }
-
     public void addParameter(ParameterDeclarationNode parameter) {
         addChild(parameter);
     }
@@ -62,8 +57,14 @@ public class FunctionPrototypeNode extends ParentNode implements HasSharedState 
         return getChildAs(index);
     }
 
-    public void setShared(boolean shared) {
-        this.shared = shared;
+    @Override
+    public String getSharedUnit() {
+        return unit;
+    }
+
+    @Override
+    public void setSharedUnit(String unit) {
+        this.unit = unit;
     }
 
     @Override

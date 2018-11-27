@@ -12,7 +12,7 @@ import java.util.Objects;
 
 public class VariableDeclarationListNode extends ParentNode implements HasSharedState {
     private FullySpecifiedType type;
-    private boolean shared;
+    private String unit;
 
     public VariableDeclarationListNode(SourcePosition position, FullySpecifiedType type) {
         super(position);
@@ -33,12 +33,13 @@ public class VariableDeclarationListNode extends ParentNode implements HasShared
     }
 
     @Override
-    public boolean isShared() {
-        return shared;
+    public String getSharedUnit() {
+        return unit;
     }
 
-    public void setShared(boolean shared) {
-        this.shared = shared;
+    @Override
+    public void setSharedUnit(String unit) {
+        this.unit = unit;
     }
 
     @Override

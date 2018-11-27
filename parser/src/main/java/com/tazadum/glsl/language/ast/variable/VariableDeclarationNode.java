@@ -20,7 +20,7 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     protected ArraySpecifiers arraySpecifiers;
 
     protected Identifier identifier;
-    private boolean shared;
+    private String unit;
 
     public VariableDeclarationNode(SourcePosition position, boolean builtIn, FullySpecifiedType fst, String identifier, ArraySpecifiers arraySpecifiers, Node initializer, StructDeclarationNode structDeclaration) {
         this(position, null, builtIn, fst, Identifier.orNull(identifier), arraySpecifiers, initializer, structDeclaration);
@@ -89,12 +89,13 @@ public class VariableDeclarationNode extends FixedChildParentNode implements Has
     }
 
     @Override
-    public boolean isShared() {
-        return shared;
+    public String getSharedUnit() {
+        return unit;
     }
 
-    public void setShared(boolean shared) {
-        this.shared = shared;
+    @Override
+    public void setSharedUnit(String unit) {
+        this.unit = unit;
     }
 
     @Override

@@ -87,9 +87,9 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitMultiplicative_expression(GLSLParser.Multiplicative_expressionContext ctx) {
         final NumericOperator op = HasToken.fromContext(ctx,
-            NumericOperator.MUL,
-            NumericOperator.DIV,
-            NumericOperator.MOD
+                NumericOperator.MUL,
+                NumericOperator.DIV,
+                NumericOperator.MOD
         );
         assert op != null : "Bad implementation";
 
@@ -107,8 +107,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitAdditive_expression(GLSLParser.Additive_expressionContext ctx) {
         final NumericOperator op = HasToken.fromContext(ctx,
-            NumericOperator.ADD,
-            NumericOperator.SUB
+                NumericOperator.ADD,
+                NumericOperator.SUB
         );
         assert op != null : "Bad implementation";
 
@@ -124,8 +124,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitShift_expression(GLSLParser.Shift_expressionContext ctx) {
         final BitOperator op = HasToken.fromContext(ctx,
-            BitOperator.SHIFT_LEFT,
-            BitOperator.SHIFT_RIGHT
+                BitOperator.SHIFT_LEFT,
+                BitOperator.SHIFT_RIGHT
         );
         assert op != null : "Bad implementation";
 
@@ -326,9 +326,10 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             }
         }
 
-        if (isIncluded(sourcePosition)) {
+        final SourcePositionId id = isIncluded(sourcePosition);
+        if (id != null) {
             // mark the function as being included from a shared file.
-            functionNode.setShared(true);
+            functionNode.setSharedUnit(id.getId());
         }
 
         // construct a prototype for the function
@@ -366,16 +367,17 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitInit_declarator_list(GLSLParser.Init_declarator_listContext ctx) {
         final SourcePosition position = SourcePosition.create(ctx.start);
-        final boolean isShared = isIncluded(position);
+        final SourcePositionId id = isIncluded(position);
+        final String sourceId = id == null ? null : id.getId();
 
         if (ctx.single_declaration() != null) {
             final VariableDeclarationNode declarationNode = NodeUtil.cast(ctx.single_declaration().accept(this));
-            declarationNode.setShared(isShared);
+            declarationNode.setSharedUnit(sourceId);
 
             // always return a list node
             FullySpecifiedType originalType = declarationNode.getOriginalType();
             final VariableDeclarationListNode listNode = new VariableDeclarationListNode(position, originalType);
-            listNode.setShared(isShared);
+            listNode.setSharedUnit(sourceId);
             listNode.addChild(declarationNode);
 
             if (declarationNode.getIdentifier() != null) {
@@ -388,7 +390,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         }
 
         final VariableDeclarationListNode listNode = NodeUtil.cast(ctx.init_declarator_list().accept(this));
-        listNode.setShared(isShared);
+        listNode.setSharedUnit(sourceId);
 
         final String identifier = ctx.IDENTIFIER().getText();
 
@@ -407,7 +409,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         FullySpecifiedType fullySpecifiedType = listNode.getFullySpecifiedType();
         VariableDeclarationNode declarationNode = new VariableDeclarationNode(position, false, fullySpecifiedType, identifier, arraySpecifiers, initializer, null);
-        declarationNode.setShared(isShared);
+        declarationNode.setSharedUnit(sourceId);
         listNode.addChild(declarationNode);
 
         // register the declaration and usage of the type to enable easy look up for later passes
@@ -532,8 +534,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitEquality_expression(GLSLParser.Equality_expressionContext ctx) {
         final RelationalOperator op = HasToken.fromContext(ctx,
-            RelationalOperator.Equal,
-            RelationalOperator.NotEqual
+                RelationalOperator.Equal,
+                RelationalOperator.NotEqual
         );
         assert op != null : "Bad implementation";
 
@@ -549,10 +551,10 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitRelational_expression(GLSLParser.Relational_expressionContext ctx) {
         final RelationalOperator op = HasToken.fromContext(ctx,
-            RelationalOperator.LessThan,
-            RelationalOperator.GreaterThan,
-            RelationalOperator.LessThanOrEqual,
-            RelationalOperator.GreaterThanOrEqual
+                RelationalOperator.LessThan,
+                RelationalOperator.GreaterThan,
+                RelationalOperator.LessThanOrEqual,
+                RelationalOperator.GreaterThanOrEqual
         );
         assert op != null : "Bad implementation";
 
@@ -785,8 +787,8 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
                     qualifiers.addTypeQualifier(new SubroutineQualifier(position));
                 } else {
                     List<String> typeNames = typeNamesCtx.IDENTIFIER().stream()
-                        .map(TerminalNode::getText)
-                        .collect(Collectors.toList());
+                            .map(TerminalNode::getText)
+                            .collect(Collectors.toList());
 
                     qualifiers.addTypeQualifier(new SubroutineQualifier(position, typeNames));
                 }
@@ -1166,12 +1168,15 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
      * Check if the provided SourcePosition originates from an included file.
      * This requires that the SourcePositionMapper from the preprocessor is passed to the visitor during construction.
      */
-    private boolean isIncluded(SourcePosition sourcePosition) {
+    private SourcePositionId isIncluded(SourcePosition sourcePosition) {
         if (mapper == null) {
-            return false;
+            return null;
         }
         final SourcePositionId sourcePositionId = mapper.map(sourcePosition);
-        return !mapper.getDefaultId().equals(sourcePositionId.getId());
+        if (mapper.getDefaultId().equals(sourcePositionId.getId())) {
+            return null;
+        }
+        return sourcePositionId;
     }
 
     @Override
