@@ -20,6 +20,7 @@ class VariableDeclarationNodeTest {
         VariableDeclarationNode a = new VariableDeclarationNode(TOP, true, type1, "test", null, null, null);
         VariableDeclarationNode b = new VariableDeclarationNode(TOP, true, type2, "test", null, null, null);
 
+        // not sure if this should work?
         assertEquals(a.hashCode(), b.hashCode());
         assertTrue(a.equals(b));
     }

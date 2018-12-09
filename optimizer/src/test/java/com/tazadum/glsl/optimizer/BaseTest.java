@@ -1,6 +1,6 @@
 package com.tazadum.glsl.optimizer;
 
-import com.tazadum.glsl.TestUtil;
+import com.tazadum.glsl.util.TestUtil;
 import com.tazadum.glsl.language.ast.ASTConverter;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.OutputConfig;

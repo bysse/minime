@@ -51,7 +51,7 @@ public class CloneUtils {
         }
 
         if (source instanceof HasSharedState) {
-            ((HasSharedState) clone).setShared(((HasSharedState) source).isShared());
+            ((HasSharedState) clone).setSharedUnit(((HasSharedState) source).getSharedUnit());
         }
 
         if (source instanceof HasConstState) {

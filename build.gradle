@@ -25,7 +25,3 @@ subprojects {
         testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
     }
 }
-
-task wrapper(type: Wrapper) {
-	gradleVersion = '4.6'
-}
