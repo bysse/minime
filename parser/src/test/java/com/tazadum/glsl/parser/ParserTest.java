@@ -54,6 +54,7 @@ class ParserTest {
             "sample out vec4 perSampleColor;",
 
             "buffer BufferName { int count; } Name;",
+            "buffer BufferName { int count; };",
             "uniform Transform { mat4 mv; uniform mat3 normal; };",
             "in Material {smooth in vec4 Color1; vec2 TexCoord; };",
 

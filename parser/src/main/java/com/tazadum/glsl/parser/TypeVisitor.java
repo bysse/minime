@@ -15,6 +15,7 @@ import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.logical.BooleanLeafNode;
 import com.tazadum.glsl.language.ast.logical.LogicalOperationNode;
 import com.tazadum.glsl.language.ast.logical.RelationalOperationNode;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
@@ -479,6 +480,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
         } catch (TypeException e) {
             throw new SourcePositionException(node, e.getMessage(), e);
         }
+    }
+
+    @Override
+    public GLSLType visitInterfaceBlockNode(InterfaceBlockNode node) {
+        return super.visitInterfaceBlockNode(node);
     }
 
     @Override

@@ -8,8 +8,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 /**
  * Created by erikb on 2018-10-29.
  */
-class ShaderTest {
-
+class FragmentShaderTest {
     @ParameterizedTest(name = "case: {0}")
     @DisplayName("Shader Optimization")
     @MethodSource("getShaders")

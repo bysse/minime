@@ -52,6 +52,7 @@ import static com.tazadum.glsl.language.model.StorageQualifier.OUT;
 import static com.tazadum.glsl.language.type.PredefinedType.INT;
 import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.parser.TypeCombination.anyOf;
+import static javax.print.attribute.standard.ColorSupported.NOT_SUPPORTED;
 
 public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
@@ -423,7 +424,6 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     public Node visitSingle_declaration(GLSLParser.Single_declarationContext ctx) {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final TypeNode typeNode = NodeUtil.cast(ctx.fully_specified_type().accept(this));
-        final StructDeclarationNode structDeclaration = typeNode.getStructDeclaration();
 
         if (ctx.IDENTIFIER() == null) {
             // early type declaration
@@ -734,7 +734,12 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     public Node visitStruct_init_declaration(GLSLParser.Struct_init_declarationContext ctx) {
         final SourcePosition position = SourcePosition.create(ctx.start);
         final TypeQualifierListNode qualifiers = NodeUtil.cast(ctx.type_qualifier().accept(this));
-        final String structIdentifier = ANTLRUtils.toString(ctx.IDENTIFIER(0), null);
+
+        // the block identifier is used externally to identify the buffer, just like the name for a uniform
+        // the struct identifier is the context identifier for all members if it's defined
+
+        final String blockIdentifier = ANTLRUtils.toString(ctx.IDENTIFIER(0), null);
+        final String structIdentifier = ANTLRUtils.toString(ctx.IDENTIFIER(1), null);
 
         StructDeclarationNode structDeclaration = new StructDeclarationNode(SourcePosition.create(ctx.struct_declaration(0).start), structIdentifier);
         for (GLSLParser.Struct_declarationContext declarationContext : ctx.struct_declaration()) {
@@ -748,6 +753,39 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         if (ctx.array_specifier() != null) {
             final ArraySpecifierNode specifierNode = NodeUtil.cast(ctx.array_specifier().accept(this));
             arraySpecifiers = specifierNode.getArraySpecifiers();
+        }
+
+        // register the declaration and usage of the type to enable easy look up for later passes
+
+        if (structIdentifier == null) {
+            if (arraySpecifiers != null) {
+                // this is not supported since there would be no way of indexing the array
+                throw new SourcePositionException(position, NOT_SUPPORTED("anonymous interface block with array specifiers"));
+            }
+
+            // no struct identifier, the members should be declared in the global context
+
+            for (int i = 0; i < structDeclaration.getChildCount(); i++) {
+                VariableDeclarationListNode declarationList = structDeclaration.getFieldDeclarationList(i);
+                for (int j = 0; j < declarationList.getChildCount(); j++) {
+                    VariableDeclarationNode declarationNode = NodeUtil.cast(declarationList.getChild(j));
+                    parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
+                    parserContext.getTypeRegistry().usage(contextAware.currentContext(), declarationNode.getFullySpecifiedType().getType(), declarationNode);
+                }
+            }
+        } else {
+
+            // this is a bit more complicated since we could have an array specifier on the struct identifier
+
+            SourcePosition sourcePosition = SourcePosition.create(ctx.IDENTIFIER(1).getSymbol());
+            StructType structType = new StructType(structDeclaration);
+            FullySpecifiedType fullySpecifiedType = new FullySpecifiedType(structType);
+
+            // create an artificial variable declaration node
+            VariableDeclarationNode declarationNode = new VariableDeclarationNode(sourcePosition, false, fullySpecifiedType, structIdentifier, arraySpecifiers, null, structDeclaration);
+
+            parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
+            parserContext.getTypeRegistry().usage(contextAware.currentContext(), structType, declarationNode);
         }
 
         return new InterfaceBlockNode(position, qualifiers.getTypeQualifiers(), structDeclaration, identifier, arraySpecifiers);

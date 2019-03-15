@@ -92,6 +92,8 @@ Date    Hours
 2018-11-10  1.0 Added so that multiple shaders can be processed and written to teh same c-header.
 2018-11-27  0.5 Changed shared state to strings.
 
+2019-03-15  1.0 Added compiler support for interface blocks.
+
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Add more complex arithmetic simplifications
