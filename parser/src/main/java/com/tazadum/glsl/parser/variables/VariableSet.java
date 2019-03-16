@@ -164,7 +164,7 @@ public class VariableSet {
             arraySpecifiers.addSpecifier(new ArraySpecifier(TOP, arrayDimension));
         }
 
-        return new InterfaceBlockNode(TOP, qualifierList, structDeclaration, instanceName, arraySpecifiers);
+        return new InterfaceBlockNode(TOP, qualifierList, structDeclaration, null, instanceName, arraySpecifiers);
     }
 
 

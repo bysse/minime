@@ -11,20 +11,29 @@ import com.tazadum.glsl.util.SourcePosition;
 
 public class InterfaceBlockNode extends FixedChildParentNode implements UnresolvedNode {
     private final TypeQualifierList qualifiers;
+    private final Identifier blockIdentifier;
     private final Identifier identifier;
     private final ArraySpecifiers arraySpecifiers;
 
-    public InterfaceBlockNode(SourcePosition position, TypeQualifierList qualifiers, StructDeclarationNode structDeclaration, String identifier, ArraySpecifiers arraySpecifiers) {
-        this(position, null, qualifiers, structDeclaration, identifier, arraySpecifiers);
+    public InterfaceBlockNode(SourcePosition position, TypeQualifierList qualifiers, StructDeclarationNode structDeclaration, String blockIdentifier, String identifier, ArraySpecifiers arraySpecifiers) {
+        this(position, null, qualifiers, structDeclaration, blockIdentifier, identifier, arraySpecifiers);
     }
 
-    public InterfaceBlockNode(SourcePosition position, ParentNode parentNode, TypeQualifierList qualifiers, StructDeclarationNode structDeclaration, String identifier, ArraySpecifiers arraySpecifiers) {
+    public InterfaceBlockNode(SourcePosition position, ParentNode parentNode, TypeQualifierList qualifiers, StructDeclarationNode structDeclaration, String blockIdentifier, String identifier, ArraySpecifiers arraySpecifiers) {
         super(position, 1, parentNode);
         this.qualifiers = qualifiers;
+        this.blockIdentifier = Identifier.orNull(blockIdentifier);
         this.identifier = Identifier.orNull(identifier);
         this.arraySpecifiers = arraySpecifiers;
 
         setChild(0, structDeclaration);
+    }
+
+    /**
+     * Returns the external interface block name or null.
+     */
+    public Identifier getBlockIdentifier() {
+        return blockIdentifier;
     }
 
     /**

@@ -22,6 +22,24 @@ public class ConstructorsFunctionSet implements FunctionSet {
         declarator.function("float", FLOAT, GenSingleType);
         declarator.function("double", DOUBLE, GenSingleType);
 
+        declarator.function("int", UINT, GenVec2Type);
+        declarator.function("uint", UINT, GenVec2Type);
+        declarator.function("bool", BOOL, GenVec2Type);
+        declarator.function("float", FLOAT, GenVec2Type);
+        declarator.function("double", DOUBLE, GenVec2Type);
+
+        declarator.function("int", UINT, GenVec3Type);
+        declarator.function("uint", UINT, GenVec3Type);
+        declarator.function("bool", BOOL, GenVec3Type);
+        declarator.function("float", FLOAT, GenVec3Type);
+        declarator.function("double", DOUBLE, GenVec3Type);
+
+        declarator.function("int", UINT, GenVec4Type);
+        declarator.function("uint", UINT, GenVec4Type);
+        declarator.function("bool", BOOL, GenVec4Type);
+        declarator.function("float", FLOAT, GenVec4Type);
+        declarator.function("double", DOUBLE, GenVec4Type);
+
         // vec2 construction
         for (PredefinedType vec2 : GenVec2Type.types) {
             final String name = vec2.token();

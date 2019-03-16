@@ -463,6 +463,10 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             buffer.append(config.identifier(block.getIdentifier()));
         }
 
+        if (node.getBlockIdentifier() != null) {
+            buffer.append(config.identifier(node.getBlockIdentifier()));
+        }
+
         buffer.append('{');
         for (int i = 0; i < block.getChildCount(); i++) {
             block.getChild(i).accept(this);

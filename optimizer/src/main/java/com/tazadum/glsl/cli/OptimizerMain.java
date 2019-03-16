@@ -101,7 +101,7 @@ public class OptimizerMain {
 
         if (singleOutput) {
             if (!header) {
-                throw new StageException("All output will be written to the same file!");
+                //throw new StageException("All output will be written to the same file!");
             }
 
             final FileWriterStage writerStage = new FileWriterStage(inputOutputs.get(0).getOutput());

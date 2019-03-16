@@ -48,8 +48,9 @@ class SnippetTest {
 
     private static Arguments[] getSnippets() {
         return new Arguments[]{
-                ok("layout(binding=1) buffer P { vec4 pos[]; };void main(){pos[0]=vec4(1);}"),
-                ok("layout(binding=1) buffer P { vec4 pos[]; } p;void main(){p.pos[0]=vec4(1);}"),
+                //ok("layout(binding=1) buffer P { vec4 pos[]; };void main(){pos[0]=vec4(1);}"),
+                //ok("layout(binding=1) buffer P { vec4 pos[]; } p;void main(){p.pos[0]=vec4(1);}"),
+                ok("uvec3 a;uint b=int(a);"),
         };
     }
 

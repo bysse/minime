@@ -739,15 +739,13 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         // the struct identifier is the context identifier for all members if it's defined
 
         final String blockIdentifier = ANTLRUtils.toString(ctx.IDENTIFIER(0), null);
-        final String structIdentifier = ANTLRUtils.toString(ctx.IDENTIFIER(1), null);
+        final String identifier = ANTLRUtils.toString(ctx.IDENTIFIER(1), null);
 
-        StructDeclarationNode structDeclaration = new StructDeclarationNode(SourcePosition.create(ctx.struct_declaration(0).start), structIdentifier);
+        StructDeclarationNode structDeclaration = new StructDeclarationNode(SourcePosition.create(ctx.struct_declaration(0).start), identifier);
         for (GLSLParser.Struct_declarationContext declarationContext : ctx.struct_declaration()) {
             VariableDeclarationListNode fieldDeclaration = NodeUtil.cast(declarationContext.accept(this));
             structDeclaration.addFieldDeclaration(fieldDeclaration);
         }
-
-        final String identifier = ANTLRUtils.toString(ctx.IDENTIFIER(1), null);
 
         ArraySpecifiers arraySpecifiers = null;
         if (ctx.array_specifier() != null) {
@@ -757,7 +755,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
         // register the declaration and usage of the type to enable easy look up for later passes
 
-        if (structIdentifier == null) {
+        if (identifier == null) {
             if (arraySpecifiers != null) {
                 // this is not supported since there would be no way of indexing the array
                 throw new SourcePositionException(position, NOT_SUPPORTED("anonymous interface block with array specifiers"));
@@ -782,13 +780,13 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             FullySpecifiedType fullySpecifiedType = new FullySpecifiedType(structType);
 
             // create an artificial variable declaration node
-            VariableDeclarationNode declarationNode = new VariableDeclarationNode(sourcePosition, false, fullySpecifiedType, structIdentifier, arraySpecifiers, null, structDeclaration);
+            VariableDeclarationNode declarationNode = new VariableDeclarationNode(sourcePosition, false, fullySpecifiedType, identifier, arraySpecifiers, null, structDeclaration);
 
             parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
             parserContext.getTypeRegistry().usage(contextAware.currentContext(), structType, declarationNode);
         }
 
-        return new InterfaceBlockNode(position, qualifiers.getTypeQualifiers(), structDeclaration, identifier, arraySpecifiers);
+        return new InterfaceBlockNode(position, qualifiers.getTypeQualifiers(), structDeclaration, blockIdentifier, identifier, arraySpecifiers);
     }
 
     @Override

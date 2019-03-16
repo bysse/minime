@@ -5,6 +5,8 @@ import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
@@ -64,6 +66,14 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
             return ReplacingASTVisitor.REMOVE;
         }
 
+        // if this declaration is part of an interface block we can't squeeze it
+        if (NodeFinder.findParent(declarationList, InterfaceBlockNode.class) != null) {
+            return null;
+        }
+
+        // if this is a struct we can only squeeze inside the struct
+        final StructDeclarationNode parentStruct = NodeFinder.findParent(declarationList, StructDeclarationNode.class);
+
         final GLSLContext context = parserContext.findContext(declarationList);
         final ContextDeclarations declarations = contextMap.computeIfAbsent(context, ContextDeclarations::new);
         final SortedSet<VariableDeclarationListNode> allTypeDeclarations = declarations.findDeclarations(declarationList.getFullySpecifiedType());
@@ -71,10 +81,23 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
         // find earlier declaration lists of the same type
         for (VariableDeclarationListNode previousDeclaration : allTypeDeclarations) {
             if (previousDeclaration.getId() >= declarationList.getId()) {
-                //the declaration is after the current node id. since the set is sorted in id order, so once the
+                // the declaration is after the current node id. since the set is sorted in id order, so once the
                 // declarations are after the current declarationList no match will ever be found
                 declarations.register(declarationList);
                 return null;
+            }
+
+            if (parentStruct != null) {
+                // when declarations are inside a struct we have to limit the squeeze inside of the struct
+                final StructDeclarationNode declarationStruct = NodeFinder.findParent(previousDeclaration, StructDeclarationNode.class);
+                if (declarationStruct == null) {
+                    // this declaration is not part of a struct
+                    continue;
+                }
+                if (!parentStruct.hasEqualId(declarationStruct)) {
+                    // this declaration is not part of the same struct
+                    continue;
+                }
             }
 
             // check if any of the variable initializers are modified between the current declaration of the variable

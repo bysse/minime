@@ -93,6 +93,7 @@ Date    Hours
 2018-11-27  0.5 Changed shared state to strings.
 
 2019-03-15  1.0 Added compiler support for interface blocks.
+2019-03-16  1.0 Added struct support to the declaration squeeze optimizer.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
