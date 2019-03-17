@@ -122,7 +122,7 @@ public class CommandLineBase {
 
                     Path outputPath = Paths.get(output);
                     if (!outputPath.isAbsolute()) {
-                        outputPath = inputPath.toAbsolutePath().getParent().resolve(outputPath);
+                        outputPath = outputPath.toAbsolutePath();
                     }
 
                     if (Files.isDirectory(outputPath)) {

@@ -38,7 +38,7 @@ public class PreprocessorStage implements Stage<Path, String> {
 
             return StageData.from(result.getSource(), result.getMapper());
         } catch (IOException e) {
-            throw new StageException(e.getMessage(), e);
+            throw new StageException(e.getMessage() + ":" + input.getData(), e);
         }
     }
 }

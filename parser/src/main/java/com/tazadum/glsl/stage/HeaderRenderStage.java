@@ -86,8 +86,13 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
 
             VariableRegistryContext variableContext = entry.getValue();
             for (VariableDeclarationNode declarationNode : variableContext.getVariables()) {
+                if (declarationNode.isBuiltIn()) {
+                    // skip all built-in variables
+                    continue;
+                }
                 TypeQualifierList qualifiers = declarationNode.getFullySpecifiedType().getQualifiers();
-                if (qualifiers.contains(StorageQualifier.UNIFORM)) {
+                if (!qualifiers.contains(StorageQualifier.UNIFORM)) {
+                    // skip everything that isn't a uniform
                     continue;
                 }
 
