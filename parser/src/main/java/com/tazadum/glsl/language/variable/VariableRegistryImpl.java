@@ -4,13 +4,22 @@ import com.tazadum.glsl.exception.VariableException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
+import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.ast.util.NodeUtil;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.ContextAware;
 import com.tazadum.glsl.language.context.GLSLContext;
+import com.tazadum.glsl.language.model.ArraySpecifiers;
+import com.tazadum.glsl.language.type.FullySpecifiedType;
+import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.StructType;
+import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.variables.VariableSet;
+import com.tazadum.glsl.util.SourcePosition;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -191,8 +200,37 @@ public class VariableRegistryImpl implements VariableRegistry {
         }
 
         for (InterfaceBlockNode declarationNode : variableSet.getInterfaceBlocks()) {
-            // TODO: implement
-            System.err.println("Implement interface node registrations");
+            final StructDeclarationNode structDeclaration = declarationNode.getInterfaceStruct();
+            final Identifier identifier = declarationNode.getIdentifier();
+            final ArraySpecifiers arraySpecifier = declarationNode.getArraySpecifier();
+
+            if (identifier == null) {
+                // no struct identifier, the members should be declared in the global context
+
+                for (int i = 0; i < structDeclaration.getChildCount(); i++) {
+                    VariableDeclarationListNode declarationList = structDeclaration.getFieldDeclarationList(i);
+                    for (int j = 0; j < declarationList.getChildCount(); j++) {
+                        declareVariable(glslContext, NodeUtil.cast(declarationList.getChild(j)));
+                    }
+                }
+            } else {
+                // built the type as a struct and apply the array specifies if they are not null
+                GLSLType glslType = new StructType(structDeclaration);
+                if (arraySpecifier != null) {
+                    glslType = arraySpecifier.transform(glslType);
+                }
+
+                // create an artificial variable declaration node
+                VariableDeclarationNode node = new VariableDeclarationNode(
+                        SourcePosition.TOP, true,
+                        new FullySpecifiedType(glslType),
+                        identifier.original(),
+                        arraySpecifier, null,
+                        structDeclaration
+                );
+
+                declareVariable(glslContext, node);
+            }
         }
     }
 

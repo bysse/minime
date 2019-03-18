@@ -776,14 +776,19 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             // this is a bit more complicated since we could have an array specifier on the struct identifier
 
             SourcePosition sourcePosition = SourcePosition.create(ctx.IDENTIFIER(1).getSymbol());
-            StructType structType = new StructType(structDeclaration);
-            FullySpecifiedType fullySpecifiedType = new FullySpecifiedType(structType);
+
+            GLSLType glslType = new StructType(structDeclaration);
+            if (arraySpecifiers != null) {
+                 glslType = arraySpecifiers.transform(glslType);
+            }
+
+            FullySpecifiedType fullySpecifiedType = new FullySpecifiedType(glslType);
 
             // create an artificial variable declaration node
             VariableDeclarationNode declarationNode = new VariableDeclarationNode(sourcePosition, false, fullySpecifiedType, identifier, arraySpecifiers, null, structDeclaration);
 
             parserContext.getVariableRegistry().declareVariable(contextAware.currentContext(), declarationNode);
-            parserContext.getTypeRegistry().usage(contextAware.currentContext(), structType, declarationNode);
+            parserContext.getTypeRegistry().usage(contextAware.currentContext(), glslType, declarationNode);
         }
 
         return new InterfaceBlockNode(position, qualifiers.getTypeQualifiers(), structDeclaration, blockIdentifier, identifier, arraySpecifiers);

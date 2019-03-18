@@ -1,5 +1,6 @@
 package com.tazadum.glsl.language.function;
 
+import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.model.StorageQualifier;
@@ -48,6 +49,51 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
 
         final PredefinedType predefinedType = HasToken.fromString(identifier.original(), PredefinedType.values());
         if (predefinedType != null && !TypeCombination.ofCategory(TypeCategory.Opaque, predefinedType)) {
+
+            // attempt at resolving matrix constructors
+            if (TypeCombination.ofCategory(TypeCategory.Matrix, predefinedType)) {
+                final GLSLType[] parameterTypes = prototypeMatcher.getParameterTypes();
+
+                // count the number of components that are present in the specified constructor
+
+                int parameters = 0;
+                for (GLSLType parameterType : parameterTypes) {
+                    if (!TypeCombination.ofAnyCategory(parameterType, TypeCategory.Scalar, TypeCategory.Vector)) {
+
+                        // we only scalars and matrices in the constructor
+
+                        parameters = 0;
+                        break;
+                    }
+
+                    final PredefinedType type = (PredefinedType)parameterType;
+                    parameters += type.components();
+
+                    // verify that the types are compatible with the matrix base type
+                    if (null == TypeCombination.compatibleTypeNoException(type.baseType(), type.baseType())) {
+
+                        // the components can't be assigned to each other
+
+                        parameters = 0;
+                        break;
+                    }
+                }
+
+                if (parameters == predefinedType.columns() * predefinedType.rows()) {
+                    // this is a match, build a function prototype for it
+                    final FunctionPrototypeNode prototypeNode = new FunctionPrototypeNode(
+                            SourcePosition.TOP,
+                            identifier.original(),
+                            new FullySpecifiedType(predefinedType)
+                    );
+                    prototypeNode.setPrototype(new FunctionPrototype(true, predefinedType, parameterTypes));
+
+                    // register the function
+                    function(prototypeNode);
+                    return prototypeNode;
+                }
+            }
+
             // create array constructor nodes on the fly
             if (!prototypeMatcher.hasWildcards()) {
                 final GLSLType[] parameterTypes = prototypeMatcher.getParameterTypes();
