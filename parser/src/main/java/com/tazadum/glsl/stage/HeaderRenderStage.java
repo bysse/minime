@@ -113,7 +113,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         if (versionSupplier != null) {
             GLSLVersion version = versionSupplier.get();
             if (version != null) {
-                prefix = String.format("\"#version %d\n\"", version.getVersionCode());
+                prefix = String.format("\"#version %d\\n\"", version.getVersionCode());
             }
         }
 
