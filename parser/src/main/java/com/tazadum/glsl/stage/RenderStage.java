@@ -41,7 +41,7 @@ public class RenderStage implements Stage<Pair<Node, ParserContext>, String> {
             String prefix = "";
             if (versionSupplier != null) {
                 GLSLVersion version = versionSupplier.get();
-                if (version != null) {
+                if (version != null && version != GLSLVersion.OpenGL20) {
                     prefix = String.format("#version %d\n", version.getVersionCode());
                 }
             }

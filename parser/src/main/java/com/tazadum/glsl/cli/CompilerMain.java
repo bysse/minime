@@ -75,7 +75,8 @@ public class CompilerMain {
                 final String shaderId = compilerOption.getShaderId(inputOutput.getInput());
                 final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
 
-                renderStage = new HeaderRenderStage(shaderId, shaderHeader, config)
+
+                renderStage = new HeaderRenderStage(shaderId, shaderHeader, config.edit().indentation(4).build())
                         .setVersionSupplier(() -> preprocess.getResult().getGLSLVersion());
             } else {
                 renderStage = new RenderStage(config, compilerOption.getOutputFormat())
