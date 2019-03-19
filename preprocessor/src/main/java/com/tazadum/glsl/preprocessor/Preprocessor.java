@@ -1,5 +1,6 @@
 package com.tazadum.glsl.preprocessor;
 
+import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 
@@ -56,5 +57,11 @@ public interface Preprocessor {
          * @return A non-null SourcePositionMapper instance.
          */
         SourcePositionMapper getMapper();
+
+        /**
+         * Returns the GLSL version of the shader.
+         * @return A non-null GLSL shader version
+         */
+        GLSLVersion getGLSLVersion();
     }
 }

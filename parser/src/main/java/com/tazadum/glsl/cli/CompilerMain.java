@@ -29,11 +29,11 @@ public class CompilerMain {
         CompilerOptions compilerOption = new CompilerOptions(4, true);
 
         CommandLineBase cli = new CommandLineBase(
-            CompilerMain.class.getName(),
-            "GLSL Parser and type checker.",
-            false,
-            preprocessorOption,
-            compilerOption
+                CompilerMain.class.getName(),
+                "GLSL Parser and type checker.",
+                false,
+                preprocessorOption,
+                compilerOption
         );
 
 
@@ -65,31 +65,33 @@ public class CompilerMain {
             Stage<Pair<Node, ParserContext>, String> renderStage;
 
             final OutputConfig config = new OutputConfigBuilder()
-                .identifierMode(IdentifierOutputMode.Original)
-                .indentation(compilerOption.getIndentation())
-                .renderNewLines(compilerOption.isNewLines())
-                .blacklistKeyword(compilerOption.getKeywords())
-                .build();
+                    .identifierMode(IdentifierOutputMode.Original)
+                    .indentation(compilerOption.getIndentation())
+                    .renderNewLines(compilerOption.isNewLines())
+                    .blacklistKeyword(compilerOption.getKeywords())
+                    .build();
 
             if (compilerOption.getOutputFormat() == OutputFormat.C_HEADER) {
                 final String shaderId = compilerOption.getShaderId(inputOutput.getInput());
                 final String shaderHeader = generateShaderHeader(compilerOption.getShaderType());
 
-                renderStage = new HeaderRenderStage(shaderId, shaderHeader, config);
+                renderStage = new HeaderRenderStage(shaderId, shaderHeader, config)
+                        .setVersionSupplier(() -> preprocess.getResult().getGLSLVersion());
             } else {
-                renderStage = new RenderStage(config, compilerOption.getOutputFormat());
+                renderStage = new RenderStage(config, compilerOption.getOutputFormat())
+                        .setVersionSupplier(() -> preprocess.getResult().getGLSLVersion());
             }
 
             // setup the output
             FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
 
             StagePipeline<Path, String> pipeline = StagePipeline
-                .create(preprocess)
-                .chain(postPreprocess)
-                .chain(compile)
-                .chain(renderStage)
-                .chain(writerStage)
-                .build();
+                    .create(preprocess)
+                    .chain(postPreprocess)
+                    .chain(compile)
+                    .chain(renderStage)
+                    .chain(writerStage)
+                    .build();
 
             pipeline.process(new PathStageData(inputOutput.getInput()));
             System.exit(RET_OK);

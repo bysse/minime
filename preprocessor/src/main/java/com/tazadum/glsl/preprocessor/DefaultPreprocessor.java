@@ -4,6 +4,7 @@ import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.preprocessor.language.Node;
 import com.tazadum.glsl.preprocessor.language.PreprocessorVisitor;
+import com.tazadum.glsl.preprocessor.language.ast.VersionDeclarationNode;
 import com.tazadum.glsl.preprocessor.model.MacroDefinition;
 import com.tazadum.glsl.preprocessor.model.MacroRegistry;
 import com.tazadum.glsl.preprocessor.model.PreprocessorState;
@@ -104,7 +105,7 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         List<String> warnings = state.getLogKeeper().getWarnings();
-        return new DefaultResult(commentStage.getMapper(), output.toString(), warnings);
+        return new DefaultResult(commentStage.getMapper(), output.toString(), warnings, state.getGLSLVersion());
     }
 
     private void processLine(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
@@ -359,11 +360,13 @@ public class DefaultPreprocessor implements Preprocessor {
         private final SourcePositionMapper mapper;
         private final String source;
         private final List<String> warnings;
+        private final GLSLVersion version;
 
-        public DefaultResult(SourcePositionMapper mapper, String source, List<String> warnings) {
+        public DefaultResult(SourcePositionMapper mapper, String source, List<String> warnings, GLSLVersion version) {
             this.mapper = mapper;
             this.source = source;
             this.warnings = new ArrayList<>(warnings);
+            this.version = version;
         }
 
         @Override
@@ -379,6 +382,11 @@ public class DefaultPreprocessor implements Preprocessor {
         @Override
         public SourcePositionMapper getMapper() {
             return mapper;
+        }
+
+        @Override
+        public GLSLVersion getGLSLVersion() {
+            return version;
         }
     }
 }

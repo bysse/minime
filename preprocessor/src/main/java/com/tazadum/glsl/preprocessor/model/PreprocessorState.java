@@ -92,6 +92,10 @@ public class PreprocessorState {
         }
     }
 
+    public GLSLVersion getGLSLVersion() {
+        return version;
+    }
+
     private class StateVisitor implements Declaration.Visitor {
         @Override
         public void visit(ExtensionDeclarationNode node) {

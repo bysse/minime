@@ -17,9 +17,14 @@ import java.nio.file.Path;
 public class PreprocessorStage implements Stage<Path, String> {
     private Logger logger = LoggerFactory.getLogger(PreprocessorStage.class);
     private Preprocessor preprocessor;
+    private Preprocessor.Result result;
 
     public PreprocessorStage(GLSLVersion glslVersion) {
         preprocessor = new DefaultPreprocessor(glslVersion);
+    }
+
+    public Preprocessor.Result getResult() {
+        return result;
     }
 
     public void define(String macro, String value) {
@@ -30,7 +35,7 @@ public class PreprocessorStage implements Stage<Path, String> {
     public StageData<String> process(StageData<Path> input) {
         try {
             Source source = new FileSource(input.getData());
-            Preprocessor.Result result = preprocessor.process(source);
+            result = preprocessor.process(source);
 
             for (String warning : result.getWarnings()) {
                 logger.warn(warning);

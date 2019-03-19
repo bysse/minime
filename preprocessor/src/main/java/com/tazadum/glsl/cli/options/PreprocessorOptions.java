@@ -31,7 +31,7 @@ public class PreprocessorOptions implements CLIOptions {
 
     @Override
     public void configure(OptionParser parser) {
-        versionSpec = parser.accepts("fglsl-version", "Sets the OpenGL version used in preprocessing.")
+        versionSpec = parser.accepts("fglsl-version", "Sets the OpenGL version used in pre-processing.")
             .withRequiredArg().describedAs("int")
             .defaultsTo(Objects.toString(GLSLVersion.OpenGL46.getVersionCode()));
 

@@ -13,11 +13,13 @@ import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistryContext;
 import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,6 +33,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
     private final String shaderId;
     private final String shaderHeader; // only used for shader toy shaders where the uniforms are not included in the source
     private final String indentation;
+    private Supplier<GLSLVersion> versionSupplier;
 
     public HeaderRenderStage(String shaderName, String shaderHeader, OutputConfig outputConfig) {
         this.shaderHeader = shaderHeader;
@@ -106,8 +109,16 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         }
         builder.append('\n');
 
+        String prefix = "";
+        if (versionSupplier != null) {
+            GLSLVersion version = versionSupplier.get();
+            if (version != null) {
+                prefix = String.format("\"#version %d\n\"", version.getVersionCode());
+            }
+        }
+
         builder.append("// shader source\n");
-        builder.append("const char *shader_").append(shaderId).append(" = \n");
+        builder.append("const char *shader_").append(shaderId).append(" = ").append(prefix).append("\n");
 
         final Pattern commentPattern = Pattern.compile("\\s*/\\*\\s*(.+)\\s*\\*/", Pattern.DOTALL);
         final Pattern indentationPattern = Pattern.compile("^(\\s*)");
@@ -134,5 +145,10 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         builder.append("#endif // #ifndef ").append(MACRO).append("\n\n");
 
         return builder.toString();
+    }
+
+    public Stage<Pair<Node, ParserContext>, String> setVersionSupplier(Supplier<GLSLVersion> versionSupplier) {
+        this.versionSupplier = versionSupplier;
+        return this;
     }
 }

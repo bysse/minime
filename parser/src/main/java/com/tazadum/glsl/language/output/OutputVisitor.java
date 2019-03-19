@@ -23,11 +23,9 @@ import com.tazadum.glsl.language.ast.traits.IterationNode;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
+import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
-import com.tazadum.glsl.language.model.ArraySpecifiers;
-import com.tazadum.glsl.language.model.LayoutQualifier;
-import com.tazadum.glsl.language.model.LayoutQualifierId;
-import com.tazadum.glsl.language.model.SubroutineQualifier;
+import com.tazadum.glsl.language.model.*;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.preprocessor.model.HasToken;
 import com.tazadum.glsl.util.Provider;
@@ -116,8 +114,11 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     public SourceBuffer visitVariableDeclarationList(VariableDeclarationListNode node) {
         VariableDeclarationNode firstChild = node.getChildAs(0);
         if (firstChild.getIdentifier() != null) {
-            outputType(node.getFullySpecifiedType(), firstChild.getStructDeclaration());
-            buffer.append(config.identifierSpacing());
+            boolean inGlobalScope = NodeUtil.findContext(node) == null;
+            outputType(node.getFullySpecifiedType(), firstChild.getStructDeclaration(), inGlobalScope);
+            if (node.getChildCount() > 0) {
+                buffer.append(config.identifierSpacing());
+            }
         }
         outputChildCSV(node, 0, node.getChildCount());
         return buffer.append(';');
@@ -135,7 +136,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitParameterDeclaration(ParameterDeclarationNode node) {
-        outputType(node.getOriginalType(), null);
+        outputType(node.getOriginalType(), null, false);
 
         if (node.getIdentifier() != null) {
             buffer.append(config.identifierSpacing());
@@ -224,7 +225,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitFunctionPrototype(FunctionPrototypeNode node) {
-        outputType(node.getReturnType(), null);
+        outputType(node.getReturnType(), null, false);
 
         buffer.append(config.identifierSpacing());
         buffer.append(config.identifier(node.getIdentifier()));
@@ -368,7 +369,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitTypeDeclaration(TypeDeclarationNode node) {
-        outputType(node.getFullySpecifiedType(), node.getStructDeclaration());
+        outputType(node.getFullySpecifiedType(), node.getStructDeclaration(), true);
         //outputType(node.getFullySpecifiedType(), null);
         return buffer;
     }
@@ -429,7 +430,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitTypeQualifierDeclarationNode(TypeQualifierDeclarationNode node) {
-        outputTypeQualifiers(node.getQualifiers());
+        outputTypeQualifiers(node.getQualifiers(), true);
         return buffer;
     }
 
@@ -453,7 +454,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     @Override
     public SourceBuffer visitInterfaceBlockNode(InterfaceBlockNode node) {
-        outputTypeQualifiers(node.getTypeQualifier());
+        outputTypeQualifiers(node.getTypeQualifier(), true);
         buffer.appendSpace();
 
         // the struct output needs to be inline since the keyword 'struct' shouldn't be rendered.
@@ -498,11 +499,11 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     private boolean noSemiColon(Node node) {
         return node instanceof FunctionDefinitionNode ||
-            node instanceof IterationNode;
+                node instanceof IterationNode;
     }
 
-    private void outputType(FullySpecifiedType type, StructDeclarationNode structDeclaration) {
-        if (outputTypeQualifiers(type.getQualifiers())) {
+    private void outputType(FullySpecifiedType type, StructDeclarationNode structDeclaration, boolean inGlobalScope) {
+        if (outputTypeQualifiers(type.getQualifiers(), inGlobalScope)) {
             buffer.appendSpace();
         }
 
@@ -531,7 +532,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         return type.token();
     }
 
-    private boolean outputTypeQualifiers(TypeQualifierList typeQualifier) {
+    private boolean outputTypeQualifiers(TypeQualifierList typeQualifier, boolean inGlobalScope) {
         if (typeQualifier == null || typeQualifier.isEmpty()) {
             return false;
         }
@@ -545,7 +546,21 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
             if (qualifier instanceof HasToken) {
                 final String token = ((HasToken) qualifier).token();
-                buffer.append(config.keyword(token));
+                if (inGlobalScope && qualifier instanceof StorageQualifier) {
+                    // if the declaration is in global scope we need to let IN / OUT storage qualifiers through
+                    switch ((StorageQualifier) qualifier) {
+                        case IN:
+                        case OUT:
+                            buffer.append(token);
+                            break;
+                        default:
+                            buffer.append(config.keyword(token));
+                            break;
+
+                    }
+                } else {
+                    buffer.append(config.keyword(token));
+                }
                 continue;
             }
 

@@ -6,6 +6,7 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.*;
+import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.language.variable.VariableRegistry;
@@ -32,6 +33,23 @@ public class NodeUtil {
             return getSourcePosition(((FieldSelectionNode) node).getExpression());
         }
         return node.getSourcePosition();
+    }
+
+    /**
+     * Attempts to find the context of a node
+     *
+     * @param node Node to find context for
+     * @return The context or null if it's in global scope.
+     */
+    public static GLSLContext findContext(Node node) {
+        if (node instanceof GLSLContext) {
+            return (GLSLContext) node;
+        }
+        final ParentNode parentNode = node.getParentNode();
+        if (parentNode != null) {
+            return findContext(parentNode);
+        }
+        return null;
     }
 
 
