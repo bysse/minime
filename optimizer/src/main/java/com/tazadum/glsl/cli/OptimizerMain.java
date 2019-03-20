@@ -163,7 +163,9 @@ public class OptimizerMain {
 
         if (compilerOption.getOutputFormat() == OutputFormat.C_HEADER) {
             final String shaderId = compilerOption.getShaderId(inputOutput.getInput());
-            renderStage = new HeaderRenderStage(shaderId, "", outputConfig)
+            final OutputConfig headerOutputConfig = outputConfig.edit().indentation(4).build();
+
+            renderStage = new HeaderRenderStage(shaderId, "", headerOutputConfig)
                     .setVersionSupplier(() -> preprocess.getResult().getGLSLVersion());
         } else {
             renderStage = new RenderStage(outputConfig, compilerOption.getOutputFormat())
