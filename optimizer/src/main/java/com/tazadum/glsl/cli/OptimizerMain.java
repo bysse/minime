@@ -100,10 +100,6 @@ public class OptimizerMain {
             .build();
 
         if (singleOutput) {
-            if (!header) {
-                throw new StageException("All output will be written to the same file!");
-            }
-
             final FileWriterStage writerStage = new FileWriterStage(inputOutputs.get(0).getOutput());
             final ConcatStage concatStage = new ConcatStage("\n");
 
@@ -121,6 +117,10 @@ public class OptimizerMain {
 
             writerStage.process(StageData.from(concatStage.getData(), null));
         } else {
+            if (!header) {
+                throw new StageException("All output will be written to the same file!");
+            }
+
             for (InputOutput inputOutput : inputOutputs) {
                 final OptimizerReport report = new OptimizerReport();
                 final FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());

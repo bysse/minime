@@ -3,6 +3,9 @@ package com.tazadum.glsl.parser;
 import com.tazadum.glsl.TestUtil;
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.util.SourcePosition;
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.junit.jupiter.api.DisplayName;
@@ -24,6 +27,11 @@ class SnippetTest {
         ParserContext parserContext = TestUtil.parserContext();
         ParserRuleContext context = TestUtil.parse(source);
 
+        OutputConfig outputConfig = new OutputConfigBuilder()
+                .renderNewLines(true)
+                .indentation(4)
+                .build();
+
         try {
             Node node = TestUtil.ast(context, parserContext);
             assertNotNull(node);
@@ -33,6 +41,8 @@ class SnippetTest {
             if (sourcePosition != null) {
                 fail("No exception thrown! Expected type problem at " + sourcePosition.format());
             }
+
+            System.out.println(new OutputRenderer().render(node, outputConfig));
         } catch (SourcePositionException e) {
             if (sourcePosition == null) {
                 e.printStackTrace();

@@ -459,10 +459,6 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
         // the struct output needs to be inline since the keyword 'struct' shouldn't be rendered.
         final StructDeclarationNode block = node.getInterfaceStruct();
-        if (block.getIdentifier() != null) {
-            buffer.appendSpace();
-            buffer.append(config.identifier(block.getIdentifier()));
-        }
 
         if (node.getBlockIdentifier() != null) {
             buffer.append(config.identifier(node.getBlockIdentifier()));

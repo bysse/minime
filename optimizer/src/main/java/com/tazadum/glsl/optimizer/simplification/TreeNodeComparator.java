@@ -3,6 +3,7 @@ package com.tazadum.glsl.optimizer.simplification;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
@@ -27,10 +28,13 @@ public class TreeNodeComparator implements NodeComparator {
             return false;
         }
 
+        return CloneUtils.equal(a, b);
+        /*
         OutputVisitor visitor = new OutputVisitor(config);
         String sourceA = a.accept(visitor).get();
         String sourceB = b.accept(visitor).get();
         return sourceA.equals(sourceB);
+        */
     }
 
     private boolean safeOperations(Node node) {

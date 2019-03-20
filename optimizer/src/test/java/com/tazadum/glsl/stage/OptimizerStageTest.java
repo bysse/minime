@@ -77,7 +77,7 @@ class OptimizerStageTest extends BaseTest {
         StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), mapper));
         Node optimizedNode = data.getData().getFirst();
 
-        System.out.println("");
+        System.out.println();
         System.out.println(toString(optimizedNode));
     }
 }
