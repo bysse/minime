@@ -30,7 +30,12 @@ public class NumericOperation {
             abd = abd.setScale(scaleB, BigDecimal.ROUND_HALF_UP);
         }
 
-        return new Numeric(abd.divide(b.getValue(), BigDecimal.ROUND_HALF_UP), negotiateType(a, b));
+        PredefinedType type = negotiateType(a, b);
+        if (type == PredefinedType.INT) {
+            type = PredefinedType.FLOAT;
+        }
+
+        return new Numeric(abd.divide(b.getValue(), BigDecimal.ROUND_HALF_UP), type);
     }
 
     public static Numeric mod(Numeric a, Numeric b) throws TypeException {

@@ -26,6 +26,7 @@ class FragmentShaderTest {
     private static Arguments[] getShaders() {
         return new Arguments[]{
                 Arguments.of("simple.glsl"),
+                Arguments.of("simple_macro.glsl"),
                 Arguments.of("basic_dof.glsl"),
                 Arguments.of("basic_raymarch.glsl"),
                 Arguments.of("drop.glsl"),

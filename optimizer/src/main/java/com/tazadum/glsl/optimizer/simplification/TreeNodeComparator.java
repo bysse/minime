@@ -11,15 +11,7 @@ import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputVisitor;
 
 public class TreeNodeComparator implements NodeComparator {
-    private OutputConfig config;
-
     public TreeNodeComparator() {
-        config = new OutputConfigBuilder()
-            .identifierMode(IdentifierOutputMode.None)
-            .significantDecimals(5)
-            .indentation(0)
-            .renderNewLines(false)
-            .build();
     }
 
     @Override
@@ -29,12 +21,6 @@ public class TreeNodeComparator implements NodeComparator {
         }
 
         return CloneUtils.equal(a, b);
-        /*
-        OutputVisitor visitor = new OutputVisitor(config);
-        String sourceA = a.accept(visitor).get();
-        String sourceB = b.accept(visitor).get();
-        return sourceA.equals(sourceB);
-        */
     }
 
     private boolean safeOperations(Node node) {

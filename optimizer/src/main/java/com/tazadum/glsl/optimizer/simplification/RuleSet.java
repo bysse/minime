@@ -124,7 +124,7 @@ public class RuleSet {
         List<Rule> list = new ArrayList<>();
 
         list.add(rule("0 / a = 0",
-            mDiv(mNumeric(), mAny()),
+            mDiv(mLiteral(0), mAny()),
             gNumeric(0)
         ));
 

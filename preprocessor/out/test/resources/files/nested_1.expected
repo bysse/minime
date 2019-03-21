@@ -1,6 +1,6 @@
 // #define A 1
 // #if A > 2
-// A
+// 1
 // #if A < 2
 // aA
 // #else

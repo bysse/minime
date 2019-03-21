@@ -97,7 +97,7 @@ Date    Hours
 2019-03-18  0.7 Added better support for exotic matrix constructors
 2019-03-19  2.0 Making sure the #version declaration propagates to the shader output.
 2019-03-20  1.0 Tracking down node comparison error in the pattern matcher.
-2019-03-21  0.3 Doing actual macro expansion.
+2019-03-21  1.0 Doing actual macro expansion solve int division to float.
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
