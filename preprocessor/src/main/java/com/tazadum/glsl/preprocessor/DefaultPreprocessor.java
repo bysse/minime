@@ -150,7 +150,7 @@ public class DefaultPreprocessor implements Preprocessor {
             output.append("// ");
         }
 
-        output.append(line);
+        output.append(expandMacros(lineNumber, line, 0));
         output.append('\n');
     }
 
@@ -353,7 +353,7 @@ public class DefaultPreprocessor implements Preprocessor {
     }
 
     private boolean isNotIdentifier(char ch) {
-        return isWhitespace(ch) && !isAlphaNumeric(ch);
+        return isWhitespace(ch) || !isAlphaNumeric(ch);
     }
 
     public static class DefaultResult implements Result {

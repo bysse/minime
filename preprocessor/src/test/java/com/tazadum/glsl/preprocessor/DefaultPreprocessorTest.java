@@ -43,20 +43,25 @@ class DefaultPreprocessorTest {
 
     private static Arguments[] getSourceLines() {
         return new Arguments[]{
-            Arguments.of("A MACRO B", "A expanded B"),
-            Arguments.of("A MACRO MACRO B", "A expanded expanded B"),
-            Arguments.of("A MACRO.B", "A MACRO.B"),
-            Arguments.of("A OPT() B", "A opt B"),
-            Arguments.of("A FUNC(1,2) B", "A 1+2 B"),
-            Arguments.of("A F(1+1) B", "A 1+1+1+1 B"),
-            Arguments.of(
-                "A\n#if 1\nB\n#endif\nC",
-                "A\n// #if 1\nB\n// #endif\nC"
-            ),
-            Arguments.of(
-                "A\n#if 0\nB\n#endif\nC",
-                "A\n// #if 0\n// B\n// #endif\nC"
-            ),
+                Arguments.of("A MACRO B", "A expanded B"),
+                Arguments.of("A MACRO MACRO B", "A expanded expanded B"),
+                Arguments.of("A MACRO.B", "A expanded.B"),
+                Arguments.of("A MACROB", "A MACROB"),
+                Arguments.of("A OPT() B", "A opt B"),
+                Arguments.of("A FUNC(1,2) B", "A 1+2 B"),
+                Arguments.of("A F(1+1) B", "A 1+1+1+1 B"),
+                Arguments.of(
+                        "A\n#if 1\nB\n#endif\nC",
+                        "A\n// #if 1\nB\n// #endif\nC"
+                ),
+                Arguments.of(
+                        "A\n#if 0\nB\n#endif\nC",
+                        "A\n// #if 0\n// B\n// #endif\nC"
+                ),
+                Arguments.of(
+                        "A\n#define B C\nA/B",
+                        "A\n// #define B C\nA/C"
+                )
         };
     }
 
@@ -83,15 +88,15 @@ class DefaultPreprocessorTest {
 
     private static Arguments[] getTestFiles() {
         return new Arguments[]{
-            Arguments.of("concat_1.input", "concat_1.expected", true),
-            Arguments.of("nested_1.input", "nested_1.expected", true),
-            Arguments.of("test_1.input", "test_1.expected", true),
-            Arguments.of("test_2.input", "test_2.expected", true),
-            Arguments.of("ifdef_1.input", "ifdef_1.expected", true),
-            Arguments.of("ifdef_2.input", "ifdef_2.expected", true),
-            Arguments.of("ifndef_1.input", "ifndef_1.expected", true),
-            Arguments.of("fail_1.input", null, false),
-            Arguments.of("fail_2.input", null, false)
+                Arguments.of("concat_1.input", "concat_1.expected", true),
+                Arguments.of("nested_1.input", "nested_1.expected", true),
+                Arguments.of("test_1.input", "test_1.expected", true),
+                Arguments.of("test_2.input", "test_2.expected", true),
+                Arguments.of("ifdef_1.input", "ifdef_1.expected", true),
+                Arguments.of("ifdef_2.input", "ifdef_2.expected", true),
+                Arguments.of("ifndef_1.input", "ifndef_1.expected", true),
+                Arguments.of("fail_1.input", null, false),
+                Arguments.of("fail_2.input", null, false)
         };
     }
 
