@@ -82,7 +82,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         VariableRegistry registry = context.getVariableRegistry();
         for (Map.Entry<GLSLContext, VariableRegistryContext> entry : registry.getDeclarationMap().entrySet()) {
             GLSLContext glslContext = entry.getKey();
-            if (glslContext.getParent() != null) {
+            if (!glslContext.isGlobal()) {
                 // skip everything that is not in global scope
                 continue;
             }

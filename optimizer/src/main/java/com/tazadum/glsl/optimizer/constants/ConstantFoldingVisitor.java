@@ -93,8 +93,8 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
                 VectorField field = new VectorField(type.baseType(), type, node.getSelection());
 
                 if (type.category() == TypeCategory.Vector &&
-                    field.components() <= type.components() &&
-                    node.getExpression() instanceof FunctionCallNode) {
+                        field.components() <= type.components() &&
+                        node.getExpression() instanceof FunctionCallNode) {
 
                     // this could be a constructor call with a field selection
                     final FunctionCallNode functionCall = (FunctionCallNode) node.getExpression();
@@ -191,10 +191,20 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
                         if (node != null) {
                             // only a few arguments can be replaced
                             changes++;
-                            functionCall.setChild(start, node);
+
+                            // replace and dereference the node that is at position start
+                            Node firstNode = functionCall.getChild(start);
+                            functionCall.replaceChild(firstNode, node);
+                            parserContext.dereferenceTree(firstNode);
+
+                            // reference the added node
+                            parserContext.referenceTree(node);
 
                             for (int j = 0; j < rle - 1; j++) {
-                                functionCall.removeChild(functionCall.getChild(start + 1)); // it's a list of nodes
+                                // dereference the node
+                                Node nodeToRemove = functionCall.getChild(start + 1);
+                                functionCall.removeChild(nodeToRemove); // it's a list of nodes
+                                parserContext.dereferenceTree(nodeToRemove);
                             }
                             i = start;
                         }
@@ -232,10 +242,13 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
         // only a few arguments can be replaced
         for (int i = 0; i < rle; i++) {
-            functionCall.removeChild(functionCall.getChild(start)); // it's a list of nodes
+            Node nodeToRemove = functionCall.getChild(start);
+            functionCall.removeChild(nodeToRemove); // it's a list of nodes
+            parserContext.dereferenceTree(nodeToRemove);
         }
 
         functionCall.addChild(node);
+        parserContext.referenceTree(node);
         changes++;
         return null;
     }

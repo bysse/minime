@@ -304,6 +304,12 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
         return null;
     }
 
+    @Override
+    public Node visitBlockNode(ContextBlockNode node) {
+        processParentNode(node);
+        return null;
+    }
+
     protected void processLeafNode(Node node) {
         if (firstNode == null) {
             firstNode = node;

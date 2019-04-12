@@ -101,4 +101,6 @@ public interface ASTVisitor<T> {
     T visitInterfaceBlockNode(InterfaceBlockNode node);
 
     T visitTypeDeclaration(TypeDeclarationNode node);
+
+    T visitBlockNode(ContextBlockNode node);
 }

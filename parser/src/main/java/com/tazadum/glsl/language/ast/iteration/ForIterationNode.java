@@ -84,6 +84,6 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
     }
 
     public String toString() {
-        return "for-iteration(id=" + getId() + ")";
+        return "for-iteration(id=" + getId() + ") [" + getInitialization() + "; " + getCondition() + "; " + getExpression() + "]";
     }
 }

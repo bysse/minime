@@ -81,7 +81,9 @@ public class ContextAwareLookup {
 
     private GLSLContext findContext(Node node) {
         if (node instanceof GLSLContext) {
-            return (GLSLContext) node;
+            if (contextMap.get(node) != null) {
+                return (GLSLContext) node;
+            }
         }
         if (node == null || node.getParentNode() == null) {
             return parentContext;

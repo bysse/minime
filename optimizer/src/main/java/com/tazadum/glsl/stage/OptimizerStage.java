@@ -37,8 +37,8 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     public StageData<Pair<Node, ParserContext>> process(StageData<Pair<Node, ParserContext>> input) {
         // TODO: Make a smarter tree pruning algorithm
         final TreePruner pruner = TreePruner.or(
-            TreePruner.byIterationDepth(options.iterationMaxDepth()),
-            TreePruner.bySizeDifference(options.branchMaxSize())
+                TreePruner.byIterationDepth(options.iterationMaxDepth()),
+                TreePruner.bySizeDifference(options.branchMaxSize())
         );
         final BranchingOptimizerPipeline pipeline = new BranchingOptimizerPipeline(pruner, outputConfig, options.iterationMaxDepth(), getOptimizers());
 
@@ -78,12 +78,14 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     private OptimizerType[] getOptimizers() {
         return OptimizerType.values();
         /*
-        return new OptimizerType[] {
-            OptimizerType.ArithmeticOptimizerType,
-            OptimizerType.DeclarationSqueezeType,
-            OptimizerType.ConstantPropagationType,
-            OptimizerType.ConstantFoldingType,
-            OptimizerType.FunctionInline
+        return new OptimizerType[]{
+                OptimizerType.DeadCodeEliminationType,
+                OptimizerType.ArithmeticOptimizerType,
+                OptimizerType.ConstantFoldingType,
+                OptimizerType.ConstantPropagationType,
+                OptimizerType.DeclarationSqueezeType,
+                OptimizerType.FunctionInline,
+
         };
         */
     }

@@ -93,7 +93,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
                 }
             } else {
                 ArraySpecifier first = arraySpecifiers.getSpecifiers().remove(0);
-                arraySpecifiers.addSpecifier(new ArraySpecifier(first.getSourcePosition(), size));
+                arraySpecifiers.addSpecifier(new ArraySpecifier(first.getSourcePosition()));
             }
         }
 

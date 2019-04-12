@@ -15,6 +15,7 @@ import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.slf4j.TLogConfiguration;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.event.Level;
 
@@ -89,6 +90,53 @@ class OptimizerStageTest extends BaseTest {
                 "  return mat2(cos_a,sin_a,-sin_a,cos_a);\n" +
                 "}\n" +
                 "void main() {gl_FragColor=vec4(0,0,vec2(1,2)*rot(1));}" +
+                "";
+
+        Node node = compile(parserContext, source);
+        SourcePositionMapper mapper = new SourcePositionMapper();
+        mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
+
+        StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), mapper));
+        Node optimizedNode = data.getData().getFirst();
+
+        System.out.println();
+        System.out.println(toString(optimizedNode));
+    }
+
+    @Test
+    void testSnippet2() {
+        String source = "vec3 tweak = vec3(10,9,0);\n" +
+                "vec3 wavy = vec3(1,2,0.5);\n" +
+                "vec4 x_landscape = vec4(tweak.x, tweak.y, tweak.z, wavy.z);\n" +
+                "mat2 rot(float angle) {\n" +
+                "  float cos_a=cos(angle);\n" +
+                "  float sin_a=sin(angle);\n" +
+                "  return mat2(cos_a,sin_a,-sin_a,cos_a);\n" +
+                "}\n" +
+                "void main() {\n" +
+                "for(int i=0;i<5;i++){\n"+
+                "  x_landscape.xz*=rot(float(i) + 1.21);" +
+                "}\n" +
+                "gl_FragColor=x_landscape;}" +
+                "";
+
+        Node node = compile(parserContext, source);
+        SourcePositionMapper mapper = new SourcePositionMapper();
+        mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
+
+        StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), mapper));
+        Node optimizedNode = data.getData().getFirst();
+
+        System.out.println();
+        System.out.println(toString(optimizedNode));
+    }
+
+    @Test
+    @DisplayName("vec array construction")
+    void testSnippet4() {
+        String source = "vec4 vecs[3]=vec4[](vec4(0),vec4(1),vec4(2));\n" +
+                "void main() {\n" +
+                "gl_FragColor=vecs[2];}" +
                 "";
 
         Node node = compile(parserContext, source);

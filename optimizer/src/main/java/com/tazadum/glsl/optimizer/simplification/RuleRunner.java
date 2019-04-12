@@ -27,7 +27,7 @@ public class RuleRunner {
         if (!rule.matches(node)) {
             return null;
         }
-        logger.trace("    - Applying rule {}", rule.getName());
+        logger.debug("    - Applying rule {}", rule.getName());
 
         // always dereference a matching node, the replacement will be
         // referenced by ReplacingASTVisitor later on.

@@ -65,4 +65,8 @@ public class RelationalOperationNode extends FixedChildParentNode implements Has
     public GLSLType getType() {
         return PredefinedType.BOOL;
     }
+
+    public String toString() {
+        return getLeft() + " " + operator.token() + " " + getRight();
+    }
 }

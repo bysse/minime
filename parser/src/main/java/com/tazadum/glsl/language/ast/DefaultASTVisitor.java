@@ -212,6 +212,12 @@ public class DefaultASTVisitor<T> implements ASTVisitor<T> {
     }
 
     @Override
+    public T visitBlockNode(ContextBlockNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
     public T visitBitOperation(BitOperationNode node) {
         visitChildren(node);
         return null;

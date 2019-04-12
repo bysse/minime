@@ -380,7 +380,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         if (latestDeclaration > startId) {
             // we have variable declarations after between the insertion point and the function call
             final Node statement = NodeFinder.findNearestStatement(functionCall);
-            if (statement == null || !(statement instanceof VariableDeclarationListNode)) {
+            if (!(statement instanceof VariableDeclarationListNode)) {
                 return null;
             }
 

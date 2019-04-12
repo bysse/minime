@@ -99,7 +99,7 @@ Date    Hours
 2019-03-20  1.0 Tracking down node comparison error in the pattern matcher.
 2019-03-21  1.0 Doing actual macro expansion solve int division to float.
 
-2019-04-12  1.0 Bug in parentNode.replaceChild causing reference errors.
+2019-04-12  3.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
 
 
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation

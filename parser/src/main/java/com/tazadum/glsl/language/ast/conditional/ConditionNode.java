@@ -1,10 +1,8 @@
 package com.tazadum.glsl.language.ast.conditional;
 
-import com.tazadum.glsl.language.ast.ASTVisitor;
-import com.tazadum.glsl.language.ast.FixedChildParentNode;
-import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
+import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
@@ -18,6 +16,7 @@ public class ConditionNode extends FixedChildParentNode {
 
     public ConditionNode(SourcePosition position, ParentNode parentNode, Node condition, Node thenNode, Node elseNode) {
         super(position, 3, parentNode);
+
         setChild(0, condition);
         setChild(1, thenNode);
         setChild(2, elseNode);
@@ -49,5 +48,13 @@ public class ConditionNode extends FixedChildParentNode {
     @Override
     public GLSLType getType() {
         return getThen().getType();
+    }
+
+    public String toString() {
+        String base = "if (" + getCondition() + ") " + getThen() + " ";
+        if (getElse() != null) {
+            base += " else " + getElse() + " ";
+        }
+        return base;
     }
 }

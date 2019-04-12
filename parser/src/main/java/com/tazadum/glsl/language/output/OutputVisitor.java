@@ -375,6 +375,12 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
     }
 
     @Override
+    public Provider<String> visitBlockNode(ContextBlockNode node) {
+        visitChildren(node);
+        return null;
+    }
+
+    @Override
     public SourceBuffer visitBitOperation(BitOperationNode node) {
         node.getLeft().accept(this);
         buffer.append(node.getOperator());

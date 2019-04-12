@@ -1077,14 +1077,28 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
     @Override
     public Node visitSelection_statement(GLSLParser.Selection_statementContext ctx) {
         final Node expression = ctx.expression().accept(this);
-        final Node thenNode = ctx.statement_with_scope(0).accept(this);
 
-        Node elseNode = null;
-        if (ctx.statement_with_scope(1) != null) {
-            elseNode = ctx.statement_with_scope(1).accept(this);
+        // create a context for the then-block
+        final ContextBlockNode thenContext = new ContextBlockNode(SourcePosition.create(ctx.statement_with_scope(0).start));
+        contextAware.enterContext(thenContext);
+
+        thenContext.setStatement(ctx.statement_with_scope(0).accept(this));
+
+        contextAware.exitContext();
+
+        if (ctx.statement_with_scope(1) == null) {
+            return new ConditionNode(SourcePosition.create(ctx.start), expression, thenContext, null);
         }
 
-        return new ConditionNode(SourcePosition.create(ctx.start), expression, thenNode, elseNode);
+        // create a context for the else-block
+        final ContextBlockNode elseContext = new ContextBlockNode(SourcePosition.create(ctx.statement_with_scope(0).start));
+        contextAware.enterContext(elseContext);
+
+        elseContext.setStatement(ctx.statement_with_scope(1).accept(this));
+
+        contextAware.exitContext();
+
+        return new ConditionNode(SourcePosition.create(ctx.start), expression, thenContext, elseContext);
     }
 
     @Override

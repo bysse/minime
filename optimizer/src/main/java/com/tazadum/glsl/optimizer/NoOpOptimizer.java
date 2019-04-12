@@ -1,5 +1,6 @@
 package com.tazadum.glsl.optimizer;
 
+import com.tazadum.glsl.language.ast.ContextBlockNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.StatementListNode;
 import com.tazadum.glsl.language.ast.arithmetic.*;
@@ -232,6 +233,11 @@ public class NoOpOptimizer extends BranchingOptimizer {
 
             @Override
             public Node visitTypeDeclaration(TypeDeclarationNode node) {
+                return null;
+            }
+
+            @Override
+            public Node visitBlockNode(ContextBlockNode node) {
                 return null;
             }
         };
