@@ -6,6 +6,7 @@ import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author erikb
@@ -160,7 +161,11 @@ public class ParentNode implements Node {
 
     public ParentNode replaceChild(Node replace, Node replacement) {
         replace.setParentNode(null);
-        childNodes.replaceAll((node) -> replace.equals(node) ? replacement : node);
+
+        int index = childNodes.indexOf(replace);
+        if (index >= 0) {
+            childNodes.set(index, replacement);
+        }
         replacement.setParentNode(this);
         invalidateId();
         return this;

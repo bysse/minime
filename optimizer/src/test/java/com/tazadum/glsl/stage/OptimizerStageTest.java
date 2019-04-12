@@ -80,4 +80,25 @@ class OptimizerStageTest extends BaseTest {
         System.out.println();
         System.out.println(toString(optimizedNode));
     }
+
+    @Test
+    void testSnippet() {
+        String source = "mat2 rot(float angle) {\n" +
+                "  float cos_a=cos(angle);\n" +
+                "  float sin_a=sin(angle);\n" +
+                "  return mat2(cos_a,sin_a,-sin_a,cos_a);\n" +
+                "}\n" +
+                "void main() {gl_FragColor=vec4(0,0,vec2(1,2)*rot(1));}" +
+                "";
+
+        Node node = compile(parserContext, source);
+        SourcePositionMapper mapper = new SourcePositionMapper();
+        mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
+
+        StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), mapper));
+        Node optimizedNode = data.getData().getFirst();
+
+        System.out.println();
+        System.out.println(toString(optimizedNode));
+    }
 }

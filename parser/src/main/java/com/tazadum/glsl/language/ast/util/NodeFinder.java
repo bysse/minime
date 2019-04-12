@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.ast.util;
 
 import com.tazadum.glsl.language.ast.*;
+import com.tazadum.glsl.language.ast.arithmetic.PrefixOperationNode;
 import com.tazadum.glsl.language.ast.expression.AssignmentNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.traits.MutatingOperation;
@@ -166,6 +167,16 @@ public class NodeFinder {
             // check if the variable usage is in the assignment part of an AssignmentNode
             final Node assignment = ((AssignmentNode) operation).getLeft();
             return NodeFinder.isNodeInTree(node, assignment);
+        }
+        if (operation instanceof PrefixOperationNode) {
+            // not all prefix operations are mutating
+            switch(((PrefixOperationNode) operation).getOperator()) {
+                case DECREASE:
+                case INCREASE:
+                    return true;
+                default:
+                    return false;
+            }
         }
         // The MutatingOperation was not an AssignmentNode of the 'good' type
         return true;

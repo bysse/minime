@@ -145,4 +145,15 @@ class DefaultPreprocessorTest {
         assertEquals("xxx+xxx", preprocessor.replaceToken("x+x", "x", "xxx"));
         assertEquals("xy z", preprocessor.replaceToken("xy x", "x", "z"));
     }
+
+    @Test
+    @DisplayName("Test external definition override")
+    void testOverride() throws IOException {
+        preprocessor.define("MACRO", "A");
+
+        StringSource source = new StringSource("test", "#define MACRO B\nMACRO");
+        Preprocessor.Result result = preprocessor.process(source);
+
+        assertEquals("//#define MACRO B\nA", result.getSource());
+    }
 }
