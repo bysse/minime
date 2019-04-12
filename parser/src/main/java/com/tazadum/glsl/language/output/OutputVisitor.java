@@ -617,6 +617,9 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         if (node == null) {
             return buffer;
         }
+        if (node instanceof ContextBlockNode) {
+            node = ((ContextBlockNode) node).getStatment();
+        }
 
         if (node instanceof StatementListNode) {
             final boolean singleStatement = ((StatementListNode) node).getChildCount() == 1;

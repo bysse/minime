@@ -10,7 +10,8 @@ import java.util.function.Function;
 public enum IdentifierOutputMode implements Function<Identifier, String> {
     Original,
     Replaced,
-    None;
+    None,
+    SingleX;
 
     public String apply(Identifier identifier) {
         switch (this) {
@@ -18,6 +19,8 @@ public enum IdentifierOutputMode implements Function<Identifier, String> {
                 return "";
             case Replaced:
                 return identifier.token();
+            case SingleX:
+                return "x";
             default:
             case Original:
                 return identifier.original();

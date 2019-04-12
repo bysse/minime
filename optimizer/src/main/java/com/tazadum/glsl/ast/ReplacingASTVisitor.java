@@ -216,7 +216,7 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
 
     @Override
     public Node visitCondition(ConditionNode node) {
-        processLeafNode(node);
+        processParentNode(node);
         return null;
     }
 

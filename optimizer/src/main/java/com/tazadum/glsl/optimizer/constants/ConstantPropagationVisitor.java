@@ -172,11 +172,20 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
         final VariableDeclarationListNode listNode = new VariableDeclarationListNode(null, node.getFullySpecifiedType());
         listNode.addChild(node.clone(listNode));
 
-        // assume we can get a single character variable identifier + space
-        final int identifierSize = 1 + 1;
+        // calculate the size of the initializer
+        final Node initializer = node.getInitializer();
+        final int valueScore = decider.score(initializer) + (initializerNeedWrapping(initializer, listNode) ? 2 : 0);
 
-        final int valueScore = decider.score(node.getInitializer()) + (initializerNeedWrapping(node.getInitializer(), listNode) ? 2 : 0);
-        final int declarationScore = decider.score(listNode) + identifierSize;
+        // calculate teh size of the different types on declarations
+        final int nodeDeclaration = decider.score(node);
+        final int listDeclaration = decider.score(listNode);
+        int declarationScore = listDeclaration;
+
+        int listOccupants = node.getParentNode().getChildCount();
+        if (listOccupants > 1) {
+            // if there are multiple declarations on the list we need to share the cost
+            declarationScore -= (listDeclaration - nodeDeclaration) / listOccupants;
+        }
 
         return valueScore * usageNodes.size() < declarationScore;
     }

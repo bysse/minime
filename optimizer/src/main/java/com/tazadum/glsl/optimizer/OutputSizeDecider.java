@@ -16,7 +16,7 @@ public class OutputSizeDecider implements OptimizationDecider {
     public OutputSizeDecider(int decimals) {
         output = new OutputRenderer();
         config = new OutputConfigBuilder()
-            .identifierMode(IdentifierOutputMode.None)
+            .identifierMode(IdentifierOutputMode.SingleX)
             .renderNewLines(false)
             .indentation(0)
             .significantDecimals(decimals)
