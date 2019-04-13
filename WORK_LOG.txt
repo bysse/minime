@@ -102,6 +102,7 @@ Date    Hours
 2019-04-12  5.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
 
 
+// TODO: detect duplication
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Add more complex arithmetic simplifications

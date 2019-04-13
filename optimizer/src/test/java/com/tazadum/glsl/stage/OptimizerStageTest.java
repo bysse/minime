@@ -149,4 +149,25 @@ class OptimizerStageTest extends BaseTest {
         System.out.println();
         System.out.println(toString(optimizedNode));
     }
+
+    @Test
+    void testDuplication() {
+        String source = "float func(float a) { if (a<0) a=2; return 2*a;}\n" +
+                "void main() {\n" +
+                "float x = func(1);\n" +
+                "vec2 a=vec2(x);\n" +
+                "vec2 b=vec2(x);\n" +
+                "gl_FragColor=vec4(2*a, 2*b);\n" +
+                "}";
+
+        Node node = compile(parserContext, source);
+        SourcePositionMapper mapper = new SourcePositionMapper();
+        mapper.remap(SourcePosition.TOP, SourcePositionId.DEFAULT);
+
+        StageData<Pair<Node, ParserContext>> data = stage.process(StageData.from(Pair.create(node, parserContext), mapper));
+        Node optimizedNode = data.getData().getFirst();
+
+        System.out.println();
+        System.out.println(toString(optimizedNode));
+    }
 }

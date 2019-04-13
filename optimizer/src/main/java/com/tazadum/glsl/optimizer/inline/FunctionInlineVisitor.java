@@ -24,6 +24,10 @@ import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionRegistry;
 import com.tazadum.glsl.language.model.NumericOperator;
+import com.tazadum.glsl.language.output.IdentifierOutputMode;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.variable.VariableRegistry;
@@ -201,7 +205,9 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return singleStatementFunction(functionCall, definitionNode, voidFunction);
         }
 
-        return multiStatementFunction(functionCall, definitionNode, voidFunction);
+        // 2019-04-13 multi statement inlining is turned off due to some bug which i can't find
+        //return multiStatementFunction(functionCall, definitionNode, voidFunction);
+        return null;
     }
 
     private boolean shouldBeOptimized(FunctionDefinitionNode node) {
@@ -378,7 +384,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         if (latestDeclaration > startId) {
-            // we have variable declarations after between the insertion point and the function call
+            // we have variable declarations between the insertion point and the function call
             final Node statement = NodeFinder.findNearestStatement(functionCall);
             if (!(statement instanceof VariableDeclarationListNode)) {
                 return null;
@@ -434,9 +440,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
 
         // build the argument list and create variable declarations
         final ArgumentList argumentList = buildArgumentList(functionCall, functionPrototype, insertion.statementList, insertion.index);
-
-        //OutputRenderer renderer = new OutputRenderer();
-        //OutputConfig config = new OutputConfigBuilder().identifierMode(IdentifierOutputMode.Original).build();
 
         // create a ContextAwareLookup for the insertion point
         GLSLContext insertionContext = parserContext.findContext(insertion.statementList);
