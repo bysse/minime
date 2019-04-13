@@ -100,6 +100,7 @@ Date    Hours
 2019-03-21  1.0 Doing actual macro expansion solve int division to float.
 
 2019-04-12  5.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
+2019-04-13  0.5 Adding support for '=='
 
 
 // TODO: detect duplication

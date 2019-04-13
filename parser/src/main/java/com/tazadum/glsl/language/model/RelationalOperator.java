@@ -9,7 +9,7 @@ public enum RelationalOperator implements HasToken {
     GreaterThan(">", GLSLParser.RIGHT_ANGLE),
     LessThanOrEqual("<=", GLSLParser.LE_OP),
     GreaterThanOrEqual(">=", GLSLParser.GE_OP),
-    Equal("==", GLSLParser.EQUAL),
+    Equal("==", GLSLParser.EQ_OP),
     NotEqual("!=", GLSLParser.NE_OP),;
 
     private final String token;
