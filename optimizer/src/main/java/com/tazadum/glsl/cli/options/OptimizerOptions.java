@@ -78,4 +78,24 @@ public class OptimizerOptions implements CLIOptions {
     public int branchMaxSize() {
         return branchMaxSize;
     }
+
+    public void setKeepAllIdentifiers(boolean keepAllIdentifiers) {
+        this.keepAllIdentifiers = keepAllIdentifiers;
+    }
+
+    public void setKeepUniformIdentifiers(boolean keepUniformIdentifiers) {
+        this.keepUniformIdentifiers = keepUniformIdentifiers;
+    }
+
+    public void setOptimizeSmall(boolean optimizeSmall) {
+        this.optimizeSmall = optimizeSmall;
+    }
+
+    public void setMaxIterations(int maxIterations) {
+        this.maxIterations = maxIterations;
+    }
+
+    public void setBranchMaxSize(int branchMaxSize) {
+        this.branchMaxSize = branchMaxSize;
+    }
 }

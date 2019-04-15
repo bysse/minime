@@ -101,6 +101,7 @@ Date    Hours
 
 2019-04-12  5.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
 2019-04-13  0.5 Adding support for '=='
+2019-04-15  1.0 Ternery expressions didn't explore type of condition.
 
 
 // TODO: detect duplication

@@ -36,6 +36,7 @@ import static com.tazadum.glsl.language.type.PredefinedType.INT;
 import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.language.type.TypeCategory.*;
 import static com.tazadum.glsl.parser.TypeCombination.*;
+import static com.tazadum.glsl.parser.TypeCombination.compatibleTypeNoException;
 
 /**
  * Type checker, following the specification [5.9. Expressions].
@@ -336,6 +337,11 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
 
     @Override
     public GLSLType visitTernaryCondition(TernaryConditionNode node) {
+        final GLSLType type = node.getCondition().accept(this);
+        if (compatibleTypeNoException(PredefinedType.BOOL, type) == null) {
+            throw new SourcePositionException(node, INCOMPATIBLE_TYPE(type, EXPECTED_BOOL));
+        }
+
         final GLSLType thenType = node.getThen().accept(this);
         final GLSLType elseType = node.getElse().accept(this);
 
