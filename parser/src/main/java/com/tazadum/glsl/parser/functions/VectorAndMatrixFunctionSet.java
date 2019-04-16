@@ -18,8 +18,8 @@ public class VectorAndMatrixFunctionSet implements FunctionSet {
 
         declarator.function("length", FLOAT, GenFType);
         declarator.function("length", DOUBLE, GenDType);
-        declarator.function("distance", FLOAT, GenFType);
-        declarator.function("distance", DOUBLE, GenDType);
+        declarator.function("distance", FLOAT, GenFType, GenFType);
+        declarator.function("distance", DOUBLE, GenDType,GenDType);
         declarator.function("dot", FLOAT, GenFType, GenFType);
         declarator.function("dot", DOUBLE, GenDType, GenDType);
         declarator.function("cross", VEC3, VEC3, VEC3);
