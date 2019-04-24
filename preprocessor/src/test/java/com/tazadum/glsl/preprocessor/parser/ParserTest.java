@@ -69,6 +69,9 @@ class ParserTest {
             Arguments.of("macro-1", "#define PLAIN"),
             Arguments.of("macro-2", "#define PLAIN 1"),
             Arguments.of("macro-3", "#define SUM(x,y,z) x+y+z"),
+
+            // comments
+            Arguments.of("comment", "#line/*// hello\n */5"),
         };
     }
 }
