@@ -7,6 +7,8 @@ import java.util.Collections;
 import java.util.List;
 
 public interface OptimizerVisitor extends ASTVisitor<Node> {
+    Node applyOn(Node node);
+
     void reset();
 
     int getChanges();

@@ -32,8 +32,11 @@ public class NoOpOptimizer extends BranchingOptimizer {
     protected OptimizerVisitor createVisitor(ParserContext context, BranchRegistry branchRegistry, OptimizationDecider decider) {
         return new OptimizerVisitor() {
             @Override
+            public Node applyOn(Node node) {
+                return node;
+            }
+            @Override
             public void reset() {
-
             }
 
             @Override

@@ -60,6 +60,35 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
     }
 
     /**
+     * Entry point for the Replacing visitor which handles replacements of the root node.
+     */
+    public Node applyOn(Node node) {
+        if (node == null) {
+            return null;
+        }
+        final Node replacement = node.accept(this);
+        if (replacement == null) {
+            return node;
+        }
+
+        if (replacement.equals(node)) {
+            return node;
+        }
+        if (dereference) {
+            parserContext.dereferenceTree(node);
+        }
+        if (replacement.equals(REMOVE)) {
+           return null;
+        }
+
+        if (reference) {
+            parserContext.referenceTree(replacement);
+        }
+
+        return replacement;
+    }
+
+    /**
      * Creates an OptimizerBranch from the first encountered branch and the ParserContext.
      *
      * @return An instance of OptimizerBranch.

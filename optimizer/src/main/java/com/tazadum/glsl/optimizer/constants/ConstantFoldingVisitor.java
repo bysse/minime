@@ -185,7 +185,8 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
                     if (rle > 1) {
                         // check if we can replace some of the parameters with a swizzle
-                        Node node = createReplacementNode(parameterSource.getSourcePosition(), parameterSource, type.baseType(), rle, selection);
+                        Node clonedSource = CloneUtils.clone(parameterSource, null);
+                        Node node = createReplacementNode(parameterSource.getSourcePosition(), clonedSource, type.baseType(), rle, selection);
 
 
                         if (node != null) {
@@ -233,7 +234,8 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
             return null;
         }
 
-        Node node = createReplacementNode(functionCall.getSourcePosition(), parameterSource, type.baseType(), rle, replacementSelection.toString());
+        Node clonedSource = CloneUtils.clone(parameterSource, null);
+        Node node = createReplacementNode(functionCall.getSourcePosition(), clonedSource, type.baseType(), rle, replacementSelection.toString());
         if (start == 0) {
             // the entire node can be replaced
             changes++;

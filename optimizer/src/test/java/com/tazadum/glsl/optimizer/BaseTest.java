@@ -1,20 +1,24 @@
 package com.tazadum.glsl.optimizer;
 
+import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.variable.VariableRegistry;
+import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.util.TestUtil;
 import com.tazadum.glsl.language.ast.ASTConverter;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputRenderer;
-import com.tazadum.glsl.parser.GLSLParser;
-import com.tazadum.glsl.parser.ParserContext;
-import com.tazadum.glsl.parser.ShaderType;
-import com.tazadum.glsl.parser.TypeVisitor;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import org.antlr.v4.runtime.ParserRuleContext;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class BaseTest {
     protected ParserContext parserContext;
@@ -63,6 +67,34 @@ public abstract class BaseTest {
             return node;
         } catch (Exception e) {
             throw e;
+        }
+    }
+
+    protected void assertUniqueVariable(String identifier, int expectedUsageCount) {
+        VariableRegistry registry = parserContext.getVariableRegistry();
+
+        boolean found = false;
+        for(Usage<VariableDeclarationNode> usage : registry.getAllVariables()) {
+            final Identifier id = usage.getTarget().getIdentifier();
+            if (identifier.equals(id.original())) {
+                if (found) {
+                    fail("The variable '" + identifier + "' is declared more than once");
+                }
+                found = true;
+
+                int usageCount = usage.getUsageNodes().size();
+                if (expectedUsageCount != usageCount) {
+                    for (Node node : usage.getUsageNodes()) {
+                        System.out.println("Usage of " + node + ": " + node.getParentNode());
+                    }
+
+                    fail("The variable '" + identifier + "' is used by " + usageCount + " nodes. Expected " + expectedUsageCount + " usages");
+                }
+            }
+        }
+
+        if (!found && expectedUsageCount > 0) {
+            fail("The variable '" + identifier + "' is not declared");
         }
     }
 }

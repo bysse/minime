@@ -19,7 +19,7 @@ public abstract class BranchingOptimizer implements Optimizer {
         Node node = branch.getNode();
         do {
             visitor.reset();
-            Node accept = node.accept(visitor);
+            Node accept = visitor.applyOn(node);
             changes = visitor.getChanges();
             totalChanges += changes;
 

@@ -102,14 +102,16 @@ Date    Hours
 2019-04-12  5.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
 2019-04-13  0.5 Adding support for '=='
 2019-04-15  1.0 Ternery expressions didn't explore type of condition.
+2019-04-27  1.0 Fixed a lot of reference errors in the constant folding optimizer.
 
 
 // TODO: detect duplication
+// TODO: add intrinsic for distance -> length
 // TODO: Sharing functions between shaders, non-colliding identifiers and C-stub for concatenation
 
 // TODO: Add more complex arithmetic simplifications
 
-// TODO: Fix type checking !!
+// TODO: Fix type checking !! Is there something wrong with id?
 // TODO: Verify that functions have a return statement
 
 // TODO: Register constructors when registering structure types (section 5.4.3)

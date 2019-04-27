@@ -38,7 +38,7 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
     @ParameterizedTest(name = "case: {1}")
     @DisplayName("Optimizations that should work")
     @MethodSource("getPositiveCases")
-    void testOptimizerPositive(String expected, String source) {
+    void testOptimizerPositive(String expected, String source, int v1Count, int v2Count, int v3Count, int v4Count, int i4Count) {
         GLSLContext context = parserContext.globalContext();
         VariableRegistry registry = parserContext.getVariableRegistry();
         registry.declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(FLOAT), "v1", null, null, null));
@@ -48,58 +48,65 @@ public class ConstantFoldingTest extends BaseOptimizerTest {
         registry.declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(IVEC4), "i4", null, null, null));
 
         assertEquals(expected, toString(optimize(source)));
+
+        assertUniqueVariable("v1", v1Count);
+        assertUniqueVariable("v2", v2Count);
+        assertUniqueVariable("v3", v3Count);
+        assertUniqueVariable("v4", v4Count);
+        assertUniqueVariable("i4", i4Count);
     }
 
     private static Arguments[] getPositiveCases() {
+        // if the assignment in these types of expressions 'v4=v4' are removed
+        // the usage node check will fail due to the cleanup in com.tazadum.glsl.parser.Usage.getUsageNodes
         return new Arguments[]{
-            Arguments.of("1", "vec3(1,2,3).x"),
-            Arguments.of("2", "1+1"),
-            Arguments.of("4", "2*2"),
-            Arguments.of("3", "6/2"),
-            Arguments.of("4", "6-2"),
-            Arguments.of(".9", "1-0.1"),
-            Arguments.of("1.1", "1+0.1"),
-            Arguments.of("1.21", "1.1*1.1"),
-            Arguments.of("1.23", "1.11*1.11"),
-            Arguments.of("1.21", "1.1*1.10"),
-            Arguments.of("4.29", "9/2.1"),
-            Arguments.of("1", "(1)"),
-            Arguments.of("1", "(((1)))"),
-            Arguments.of("v2*v2", "v2*(v2)"),
-            Arguments.of(".0121", ".11*.11"),
-            Arguments.of("6", "3*2"),
-            Arguments.of("3", "(1+2)"),
-            Arguments.of("4/3", "4./3."),
-            Arguments.of("v2", "vec2(v2)"),
-            Arguments.of("v3", "vec3(v3)"),
-            Arguments.of("v4", "vec4(v4)"),
-            Arguments.of("vec2(0,1)", "vec2(vec2(0,1))"),
-            Arguments.of("v2=v2", "v2=v2.xy"),
-            Arguments.of("v3=v3", "v3=v3.xyz"),
-            Arguments.of("v4=v4", "v4=v4.xyzw)"),
-            Arguments.of("v2=v2.yx", "v2=v2.yx"),
-            Arguments.of("v3=v3.xyy", "v3=v3.xyy"),
-            Arguments.of("v4=v4.xywz", "v4=v4.xywz)"),
-            Arguments.of("v1", "float(v1.x)"),
-            Arguments.of("v2.y", "float(v2.y)"),
-            Arguments.of("v2", "vec2(v2.x,v2.y)"),
-            Arguments.of("v2", "vec2(v2.x,v2.y)"),
-            Arguments.of("vec2(v2.x,v3.y)", "vec2(v2.x,v3.y)"),
-            Arguments.of("v4.xy", "vec2(v4.x,v4.y)"),
-            Arguments.of("v3", "vec3(v3.x,v3.y,v3.z)"),
-            Arguments.of("v4", "vec4(v4.r,v4.y,v4.z,v4.w)"),
-            Arguments.of("v2.yx", "vec2(v2.y,v2.x)"),
-            Arguments.of("v3.xxz", "vec3(v3.x,v3.x,v3.z)"),
-            Arguments.of("v4.yxzw", "vec4(v4.y,v4.x,v4.z,v4.w)"),
-            Arguments.of("v4", "vec4(v4.r,v4.y,v4.z,v4.w)"),
-            Arguments.of("v4", "vec4(v4.r,v4.yz,v4.w)"),
-            Arguments.of("i4", "vec4(i4.x,i4.y,i4.z,i4.w)"),
-            Arguments.of("vec4(v2.x,v4.yzw)", "vec4(v2.x,v4.y,v4.z,v4.w)"),
-            Arguments.of("vec4(v4.yzw,v2.x)", "vec4(v4.y,v4.z,v4.w,v2.x)"),
-            Arguments.of("vec4(v2,v4.zw)", "vec4(v2.x,v2.y,v4.z,v4.w)"),
-            Arguments.of("vec4(i4.xy,v4.zw)", "vec4(i4.x,i4.y,v4.z,v4.w)"),
-            Arguments.of("v4.xywz", "vec4(v4.x,v4.y,v4.w,v4.z)"),
-            Arguments.of("v2.xyxy", "vec4(v2.x,v2.y,v2.x,v2.y)"),
+            Arguments.of("1", "vec3(1,2,3).x", 0, 0, 0, 0, 0),
+            Arguments.of("2", "1+1", 0, 0, 0, 0, 0),
+            Arguments.of("4", "2*2", 0, 0, 0, 0, 0),
+            Arguments.of("3", "6/2", 0, 0, 0, 0, 0),
+            Arguments.of("4", "6-2", 0, 0, 0, 0, 0),
+            Arguments.of(".9", "1-0.1", 0, 0, 0, 0, 0),
+            Arguments.of("1.1", "1+0.1", 0, 0, 0, 0, 0),
+            Arguments.of("1.21", "1.1*1.1", 0, 0, 0, 0, 0),
+            Arguments.of("1.23", "1.11*1.11", 0, 0, 0, 0, 0),
+            Arguments.of("1.21", "1.1*1.10", 0, 0, 0, 0, 0),
+            Arguments.of("4.29", "9/2.1", 0, 0, 0, 0, 0),
+            Arguments.of("1", "(1)", 0, 0, 0, 0, 0),
+            Arguments.of("1", "(((1)))", 0, 0, 0, 0, 0),
+            Arguments.of("v2*v2", "v2*(v2)", 0, 2, 0, 0, 0),
+            Arguments.of(".0121", ".11*.11", 0, 0, 0, 0, 0),
+            Arguments.of("6", "3*2", 0, 0, 0, 0, 0),
+            Arguments.of("3", "(1+2)", 0, 0, 0, 0, 0),
+            Arguments.of("4/3", "4./3.", 0, 0, 0, 0, 0),
+            Arguments.of("v2", "vec2(v2)", 0, 1, 0, 0, 0),
+            Arguments.of("v3", "vec3(v3)", 0, 0, 1, 0, 0),
+            Arguments.of("v4", "vec4(v4)", 0, 0, 0, 1, 0),
+            Arguments.of("vec2(0,1)", "vec2(vec2(0,1))", 0, 0, 0, 0, 0),
+            Arguments.of("v2=v2", "v2=v2.xy", 0, 2, 0, 0, 0),
+            Arguments.of("v3=v3", "v3=v3.xyz", 0, 0, 2, 0, 0),
+            Arguments.of("v4=v4", "v4=v4.xyzw)", 0, 0, 0, 2, 0),
+            Arguments.of("v2=v2.yx", "v2=v2.yx", 0, 2, 0, 0, 0),
+            Arguments.of("v3=v3.xyy", "v3=v3.xyy", 0, 0, 2, 0, 0),
+            Arguments.of("v4=v4.xywz", "v4=v4.xywz)", 0, 0, 0, 2, 0),
+            Arguments.of("v1", "float(v1.x)", 1, 0, 0, 0, 0),
+            Arguments.of("v2.y", "float(v2.y)", 0, 1, 0, 0, 0),
+            Arguments.of("v2=v2", "v2=vec2(v2.x,v2.y)", 0, 2, 0, 0, 0),
+            Arguments.of("vec2(v2.x,v3.y)", "vec2(v2.x,v3.y)", 0, 1, 1, 0, 0),
+            Arguments.of("v4.xy", "vec2(v4.x,v4.y)", 0, 0, 0, 1, 0),
+            Arguments.of("v3=v3", "v3=vec3(v3.x,v3.y,v3.z)", 0, 0, 2, 0, 0),
+            Arguments.of("v4=v4", "v4=vec4(v4.r,v4.y,v4.z,v4.w)", 0, 0, 0, 2, 0),
+            Arguments.of("v2.yx", "vec2(v2.y,v2.x)", 0, 1, 0, 0, 0),
+            Arguments.of("v3.xxz", "vec3(v3.x,v3.x,v3.z)", 0, 0, 1, 0, 0),
+            Arguments.of("v4.yxzw", "vec4(v4.y,v4.x,v4.z,v4.w)", 0, 0, 0, 1, 0),
+            Arguments.of("v4=v4", "v4=vec4(v4.r,v4.y,v4.z,v4.w)", 0, 0, 0, 2, 0),
+            Arguments.of("v4=v4", "v4=vec4(v4.r,v4.yz,v4.w)", 0, 0, 0, 2, 0),
+            Arguments.of("v4=i4", "v4=vec4(i4.x,i4.y,i4.z,i4.w)", 0, 0, 0, 1, 1),
+            Arguments.of("vec4(v2.x,v4.yzw)", "vec4(v2.x,v4.y,v4.z,v4.w)", 0, 1, 0, 1, 0),
+            Arguments.of("vec4(v2,v4.zw)", "vec4(v2.x,v2.y,v4.z,v4.w)", 0, 1, 0, 1, 0),
+            Arguments.of("v4.xywz", "vec4(v4.x,v4.y,v4.w,v4.z)", 0, 0, 0, 1, 0),
+            Arguments.of("v2.xyxy", "vec4(v2.x,v2.y,v2.x,v2.y)", 0, 1, 0, 0, 0),
+            Arguments.of("vec4(v4.yzw,v2.x)", "vec4(v4.y,v4.z,v4.w,v2.x)", 0, 1, 0, 1, 0),
+            Arguments.of("vec4(i4.xy,v4.zw)", "vec4(i4.x,i4.y,v4.z,v4.w)", 0, 0, 0, 1, 1),
         };
     }
 
