@@ -197,9 +197,9 @@ WHITESPACE
   ;
 
 COMMENT
-  : '//' (~('\n'|'\r'))* -> skip
+  : '//' .*? ('\n'|'\r') -> skip
   ;
 
 MULTILINE_COMMENT
-  : '/*' ( . )*? '*/'  -> skip
+  : '/*' (COMMENT|.)*? '*/'  -> skip
   ;

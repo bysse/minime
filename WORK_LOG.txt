@@ -102,6 +102,7 @@ Date    Hours
 2019-04-12  5.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
 2019-04-13  0.5 Adding support for '=='
 2019-04-15  1.0 Ternery expressions didn't explore type of condition.
+2019-04-24  1.0 Fixed nested comments in preprocessor
 2019-04-27  1.0 Fixed a lot of reference errors in the constant folding optimizer.
 
 
