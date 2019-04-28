@@ -205,9 +205,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return singleStatementFunction(functionCall, definitionNode, voidFunction);
         }
 
-        // 2019-04-13 multi statement inlining is turned off due to some bug which i can't find
-        //return multiStatementFunction(functionCall, definitionNode, voidFunction);
-        return null;
+        return multiStatementFunction(functionCall, definitionNode, voidFunction);
     }
 
     private boolean shouldBeOptimized(FunctionDefinitionNode node) {
@@ -216,7 +214,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             optimized = branchRegistry.claimPoint(node, FunctionInline.class);
             functionInlineMap.put(node, optimized);
             if (optimized) {
-                // create a branch to explore that possibility that not inlining is smaller
+                // create a branch to explore that possibility that inlining is not smaller
                 branches.add(createBranch());
             }
         }
@@ -237,7 +235,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 throw new BadImplementationException(String.format("Can only inline '%s' if it's in a statement list : " + functionCall.getParentNode().getClass(), functionCall.getIdentifier().original()));
             }
 
-            // we are calling a void function without a return value.
+            // we are calling a void function without a return value
             // clone all statements, remap all variables and insert into the parent statement list
 
             final StatementListNode statementList = (StatementListNode) functionCall.getParentNode();
@@ -250,7 +248,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                     continue;
                 }
 
-                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, false);
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
             }
@@ -330,7 +328,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 if (node instanceof ReturnNode) {
                     continue;
                 }
-                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, true);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, false);
                 renameVariableDeclarations(lookup, statement);
 
                 parent.insertChild(argumentList.index + i, statement);
@@ -448,7 +446,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         for (int i = 0; i < statements.getChildCount() - 1; i++) {
             // clone the node and remap the variables
             Node node = statements.getChild(i);
-            Node statement = remapVariables(inlineContext, CloneUtils.clone(node, null), argumentList.nodes, null, true);
+            Node statement = remapVariables(inlineContext, CloneUtils.clone(node, null), argumentList.nodes, null, false);
 
             renameVariableDeclarations(lookup, statement);
 
