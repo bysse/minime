@@ -12,6 +12,7 @@ import com.tazadum.glsl.language.ast.iteration.ForIterationNode;
 import com.tazadum.glsl.language.ast.traits.HasConstState;
 import com.tazadum.glsl.language.ast.traits.HasNumeric;
 import com.tazadum.glsl.language.ast.traits.IterationNode;
+import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationListNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
@@ -104,7 +105,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
         for (Node usageNode : usageNodes) {
             final VariableNode variableNode = (VariableNode) usageNode;
             // we need to clone the initializer because it's going to be insert in multiple places in the AST
-            Node initializer = node.getInitializer().clone(null);
+            Node initializer = CloneUtils.clone(node.getInitializer(), null);
 
             final ParentNode parentNode = variableNode.getParentNode();
             if (initializerNeedWrapping(initializer, parentNode)) {
@@ -170,7 +171,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
     private boolean isWorthIt(VariableDeclarationNode node, List<Node> usageNodes) {
         // create a separate tree for this declaration to include the type declaration when determining size
         final VariableDeclarationListNode listNode = new VariableDeclarationListNode(null, node.getFullySpecifiedType());
-        listNode.addChild(node.clone(listNode));
+        listNode.addChild(CloneUtils.clone(node, null));
 
         // calculate the size of the initializer
         final Node initializer = node.getInitializer();

@@ -104,6 +104,7 @@ Date    Hours
 2019-04-15  1.0 Ternery expressions didn't explore type of condition.
 2019-04-24  1.0 Fixed nested comments in preprocessor
 2019-04-27  1.0 Fixed a lot of reference errors in the constant folding optimizer.
+2019-04-28  2.0 Added reference checks on all optimizer except function inline.
 
 
 // TODO: detect duplication

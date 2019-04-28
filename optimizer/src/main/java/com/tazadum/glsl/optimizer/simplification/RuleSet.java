@@ -81,8 +81,13 @@ public class RuleSet {
         ));
         */
 
+        list.add(rule("pow(_1,0) = 1",
+            mFunc("pow", mAny(), mLiteral(0f)),
+            gNumeric(1)
+        ));
+
         list.add(rule("pow(_1,1) = _1",
-            mFunc("pow", mNumeric(), mLiteral(1f)),
+            mFunc("pow", mAny(), mLiteral(1f)),
             gGroup(0)
         ));
 

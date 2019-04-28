@@ -1,7 +1,9 @@
 package com.tazadum.glsl.optimizer;
 
 import com.tazadum.glsl.language.ast.Identifier;
+import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
+import com.tazadum.glsl.language.function.FunctionRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.util.TestUtil;
@@ -67,34 +69,6 @@ public abstract class BaseTest {
             return node;
         } catch (Exception e) {
             throw e;
-        }
-    }
-
-    protected void assertUniqueVariable(String identifier, int expectedUsageCount) {
-        VariableRegistry registry = parserContext.getVariableRegistry();
-
-        boolean found = false;
-        for(Usage<VariableDeclarationNode> usage : registry.getAllVariables()) {
-            final Identifier id = usage.getTarget().getIdentifier();
-            if (identifier.equals(id.original())) {
-                if (found) {
-                    fail("The variable '" + identifier + "' is declared more than once");
-                }
-                found = true;
-
-                int usageCount = usage.getUsageNodes().size();
-                if (expectedUsageCount != usageCount) {
-                    for (Node node : usage.getUsageNodes()) {
-                        System.out.println("Usage of " + node + ": " + node.getParentNode());
-                    }
-
-                    fail("The variable '" + identifier + "' is used by " + usageCount + " nodes. Expected " + expectedUsageCount + " usages");
-                }
-            }
-        }
-
-        if (!found && expectedUsageCount > 0) {
-            fail("The variable '" + identifier + "' is not declared");
         }
     }
 }
