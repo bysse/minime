@@ -1,5 +1,6 @@
 package com.tazadum.glsl.parser;
 
+import com.tazadum.glsl.language.ast.ContextBlockNode;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.conditional.SwitchNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
@@ -109,6 +110,13 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     @Override
     public Void visitFunctionDefinition(FunctionDefinitionNode node) {
         super.visitFunctionDefinition(node);
+        parserContext.removeContext(node);
+        return null;
+    }
+
+    @Override
+    public Void visitBlockNode(ContextBlockNode node) {
+        super.visitBlockNode(node);
         parserContext.removeContext(node);
         return null;
     }

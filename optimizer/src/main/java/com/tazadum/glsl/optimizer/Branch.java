@@ -1,6 +1,7 @@
 package com.tazadum.glsl.optimizer;
 
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;

@@ -195,8 +195,9 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
                             // replace and dereference the node that is at position start
                             Node firstNode = functionCall.getChild(start);
-                            functionCall.replaceChild(firstNode, node);
                             parserContext.dereferenceTree(firstNode);
+
+                            functionCall.replaceChild(firstNode, node);
 
                             // reference the added node
                             parserContext.referenceTree(node);

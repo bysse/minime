@@ -48,12 +48,12 @@ vec4 cloudField(vec3 p) {
 	return vec4(1, 1, 1, smoothstep(0., 1., pow(fbm(.001 * p + vec3(2, 4.2, 0), 0.),2.) - .3));
 }
 
-float waterHeight(vec3 q) {
+float waterHeight(vec3 Q) {
 	float d = .2*iTime;
-	vec3 p = .15*q + d;
+	vec3 p = .15*Q + d;
 	p.y = 0.;
 	return .5*fbm(p, d) + 0.0025*noise( 32.*p )
-		+ .5*sin(.1*q.z + 5.*d + 0.01*q.x) + .05*sin(.44*q.z + d);
+		+ .5*sin(.1*Q.z + 5.*d + 0.01*Q.x) + .05*sin(.44*Q.z + d);
 }
 
 vec4 traceClouds(vec3 rp, vec3 rd) {

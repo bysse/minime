@@ -2,10 +2,7 @@ package com.tazadum.glsl.parser;
 
 import com.tazadum.glsl.exception.SourcePositionException;
 import com.tazadum.glsl.exception.VariableException;
-import com.tazadum.glsl.language.ast.DefaultASTVisitor;
-import com.tazadum.glsl.language.ast.Identifier;
-import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.ParentNode;
+import com.tazadum.glsl.language.ast.*;
 import com.tazadum.glsl.language.ast.conditional.SwitchNode;
 import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.iteration.DoWhileIterationNode;
@@ -103,6 +100,12 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
     public Void visitSwitch(SwitchNode node) {
         visitContext(node, node);
         return super.visitSwitch(node);
+    }
+
+    @Override
+    public Void visitBlockNode(ContextBlockNode node) {
+        visitContext(node, node);
+        return super.visitBlockNode(node);
     }
 
     private void visitContext(GLSLContext context, Node node) {

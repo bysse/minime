@@ -1,9 +1,12 @@
 package com.tazadum.glsl.optimizer;
 
 import com.tazadum.glsl.language.ast.Node;
+import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.optimizer.pipeline.BranchingOptimizerPipeline;
 import com.tazadum.glsl.optimizer.pipeline.OptimizerPipeline;
 import com.tazadum.glsl.optimizer.pipeline.SingleShaderOptimizerPipeline;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public abstract class BaseOptimizerTest extends BaseTest {
     protected OptimizerPipeline pipeline;
@@ -39,6 +42,26 @@ public abstract class BaseOptimizerTest extends BaseTest {
         OptimizerContext context = new OptimizerContext(parserContext);
         Branch branch = pipeline.optimize(context, node, true, null);
         parserContext = branch.getContext();
+
+        verifyIdConsistency(branch.getNode(), 1);
+
         return branch;
+    }
+
+    private int verifyIdConsistency(Node node, int expectedId) {
+        assertEquals(expectedId, node.getId(), "Node id sequence is not in order");
+
+        if (node instanceof ParentNode) {
+            ParentNode parent = (ParentNode) node;
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                Node child = parent.getChild(i);
+                if (child == null) {
+                    continue;
+                }
+                expectedId = verifyIdConsistency(child, expectedId + 1);
+            }
+        }
+
+        return expectedId;
     }
 }

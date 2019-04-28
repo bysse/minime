@@ -10,6 +10,9 @@ import com.tazadum.glsl.language.context.ContextAwareImpl;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.function.FunctionRegistry;
+import com.tazadum.glsl.language.output.OutputConfig;
+import com.tazadum.glsl.language.output.OutputConfigBuilder;
+import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.variables.*;
@@ -122,6 +125,8 @@ public class ParserContextImpl implements ParserContext {
         // build the context map
         final ContextAware contextAwareRemap = new ContextAwareImpl();
         base.accept(new ContextAwareVisitor(contextAwareRemap));
+
+        //String source = new OutputRenderer().render(base, new OutputConfigBuilder().renderNewLines(true).indentation(3).build());
 
         final TypeRegistry typeRegistryRemap = typeRegistry.remap(base);
 

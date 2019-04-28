@@ -81,6 +81,10 @@ public class ReplacingASTVisitor implements ASTVisitor<Node> {
            return null;
         }
 
+        if (replacement.getId() != 1) {
+            replacement.calculateId(1);
+        }
+
         if (reference) {
             parserContext.referenceTree(replacement);
         }

@@ -76,14 +76,16 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     }
 
     private OptimizerType[] getOptimizers() {
-        //return OptimizerType.values();
-
-        return new OptimizerType[]{OptimizerType.DeadCodeEliminationType,
+        return OptimizerType.values();
+/*
+        return new OptimizerType[]{
+                OptimizerType.DeadCodeEliminationType,
                 OptimizerType.ArithmeticOptimizerType,
                 OptimizerType.DeclarationSqueezeType,
                 OptimizerType.ConstantFoldingType,
                 OptimizerType.ConstantPropagationType,
                 OptimizerType.FunctionInline,
         };
+ */
     }
 }
