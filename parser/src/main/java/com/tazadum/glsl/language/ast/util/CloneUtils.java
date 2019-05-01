@@ -85,6 +85,14 @@ public class CloneUtils {
         if (!remappedNode.getClass().equals(node.getClass())) {
             String message = String.format("The remapped node has a different class for node id=%d : %s != %s",
                 node.getId(), node.getClass().getSimpleName(), remappedNode.getClass().getSimpleName());
+
+            // find the parent node
+            Node parent = node;
+            while (parent.getParentNode() != null) {
+                parent = parent.getParentNode();
+            }
+
+
             throw new IllegalStateException(message);
         }
 

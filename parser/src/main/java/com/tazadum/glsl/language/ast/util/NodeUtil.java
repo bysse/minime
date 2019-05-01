@@ -167,4 +167,23 @@ public class NodeUtil {
 
         return System.identityHashCode(node.getClass());
     }
+
+    public static int verifyIdConsistency(Node node, int expectedId) {
+        if (expectedId != node.getId()) {
+            throw new IllegalStateException("Node id sequence is not in order");
+        }
+
+        if (node instanceof ParentNode) {
+            ParentNode parent = (ParentNode) node;
+            for (int i = 0; i < parent.getChildCount(); i++) {
+                Node child = parent.getChild(i);
+                if (child == null) {
+                    continue;
+                }
+                expectedId = verifyIdConsistency(child, expectedId + 1);
+            }
+        }
+
+        return expectedId;
+    }
 }

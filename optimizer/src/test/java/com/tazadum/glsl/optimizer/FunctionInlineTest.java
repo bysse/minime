@@ -144,6 +144,14 @@ public class FunctionInlineTest extends BaseOptimizerTest {
                                 variable("b", 0)
                         )),
                 Arguments.of( // multi line function that mutates it's parameter
+                        "void main(){if(iv.x>0){int _gen0=3;_gen0+=1;iv=_gen0;}}",
+                        "int f(int a){ a+=1; return a; } void main(){ if(iv.x>0) iv=f(3); }",
+                        list(
+                                function("f", 0),
+                                variable("iv", 2),
+                                variable("_gen0", 2)
+                        )),
+                Arguments.of( // multi line function that mutates it's parameter
                         "void main(){int _gen0=1+1;_gen0+=1;iv=_gen0;}",
                         "int f(int a){ a+=1; return a; } void main(){ iv=f(1+1); }",
                         list(
@@ -394,7 +402,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
         List<Usage<FunctionPrototypeNode>> usedFunctions = functionRegistry.getUsedFunctions();
 
         System.out.println(toString(result.getNode()));
-        assertEquals(3, variableDeclarations.size(), "only 3 contexts and main");
+        assertEquals(4, variableDeclarations.size(), "only 3 contexts and main");
         assertEquals(2, usedFunctions.size(), "only 1 functions, two flavors of vec3");
 
     }

@@ -19,6 +19,7 @@ import com.tazadum.glsl.language.ast.struct.InterfaceBlockNode;
 import com.tazadum.glsl.language.ast.struct.StructDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeDeclarationNode;
 import com.tazadum.glsl.language.ast.type.TypeQualifierDeclarationNode;
+import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.ast.variable.*;
 import com.tazadum.glsl.optimizer.Branch;
 import com.tazadum.glsl.parser.ParserContext;

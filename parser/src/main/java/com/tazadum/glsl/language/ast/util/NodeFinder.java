@@ -9,6 +9,7 @@ import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
+import com.tazadum.glsl.language.context.GLSLContext;
 
 import java.util.SortedSet;
 import java.util.TreeSet;

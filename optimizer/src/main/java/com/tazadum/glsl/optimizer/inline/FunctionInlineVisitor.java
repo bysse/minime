@@ -5,6 +5,7 @@ import com.tazadum.glsl.ast.ReplacingASTVisitor;
 import com.tazadum.glsl.ast.id.IdentifierCreator;
 import com.tazadum.glsl.exception.BadImplementationException;
 import com.tazadum.glsl.exception.SourcePositionException;
+import com.tazadum.glsl.language.ast.ContextBlockNode;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.language.ast.StatementListNode;
@@ -14,6 +15,7 @@ import com.tazadum.glsl.language.ast.expression.ParenthesisNode;
 import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionDefinitionNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
+import com.tazadum.glsl.language.ast.traits.IterationNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
 import com.tazadum.glsl.language.ast.util.NodeUtil;
@@ -24,12 +26,10 @@ import com.tazadum.glsl.language.ast.variable.VariableNode;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionRegistry;
 import com.tazadum.glsl.language.model.NumericOperator;
-import com.tazadum.glsl.language.output.IdentifierOutputMode;
-import com.tazadum.glsl.language.output.OutputConfig;
-import com.tazadum.glsl.language.output.OutputConfigBuilder;
-import com.tazadum.glsl.language.output.OutputRenderer;
+import com.tazadum.glsl.language.model.StorageQualifier;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.optimizer.Branch;
 import com.tazadum.glsl.optimizer.BranchRegistry;
@@ -193,6 +193,21 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return null;
         }
 
+        // build a set of parameters that have the storage modifier inout or out
+        final Set<Integer> outputParameters = new HashSet<>();
+        for (int i = 0; i < functionPrototype.getChildCount(); i++) {
+            final ParameterDeclarationNode parameter = functionPrototype.getParameter(i);
+            final TypeQualifierList qualifiers = parameter.getFullySpecifiedType().getQualifiers();
+            if (qualifiers.contains(StorageQualifier.INOUT) || qualifiers.contains(StorageQualifier.OUT)) {
+                outputParameters.add(i);
+            }
+        }
+
+        if (!outputParameters.isEmpty()) {
+            // bail if any of the parameters can be written to
+            return null;
+        }
+
         // check if the inline decision for this function already has been taken
         if (!shouldBeOptimized(definitionNode)) {
             // this node has already been considered for optimization
@@ -248,7 +263,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                     continue;
                 }
 
-                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, false);
+                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null);
                 parent.insertChild(argumentList.index + i, statement);
                 parserContext.referenceTree(statement);
             }
@@ -268,7 +283,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         if (mutatedParameterMap.get(functionPrototype).isEmpty()) {
             // no parameter re-declarations needed because there's nothing that mutates them in the function
             final List<Node> functionArguments = buildArgumentList(functionCall, functionPrototype, null, 0).nodes;
-            final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false);
+            final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement);
             changes++;
             return node;
         }
@@ -294,7 +309,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         }
 
         final List<Node> functionArguments = buildArgumentList(functionCall, functionPrototype, insertion.statementList, insertion.index).nodes;
-        final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement, false);
+        final Node node = remapVariables(inlineContext, expressionToInline, functionArguments, returnStatement);
         changes++;
         return node;
     }
@@ -324,11 +339,11 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             ContextAwareLookup lookup = new ContextAwareLookup(newContext);
 
             for (int i = 0; i < statements.getChildCount(); i++) {
-                Node node = CloneUtils.clone(statements.getChild(i), null);
-                if (node instanceof ReturnNode) {
+                Node expressionToInline = CloneUtils.clone(statements.getChild(i), null);
+                if (expressionToInline instanceof ReturnNode) {
                     continue;
                 }
-                Node statement = remapVariables(inlineContext, node, argumentList.nodes, null, false);
+                Node statement = remapVariables(inlineContext, expressionToInline, argumentList.nodes, null);
                 renameVariableDeclarations(lookup, statement);
 
                 parent.insertChild(argumentList.index + i, statement);
@@ -388,52 +403,56 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
                 return null;
             }
 
-            if (!insertion.statementList.hasEqualId(statement.getParentNode())) {
-                // check that the insertion statement list is in fact the same as the declarationList parent
-                return null;
+            // make sure we're not finding a statement that is before the insertion point
+            if (statement.getId() >= startId) {
+
+                if (!insertion.statementList.hasEqualId(statement.getParentNode())) {
+                    // check that the insertion statement list is in fact the same as the declarationList parent
+                    return null;
+                }
+
+                final VariableDeclarationNode declaration = NodeFinder.findNearestVariableDeclaration(functionCall);
+                if (declaration == null) {
+                    // the function call was not part of a variable declaration
+                    return null;
+                }
+
+                final VariableDeclarationListNode declarationList = (VariableDeclarationListNode) statement;
+                final int index = declarationList.indexOf(declaration);
+                if (declarationList.getChildCount() <= 1 || index == 0) {
+                    // the function call is the only child in a declaration list
+                    // this is a vary hard condition to satisfy considering that the insertion point
+                    // should be the statement before the declaration and that there's something between them...
+                    return null;
+                }
+
+                // we need to split up the variable declaration list into two lists and move the declarations
+                // that are done after 'index' to the new declaration list
+
+                final VariableDeclarationListNode newList = new VariableDeclarationListNode(
+                        declarationList.getSourcePosition(),
+                        declarationList.getFullySpecifiedType()
+                );
+
+                // move the declarations after 'index' to the new list
+                for (int i = index; i < declarationList.getChildCount(); i++) {
+                    final Node node = declarationList.getChild(index);
+                    declarationList.removeChild(node);
+                    newList.addChild(node);
+                }
+
+                int insertIndex = insertion.statementList.indexOf(declarationList);
+                if (insertIndex < 0) {
+                    // this is strange or a bug
+                    return null;
+                }
+
+                // insert the new declaration list into the AST
+                insertion.statementList.insertChild(insertIndex + 1, newList);
+
+                // update the insertion point
+                insertion.index = insertIndex + 1;
             }
-
-            final VariableDeclarationNode declaration = NodeFinder.findNearestVariableDeclaration(functionCall);
-            if (declaration == null) {
-                // the function call was not part of a variable declaration
-                return null;
-            }
-
-            final VariableDeclarationListNode declarationList = (VariableDeclarationListNode) statement;
-            final int index = declarationList.indexOf(declaration);
-            if (declarationList.getChildCount() <= 1 || index == 0) {
-                // the function call is the only child in a declaration list
-                // this is a vary hard condition to satisfy considering that the insertion point
-                // should be the statement before the declaration and that there's something between them...
-                return null;
-            }
-
-            // we need to split up the variable declaration list into two lists and move the declarations
-            // that are done after 'index' to the new declaration list
-
-            final VariableDeclarationListNode newList = new VariableDeclarationListNode(
-                declarationList.getSourcePosition(),
-                declarationList.getFullySpecifiedType()
-            );
-
-            // move the declarations after 'index' to the new list
-            for (int i = index; i < declarationList.getChildCount(); i++) {
-                final Node node = declarationList.getChild(index);
-                declarationList.removeChild(node);
-                newList.addChild(node);
-            }
-
-            int insertIndex = insertion.statementList.indexOf(declarationList);
-            if (insertIndex < 0) {
-                // this is strange or a bug
-                return null;
-            }
-
-            // insert the new declaration list into the AST
-            insertion.statementList.insertChild(insertIndex + 1, newList);
-
-            // update the insertion point
-            insertion.index = insertIndex + 1;
         }
 
         // build the argument list and create variable declarations
@@ -446,19 +465,22 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         for (int i = 0; i < statements.getChildCount() - 1; i++) {
             // clone the node and remap the variables
             Node node = statements.getChild(i);
-            Node statement = remapVariables(inlineContext, CloneUtils.clone(node, null), argumentList.nodes, null, false);
+            Node statement = remapVariables(inlineContext, CloneUtils.clone(node, null), argumentList.nodes, null);
 
             renameVariableDeclarations(lookup, statement);
 
             // insert the statements at the insertion point
+
+            //String source = new OutputRenderer().render(statement, new OutputConfigBuilder().renderNewLines(true).indentation(3).build());
+            //System.out.println(source);
             insertion.statementList.insertChild(argumentList.index + i, statement);
             parserContext.referenceTree(statement);
         }
 
         // replace the function call node with the expression in the return node
         final ReturnNode returnNode = (ReturnNode) lastChild;
-        final Node expression = CloneUtils.clone(returnNode.getExpression(), null);
-        final Node node = remapVariables(inlineContext, expression, argumentList.nodes, returnNode, false);
+        final Node expressionToInline = CloneUtils.clone(returnNode.getExpression(), null);
+        final Node node = remapVariables(inlineContext, expressionToInline, argumentList.nodes, returnNode);
 
         renameVariableDeclarations(lookup, node);
 
@@ -549,9 +571,13 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         return true;
     }
 
+    /**
+     * Rename all variable declarations so they don't clash when the function is inlined.
+     */
     private void renameVariableDeclarations(ContextAwareLookup lookup, Node expression) {
         for (VariableDeclarationNode declarationNode : NodeFinder.findAll(expression, VariableDeclarationNode.class)) {
             if (declarationNode instanceof ParameterDeclarationNode) {
+                // don't rename parameters
                 continue;
             }
             final String identifier = inlineContext.get(declarationNode);
@@ -577,9 +603,8 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
      * @param expression        The expression to remap variables in
      * @param functionArguments The arguments for the function.
      * @param returnStatement   An optional return statement that is used for single line functions.
-     * @param dereference       If removed nodes should be dereferenced.
      */
-    private Node remapVariables(InlineContext context, Node expression, List<Node> functionArguments, Node returnStatement, boolean dereference) {
+    private Node remapVariables(InlineContext context, Node expression, List<Node> functionArguments, Node returnStatement) {
         // try to find all parameter usage in the expression
         SortedSet<VariableNode> variables = NodeFinder.findAll(expression, VariableNode.class);
 
@@ -598,7 +623,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             // flag that's true if the only thing in the return expression is this parameter. since the incoming
             // expression is cloned, check for a null parent means that the node is at the root
             final boolean singleVariable = variable.getParentNode() == null ||
-                returnStatement != null && variable.getParentNode().hasEqualId(returnStatement);
+                    returnStatement != null && variable.getParentNode().hasEqualId(returnStatement);
 
             // find out which parameter index the variable has
             final int index = declarationNode.getParentNode().indexOf(declarationNode);
@@ -620,7 +645,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             } else if (expression instanceof ParentNode) {
                 // replace the variable with a cloned version of the function call argument
                 // make sure that no referencing takes place, it's handled by the base class
-                ReplaceUtil.replace(parserContext, (ParentNode) expression, variable, clonedParameter, dereference, false);
+                ReplaceUtil.replace(parserContext, (ParentNode) expression, variable, clonedParameter, false, false);
             } else {
                 throw new UnsupportedOperationException("The inline state is unknown or not supported");
             }
@@ -638,8 +663,10 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
      * Build a list with the function arguments in-order. If a parameter is being mutated in the function
      * body then this method will create and add a new variable.
      *
-     * @param functionCall      The function call to take arguments from
-     * @param functionPrototype The function prototype
+     * @param functionCall      The function call to take arguments from.
+     * @param functionPrototype The function prototype.
+     * @param statementList     The statement list where any new nodes should be inserted.
+     * @param insertIndex       The index in the statement list where nodes should be inserted.
      * @return A list of arguments that needs to be cloned before attached to the AST.
      */
     private ArgumentList buildArgumentList(FunctionCallNode functionCall, FunctionPrototypeNode functionPrototype, StatementListNode statementList, int insertIndex) {
@@ -683,24 +710,56 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
      * apart declarations.
      */
     private InsertPoint findInsertionPoint(FunctionCallNode functionCall) {
-        // find the closes statement to the function call
-        final Node statement = NodeFinder.findNearestStatement(functionCall);
-        if (statement == null) {
+        // find the the closest StatementList or Context
+        final Node node = findStatement(functionCall);
+        if (node == null) {
             return null;
         }
 
-        final StatementListNode statementList = (StatementListNode) statement.getParentNode();
-        if (statementList == null) {
+        final ParentNode parentNode = node.getParentNode();
+
+        if (parentNode instanceof StatementListNode) {
+            StatementListNode statementList = (StatementListNode)parentNode;
+            final int index = statementList.indexOf(node);
+            if (index < 0) {
+                logger.trace("Inconsistencies in the AST found along function call : " + functionCall.getIdentifier().original());
+                return null;
+            }
+
+            return new InsertPoint(statementList, index);
+        }
+
+        // we found a context node instead of a statement list.
+        StatementListNode listNode = new StatementListNode(parentNode.getSourcePosition());
+
+        if (parentNode instanceof ContextBlockNode) {
+            final ContextBlockNode blockNode = (ContextBlockNode)parentNode;
+            listNode.insertChild(0, blockNode.getStatment());
+            blockNode.setStatement(listNode);
+            return new InsertPoint(listNode, 0);
+        }
+
+        if (parentNode instanceof IterationNode) {
+            final IterationNode iterationNode = (IterationNode)parentNode;
+            listNode.insertChild(0, iterationNode.getStatement());
+            iterationNode.setStatement(listNode);
+            return new InsertPoint(listNode, 0);
+        }
+
+        // functions and switch statements can't have statement lists
+        return null;
+    }
+
+    public static Node findStatement(Node node) {
+        final ParentNode parent = node.getParentNode();
+        if (parent == null) {
             return null;
         }
 
-        final int index = statementList.indexOf(statement);
-        if (index < 0) {
-            logger.trace("Inconsistencies in the AST found along function call : " + functionCall.getIdentifier().original());
-            return null;
+        if (parent instanceof StatementListNode || parent instanceof GLSLContext) {
+            return node;
         }
-
-        return new InsertPoint(statementList, index);
+        return findStatement(parent);
     }
 
     /**

@@ -127,6 +127,7 @@ public class ParserContextImpl implements ParserContext {
         base.accept(new ContextAwareVisitor(contextAwareRemap));
 
         //String source = new OutputRenderer().render(base, new OutputConfigBuilder().renderNewLines(true).indentation(3).build());
+        //System.out.println(source);
 
         final TypeRegistry typeRegistryRemap = typeRegistry.remap(base);
 

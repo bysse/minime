@@ -501,7 +501,8 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
 
     private boolean noSemiColon(Node node) {
         return node instanceof FunctionDefinitionNode ||
-                node instanceof IterationNode;
+                node instanceof IterationNode ||
+                node instanceof ConditionNode;
     }
 
     private void outputType(FullySpecifiedType type, StructDeclarationNode structDeclaration, boolean inGlobalScope) {

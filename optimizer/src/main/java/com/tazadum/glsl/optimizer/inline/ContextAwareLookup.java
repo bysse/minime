@@ -120,7 +120,5 @@ public class ContextAwareLookup {
             }
             return declarationNode;
         }
-
-
     }
 }

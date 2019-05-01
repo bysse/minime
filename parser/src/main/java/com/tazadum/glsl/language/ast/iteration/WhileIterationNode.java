@@ -29,10 +29,12 @@ public class WhileIterationNode extends FixedChildParentNode implements Iteratio
         return getChild(0);
     }
 
+    @Override
     public Node getStatement() {
         return getChild(1);
     }
 
+    @Override
     public void setStatement(Node statement) {
         setChild(1, statement);
     }

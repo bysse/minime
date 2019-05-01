@@ -101,15 +101,19 @@ Date    Hours
 
 2019-04-12  5.0 Bug in parentNode.replaceChild causing reference errors. Added context to if-clauses and fixed inline bug.
 2019-04-13  0.5 Adding support for '=='
-2019-04-15  1.0 Ternery expressions didn't explore type of condition.
+2019-04-15  1.0 Ternary expressions didn't explore type of condition.
 2019-04-24  1.0 Fixed nested comments in preprocessor
 2019-04-27  1.0 Fixed a lot of reference errors in the constant folding optimizer.
 2019-04-28  4.0 Added reference checks on all optimizer except function inline. Getting closer to the function inline problems
 
+2019-05-01  4.0 Trying to find the problem with inline. Found other problems and fixed them.
 
 // WORK IN PROGRESS: Looks like com.tazadum.glsl.optimizer.inline.FunctionInlineVisitor.remapVariables is replacing
 // usage in the original function instead of in the cloned row
+// Not sure if this is true. The VariableRegistry cloning fails because declarations has been added without being
+// attached to the node graph
 
+// TODO: handle inout/out parameters when inlining functions
 
 // TODO: detect duplication
 // TODO: add intrinsic for distance -> length

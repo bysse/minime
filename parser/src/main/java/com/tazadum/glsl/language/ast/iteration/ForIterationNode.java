@@ -45,10 +45,12 @@ public class ForIterationNode extends FixedChildParentNode implements IterationN
         setChild(2, expression);
     }
 
+    @Override
     public Node getStatement() {
         return getChild(3);
     }
 
+    @Override
     public void setStatement(Node statements) {
         setChild(3, statements);
     }
