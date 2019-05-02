@@ -287,7 +287,6 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             changes++;
             return node;
         }
-
         // we need to find a valid insertion point for parameter re-declarations
         InsertPoint insertion = findInsertionPoint(functionCall);
         if (insertion == null) {

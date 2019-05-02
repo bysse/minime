@@ -131,24 +131,22 @@ public class VariableRegistryImpl implements VariableRegistry {
         for (Map.Entry<GLSLContext, VariableRegistryContext> entry : declarationMap.entrySet()) {
             if (entry.getValue().undeclare(node)) {
                 logger.debug("Removing variable {}", node.getIdentifier().original());
-
-                // remove all usages of the node
-                Usage<VariableDeclarationNode> usage = usageMap.get(node);
-                if (usage != null) {
-                    for (Node reference : usage.getUsageNodes()) {
-                        if (reference instanceof VariableNode) {
-                            logger.trace("  +  Setting declaration reference to null for usage of variable {}", reference);
-                            //((VariableNode) reference).setDeclarationNode(null);
-                        }
-                    }
-                }
-                // remove the entry
-                usageMap.remove(node);
-                return true;
+                break;
             }
         }
 
-        return false;
+        // remove all usages of the node
+        Usage<VariableDeclarationNode> usage = usageMap.get(node);
+        if (usage != null) {
+            for (Node reference : usage.getUsageNodes()) {
+                if (reference instanceof VariableNode) {
+                    logger.trace("  +  Setting declaration reference to null for usage of variable {}", reference);
+                    //((VariableNode) reference).setDeclarationNode(null);
+                }
+            }
+        }
+        // remove the entry
+        return usageMap.remove(node) != null;
     }
 
     @Override
