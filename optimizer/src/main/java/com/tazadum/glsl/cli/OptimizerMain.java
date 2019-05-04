@@ -101,7 +101,7 @@ public class OptimizerMain {
             .build();
 
         if (singleOutput) {
-            if (!header) {
+            if (!header && inputOutputs.size() > 1) {
                 throw new StageException("Multiple shader files will be written to the same output file! Please use '-format c'");
             }
 
