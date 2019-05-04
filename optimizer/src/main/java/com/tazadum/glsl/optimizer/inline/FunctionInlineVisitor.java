@@ -715,11 +715,15 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
             return null;
         }
 
-        final int index = statementList.indexOf(statement);
-        if (index < 0) {
-            logger.trace("- Inconsistencies in the AST found along function call : " + functionCall.getIdentifier().original());
-            return null;
-        }
+        final ParentNode parentNode = node.getParentNode();
+
+        if (parentNode instanceof StatementListNode) {
+            StatementListNode statementList = (StatementListNode)parentNode;
+            final int index = statementList.indexOf(node);
+            if (index < 0) {
+                logger.trace("- Inconsistencies in the AST found along function call : " + functionCall.getIdentifier().original());
+                return null;
+            }
 
             return new InsertPoint(statementList, index);
         }
