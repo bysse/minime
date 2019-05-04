@@ -1,3 +1,5 @@
+uniform float iTime;
+uniform vec2 iResolution;
 const float i_MAXD = 15000.0;
 vec3 eps = vec3(.02, 0., 0.);
 

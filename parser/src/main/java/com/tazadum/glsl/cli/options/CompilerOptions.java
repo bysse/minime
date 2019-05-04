@@ -58,7 +58,6 @@ public class CompilerOptions implements CLIOptions {
             .defaultsTo(OutputFormat.PLAIN.token());
 
         shaderIdSpec = parser.accepts("id", "Set the shader id, used for C-header generation.")
-            .availableIf(formatSpec)
             .withRequiredArg().describedAs("id");
 
         blacklistSpec = parser.accepts("no-render", "Black lists a keyword that will be omitted from rendering.")

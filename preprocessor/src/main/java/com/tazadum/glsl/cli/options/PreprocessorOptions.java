@@ -49,7 +49,7 @@ public class PreprocessorOptions implements CLIOptions {
             for (GLSLVersion version : GLSLVersion.values()) {
                 if (version.getVersionCode() == glVersion) {
                     glslVersion = version;
-                    logger.trace("Setting GLSL Version to {}", glslVersion.getVersionName());
+                    logger.trace("- Setting GLSL Version to {}", glslVersion.getVersionName());
                     break;
                 }
             }

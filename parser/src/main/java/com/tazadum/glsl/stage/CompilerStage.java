@@ -57,11 +57,11 @@ public class CompilerStage implements Stage<String, Pair<Node, ParserContext>> {
             final GLSLParser parser = new GLSLParser(tokenStream);
             parser.setErrorHandler(new ParserBailStrategy());
 
-            logger.trace("* Converting source to AST");
+            logger.trace("- Converting source to AST");
             final ASTConverter astConverter = new ASTConverter(sourcePositionMapper, parserContext);
             Node node = parser.translation_unit().accept(astConverter);
 
-            logger.trace("* Checking types");
+            logger.trace("- Checking types");
             node.accept(parserContext.getTypeVisitor());
 
             return StageData.from(Pair.create(node, parserContext), sourcePositionMapper);

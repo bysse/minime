@@ -48,7 +48,6 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
         final OptimizerContext context = new OptimizerContext(inputData.getSecond());
 
         try {
-            logger.info("* Running the optimizer");
             Branch result = pipeline.optimize(context, inputData.getFirst(), true, report);
 
             Node node = result.getNode();
@@ -67,7 +66,7 @@ public class OptimizerStage implements Stage<Pair<Node, ParserContext>, Pair<Nod
     }
 
     private void optimizeIdentifiers(Node node, ParserContext parserContext, boolean keepUniformIdentifiers) {
-        logger.info("Minifying identifiers");
+        logger.info("POST: Shortening identifiers");
         ContextBasedMultiIdentifierShortener shortener = new ContextBasedMultiIdentifierShortener(false, outputConfig, keepUniformIdentifiers);
         shortener.register(parserContext, node);
         shortener.apply();

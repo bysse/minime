@@ -81,7 +81,7 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
                 return null;
             }
 
-            logger.trace("Removing unused type declaration {}", node.getType());
+            logger.trace("- Removing unused type declaration {}", node.getType());
 
             changes++;
             return REMOVE;
@@ -95,7 +95,7 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
             return null;
         }
 
-        logger.trace("Removing unused variable declaration {}", node.getIdentifier().original());
+        logger.trace("- Removing unused variable declaration {}", node.getIdentifier().original());
 
         changes++;
         return REMOVE;
@@ -110,7 +110,7 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
         super.visitVariableDeclarationList(node);
         if (node.getChildCount() == 0) {
             // remove empty declaration lists
-            logger.trace("Removing empty variable declaration list");
+            logger.trace("- Removing empty variable declaration list");
 
             changes++;
             return REMOVE;
@@ -135,7 +135,7 @@ public class DeadCodeEliminationVisitor extends ReplacingASTVisitor implements O
         final Usage<FunctionPrototypeNode> nodeUsage = parserContext.getFunctionRegistry().resolve(functionPrototype);
         if (nodeUsage.getUsageNodes().isEmpty()) {
             // remove functions that aren't used
-            logger.trace("Removing unused function {}", functionName);
+            logger.trace("- Removing unused function {}", functionName);
 
             changes++;
             return REMOVE;

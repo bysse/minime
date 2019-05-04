@@ -37,9 +37,9 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
             final VariableDeclarationNode declarationNode = node.getDeclarationNode();
 
             if (declarationNode == null) {
-                logger.debug("Removing usage for unresolved variable {}", id);
+                logger.trace("- Removing usage for unresolved variable {}", id);
             } else {
-                logger.debug("Removing usage for variable {}:{}", id, declarationNode.getIdentifier().original());
+                logger.trace("- Removing usage for variable {}:{}", id, declarationNode.getIdentifier().original());
             }
         }
         return null;
@@ -81,7 +81,7 @@ public class DereferencingVisitor extends DefaultASTVisitor<Void> {
     public Void visitFunctionCall(FunctionCallNode node) {
         super.visitFunctionCall(node);
         if (parserContext.getFunctionRegistry().dereference(node)) {
-            logger.trace("Removing usage of function {}", node);
+            logger.trace("- Removing usage of function {}", node);
         }
         return null;
     }

@@ -54,7 +54,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
     @Override
     public StageData<String> process(StageData<Pair<Node, ParserContext>> input) {
         try {
-            logger.trace("# Rendering the AST to a header file");
+            logger.trace("- # Rendering the AST to a header file");
 
             final Node node = input.getData().getFirst();
 

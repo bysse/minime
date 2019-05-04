@@ -42,7 +42,7 @@ public class ReferencingVisitor extends DefaultASTVisitor<Void> {
             ResolutionResult result = registry.resolve(context, identifier, Identifier.Mode.Original);
             node.setDeclarationNode(result.getDeclaration());
 
-            logger.debug("Adding usage for variable {}:{}", node.getId(), identifier);
+            logger.trace("- Adding usage for variable {}:{}", node.getId(), identifier);
         } catch (VariableException e) {
             throw new SourcePositionException(node.getSourcePosition(), e.getMessage(), e);
         }

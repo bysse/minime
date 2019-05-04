@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static java.lang.String.format;
+
 public class BranchingOptimizerPipeline implements OptimizerPipeline {
     private final Logger logger = LoggerFactory.getLogger(BranchingOptimizerPipeline.class);
     private final TreePruner treePruner;
@@ -59,7 +61,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
             totalChanges = 0;
 
             if (showOutput) {
-                logger.info(String.format("* Iteration %d: branches=%d", iteration++, acceptedBranches.size()));
+                logger.info(format("ITERATION %d: branches=%d", iteration++, acceptedBranches.size()));
             }
 
             if (report != null) {
@@ -73,18 +75,15 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
             // run through all optimizers one branch at a time
             int branchIndex = 0;
             for (Branch branch : acceptedBranches) {
-                if (showOutput) {
-                    logger.info("   * Branch {}:", branchIndex++);
-                }
-
                 int branchChanges = 0;
                 int branchesDiscovered = 0;
                 int branchSizeBefore = output.render(branch.getNode(), outputConfig).length();
 
+                branchIndex++;
+
                 for (Optimizer optimizer : optimizers) {
 
-                    //System.out.println("WORKING WITH " + branch.getContext().id());
-                    logger.debug("Running optimizer {}", optimizer.name());
+                    logger.trace("- Running optimizer {}", optimizer.name());
                     final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, decider, branch);
                     int changes = result.getChanges();
                     totalChanges += changes;
@@ -96,7 +95,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
 
                     if (changes > 0) {
                         branch = result.getInputBranch();
-                        logger.info(String.format("      - %-12s %d", optimizer.name(), changes));
+                        logger.debug(format("      - %-12s %d", optimizer.name(), changes));
                     }
                 }
 
@@ -114,7 +113,9 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
 
                 if (treePruner.prune(iteration, sizeDifference)) {
                     // this tree is pruned and excluded from further exploration
-                    logger.info("      + branch summary: removed");
+                    if (showOutput) {
+                        logger.info("  - Branch {}: REMOVED", branchIndex);
+                    }
                     removedBranches++;
                     continue;
                 }
@@ -123,13 +124,13 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
 
                 if (showOutput) {
                     if (branchChanges == 0 && branchesDiscovered == 0) {
-                        logger.info("      - no modifications");
+                        logger.debug("  - Branch {}: STABLE", branchIndex);
                     } else {
-                        logger.info("      - branch summary:");
-                        logger.info("         - modifications:   {}", branchChanges);
-                        logger.info("         - size difference: {}", branchSizeAfter - branchSizeBefore);
+
                         if (branchesDiscovered > 0) {
-                            logger.info("         - branches:    {}", branchesDiscovered);
+                            logger.info(format("  - Branch %2d: %2d changes, %2d bytes, %d new branches", branchIndex, branchChanges, branchSizeBefore - branchSizeAfter, branchesDiscovered));
+                        } else {
+                            logger.info(format("  - Branch %2d: %2d changes, %2d bytes", branchIndex, branchChanges, branchSizeBefore - branchSizeAfter));
                         }
                     }
                 }
@@ -146,9 +147,7 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
 
 
             if (showOutput) {
-                logger.info("   * Summary:");
-                logger.info("      - pruned branches: {}", removedBranches);
-                logger.info("      - size difference: {}", minSize - previousSize);
+                logger.info(format("  - Summary: %d bytes (without identifiers)", minSize));
             }
 
             if (report != null) {

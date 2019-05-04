@@ -25,6 +25,7 @@ import static com.tazadum.glsl.cli.CommandLineBase.*;
  * Created by erikb on 2018-10-24.
  */
 public class OptimizerMain {
+    private final Logger logger = LoggerFactory.getLogger(OptimizerMain.class);
     public static boolean noExit = false;
 
     private final PreprocessorOptions preprocessorOption;
@@ -100,11 +101,17 @@ public class OptimizerMain {
             .build();
 
         if (singleOutput) {
+            if (!header) {
+                throw new StageException("Multiple shader files will be written to the same output file! Please use '-format c'");
+            }
+
             final FileWriterStage writerStage = new FileWriterStage(inputOutputs.get(0).getOutput());
             final ConcatStage concatStage = new ConcatStage("\n");
 
             for (InputOutput inputOutput : inputOutputs) {
                 final OptimizerReport report = new OptimizerReport();
+
+                report.header(inputOutput.getInput());
 
                 StagePipeline<Path, String> pipeline = singleInput(report, inputOutput)
                     .chain(concatStage)
@@ -117,13 +124,11 @@ public class OptimizerMain {
 
             writerStage.process(StageData.from(concatStage.getData(), null));
         } else {
-            if (!header) {
-                throw new StageException("All output will be written to the same file!");
-            }
-
             for (InputOutput inputOutput : inputOutputs) {
                 final OptimizerReport report = new OptimizerReport();
                 final FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
+
+                report.header(inputOutput.getInput());
 
                 StagePipeline<Path, String> pipeline = singleInput(report, inputOutput)
                     .chain(writerStage)

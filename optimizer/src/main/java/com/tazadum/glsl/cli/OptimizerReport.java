@@ -3,6 +3,7 @@ package com.tazadum.glsl.cli;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.Locale;
 
 /**
@@ -54,6 +55,12 @@ public class OptimizerReport {
         timestamp = System.currentTimeMillis();
     }
 
+    public void header(Path path) {
+        logger.info("-----------------------------------------------------------------");
+        logger.info("Filename: {}", path);
+        logger.info("-----------------------------------------------------------------");
+    }
+
     public void display() {
         long duration = System.currentTimeMillis() - timestamp;
         String percent = String.format(Locale.US, "%.1f", 100f * endSize / startSize);
@@ -67,6 +74,7 @@ public class OptimizerReport {
         logger.info(String.format(Locale.US, " Explored %d branches over %d iterations and made %d changes.", branches, iterations, changes));
         logger.info(" Time: {}", friendlyDuration(duration));
         logger.info("-----------------------------------------------------------------");
+        logger.info("");
     }
 
     private String friendlyDuration(long duration) {

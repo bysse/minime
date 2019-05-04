@@ -87,7 +87,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
             return null;
         }
 
-        logger.debug("Investigating propagating of {}", node.getIdentifier().original());
+        logger.trace("- Investigating propagating of {}", node.getIdentifier().original());
 
         final Set<Node> deferredDeRef = new TreeSet<>();
 
@@ -97,7 +97,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
                 // one of the usage nodes is being mutated or is closely part of a mutating operation
                 // the safest action here is to abort the entire propagation of the value.
 
-                logger.trace("  - Node is mutated in a usage node");
+                logger.trace("- Node is mutated in a usage node");
                 return null;
             }
         }
@@ -116,13 +116,13 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
             parentNode.replaceChild(variableNode, initializer);
 
             // make sure all new nodes are registered properly
-            logger.trace("  - Registering cloned initializer");
+            logger.trace("- Registering cloned initializer");
             parserContext.referenceTree(initializer);
             changes++;
         }
 
         for (Node deRef : deferredDeRef) {
-            logger.trace("  - De-referencing old declaration");
+            logger.trace("- De-referencing old declaration");
             parserContext.dereferenceTree(deRef);
         }
 
