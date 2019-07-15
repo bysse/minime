@@ -19,13 +19,13 @@ class AstParserTest {
     private PreprocessorState state;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         state = new PreprocessorState();
     }
 
     @Test
     @DisplayName("#extension")
-    public void testExtensionDeclaration() {
+    void testExtensionDeclaration() {
         assertThrows(PreprocessorException.class, () ->
             // extra tokens on the line
             parse(ExtensionDeclarationNode.class, "#extension all : warn FAIL")
@@ -45,7 +45,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#version")
-    public void testVersionDeclaration() {
+    void testVersionDeclaration() {
         assertThrows(PreprocessorException.class, () ->
             // extra tokens on the line
             parse(VersionDeclarationNode.class, "#version 400 core FAIL")
@@ -65,7 +65,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#line")
-    public void testLineDeclaration() {
+    void testLineDeclaration() {
         assertThrows(PreprocessorException.class, () ->
             // extra tokens on the line
             parse(LineDeclarationNode.class, "#line 10 10 FAIL")
@@ -92,7 +92,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#pragma")
-    public void testPragmaDeclaration() {
+    void testPragmaDeclaration() {
         PragmaDeclarationNode node1 = parse(PragmaDeclarationNode.class, "#pragma optimizations(1)");
         assertEquals(DeclarationType.PRAGMA, node1.getDeclarationType());
         assertEquals("optimizations(1)", node1.getDeclaration());
@@ -105,7 +105,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#define")
-    public void testMacroDeclaration() {
+    void testMacroDeclaration() {
         MacroDeclarationNode node_1 = parse(MacroDeclarationNode.class, "#define MACRO");
         assertEquals(DeclarationType.DEFINE, node_1.getDeclarationType());
         assertEquals("MACRO", node_1.getIdentifier());
@@ -128,7 +128,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#else and #endif")
-    public void testDeclarationWithoutArguments() {
+    void testDeclarationWithoutArguments() {
         ElseFlowNode node1 = parse(ElseFlowNode.class, "#else // comment");
         assertEquals(DeclarationType.ELSE, node1.getDeclarationType());
 
@@ -138,7 +138,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#error")
-    public void testError() {
+    void testError() {
         assertThrows(PreprocessorException.class, () ->
             // no extra tokens on the line
             parse(ErrorDeclarationNode.class, "#error")
@@ -151,7 +151,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#ifdef")
-    public void testIfDefined() {
+    void testIfDefined() {
         assertThrows(PreprocessorException.class, () ->
                 // extra tokens on the line
                 parse(IfDefinedFlowNode.class, "#ifdef MACRO FAIL")
@@ -164,7 +164,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#ifndef")
-    public void testIfNotDefined() {
+    void testIfNotDefined() {
         assertThrows(PreprocessorException.class, () ->
                 // extra tokens on the line
                 parse(IfNotDefinedFlowNode.class, "#ifndef MACRO FAIL")
@@ -177,7 +177,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#undef")
-    public void testUndef() {
+    void testUndef() {
         assertThrows(PreprocessorException.class, () ->
                 // extra tokens on the line
                 parse(UnDefineFlowNode.class, "#undef MACRO FAIL")
@@ -190,7 +190,7 @@ class AstParserTest {
 
     @Test
     @DisplayName("#if and #elif")
-    public void testIfAndElseIf() {
+    void testIfAndElseIf() {
         IfFlowNode node_1 = parse(IfFlowNode.class, "#if 1+(2*3)%4");
         assertEquals(DeclarationType.IF, node_1.getDeclarationType());
         assertNotNull(node_1.getExpression());

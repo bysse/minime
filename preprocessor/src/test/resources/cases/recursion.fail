@@ -1,0 +1,4 @@
+-------------------------------------------------------------------
+first
+#pragma include(directory/recurse)
+last

@@ -1,0 +1,8 @@
+first
+// #pragma include(directory/working)
+A
+last
+-------------------------------------------------------------------
+first
+#pragma include(directory/working)
+last

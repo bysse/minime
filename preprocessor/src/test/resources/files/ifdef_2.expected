@@ -1,6 +1,0 @@
-// #define APA 1
-// #ifdef APA
-A
-// #else
-// B
-// #endif

@@ -7,6 +7,8 @@ dependencies {
 
     testCompile 'org.jogamp.jogl:jogl-all:2.3.2'
     testCompile 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
+
+	testImplementation project(':test-util')
 }
 
 task fatJar(type: Jar) {

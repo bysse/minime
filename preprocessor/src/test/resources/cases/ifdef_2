@@ -1,0 +1,13 @@
+// #define APA 1
+// #ifdef APA
+A
+// #else
+// B
+// #endif
+-------------------------------------------------------------------
+#define APA 1
+#ifdef APA
+A
+#else
+B
+#endif

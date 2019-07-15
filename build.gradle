@@ -20,8 +20,8 @@ subprojects {
 
         testCompile 'org.mockito:mockito-core:2.9.0'
 
-        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.1.0'
-        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.1.0'
-        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.1.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-api:5.5.0'
+        testImplementation 'org.junit.jupiter:junit-jupiter-params:5.5.0'
+        testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.5.0'
     }
 }

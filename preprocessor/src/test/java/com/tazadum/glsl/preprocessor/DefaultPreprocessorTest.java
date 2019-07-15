@@ -1,7 +1,9 @@
 package com.tazadum.glsl.preprocessor;
 
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
+import com.tazadum.glsl.test.TestData;
 import com.tazadum.glsl.util.io.FileSource;
+import com.tazadum.glsl.util.io.Source;
 import com.tazadum.glsl.util.io.StringSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -10,12 +12,14 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -65,39 +69,38 @@ class DefaultPreprocessorTest {
         };
     }
 
+    private static Stream<TestData.Data> getTestData() throws IOException {
+        return TestData.read(Paths.get("src/test/resources/cases"), "directory");
+    }
+
     @ParameterizedTest(name = "{index}: {0}")
-    @MethodSource("getTestFiles")
-    void testFiles(String input, String expectedFile, boolean shouldWork) throws IOException {
+    @MethodSource("getTestData")
+    void testPreprocessing(TestData.Data data) throws IOException {
+        final StringSource inputSource = new StringSource(data.getFilename(), data.getInput()) {
+            @Override
+            public Source resolve(String filePath) {
+                try {
+                    return new FileSource(Paths.get("src/test/resources/cases").resolve(Paths.get(filePath)));
+                } catch (FileNotFoundException e) {
+                    return null;
+                }
+            }
+        };
         try {
-            final Path parent = Paths.get("src/test/resources/files");
-            final FileSource inputSource = new FileSource(parent.resolve(input));
             final Preprocessor.Result result = preprocessor.process(inputSource);
 
-            if (shouldWork) {
-                String expected = new String(Files.readAllBytes(parent.resolve(expectedFile)));
-                assertEquals(expected, result.getSource());
+            if (data.isShouldWork()) {
+                assertEquals(data.getExpected(), result.getSource().trim());
             } else {
-                fail("The test should fail");
+                System.err.println(result.getSource());
+
+                fail("Test test should fail");
             }
         } catch (PreprocessorException e) {
-            if (shouldWork) {
+            if (data.isShouldWork()) {
                 throw e;
             }
         }
-    }
-
-    private static Arguments[] getTestFiles() {
-        return new Arguments[]{
-                Arguments.of("concat_1.input", "concat_1.expected", true),
-                Arguments.of("nested_1.input", "nested_1.expected", true),
-                Arguments.of("test_1.input", "test_1.expected", true),
-                Arguments.of("test_2.input", "test_2.expected", true),
-                Arguments.of("ifdef_1.input", "ifdef_1.expected", true),
-                Arguments.of("ifdef_2.input", "ifdef_2.expected", true),
-                Arguments.of("ifndef_1.input", "ifndef_1.expected", true),
-                Arguments.of("fail_1.input", null, false),
-                Arguments.of("fail_2.input", null, false)
-        };
     }
 
     @Test
