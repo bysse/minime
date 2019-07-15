@@ -144,6 +144,7 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
             Arguments.of("float a=abs(-2);", "float a=2;", noChecks()),
             Arguments.of("float a=sin(0);", "float a=0;", noChecks()),
             Arguments.of("float a=cos(0);", "float a=1;", noChecks()),
+            Arguments.of("vec2 u,v;float a=distance(u,v);", "vec2 u,v;float a=length((u)-(v));", noChecks()),
         };
     }
 

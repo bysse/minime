@@ -2,6 +2,7 @@ package com.tazadum.glsl.optimizer.simplification;
 
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.arithmetic.PrefixOperationNode;
+import com.tazadum.glsl.language.model.NumericOperator;
 import com.tazadum.glsl.language.model.UnaryOperator;
 
 import java.util.ArrayList;
@@ -106,11 +107,12 @@ public class RuleSet {
             gGroup(0)
         ));
 
-        // length(abs(a)) = length(a)
-
+        list.add(rule("distance(_1,_2) = length(_1-_2)",
+                mFunc("distance", mAny(), mAny()),
+                gFunc("length", gOperation(NumericOperator.SUB, gParentesis(gGroup(0)), gParentesis(gGroup(1))))
+        ));
 
         // sqrt(_1) = _2
-
 
         list.add(rule("sin(0) = 0",
             mFunc("sin", mLiteral(0f)),

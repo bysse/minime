@@ -5,6 +5,8 @@ import com.tazadum.glsl.language.ast.ParentNode;
 import com.tazadum.glsl.optimizer.pipeline.BranchingOptimizerPipeline;
 import com.tazadum.glsl.optimizer.pipeline.OptimizerPipeline;
 import com.tazadum.glsl.optimizer.pipeline.SingleShaderOptimizerPipeline;
+import com.tazadum.glsl.preprocessor.language.GLSLVersion;
+import com.tazadum.glsl.stage.PreprocessorStage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

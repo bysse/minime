@@ -177,9 +177,6 @@ public class OptimizerMain {
                     .setVersionSupplier(() -> preprocess.getResult().getGLSLVersion());
         }
 
-        // setup the output
-        FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
-
         return StagePipeline
             .create(preprocess)
             .chain(startSize)

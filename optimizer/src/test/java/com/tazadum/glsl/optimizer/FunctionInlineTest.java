@@ -1,5 +1,6 @@
 package com.tazadum.glsl.optimizer;
 
+import com.tazadum.glsl.cli.builder.PreprocessorExecutor;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
@@ -13,7 +14,9 @@ import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistryContext;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.functions.ConstructorsFunctionSet;
+import com.tazadum.glsl.preprocessor.Preprocessor;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
+import com.tazadum.glsl.util.TestUtil;
 import com.tazadum.slf4j.TLogConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +26,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 
@@ -404,7 +410,39 @@ public class FunctionInlineTest extends BaseOptimizerTest {
         System.out.println(toString(result.getNode()));
         assertEquals(4, variableDeclarations.size(), "only 3 contexts and main");
         assertEquals(2, usedFunctions.size(), "only 1 functions, two flavors of vec3");
+    }
 
+    @Test
+    void testShader() throws IOException {
+        TLogConfiguration.get().useGlobalConfiguration();
+        TLogConfiguration.get().getConfig().setLogLevel(Level.TRACE);
+
+        GLSLContext context = parserContext.currentContext();
+        outputConfig = outputConfig.edit().renderNewLines(true).indentation(3).build();
+
+        // add constructors
+        BuiltInFunctionRegistry builtInRegistry = parserContext.getFunctionRegistry().getBuiltInFunctionRegistry();
+        new ConstructorsFunctionSet().generate(builtInRegistry, GLSLProfile.COMPATIBILITY);
+
+        TypeQualifierList uniform = new TypeQualifierList();
+        uniform.add(StorageQualifier.UNIFORM);
+
+        Preprocessor.Result preprocessResult = PreprocessorExecutor.create()
+                .source(Paths.get("src/test/resources/shaders/starstruck.glsl"))
+                .process();
+
+        String source = preprocessResult.getSource();
+
+        Branch result = optimizeBranch(source);
+        VariableRegistry variableRegistry = result.getContext().getVariableRegistry();
+        FunctionRegistry functionRegistry = result.getContext().getFunctionRegistry();
+
+        Map<GLSLContext, VariableRegistryContext> variableDeclarations = variableRegistry.getDeclarationMap();
+        List<Usage<FunctionPrototypeNode>> usedFunctions = functionRegistry.getUsedFunctions();
+
+        System.out.println(toString(result.getNode()));
+        assertEquals(2, variableDeclarations.size(), "only 2 contexts and main");
+        assertEquals(2, usedFunctions.size(), "only 2 functions, two flavors of vec3");
     }
 
     private void sourceEquals(String expected, String actual) {

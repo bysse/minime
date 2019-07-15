@@ -1,26 +1,20 @@
 package com.tazadum.glsl.optimizer;
 
-import com.tazadum.glsl.language.ast.Identifier;
-import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
-import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
-import com.tazadum.glsl.language.function.FunctionRegistry;
-import com.tazadum.glsl.language.variable.VariableRegistry;
-import com.tazadum.glsl.parser.*;
-import com.tazadum.glsl.util.TestUtil;
 import com.tazadum.glsl.language.ast.ASTConverter;
 import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
 import com.tazadum.glsl.language.output.OutputRenderer;
+import com.tazadum.glsl.parser.GLSLParser;
+import com.tazadum.glsl.parser.ParserContext;
+import com.tazadum.glsl.parser.ShaderType;
+import com.tazadum.glsl.parser.TypeVisitor;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
+import com.tazadum.glsl.util.TestUtil;
 import org.antlr.v4.runtime.ParserRuleContext;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.fail;
 
 public abstract class BaseTest {
     protected ParserContext parserContext;
