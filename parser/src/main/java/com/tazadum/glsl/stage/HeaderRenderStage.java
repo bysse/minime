@@ -147,7 +147,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         return builder.toString();
     }
 
-    public Stage<Pair<Node, ParserContext>, String> setVersionSupplier(Supplier<GLSLVersion> versionSupplier) {
+    public HeaderRenderStage setVersionSupplier(Supplier<GLSLVersion> versionSupplier) {
         this.versionSupplier = versionSupplier;
         return this;
     }
