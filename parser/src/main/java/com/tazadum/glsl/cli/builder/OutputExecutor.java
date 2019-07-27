@@ -1,15 +1,11 @@
 package com.tazadum.glsl.cli.builder;
 
 import com.tazadum.glsl.cli.options.OutputFormat;
-import com.tazadum.glsl.language.ast.Node;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
-import com.tazadum.glsl.parser.ParserContext;
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.stage.HeaderRenderStage;
-import com.tazadum.glsl.stage.StageData;
-import com.tazadum.glsl.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +28,7 @@ public class OutputExecutor implements ProcessorExecutor<String> {
     private Set<String> blacklistedKeywords;
     private OutputConfig configuration;
     private String header="";
-    private ParserResult result;
+    private CompilerExecutor.Result result;
 
 
     public static OutputExecutor create(OutputFormat outputFormat) {
@@ -44,7 +40,7 @@ public class OutputExecutor implements ProcessorExecutor<String> {
         this.blacklistedKeywords = new HashSet<>();
     }
 
-    public OutputExecutor source(ParserResult result) {
+    public OutputExecutor source(CompilerExecutor.Result result) {
         this.result = result;
         return this;
     }

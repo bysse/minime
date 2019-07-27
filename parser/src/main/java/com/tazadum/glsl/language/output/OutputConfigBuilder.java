@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.output;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,8 +45,8 @@ public class OutputConfigBuilder {
      * Blacklist a keyword. The keyword will not be rendered if added
      * to this list. Use with care.
      */
-    public OutputConfigBuilder blacklistKeyword(String keyword) {
-        this.keywordBlacklist.add(keyword);
+    public OutputConfigBuilder blacklistKeyword(String... keywords) {
+        Collections.addAll(keywordBlacklist, keywords);
         return this;
     }
 

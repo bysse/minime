@@ -12,32 +12,33 @@ import com.tazadum.glsl.util.SourcePositionMapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-public class ParserExecutor implements ProcessorExecutor<ParserResult> {
+public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Result> {
     private final ShaderType shaderType;
     private final GLSLProfile profile;
     private String source;
     private SourcePositionMapper mapper;
 
-    public static ParserExecutor create() {
-        return new ParserExecutor(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY);
+    public static CompilerExecutor create() {
+        return new CompilerExecutor(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY);
     }
 
-    public static ParserExecutor create(ShaderType shaderType, GLSLProfile profile) {
-        return new ParserExecutor(shaderType, profile);
+    public static CompilerExecutor create(ShaderType shaderType, GLSLProfile profile) {
+        return new CompilerExecutor(shaderType, profile);
     }
 
-    private ParserExecutor(ShaderType shaderType, GLSLProfile profile) {
+    private CompilerExecutor(ShaderType shaderType, GLSLProfile profile) {
         this.shaderType = shaderType;
         this.profile = profile;
     }
 
-    public ParserExecutor source(Path path) {
+    public CompilerExecutor source(Path path) {
         validateSource();
         try {
-            source = Files.readString(path);
+            source = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
             mapper = new SourcePositionMapper();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -45,14 +46,14 @@ public class ParserExecutor implements ProcessorExecutor<ParserResult> {
         return this;
     }
 
-    public ParserExecutor source(String source) {
+    public CompilerExecutor source(String source) {
         validateSource();
         this.source = source;
         this.mapper = new SourcePositionMapper();
         return this;
     }
 
-    public ParserExecutor source(Preprocessor.Result result) {
+    public CompilerExecutor source(Preprocessor.Result result) {
         this.source = result.getSource();
         this.mapper = result.getMapper();
         return this;
@@ -65,10 +66,40 @@ public class ParserExecutor implements ProcessorExecutor<ParserResult> {
     }
 
     @Override
-    public ParserResult process() {
+    public Result process() {
         final CompilerStage stage = new CompilerStage(shaderType, profile);
         final StageData<Pair<Node, ParserContext>> result = stage.process(StageData.from(source, mapper));
         final Pair<Node, ParserContext> data = result.getData();
-        return new ParserResult(result.getMapper(), data.getFirst(), data.getSecond());
+        return new Result(result.getMapper(), data.getFirst(), data.getSecond());
+    }
+
+    public static class Result implements StageData<Pair<Node, ParserContext>> {
+        private final SourcePositionMapper mapper;
+        private Node node;
+        private ParserContext context;
+
+        Result(SourcePositionMapper mapper, Node node, ParserContext context) {
+            this.mapper = mapper;
+            this.node = node;
+            this.context = context;
+        }
+
+        public Node getNode() {
+            return node;
+        }
+
+        public ParserContext getContext() {
+            return context;
+        }
+
+        @Override
+        public Pair<Node, ParserContext> getData() {
+            return Pair.create(node, context);
+        }
+
+        @Override
+        public SourcePositionMapper getMapper() {
+            return mapper;
+        }
     }
 }
