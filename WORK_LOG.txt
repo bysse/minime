@@ -112,6 +112,7 @@ Date    Hours
 2019-07-15  2.0 Cleaning up preprocessor file tests. Adding programmatic constructs to simplify preprocessing.
 2019-07-19  1.0 Adding programmatic constructs to simplify parsing.
 2019-07-27  0.5 Adding programmatic constructs to simplify optimizing.
+2019-07-28  0.5 Adding more programmatic constructs to simplify optimizing.
 
 // WORK IN PROGRESS: Looks like com.tazadum.glsl.optimizer.inline.FunctionInlineVisitor.remapVariables is replacing
 // usage in the original function instead of in the cloned row

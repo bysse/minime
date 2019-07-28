@@ -61,6 +61,12 @@ public class OptimizerReport {
         logger.info("-----------------------------------------------------------------");
     }
 
+    public void header(String shaderId) {
+        logger.info("-----------------------------------------------------------------");
+        logger.info("Shader: {}", shaderId);
+        logger.info("-----------------------------------------------------------------");
+    }
+
     public void display() {
         long duration = System.currentTimeMillis() - timestamp;
         String percent = String.format(Locale.US, "%.1f", 100f * endSize / startSize);
