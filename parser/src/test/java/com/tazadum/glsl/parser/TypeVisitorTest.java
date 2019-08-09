@@ -48,6 +48,8 @@ class TypeVisitorTest {
 
     private static Arguments[] getSnippets() {
         return new Arguments[]{
+            ok("mat2x2 a={vec2(1,0),vec2(0,1)};"),
+            ok("mat2 a={{1,0},{0,1}};"),
             ok("int[][] a[]={{{1,2},{3,4}}};float b=a[0][1][2];"),
             ok("int[] a={1,2,3};float b=a[2];"),
             ok("int[] a={1,2,3};int[3] b=a;"),

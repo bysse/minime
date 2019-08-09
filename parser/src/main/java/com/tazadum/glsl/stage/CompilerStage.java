@@ -42,9 +42,9 @@ public class CompilerStage implements Stage<String, Pair<Node, ParserContext>> {
         FunctionSets.applyFunctions(builtInRegistry, shaderType, glslProfile);
 
         final ParserContext parserContext = new ParserContextImpl(
-            new TypeRegistryImpl(),
-            new VariableRegistryImpl(),
-            new FunctionRegistryImpl(builtInRegistry)
+                new TypeRegistryImpl(),
+                new VariableRegistryImpl(),
+                new FunctionRegistryImpl(builtInRegistry)
         );
 
         parserContext.initializeVariables(shaderType, glslProfile);

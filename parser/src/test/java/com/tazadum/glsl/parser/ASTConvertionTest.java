@@ -30,7 +30,7 @@ class ASTConvertionTest {
             sameOutput("float[] a=float[2](1,2);"),
             differentOutput(
                 "const int[] a={1,1,2};\nint b[a[1+1]+1]={1,2,3};",
-                "int[] a={1,1,2};int b[3]={1,2,3};"
+                "int[] a={1,1,2};int b[]={1,2,3};"
             ),
             differentOutput(
                 "const int[] a={1,1};\nint b[a.length()];",
@@ -38,7 +38,7 @@ class ASTConvertionTest {
             ),
             differentOutput(
                 "const int a=2;\nint b[a]={1,2};",
-                "int a=2;int b[2]={1,2};"
+                "int a=2;int b[]={1,2};"
             ),
             differentOutput(
                 "const int[2] a={1,1};\nint b[a.length()];",
@@ -46,7 +46,7 @@ class ASTConvertionTest {
             ),
             differentOutput(
                 "const struct{float a,b;} s={1,2};\nint b[s.b]={1,2};",
-                "struct{float a,b;} s={1,2};int b[2]={1,2};"
+                "struct{float a,b;} s={1,2};int b[]={1,2};"
             ),
             differentOutput("uniform float iGlobalTime;uniform vec2 iResolution;void main(void) {vec2 uv = gl_FragCoord.xy / iResolution.xy;gl_FragColor = vec4(uv,0.5+0.5*sin(iGlobalTime),1.0);}",
                 "uniform float iGlobalTime;uniform vec2 iResolution;void main(){vec2 uv=gl_FragCoord.xy/iResolution.xy;gl_FragColor=vec4(uv,.5+.5*sin(iGlobalTime),1);}"
