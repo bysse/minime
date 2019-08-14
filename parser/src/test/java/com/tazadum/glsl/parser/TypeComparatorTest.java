@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.tazadum.glsl.language.type.PredefinedType.FLOAT;
+import static com.tazadum.glsl.language.type.PredefinedType.*;
 import static com.tazadum.glsl.util.SourcePosition.TOP;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -35,7 +35,7 @@ class TypeComparatorTest {
         GLSLType source = new ArrayType(new ArrayType(FLOAT, 2), 3);
         ArraySpecifiers sourceSpecifiers = new ArraySpecifiers();
 
-        GLSLType type = TypeComparator.checkAndTransfer(source, sourceSpecifiers, target, targetSpecifiers);
+        GLSLType type = TypeComparator.checkAndTransfer(target, targetSpecifiers, source, sourceSpecifiers);
         GLSLType level1 = sourceSpecifiers.transform(type);
 
         // check first level
@@ -56,7 +56,7 @@ class TypeComparatorTest {
 
     @Test
     @DisplayName("Test structures")
-    void test_2() throws TypeException {
+    void test_2() {
         Map<String, GLSLType> fieldMap = new HashMap<>();
         Map<String, Integer> indexMap = new HashMap<>();
 
@@ -78,7 +78,23 @@ class TypeComparatorTest {
 
     @Test
     @DisplayName("Test nested structures")
-    void test_3() throws TypeException {
+    void test_3() {
 
+    }
+
+    @Test
+    @DisplayName("Test vector array init")
+    void test_4() throws TypeException {
+        ArraySpecifiers noSpecifiers = new ArraySpecifiers();
+
+        GLSLType array2 = new ArrayType(FLOAT, 2);
+        GLSLType array3 = new ArrayType(FLOAT, 3);
+        GLSLType array4 = new ArrayType(FLOAT, 4);
+
+        TypeComparator.checkAndTransfer(VEC3, null, array3, noSpecifiers);
+
+        assertThrows(TypeException.class, () -> TypeComparator.checkAndTransfer(VEC3, null, array2, noSpecifiers));
+        assertThrows(TypeException.class, () -> TypeComparator.checkAndTransfer(VEC3, null, array4, noSpecifiers));
+        assertThrows(TypeException.class, () -> TypeComparator.checkAndTransfer(BVEC3, null, array3, noSpecifiers));
     }
 }

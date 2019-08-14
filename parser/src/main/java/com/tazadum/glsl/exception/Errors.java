@@ -99,6 +99,7 @@ public class Errors {
         INITIALIZER_TOO_SMALL("Too little data in initialization."),
         INITIALIZER_TOO_BIG("Too much data in initialization."),
         INITIALIZER_ON_PARAMETER("Parameters are not allowed to have initializers."),
+        INITIALIZER_HAS_UNKNOWN_SIZE("The size of the initializer could not be determined."),
 
         OPAQUE_TYPE_LVALUE("Opaque types cannot be treated as l-values."),
         QUALIFIER_BOTH_IN_AND_OUT("A variable cannot be declared with both the in and the out qualifiers."),

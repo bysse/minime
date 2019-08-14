@@ -5,9 +5,7 @@ import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
-import com.tazadum.glsl.language.type.ArrayType;
-import com.tazadum.glsl.language.type.GLSLType;
-import com.tazadum.glsl.language.type.StructType;
+import com.tazadum.glsl.language.type.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,61 +18,88 @@ import static com.tazadum.glsl.exception.Errors.Extras.*;
  * Created by erikb on 2018-10-20.
  */
 public class TypeComparator {
-    public static GLSLType checkAndTransfer(GLSLType source, ArraySpecifiers sourceSpecifiers, GLSLType targetType, ArraySpecifiers targetArraySpecifier) throws TypeException {
-        if (targetArraySpecifier == null || targetArraySpecifier.getSpecifiers().isEmpty()) {
-            return checkAndTransfer(source, sourceSpecifiers, targetType, Collections.emptyList());
+    public static GLSLType checkAndTransfer(GLSLType leftType, ArraySpecifiers leftArraySpecifier, GLSLType rightType, ArraySpecifiers rightSpecifiers) throws TypeException {
+        if (leftArraySpecifier == null || leftArraySpecifier.getSpecifiers().isEmpty()) {
+            return checkAndTransfer(leftType, Collections.emptyList(), rightType, rightSpecifiers);
         }
 
-        final List<ArraySpecifier> specifierList = new ArrayList<>(targetArraySpecifier.getSpecifiers());
-        return checkAndTransfer(source, sourceSpecifiers, targetType, specifierList);
+        final List<ArraySpecifier> specifierList = new ArrayList<>(leftArraySpecifier.getSpecifiers());
+        return checkAndTransfer(leftType, specifierList, rightType, rightSpecifiers);
     }
 
-    private static GLSLType checkAndTransfer(GLSLType sourceType, ArraySpecifiers sourceSpecifiers, GLSLType targetType, List<ArraySpecifier> targetSpecifiers) throws TypeException {
+    private static GLSLType checkAndTransfer(GLSLType leftType, List<ArraySpecifier> leftSpecifiers, GLSLType rightType, ArraySpecifiers rightSpecifiers) throws TypeException {
         ArraySpecifier activeSpecifier = null;
-        if (!(targetType instanceof ArrayType) && !targetSpecifiers.isEmpty()) {
-            activeSpecifier = targetSpecifiers.remove(0);
-            targetType = activeSpecifier.transform(targetType);
+        if (!(leftType instanceof ArrayType) && !leftSpecifiers.isEmpty()) {
+            activeSpecifier = leftSpecifiers.remove(0);
+            leftType = activeSpecifier.transform(leftType);
         }
 
-        if (targetType instanceof ArrayType) {
-            if (!(sourceType instanceof ArrayType)) {
-                throw new TypeException(INCOMPATIBLE_TYPES(targetType, sourceType, NO_CONVERSION));
+        if (leftType instanceof ArrayType) {
+            if (!(rightType instanceof ArrayType)) {
+                throw new TypeException(INCOMPATIBLE_TYPES(leftType, rightType, NO_CONVERSION));
             }
 
-            ArrayType sourceArray = (ArrayType) sourceType;
-            ArrayType targetArray = (ArrayType) targetType;
+            ArrayType rightArray = (ArrayType) rightType;
+            ArrayType leftArray = (ArrayType) leftType;
 
-            if (!sourceArray.hasDimension()) {
+            if (!rightArray.hasDimension()) {
                 throw new BadImplementationException("Initializers should always have a dimension");
             }
 
-            final int dimension = sourceArray.getDimension();
-            if (targetArray.hasDimension()) {
+            final int dimension = rightArray.getDimension();
+            if (leftArray.hasDimension()) {
                 // verify the array sizes
-                if (targetArray.getDimension() < sourceArray.getDimension()) {
-                    throw new TypeException(INCOMPATIBLE_TYPES(targetArray, sourceArray, INITIALIZER_TOO_BIG));
+                if (leftArray.getDimension() < rightArray.getDimension()) {
+                    throw new TypeException(INCOMPATIBLE_TYPES(leftArray, rightArray, INITIALIZER_TOO_BIG));
                 }
-                if (targetArray.getDimension() > sourceArray.getDimension()) {
-                    throw new TypeException(INCOMPATIBLE_TYPES(targetArray, sourceArray, INITIALIZER_TOO_SMALL));
+                if (leftArray.getDimension() > rightArray.getDimension()) {
+                    throw new TypeException(INCOMPATIBLE_TYPES(leftArray, rightArray, INITIALIZER_TOO_SMALL));
                 }
             }
 
-            GLSLType type = checkAndTransfer(sourceArray.baseType(), sourceSpecifiers, targetArray.baseType(), targetSpecifiers);
+            GLSLType type = checkAndTransfer(leftArray.baseType(), leftSpecifiers, rightArray.baseType(), rightSpecifiers);
             if (activeSpecifier == null) {
-                return new ArrayType(type, sourceArray.getDimension());
+                return new ArrayType(type, rightArray.getDimension());
             }
 
-            sourceSpecifiers.addSpecifier(new ArraySpecifier(activeSpecifier.getSourcePosition(), dimension));
+            rightSpecifiers.addSpecifier(new ArraySpecifier(activeSpecifier.getSourcePosition(), dimension));
             return type;
         }
 
+        if (activeSpecifier == null ) {
+            if (TypeCombination.ofCategory(TypeCategory.Vector, leftType) && rightType instanceof ArrayType && rightSpecifiers.isEmpty()) {
+                return checkArrayinitializerSizeMatch((PredefinedType)leftType, (ArrayType)rightType);
+            }
+        }
+
         // struct comparison are supported in this clause
-        if (!targetType.isAssignableBy(sourceType)) {
-            throw new TypeException(INCOMPATIBLE_TYPES(targetType, sourceType, NO_CONVERSION));
+        if (!leftType.isAssignableBy(rightType)) {
+            throw new TypeException(INCOMPATIBLE_TYPES(leftType, rightType, NO_CONVERSION));
         }
 
         // all good
-        return targetType;
+        return leftType;
+    }
+
+    private static GLSLType checkArrayinitializerSizeMatch(PredefinedType vectorType, ArrayType rightType) throws TypeException {
+        // verify the array initializer size
+        if (!rightType.hasDimension()) {
+            throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, INITIALIZER_HAS_UNKNOWN_SIZE));
+        }
+
+        if (vectorType.components() < rightType.getDimension()) {
+            throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, INITIALIZER_TOO_BIG));
+        }
+
+        if (vectorType.components() > rightType.getDimension()) {
+            throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, INITIALIZER_TOO_SMALL));
+        }
+
+        if (!vectorType.baseType().isAssignableBy(rightType.baseType())) {
+            throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, NO_CONVERSION));
+        }
+
+        return vectorType;
     }
 
     public static boolean isAssignable(StructType structType, GLSLType type) {
