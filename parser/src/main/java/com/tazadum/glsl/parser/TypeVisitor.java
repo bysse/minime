@@ -294,7 +294,7 @@ public class TypeVisitor extends DefaultASTVisitor<GLSLType> {
             FullySpecifiedType originalType = node.getOriginalType();
             ArraySpecifiers arraySpecifiers = new ArraySpecifiers();
 
-            GLSLType glslType = TypeComparator.checkAndTransfer(initializerType, arraySpecifiers, originalType.getType(), node.getArraySpecifiers());
+            GLSLType glslType = TypeComparator.checkAndTransfer(originalType.getType(), node.getArraySpecifiers(), initializerType, arraySpecifiers);
             node.updateType(new FullySpecifiedType(originalType.getQualifiers(), glslType), arraySpecifiers);
 
             return node.getType();
