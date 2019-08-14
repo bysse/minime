@@ -4,7 +4,7 @@ import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.preprocessor.language.*;
 import com.tazadum.glsl.preprocessor.language.ast.*;
 import com.tazadum.glsl.preprocessor.language.ast.flow.*;
-import com.tazadum.glsl.preprocessor.model.*;
+import com.tazadum.glsl.preprocessor.model.PreprocessorState;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import org.antlr.v4.runtime.ParserRuleContext;

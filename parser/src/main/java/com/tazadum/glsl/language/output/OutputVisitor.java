@@ -101,12 +101,14 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         // Don't output type here, it should come from the VariableDeclarationList
         buffer.append(config.identifier(node.getIdentifier()));
 
-        outputArraySpecifier(node.getArraySpecifiers());
-
         if (node.getInitializer() != null) {
+            outputArraySpecifier(node.getArraySpecifiers(), true);
             buffer.append('=');
             node.getInitializer().accept(this);
+        } else {
+            outputArraySpecifier(node.getArraySpecifiers(), false);
         }
+
         return buffer;
     }
 
@@ -143,7 +145,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             buffer.append(config.identifier(node.getIdentifier()));
         }
 
-        outputArraySpecifier(node.getArraySpecifiers());
+        outputArraySpecifier(node.getArraySpecifiers(), false);
 
         // we don't even look at the initializer because parameters can't have them.
 
@@ -270,7 +272,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
             } else {
                 buffer.append(config.identifier(node.getIdentifier()));
             }
-            outputArraySpecifier(node.getArraySpecifiers());
+            outputArraySpecifier(node.getArraySpecifiers(), false);
         }
         buffer.append('(');
         outputChildCSV(node, 0, node.getChildCount());
@@ -480,7 +482,7 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         if (node.getIdentifier() != null) {
             buffer.append(config.identifier(node.getIdentifier()));
         }
-        outputArraySpecifier(node.getArraySpecifier());
+        outputArraySpecifier(node.getArraySpecifier(), false);
         return buffer;
     }
 
@@ -600,14 +602,14 @@ public class OutputVisitor implements ASTVisitor<Provider<String>> {
         return !first;
     }
 
-    private void outputArraySpecifier(ArraySpecifiers arraySpecifiers) {
+    private void outputArraySpecifier(ArraySpecifiers arraySpecifiers, boolean arraySizeCanBeIgnored) {
         if (arraySpecifiers == null) {
             return;
         }
 
         for (ArraySpecifier specifier : arraySpecifiers.getSpecifiers()) {
             buffer.append('[');
-            if (specifier.hasDimension()) {
+            if (specifier.hasDimension() && !arraySizeCanBeIgnored) {
                 buffer.append(specifier.getDimension());
             }
             buffer.append(']');
