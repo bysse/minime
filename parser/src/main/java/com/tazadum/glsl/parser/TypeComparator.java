@@ -115,7 +115,7 @@ public class TypeComparator {
                 return false;
             }
             // all fields in the structure has compatible types and is compatible with the array
-            return structType.baseType() != null && structType.baseType().isAssignableBy(other.baseType());
+            return PredefinedType.isAssignableBy(structType.baseType(), other.baseType());
         }
 
         if (type instanceof StructType) {

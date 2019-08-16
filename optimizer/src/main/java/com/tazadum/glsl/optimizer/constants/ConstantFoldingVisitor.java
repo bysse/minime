@@ -265,7 +265,7 @@ public class ConstantFoldingVisitor extends ReplacingASTVisitor implements Optim
 
         final PredefinedType swizzleSourceType = (PredefinedType) glslSourceType;
 
-        if (constructorBaseType == null || !constructorBaseType.isAssignableBy(swizzleSourceType.baseType())) {
+        if (!PredefinedType.isAssignableBy(constructorBaseType, swizzleSourceType.baseType())) {
             // the base type of the source node and constructor node are different and can't be used together
             return null;
         }
