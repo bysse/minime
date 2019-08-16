@@ -262,6 +262,13 @@ public enum PredefinedType implements GLSLType, HasToken {
         throw new BadImplementationException("Bad implementation of " + this);
     }
 
+    public static boolean isAssignableBy(GLSLType left, GLSLType right) {
+        if (left == null || right == null) {
+            return false;
+        }
+        return left.isAssignableBy(right);
+    }
+
     @Override
     public boolean isAssignableBy(GLSLType glslType) {
         assert glslType != null : "Null type passed to function";

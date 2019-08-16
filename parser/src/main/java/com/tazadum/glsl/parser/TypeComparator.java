@@ -95,7 +95,7 @@ public class TypeComparator {
             throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, INITIALIZER_TOO_SMALL));
         }
 
-        if (!vectorType.baseType().isAssignableBy(rightType.baseType())) {
+        if (!PredefinedType.isAssignableBy(vectorType.baseType(), rightType.baseType())) {
             throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, NO_CONVERSION));
         }
 
