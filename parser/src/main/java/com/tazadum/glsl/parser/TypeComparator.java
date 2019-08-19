@@ -13,6 +13,9 @@ import java.util.List;
 
 import static com.tazadum.glsl.exception.Errors.Coarse.INCOMPATIBLE_TYPES;
 import static com.tazadum.glsl.exception.Errors.Extras.*;
+import static com.tazadum.glsl.language.type.TypeCategory.Matrix;
+import static com.tazadum.glsl.language.type.TypeCategory.Vector;
+import static com.tazadum.glsl.parser.TypeCombination.ofCategory;
 
 /**
  * Created by erikb on 2018-10-20.
@@ -67,8 +70,29 @@ public class TypeComparator {
         }
 
         if (activeSpecifier == null ) {
-            if (TypeCombination.ofCategory(TypeCategory.Vector, leftType) && rightType instanceof ArrayType && rightSpecifiers.isEmpty()) {
-                return checkArrayinitializerSizeMatch((PredefinedType)leftType, (ArrayType)rightType);
+            if (ofCategory(Vector, leftType) && rightType instanceof ArrayType && rightSpecifiers.isEmpty()) {
+                // handle array initialization of vector declarations
+                return checkArrayInitializerSizeMatch((PredefinedType)leftType, (ArrayType)rightType);
+            }
+
+            if (ofCategory(Matrix, leftType) && rightType instanceof ArrayType && rightSpecifiers.isEmpty()) {
+                // handle array initialization of matrix declarations
+                final PredefinedType matrixType = (PredefinedType)leftType;
+                final ArrayType rightArray = (ArrayType) rightType;
+
+                // check that the number of columns in the matrix matches the array size
+                if (matrixType.columns() < rightArray.getDimension()) {
+                    throw new TypeException(INCOMPATIBLE_TYPES(matrixType, rightArray, INITIALIZER_MATRIX_TOO_BIG));
+                }
+                if (matrixType.columns() > rightArray.getDimension()) {
+                    throw new TypeException(INCOMPATIBLE_TYPES(matrixType, rightArray, INITIALIZER_MATRIX_TOO_SMALL));
+                }
+
+                // at this point the number of columns matches the number of elements in the initializer array
+                // check that the column type can be initialized by the base type of the array
+                checkAndTransfer(matrixType.columnType(), Collections.emptyList(), rightArray.baseType(), rightSpecifiers);
+
+                return leftType;
             }
         }
 
@@ -81,7 +105,7 @@ public class TypeComparator {
         return leftType;
     }
 
-    private static GLSLType checkArrayinitializerSizeMatch(PredefinedType vectorType, ArrayType rightType) throws TypeException {
+    private static GLSLType checkArrayInitializerSizeMatch(PredefinedType vectorType, ArrayType rightType) throws TypeException {
         // verify the array initializer size
         if (!rightType.hasDimension()) {
             throw new TypeException(INCOMPATIBLE_TYPES(vectorType, rightType, INITIALIZER_HAS_UNKNOWN_SIZE));

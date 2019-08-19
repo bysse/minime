@@ -115,6 +115,7 @@ Date    Hours
 2019-07-28  0.5 Adding more programmatic constructs to simplify optimizing.
 
 2019-08-14  1.0 Adding type checking support for vector initialization.
+2019-08-19  1.0 Adding type checking support for matrix initialization.
 
 // WORK IN PROGRESS: Looks like com.tazadum.glsl.optimizer.inline.FunctionInlineVisitor.remapVariables is replacing
 // usage in the original function instead of in the cloned row

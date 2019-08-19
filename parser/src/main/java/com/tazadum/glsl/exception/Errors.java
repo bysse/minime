@@ -98,6 +98,8 @@ public class Errors {
 
         INITIALIZER_TOO_SMALL("Too little data in initialization."),
         INITIALIZER_TOO_BIG("Too much data in initialization."),
+        INITIALIZER_MATRIX_TOO_SMALL("Too few columns in initialization."),
+        INITIALIZER_MATRIX_TOO_BIG("Too many columns in initialization."),
         INITIALIZER_ON_PARAMETER("Parameters are not allowed to have initializers."),
         INITIALIZER_HAS_UNKNOWN_SIZE("The size of the initializer could not be determined."),
 

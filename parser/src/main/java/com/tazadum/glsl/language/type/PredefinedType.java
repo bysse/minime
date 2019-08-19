@@ -262,6 +262,43 @@ public enum PredefinedType implements GLSLType, HasToken {
         throw new BadImplementationException("Bad implementation of " + this);
     }
 
+    public PredefinedType columnType() {
+        switch (this) {
+            case MAT2:
+            case MAT2X2:
+            case MAT2X3:
+            case MAT2X4:
+                return VEC2;
+            case MAT3:
+            case MAT3X2:
+            case MAT3X3:
+            case MAT3X4:
+                return VEC3;
+            case MAT4:
+            case MAT4X2:
+            case MAT4X3:
+            case MAT4X4:
+                return VEC4;
+            case DMAT2:
+            case DMAT2X2:
+            case DMAT2X3:
+            case DMAT2X4:
+                return DVEC2;
+            case DMAT3:
+            case DMAT3X2:
+            case DMAT3X3:
+            case DMAT3X4:
+                return DVEC3;
+            case DMAT4:
+            case DMAT4X2:
+            case DMAT4X3:
+            case DMAT4X4:
+                return DVEC4;
+        }
+
+        return null;
+    }
+
     public static boolean isAssignableBy(GLSLType left, GLSLType right) {
         if (left == null || right == null) {
             return false;
@@ -508,6 +545,5 @@ public enum PredefinedType implements GLSLType, HasToken {
     public int rows() {
         return rows;
     }
-
 
 }
