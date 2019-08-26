@@ -16,7 +16,6 @@ import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.functions.ConstructorsFunctionSet;
 import com.tazadum.glsl.preprocessor.Preprocessor;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
-import com.tazadum.glsl.util.TestUtil;
 import com.tazadum.slf4j.TLogConfiguration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.slf4j.event.Level;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +47,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
 
     @BeforeEach
     void setup() {
-        testInit(5, false);
+        testInit(5, true);
     }
 
     @ParameterizedTest(name = "case: {1}")
@@ -337,18 +335,16 @@ public class FunctionInlineTest extends BaseOptimizerTest {
         uniform.add(StorageQualifier.UNIFORM);
 
         parserContext.getVariableRegistry()
-                .declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(VEC3), "gl_FragColor", null, null, null));
-        parserContext.getVariableRegistry()
                 .declareVariable(context, new VariableDeclarationNode(TOP, true, new FullySpecifiedType(uniform, FLOAT), "time", null, null, null));
 
-        String source = "vec3 small(vec3 S) {\n" +
+        String source = "vec4 small(vec3 S) {\n" +
                 "  float a=time*S.x;\n" +
                 "    for(int i=0;i<5;i++) {\n" +
                 "      a -= 0.1;\n" +
                 "      if(a<0)\n" +
                 "         a*=13;\n" +
                 "    }\n" +
-                "    return vec3(a);\n"+
+                "    return vec4(a);\n"+
                 "  }\n" +
                 "void main() {\n" +
                 "    gl_FragColor = small(vec3(1,2,3));\n" +
@@ -413,6 +409,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
     }
 
     @Test
+    @DisplayName("starstruck.glsl")
     void testShader() throws IOException {
         TLogConfiguration.get().useGlobalConfiguration();
         TLogConfiguration.get().getConfig().setLogLevel(Level.TRACE);
@@ -428,7 +425,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
         uniform.add(StorageQualifier.UNIFORM);
 
         Preprocessor.Result preprocessResult = PreprocessorExecutor.create()
-                .source(Paths.get("src/test/resources/shaders/starstruck.glsl"))
+                .source(Paths.get("src/test/resources/shaders/simple.glsl"))
                 .process();
 
         String source = preprocessResult.getSource();
