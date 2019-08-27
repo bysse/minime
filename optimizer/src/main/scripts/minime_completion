@@ -1,0 +1,59 @@
+function _minime_preprocess() {
+    if [ "$3" == "-o" ]; then
+        return 1
+    fi
+
+    ARGS="-h -v -vv -D -E -fglsl-version -o"
+    if [ -z "$2" ]; then
+        ARGS="$ARGS $(ls -1 *.glsl | xargs)"
+    elif [[ "$2" != -* ]]; then
+        ARGS="$ARGS $(ls -1 $2* | xargs)"
+    fi
+    COMPREPLY=( $(compgen -W "$ARGS" -- $2) )
+}
+
+function _minime_compile() {
+    if [ "$3" == "-o" ]; then
+        return 1
+    fi
+
+    ARGS="-h -v -vv -D -E -fglsl-version -findentation -fnew-line -format -id -no-render -profile -type"
+    if [ "$3" == "-type" ]; then
+        COMPREPLY=( $(compgen -W "v f g c tc te st" -- $2) )
+        return 0
+    elif [ "$3" == "-format" ]; then
+        COMPREPLY=( $(compgen -W "plain shadertoy c" -- $2) )
+        return 0
+    elif [ -z "$2" ]; then
+        ARGS="$ARGS $(ls -1 *.glsl | xargs)"
+    elif [[ "$2" != -* ]]; then
+        ARGS="$ARGS $(ls -1 $2* | xargs)"
+    fi
+
+    COMPREPLY=( $(compgen -W "$ARGS" -- $2) )
+}
+
+function _minime_optimize() {
+    if [ "$3" == "-o" ]; then
+        return 1
+    fi
+
+    ARGS="-h -v -vv -D -E -Os -fglsl-version -findentation -fkeep-identifiers -fkeep-uniforms -fnew-line -format -id -max-iterations -max-size -no-render -profile -type"
+    if [ "$3" == "-type" ]; then
+        COMPREPLY=( $(compgen -W "v f g c tc te st" -- $2) )
+        return 0
+    elif [ "$3" == "-format" ]; then
+        COMPREPLY=( $(compgen -W "plain shadertoy c" -- $2) )
+        return 0
+    elif [ -z "$2" ]; then
+        ARGS="$ARGS $(ls -1 *.glsl | xargs)"
+    elif [[ "$2" != -* ]]; then
+        ARGS="$ARGS $(ls -1 $2* | xargs)"
+    fi
+
+    COMPREPLY=( $(compgen -W "$ARGS" -- $2) )
+}
+
+complete -F _minime_preprocess minime-preprocess
+complete -F _minime-compile minime-compile
+complete -F _minime_optimize minime-optimize

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if [ -z "$MINIME_HOME" ]; then
+  if  [ -d "$HOME/.minime" ]; then
+    MINIME_HOME="$HOME/.minime"
+  else
+    MINIME_HOME=$(realpath "$(dirname "$0")")
+  fi
+fi
+
+if [ ! -f "$MINIME_HOME/optimizer-bundle-@VERSION@.jar" ]; then
+  echo "ERROR: Can't find application JAR, please set MINIME_HOME"
+  exit 1
+fi
+
+JAR="$MINIME_HOME/optimizer-bundle-@VERSION@.jar"
+
+java -cp "$JAR" com.tazadum.glsl.cli.OptimizerMain $@

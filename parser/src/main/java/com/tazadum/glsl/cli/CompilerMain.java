@@ -39,7 +39,6 @@ public class CompilerMain {
 
         CommandLineBase.InputOutput inputOutput = cli.process(args);
         if (inputOutput == null) {
-            cli.showHelp(false);
             System.exit(RET_SYNTAX);
             return;
         }

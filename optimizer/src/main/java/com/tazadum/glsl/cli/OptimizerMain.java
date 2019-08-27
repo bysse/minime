@@ -52,7 +52,6 @@ public class OptimizerMain {
         );
 
         if (cli.process(args) == null) {
-            cli.showHelp(false);
             if (!noExit) {
                 System.exit(RET_SYNTAX);
             }

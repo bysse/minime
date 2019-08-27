@@ -21,3 +21,13 @@ task fatJar(type: Jar) {
 	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 	with jar
 }
+
+import org.apache.tools.ant.filters.ReplaceTokens
+task dist(type:Copy) {
+	dependsOn fatJar
+	from fatJar
+	from ("src/main/scripts") {
+		filter(ReplaceTokens, tokens: [VERSION: project.version])
+	}
+	into "$buildDir/dist"
+}
