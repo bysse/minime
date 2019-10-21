@@ -1,0 +1,7 @@
+dependencies {
+	compile project(':parser')
+
+	compile "org.antlr:antlr4-runtime:${antlrVersion}"
+
+	testImplementation project(':test-util')
+}

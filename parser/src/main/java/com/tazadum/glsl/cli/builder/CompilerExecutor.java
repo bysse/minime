@@ -23,6 +23,7 @@ import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Result> {
     private final Logger logger = LoggerFactory.getLogger(CompilerExecutor.class);
@@ -40,6 +42,7 @@ public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Resu
     private final VariableRegistry variableRegistry;
     private final FunctionRegistryImpl functionRegistry;
     private final ParserContextImpl parserContext;
+    private Function<GLSLParser, ParserRuleContext> parserRuleProvider = GLSLParser::translation_unit;
 
     private String source;
     private SourcePositionMapper mapper;
@@ -65,6 +68,15 @@ public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Resu
         parserContext = new ParserContextImpl(typeRegistry, variableRegistry, functionRegistry);
 
         parserContext.initializeVariables(shaderType, profile);
+    }
+
+    /**
+     * Sets the function that extracts the parser rule that is going to be applied.
+     * This is different if complete shaders are parsed as opposed to expressions.
+     */
+    public CompilerExecutor parserRuleProvider(Function<GLSLParser, ParserRuleContext> parserRuleProvider) {
+        this.parserRuleProvider = parserRuleProvider;
+        return this;
     }
 
     public CompilerExecutor source(Path path) {
@@ -116,7 +128,6 @@ public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Resu
         }
     }
 
-
     @Override
     public Result process() {
         try {
@@ -127,7 +138,7 @@ public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Resu
 
             logger.trace("- Converting source to AST");
             final ASTConverter astConverter = new ASTConverter(mapper, parserContext);
-            Node node = parser.translation_unit().accept(astConverter);
+            Node node = parserRuleProvider.apply(parser).accept(astConverter);
 
             logger.trace("- Checking types");
             node.accept(parserContext.getTypeVisitor());

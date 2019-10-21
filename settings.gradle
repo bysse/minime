@@ -1,6 +1,7 @@
 rootProject.name = 'glsl-optimizer'
 
 include 'preprocessor'
+include 'evaluater'
 include 'parser'
 include 'optimizer'
 include 'test-util'
