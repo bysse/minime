@@ -6,4 +6,8 @@ public interface TypedVariable {
     GLSLType getType();
 
     Object getValue();
+
+    default Float getValueAsFloat() {
+        return (Float)getValue();
+    }
 }
