@@ -67,7 +67,7 @@ class CommentStageTest {
     @DisplayName("Test line numberings")
     void testLineNumbers() throws IOException {
         Stage stage = process("A\n/*\n\n*/\nB");
-        for (int i=0;i<5;i++) {
+        for (int i = 0; i < 5; i++) {
             assertEquals(i, stage.getLineNumber(), "Verifying line number " + i);
             System.out.println(stage.readLine());
         }

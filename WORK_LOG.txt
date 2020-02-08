@@ -118,6 +118,8 @@ Date    Hours
 2019-08-19  1.0 Adding type checking support for matrix initialization.
 2019-08-27  1.0 Fixing shell scripts and bash completions.
 
+2020-02-08  1.0 Fixing the SourceMapper for the preprocessor.
+
 // WORK IN PROGRESS: Looks like com.tazadum.glsl.optimizer.inline.FunctionInlineVisitor.remapVariables is replacing
 // usage in the original function instead of in the cloned row
 // Not sure if this is true. The VariableRegistry cloning fails because declarations has been added without being

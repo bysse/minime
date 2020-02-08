@@ -7,6 +7,7 @@ import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.StringUtils;
 import com.tazadum.glsl.util.io.Source;
+import com.tazadum.glsl.util.io.SourceReader;
 
 import java.io.IOException;
 
@@ -18,6 +19,16 @@ public class LineContinuationStage implements Stage {
     private final LogKeeper logKeeper;
     private final SourcePositionMapper mapper;
     private int lineNumber;
+
+    public LineContinuationStage(SourceReader source, LogKeeper logKeeper) {
+        this.source = source;
+        this.logKeeper = logKeeper;
+        this.lineNumber = 0;
+
+        this.mapper = new SourcePositionMapper(source.getMapper());
+        this.mapper.remap(SourcePosition.TOP, SourcePositionId.create(source.getSourceId(), SourcePosition.TOP));
+    }
+
 
     public LineContinuationStage(Source source, LogKeeper logKeeper) {
         this.source = source;

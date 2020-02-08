@@ -4,7 +4,6 @@ import com.tazadum.glsl.preprocessor.language.Declaration;
 import com.tazadum.glsl.preprocessor.language.GLSLVersion;
 import com.tazadum.glsl.preprocessor.language.Node;
 import com.tazadum.glsl.preprocessor.language.PreprocessorVisitor;
-import com.tazadum.glsl.preprocessor.language.ast.VersionDeclarationNode;
 import com.tazadum.glsl.preprocessor.model.MacroDefinition;
 import com.tazadum.glsl.preprocessor.model.MacroRegistry;
 import com.tazadum.glsl.preprocessor.model.PreprocessorState;
@@ -75,19 +74,21 @@ public class DefaultPreprocessor implements Preprocessor {
         final SourceReader sourceReader = new SourceReader(source);
         final LineContinuationStage continuationStage = new LineContinuationStage(sourceReader, state.getLogKeeper());
         final CommentStage commentStage = new CommentStage(continuationStage);
+        final SourcePositionMapper mapper = new SourcePositionMapper(commentStage.getMapper());
+        mapper.remap(SourcePosition.TOP, SourcePositionId.create(source.getSourceId(), SourcePosition.TOP));
 
         define("__VERSION__", Objects.toString(languageVersion.getVersionCode()));
 
         StringBuilder output = new StringBuilder();
 
         for (; ; ) {
-            int lineNumber = commentStage.getLineNumber();
+            final int lineNumber = commentStage.getLineNumber();
             String line = commentStage.readLine();
             if (line == null) {
                 break;
             }
 
-            final SourcePositionId sourceId = commentStage.getMapper().map(SourcePosition.create(lineNumber, 0));
+            final SourcePositionId sourceId = mapper.map(SourcePosition.create(lineNumber, 0));
 
             // set some built-in macros
             define("__LINE__", Objects.toString(lineNumber));
@@ -97,7 +98,7 @@ public class DefaultPreprocessor implements Preprocessor {
                 processLine(lineNumber, output, line, sourceReader, sourceId);
             } catch (PreprocessorException e) {
                 // catch any exception and remap it to the correct source position
-                final SourcePositionId position = commentStage.getMapper().map(e.getSourcePosition().getPosition());
+                final SourcePositionId position = mapper.map(e.getSourcePosition().getPosition());
                 final String message = position.format() + " " + e.getMessage();
 
                 throw new PreprocessorException(position, e, message);
@@ -105,7 +106,7 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         List<String> warnings = state.getLogKeeper().getWarnings();
-        return new DefaultResult(commentStage.getMapper(), output.toString(), warnings, state.getGLSLVersion());
+        return new DefaultResult(mapper, output.toString(), warnings, state.getGLSLVersion());
     }
 
     private void processLine(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
