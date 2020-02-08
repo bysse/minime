@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class CommentStageTest {
     @Test
     @DisplayName("Test end of line comments")
-    public void test_eol_comment() throws IOException {
+    void test_eol_comment() throws IOException {
         Stage stage = process("//123");
         assertEquals("     ", stage.readLine());
         assertNull(stage.readLine());
@@ -41,7 +41,7 @@ class CommentStageTest {
 
     @Test
     @DisplayName("Test inline comments")
-    public void test_inline_comment() throws IOException {
+    void test_inline_comment() throws IOException {
         Stage stage = process("a/*b*/c");
         assertEquals("a     c", stage.readLine());
         assertNull(stage.readLine());
@@ -61,6 +61,16 @@ class CommentStageTest {
         stage = process("a\"/*\"b*/");
         assertEquals("a\"/*\"b*/", stage.readLine());
         assertNull(stage.readLine());
+    }
+
+    @Test
+    @DisplayName("Test line numberings")
+    void testLineNumbers() throws IOException {
+        Stage stage = process("A\n/*\n\n*/\nB");
+        for (int i=0;i<5;i++) {
+            assertEquals(i, stage.getLineNumber(), "Verifying line number " + i);
+            System.out.println(stage.readLine());
+        }
     }
 
     private Stage process(String source) {

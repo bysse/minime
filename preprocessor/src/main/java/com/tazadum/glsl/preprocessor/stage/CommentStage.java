@@ -15,7 +15,7 @@ public class CommentStage implements Stage {
     private final Source source;
     private final SourcePositionMapper mapper;
 
-    private final int lineNumber;
+    private int lineNumber;
     private boolean inComment = false;
 
     public CommentStage(Stage stage) {
@@ -102,6 +102,9 @@ public class CommentStage implements Stage {
             builder.append(SLASH);
         }
 
+        // since comments are just replaced with whitespace we only need to increase the line number
+        // and not care about the mapping at all
+        lineNumber++;
         return builder.toString();
     }
 
