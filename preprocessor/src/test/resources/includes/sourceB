@@ -1,0 +1,3 @@
+sourceB-1
+#pragma include(sourceA)
+sourceB-3

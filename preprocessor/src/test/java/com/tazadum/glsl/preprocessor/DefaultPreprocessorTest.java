@@ -152,16 +152,41 @@ class DefaultPreprocessorTest {
 
     @Test
     @DisplayName("Test include source mappers")
-    void testInclude() throws IOException {
+    void testInclude_1() throws IOException {
         final FileSource fileSource = new FileSource(Paths.get("src/test/resources/includes/include-test"));
         final Preprocessor.Result result = preprocessor.process(fileSource);
         final SourcePositionMapper mapper = result.getMapper();
 
+        String[] expectedIds = new String[]{"include-test", "include-test", "sourceA", "include-test"};
+
         String[] lines = result.getSource().split("\n");
         for (int i = 0; i < lines.length; i++) {
             SourcePositionId id = mapper.map(SourcePosition.create(i, 0));
-
             System.out.println(String.format("%d: %-28s -> %s", i, lines[i], id));
+            assertEquals(expectedIds[i], getId(id));
         }
+    }
+
+    @Test
+    @DisplayName("Test include source mappers")
+    void testInclude_2() throws IOException {
+        final FileSource fileSource = new FileSource(Paths.get("src/test/resources/includes/include-test-2"));
+        final Preprocessor.Result result = preprocessor.process(fileSource);
+        final SourcePositionMapper mapper = result.getMapper();
+
+        String[] expectedIds = new String[]{"include-test-2", "include-test-2", "sourceB", "sourceB", "sourceA", "sourceB", "include-test-2"};
+
+        String[] lines = result.getSource().split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            SourcePositionId id = mapper.map(SourcePosition.create(i, 0));
+            System.out.println(String.format("%d: %-28s -> %s", i, lines[i], id));
+            assertEquals(expectedIds[i], getId(id));
+        }
+    }
+
+    private String getId(SourcePositionId spid) {
+        String id = spid.getId();
+        int index = id.lastIndexOf("/");
+        return id.substring(index + 1);
     }
 }

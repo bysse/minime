@@ -119,6 +119,7 @@ Date    Hours
 2019-08-27  1.0 Fixing shell scripts and bash completions.
 
 2020-02-08  1.0 Fixing the SourceMapper for the preprocessor.
+2020-02-10  0.5 Fixing the SourceMapper tests.
 
 // WORK IN PROGRESS: Looks like com.tazadum.glsl.optimizer.inline.FunctionInlineVisitor.remapVariables is replacing
 // usage in the original function instead of in the cloned row
