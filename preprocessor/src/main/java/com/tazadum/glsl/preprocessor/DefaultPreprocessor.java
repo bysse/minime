@@ -16,6 +16,7 @@ import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
 import com.tazadum.glsl.util.io.Source;
 import com.tazadum.glsl.util.io.SourceReader;
+import com.tazadum.glsl.util.io.SourceResolver;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 
@@ -33,6 +34,7 @@ public class DefaultPreprocessor implements Preprocessor {
     private static final int MAX_NESTED_MACROS = 50;
 
     private final GLSLVersion languageVersion;
+    private List<SourceResolver> resolvers;
     private final Pattern declarationPattern;
     private final Pattern concatPattern;
     private volatile boolean used;
@@ -44,9 +46,11 @@ public class DefaultPreprocessor implements Preprocessor {
      * Creates an instance of the preprocessor.
      *
      * @param languageVersion The version of the parser that later will parse the preprocessed file.
+     * @param resolvers
      */
-    public DefaultPreprocessor(GLSLVersion languageVersion) {
+    public DefaultPreprocessor(GLSLVersion languageVersion, List<SourceResolver> resolvers) {
         this.languageVersion = languageVersion;
+        this.resolvers = resolvers;
         this.declarationPattern = Pattern.compile("^\\s*#\\s*([a-zA-Z9]+)\\s*");
         this.concatPattern = Pattern.compile("\\s+##\\s+");
         this.used = false;
@@ -72,6 +76,10 @@ public class DefaultPreprocessor implements Preprocessor {
 
         // setup the sources
         final SourceReader sourceReader = new SourceReader(source);
+        for (SourceResolver resolver : resolvers) {
+            sourceReader.addResolver(resolver);
+        }
+
         final LineContinuationStage continuationStage = new LineContinuationStage(sourceReader, state.getLogKeeper());
         final CommentStage commentStage = new CommentStage(continuationStage);
         final SourcePositionMapper mapper = new SourcePositionMapper(commentStage.getMapper());

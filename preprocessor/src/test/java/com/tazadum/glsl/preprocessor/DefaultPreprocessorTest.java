@@ -19,6 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -32,7 +33,7 @@ class DefaultPreprocessorTest {
 
     @BeforeEach
     void setUp() {
-        preprocessor = new DefaultPreprocessor(GLSLVersion.OpenGL46);
+        preprocessor = new DefaultPreprocessor(GLSLVersion.OpenGL46, Collections.emptyList()    );
 
         preprocessor.define("MACRO", "expanded");
         preprocessor.define("OPT", new String[0], "opt");

@@ -3,8 +3,12 @@ package com.tazadum.glsl.util.io;
 import com.tazadum.glsl.util.SourcePosition;
 import com.tazadum.glsl.util.SourcePositionId;
 import com.tazadum.glsl.util.SourcePositionMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
 
 import static com.tazadum.glsl.util.SourcePosition.TOP;
@@ -13,10 +17,13 @@ import static com.tazadum.glsl.util.SourcePosition.TOP;
  * Created by erikb on 2018-09-28.
  */
 public class SourceReader implements Source {
+    private static Logger logger = LoggerFactory.getLogger(SourceReader.class);
+
     private final Stack<Source> sources;
     private Source activeSource;
     private int lineNumber;
     private SourcePositionMapper mapper;
+    private List<SourceResolver> resolvers = new ArrayList<>();
 
     public SourceReader(Source source) {
         this.sources = new Stack<>();
@@ -25,6 +32,10 @@ public class SourceReader implements Source {
         this.lineNumber = 0;
         this.mapper = new SourcePositionMapper();
         this.mapper.remap(TOP, SourcePositionId.create(source.getSourceId(), TOP));
+    }
+
+    public void addResolver(SourceResolver sourceResolver) {
+        resolvers.add(sourceResolver);
     }
 
     public int getDepth() {
@@ -95,8 +106,19 @@ public class SourceReader implements Source {
     }
 
     @Override
-    public Source resolve(String filePath) throws IOException {
-        return activeSource.resolve(filePath);
+    public Source resolve(String resource) throws IOException {
+        for (SourceResolver resolver : resolvers) {
+            try {
+                Source source = resolver.resolve(resource);
+                if (source != null) {
+                    return source;
+                }
+            } catch (IOException e) {
+                logger.warn("Failed to resolve {}", resolver, e);
+            }
+        }
+
+        return activeSource.resolve(resource);
     }
 
     public String toString() {

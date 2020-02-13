@@ -5,7 +5,7 @@ import java.io.IOException;
 /**
  * Created by erikb on 2018-09-28.
  */
-public interface Source {
+public interface Source extends SourceResolver {
     /**
      * Returns the id of the Source.
      */
@@ -20,11 +20,4 @@ public interface Source {
      * Read a line from the active Source. If the EOF is reached for all Sources null will be returned.
      */
     String readLine() throws IOException;
-
-    /**
-     * Attempts to resolve and create a Source for the provided filePath.
-     *
-     * @param filePath A relative or absolute path toa  file.
-     */
-    Source resolve(String filePath) throws IOException;
 }
