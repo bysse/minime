@@ -43,6 +43,10 @@ public class FileSource implements Source {
         return new FileSource(path.getParent().resolve(filePath));
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     public String toString() {
         return id + ":" + lineNumber;
     }
