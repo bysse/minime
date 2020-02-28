@@ -38,6 +38,10 @@ public class FileSource implements Source {
         return reader.readLine();
     }
 
+    public Path getPath() {
+        return path;
+    }
+
     @Override
     public Source resolve(String filePath) throws FileNotFoundException {
         return new FileSource(path.getParent().resolve(filePath));
