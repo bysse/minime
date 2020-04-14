@@ -26,6 +26,7 @@ public class PreprocessorExecutor implements ProcessorExecutor<Preprocessor.Resu
     private GLSLVersion glslVersion;
     private Map<String, String> macros;
     private Source source;
+    private boolean macrosEnabled = true;
 
     public static PreprocessorExecutor create() {
         return new PreprocessorExecutor();
@@ -44,6 +45,11 @@ public class PreprocessorExecutor implements ProcessorExecutor<Preprocessor.Resu
 
     public PreprocessorExecutor define(String macro, String value) {
         macros.put(macro, value);
+        return this;
+    }
+
+    public PreprocessorExecutor evaluateMacros(boolean enabled) {
+        this.macrosEnabled = enabled;
         return this;
     }
 
@@ -109,6 +115,7 @@ public class PreprocessorExecutor implements ProcessorExecutor<Preprocessor.Resu
         }
 
         DefaultPreprocessor preprocessor = new DefaultPreprocessor(glslVersion, resolvers);
+        preprocessor.resolveMacros(macrosEnabled);
 
         for (Map.Entry<String, String> entry : macros.entrySet()) {
             preprocessor.define(entry.getKey(), entry.getValue());

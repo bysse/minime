@@ -41,6 +41,7 @@ public class DefaultPreprocessor implements Preprocessor {
 
     private final PreprocessorState state;
     private final List<String> arguments = new ArrayList<>();
+    private boolean resolveMacros = true;
 
     /**
      * Creates an instance of the preprocessor.
@@ -117,7 +118,17 @@ public class DefaultPreprocessor implements Preprocessor {
         return new DefaultResult(mapper, output.toString(), warnings, state.getGLSLVersion());
     }
 
+    public void resolveMacros(boolean enabled) {
+        resolveMacros = enabled;
+    }
+
     private void processLine(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
+        if (!resolveMacros) {
+            // only process pragma include statements
+            processLineWithoutExpansion(lineNumber, output, line, sourceReader, sourceId);
+            return;
+        }
+
         // do a cheap check if this is a preprocessor declaration
         if (line.trim().startsWith("#")) {
             // then do a bit more expensive test for which declaration we have
@@ -160,6 +171,36 @@ public class DefaultPreprocessor implements Preprocessor {
         }
 
         output.append(expandMacros(lineNumber, line, 0));
+        output.append('\n');
+    }
+
+    private void processLineWithoutExpansion(int lineNumber, StringBuilder output, String line, SourceReader sourceReader, SourcePositionId sourceId) {
+        // do a cheap check if this is a preprocessor declaration
+        if (line.trim().startsWith("#")) {
+            // then do a bit more expensive test for which declaration we have
+
+            final Matcher matcher = declarationPattern.matcher(line);
+            if (matcher.find()) {
+                final String declaration = matcher.group(1);
+                final String originalLine = line;
+
+                if (declaration.equals("pragma")) {
+                    final Node node = parse(line, lineNumber, sourceId);
+
+                    // append a commented version of the line to the output
+                    output.append("// ").append(originalLine).append('\n');
+
+                    if (node instanceof Declaration) {
+                        state.accept(sourceReader, lineNumber, (Declaration) node);
+                        return;
+                    } else {
+                        throw new UnsupportedOperationException("Only declaration nodes are allowed in the state");
+                    }
+                }
+            }
+        }
+
+        output.append(line);
         output.append('\n');
     }
 

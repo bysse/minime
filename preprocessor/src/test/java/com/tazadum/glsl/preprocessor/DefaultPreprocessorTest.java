@@ -47,6 +47,13 @@ class DefaultPreprocessorTest {
         assertEquals(expected + '\n', preprocessor.process(new StringSource("test", source)).getSource());
     }
 
+    @ParameterizedTest(name = "{index}: {0}")
+    @MethodSource("getSourceLines")
+    void testNoExpansion(String source, String expected) throws IOException {
+        preprocessor.resolveMacros(false);
+        assertEquals(source + '\n', preprocessor.process(new StringSource("test", source)).getSource());
+    }
+
     private static Arguments[] getSourceLines() {
         return new Arguments[]{
                 Arguments.of("A MACRO B", "A expanded B"),
@@ -171,6 +178,24 @@ class DefaultPreprocessorTest {
     @Test
     @DisplayName("Test include source mappers")
     void testInclude_2() throws IOException {
+        final FileSource fileSource = new FileSource(Paths.get("src/test/resources/includes/include-test-2"));
+        final Preprocessor.Result result = preprocessor.process(fileSource);
+        final SourcePositionMapper mapper = result.getMapper();
+
+        String[] expectedIds = new String[]{"include-test-2", "include-test-2", "sourceB", "sourceB", "sourceA", "sourceB", "include-test-2"};
+
+        String[] lines = result.getSource().split("\n");
+        for (int i = 0; i < lines.length; i++) {
+            SourcePositionId id = mapper.map(SourcePosition.create(i, 0));
+            System.out.println(String.format("%d: %-28s -> %s", i, lines[i], id));
+            assertEquals(expectedIds[i], getId(id));
+        }
+    }
+
+    @Test
+    @DisplayName("Test include source mappers without expansion")
+    void testInclude_3() throws IOException {
+        preprocessor.resolveMacros(false);
         final FileSource fileSource = new FileSource(Paths.get("src/test/resources/includes/include-test-2"));
         final Preprocessor.Result result = preprocessor.process(fileSource);
         final SourcePositionMapper mapper = result.getMapper();
