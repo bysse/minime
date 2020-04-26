@@ -1,9 +1,9 @@
 package com.tazadum.glsl.util;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 public class SourcePositionMapper {
     private final SourcePositionMapper sourceMapper;
@@ -32,7 +32,16 @@ public class SourcePositionMapper {
      * Returns the source ids
      */
     public Set<String> getSourceIds() {
-        return tree.values().stream().map(SourcePositionId::getId).collect(Collectors.toSet());
+        Set<String> sourceIds = new HashSet<>();
+        if (sourceMapper != null) {
+            sourceIds.addAll(sourceMapper.getSourceIds());
+        }
+
+        tree.values().stream()
+                .map(SourcePositionId::getId)
+                .forEach(sourceIds::add);
+
+        return sourceIds;
     }
 
     /**
