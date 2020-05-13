@@ -98,7 +98,8 @@ public class CommentStage implements Stage {
             previous = ch;
         }
 
-        if (previous == SLASH) {
+        if (!inComment && previous == SLASH) {
+            // re-append slashes to the output unless we're in a comment
             builder.append(SLASH);
         }
 

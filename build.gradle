@@ -5,7 +5,7 @@ subprojects {
 	targetCompatibility = JavaVersion.VERSION_1_8
 
 	group = 'com.tazadum.glsl'
-	version = '1.2.1'
+	version = '1.2.2'
 
     repositories {
         jcenter()

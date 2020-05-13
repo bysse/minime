@@ -64,6 +64,16 @@ class CommentStageTest {
     }
 
     @Test
+    @DisplayName("Test mixed comments")
+    void test_mixed_comment() throws IOException {
+        Stage stage = process("a/*\n//\n*/c");
+        assertEquals("a  ", stage.readLine());
+        assertEquals("  ", stage.readLine());
+        assertEquals("  c", stage.readLine());
+        assertNull(stage.readLine());
+    }
+
+    @Test
     @DisplayName("Test line numberings")
     void testLineNumbers() throws IOException {
         Stage stage = process("A\n/*\n\n*/\nB");
