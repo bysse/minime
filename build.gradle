@@ -1,18 +1,36 @@
+
+allprojects {
+    group = 'com.tazadum.glsl'
+    version = '1.2.2'
+}
+
 subprojects {
 	apply plugin: 'java'
+    apply plugin: 'maven-publish'
 
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
-
-	group = 'com.tazadum.glsl'
-	version = '1.2.2'
+    sourceCompatibility = JavaVersion.VERSION_11
+    targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
         jcenter()
+        mavenLocal()
     }
 
     ext {
         antlrVersion = '4.7.+'
+    }
+
+    java {
+        withJavadocJar()
+        withSourcesJar()
+    }
+
+    publishing {
+        publications {
+            lib(MavenPublication) {
+                from components.java
+            }
+        }
     }
 
     dependencies {
