@@ -7,7 +7,7 @@ ext.antlr = [
 ]
 
 dependencies {
-    compile "net.sf.jopt-simple:jopt-simple:5.0.+"
+    compile "net.sf.jopt-simple:jopt-simple:5.0.4"
     compile "org.antlr:antlr4-runtime:${antlrVersion}"
 
 	antlr "org.antlr:antlr4:${antlrVersion}"

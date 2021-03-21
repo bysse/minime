@@ -17,7 +17,7 @@ subprojects {
     }
 
     ext {
-        antlrVersion = '4.7.+'
+        antlrVersion = '4.7.2'
     }
 
     java {
@@ -34,7 +34,7 @@ subprojects {
     }
 
     dependencies {
-        compile "org.slf4j:slf4j-api:1.8.+"
+        compile "org.slf4j:slf4j-api:1.8.0-beta4"
 
         testCompile 'org.mockito:mockito-core:2.9.0'
 
