@@ -2,7 +2,7 @@
 dependencies {
 	compile project(':parser')
 
-    compile "net.sf.jopt-simple:jopt-simple:5.0.+"
+    compile "net.sf.jopt-simple:jopt-simple:5.0.4"
 	compile "org.antlr:antlr4-runtime:${antlrVersion}"
 
     testCompile 'org.jogamp.jogl:jogl-all:2.3.2'
