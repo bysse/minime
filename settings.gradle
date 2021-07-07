@@ -1,4 +1,4 @@
-rootProject.name = 'glsl-optimizer'
+rootProject.name = 'minime'
 
 include 'preprocessor'
 include 'evaluater'

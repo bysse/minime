@@ -7,8 +7,13 @@ ext.antlr = [
 ]
 
 dependencies {
+<<<<<<< HEAD
     compile "net.sf.jopt-simple:jopt-simple:5.0.4"
     compile "org.antlr:antlr4-runtime:${antlrVersion}"
+=======
+	     api "net.sf.jopt-simple:jopt-simple:5.0.+"
+	     implementation "org.antlr:antlr4-runtime:${antlrVersion}"
+>>>>>>> 6f70f82... Fixing build
 
 	antlr "org.antlr:antlr4:${antlrVersion}"
 
