@@ -123,7 +123,7 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         final Pattern commentPattern = Pattern.compile("\\s*/\\*\\s*(.+)\\s*\\*/", Pattern.DOTALL);
         final Pattern indentationPattern = Pattern.compile("^(\\s*)");
 
-        if (shaderHeader.length() > 0) {
+        if (!shaderHeader.isEmpty()) {
             builder.append(indentation).append('"').append(shaderHeader).append("\\n\"\n");
         }
 

@@ -66,9 +66,6 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
 
                     if (showOutput || logger.isDebugEnabled()) {
                         logger.info(String.format("  - %s: %d changes", optimizer.name(), changes));
-                        if (logger.isDebugEnabled()) {
-                            final String source = output.render(branch.getNode(), outputConfig);
-                        }
                     }
                 }
             }

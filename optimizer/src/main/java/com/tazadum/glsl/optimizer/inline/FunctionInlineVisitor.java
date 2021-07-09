@@ -224,16 +224,14 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
     }
 
     private boolean shouldBeOptimized(FunctionDefinitionNode node) {
-        Boolean optimized = functionInlineMap.get(node);
-        if (optimized == null) {
-            optimized = branchRegistry.claimPoint(node, FunctionInline.class);
-            functionInlineMap.put(node, optimized);
+        return functionInlineMap.computeIfAbsent(node, k -> {
+            Boolean optimized = branchRegistry.claimPoint(node, FunctionInline.class);
             if (optimized) {
                 // create a branch to explore that possibility that inlining is not smaller
                 branches.add(createBranch());
             }
-        }
-        return optimized;
+            return optimized;
+        });
     }
 
     private Node singleStatementFunction(FunctionCallNode functionCall, FunctionDefinitionNode functionDefinition, boolean voidFunction) {

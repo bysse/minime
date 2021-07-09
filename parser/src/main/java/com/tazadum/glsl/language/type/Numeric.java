@@ -100,7 +100,7 @@ public class Numeric implements Comparable<Numeric> {
     }
 
     public static Numeric createFloat(double floatValue, PredefinedType type) {
-        return new Numeric(new BigDecimal(floatValue), type);
+        return new Numeric(BigDecimal.valueOf(floatValue), type);
     }
 
     public static Numeric createInt(int intValue, PredefinedType type) {

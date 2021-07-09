@@ -65,7 +65,7 @@ public class NumericFormatter {
             number = number.substring(0, number.length() - 1);
         }
 
-        if (number.length() == 0) {
+        if (number.isEmpty()) {
             return ZERO + floatSuffix;
         }
 

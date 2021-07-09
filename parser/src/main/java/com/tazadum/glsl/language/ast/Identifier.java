@@ -52,7 +52,7 @@ public class Identifier implements Comparable<Identifier> {
     }
 
     public boolean isEmpty() {
-        return original == null || original.length() == 0;
+        return original == null || original.isEmpty();
     }
 
     @Override
