@@ -6,6 +6,8 @@ import com.tazadum.glsl.optimizer.deadcode.DeadCodeElimination;
 import com.tazadum.glsl.optimizer.simplification.RuleOptimizer;
 import com.tazadum.glsl.optimizer.squeeze.DeclarationSqueeze;
 
+import java.lang.reflect.InvocationTargetException;
+
 public enum OptimizerType {
     /**
      * Removes dead code or declarations from the shader.
@@ -33,7 +35,7 @@ public enum OptimizerType {
     FunctionInline(com.tazadum.glsl.optimizer.inline.FunctionInline.class)
     ;
 
-    private Class<? extends Optimizer> optimizer;
+    private final Class<? extends Optimizer> optimizer;
 
     OptimizerType(Class<? extends Optimizer> optimizerType) {
         this.optimizer = optimizerType;
@@ -41,8 +43,8 @@ public enum OptimizerType {
 
     public Optimizer instantiate() {
         try {
-            return optimizer.newInstance();
-        } catch (InstantiationException | IllegalAccessException e) {
+            return optimizer.getDeclaredConstructor().newInstance();
+        } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             throw new RuntimeException("Failed to instantiate optimizer", e);
         }
     }

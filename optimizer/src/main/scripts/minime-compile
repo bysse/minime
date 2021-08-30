@@ -13,6 +13,6 @@ if [ ! -f "$MINIME_HOME/optimizer-bundle-@VERSION@.jar" ]; then
   exit 1
 fi
 
-JAR="$MINIME_HOME/optimizer-bundle-@VERSION@.jar"
+JAR="$MINIME_HOME/minime-@VERSION@.jar"
 
 java -cp "$JAR" com.tazadum.glsl.cli.CompilerMain $@

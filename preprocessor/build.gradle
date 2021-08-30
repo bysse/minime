@@ -7,8 +7,8 @@ ext.antlr = [
 ]
 
 dependencies {
-	     api "net.sf.jopt-simple:jopt-simple:5.0.4"
-	     implementation "org.antlr:antlr4-runtime:${antlrVersion}"
+	api "net.sf.jopt-simple:jopt-simple:5.0.4"
+	implementation "org.antlr:antlr4-runtime:${antlrVersion}"
 
 	antlr "org.antlr:antlr4:${antlrVersion}"
 

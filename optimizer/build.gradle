@@ -1,3 +1,6 @@
+plugins {
+	id 'com.github.johnrengelman.shadow' version '7.0.0'
+}
 
 dependencies {
 	api project(':parser')
@@ -10,21 +13,24 @@ dependencies {
 	testImplementation project(':test-util')
 }
 
-task fatJar(type: Jar) {
+jar {
 	manifest {
 		attributes 'Implementation-Title': 'GLSL-Optimizer',
 				'Implementation-Version': project.version,
 				'Main-Class': 'com.tazadum.glsl.cli.OptimizerMain'
 	}
-	baseName = project.name + '-bundle'
-	from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-	with jar
+}
+
+shadowJar {
+	configurations = [project.configurations.compileClasspath]
+	archiveBaseName.set('minime')
+	archiveClassifier.set('')
 }
 
 import org.apache.tools.ant.filters.ReplaceTokens
 task dist(type:Copy) {
-	dependsOn fatJar
-	from fatJar
+	dependsOn shadowJar
+	from shadowJar
 	from ("src/main/scripts") {
 		filter(ReplaceTokens, tokens: [VERSION: project.version])
 	}
