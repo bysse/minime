@@ -44,15 +44,16 @@ public class OptimizerMain {
 
         CommandLineBase cli = new CommandLineBase(
             OptimizerMain.class.getName(),
-            "GLSL Minifier.",
+            "MiniMe: Optimizer.",
             true,
             preprocessorOption,
             optimizerOption,
             compilerOption
         );
 
-        if (cli.process(args) == null) {
+        if (cli.process(args) == NO_RESULT) {
             if (!noExit) {
+                cli.showHelp(false);
                 System.exit(RET_SYNTAX);
             }
             return;

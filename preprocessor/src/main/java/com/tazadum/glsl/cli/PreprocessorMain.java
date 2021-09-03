@@ -20,14 +20,15 @@ public class PreprocessorMain {
 
         CommandLineBase cli = new CommandLineBase(
             PreprocessorMain.class.getName(),
-            "GLSL Preprocessor.",
+            "MiniMe: Preprocessor.",
             false,
             options
         );
 
 
         CommandLineBase.InputOutput inputOutput = cli.process(args);
-        if (inputOutput == null) {
+        if (inputOutput == NO_RESULT) {
+            cli.showHelp(false);
             System.exit(RET_SYNTAX);
             return;
         }

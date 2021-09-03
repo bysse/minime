@@ -1,5 +1,4 @@
 [versions]
-picocli = "4.6.1"
 antlr = "4.9.2"
 slf4j = "1.8.0-beta4"
 
@@ -7,4 +6,3 @@ slf4j = "1.8.0-beta4"
 slf4j =             { module = "org.slf4j:slf4j-api", version.ref="slf4j" }
 antlr-runtime =     { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
 antlr-buildtime =   { module = "org.antlr:antlr4", version.ref = "antlr" }
-picocli =           { module = "info.picocli:picocli", version.ref = "picocli" }

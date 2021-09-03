@@ -9,7 +9,6 @@ ext.antlr = [
 dependencies {
 	api "net.sf.jopt-simple:jopt-simple:5.0.4"
 	api libs.slf4j
-	api libs.picocli
 	api libs.antlr.runtime
 	antlr libs.antlr.buildtime
 	testImplementation project(':minime-test-util')

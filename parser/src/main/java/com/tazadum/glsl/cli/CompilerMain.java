@@ -30,7 +30,7 @@ public class CompilerMain {
 
         CommandLineBase cli = new CommandLineBase(
                 CompilerMain.class.getName(),
-                "GLSL Parser and type checker.",
+                "MiniMe: Parser.",
                 false,
                 preprocessorOption,
                 compilerOption
@@ -38,7 +38,7 @@ public class CompilerMain {
 
 
         CommandLineBase.InputOutput inputOutput = cli.process(args);
-        if (inputOutput == null) {
+        if (inputOutput == NO_RESULT) {
             System.exit(RET_SYNTAX);
             return;
         }
