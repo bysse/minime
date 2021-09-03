@@ -1,0 +1,41 @@
+#!/bin/bash
+
+if [ -z "$MINIME_HOME" ]; then
+  if  [ -d "$HOME/.minime" ]; then
+    MINIME_HOME="$HOME/.minime"
+  else
+    MINIME_HOME=$(realpath "$(dirname "$0")")
+  fi
+fi
+
+JAR="$MINIME_HOME/minime-@VERSION@.jar"
+if [ ! -f "$JAR" ]; then
+  echo "ERROR: Can't find application JAR, please set MINIME_HOME"
+  exit 1
+fi
+
+case "$1" in
+  o | optimize)
+    shift
+    java -cp "$JAR" com.tazadum.glsl.cli.OptimizerMain "$@"
+    ;;
+  c | compile)
+    shift
+    java -cp "$JAR" com.tazadum.glsl.cli.CompilerMain "$@"
+    ;;
+  p | preprocess)
+    shift
+    java -cp "$JAR" com.tazadum.glsl.cli.PreprocessorMain "$@"
+    ;;
+  *)
+    echo "ERROR: Missing command"
+    echo ""
+    echo "Syntax: minime <command> <options> <source file>"
+    echo ""
+    echo "Command         Description"
+    echo "--------        -----------"
+    echo "p, preprocess   Execute the preprocessor"
+    echo "c, compile      Execute the compiler"
+    echo "o, optimize     Execute the full optimizer"
+    ;;
+esac

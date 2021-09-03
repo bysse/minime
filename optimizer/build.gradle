@@ -3,14 +3,14 @@ plugins {
 }
 
 dependencies {
-	api project(':parser')
+	api project(':minime-parser')
 	api "net.sf.jopt-simple:jopt-simple:5.0.4"
-	implementation "org.antlr:antlr4-runtime:${antlrVersion}"
+	implementation libs.antlr.runtime
 
 	testImplementation 'org.jogamp.jogl:jogl-all:2.3.2'
 	testImplementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
 
-	testImplementation project(':test-util')
+	testImplementation project(':minime-test-util')
 }
 
 jar {

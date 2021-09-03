@@ -30,9 +30,9 @@ public class CommandLineBase {
     static final int RET_OK = 0;
     static final int RET_SYNTAX = 1;
     static final int RET_EXCEPTION = 2;
+    static final InputOutput NO_RESULT = null;
 
     private final Logger logger = LoggerFactory.getLogger(CommandLineBase.class);
-    private final InputOutput NO_RESULT = null;
 
     private final OptionParser parser;
     private final CLIOptions[] options;

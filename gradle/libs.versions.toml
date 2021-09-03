@@ -1,0 +1,8 @@
+[versions]
+antlr = "4.9.2"
+slf4j = "1.8.0-beta4"
+
+[libraries]
+slf4j =             { module = "org.slf4j:slf4j-api", version.ref="slf4j" }
+antlr-runtime =     { module = "org.antlr:antlr4-runtime", version.ref = "antlr" }
+antlr-buildtime =   { module = "org.antlr:antlr4", version.ref = "antlr" }

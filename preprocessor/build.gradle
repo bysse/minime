@@ -8,11 +8,10 @@ ext.antlr = [
 
 dependencies {
 	api "net.sf.jopt-simple:jopt-simple:5.0.4"
-	implementation "org.antlr:antlr4-runtime:${antlrVersion}"
-
-	antlr "org.antlr:antlr4:${antlrVersion}"
-
-	testImplementation project(':test-util')
+	api libs.slf4j
+	api libs.antlr.runtime
+	antlr libs.antlr.buildtime
+	testImplementation project(':minime-test-util')
 }
 
 // work around for https://github.com/gradle/gradle/issues/820
