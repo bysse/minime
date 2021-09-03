@@ -1,7 +1,12 @@
 rootProject.name = 'minime'
 
+enableFeaturePreview('VERSION_CATALOGS')
+
 include 'preprocessor'
-include 'evaluater'
 include 'parser'
 include 'optimizer'
 include 'test-util'
+
+rootProject.children.forEach {subProject ->
+    subProject.name = rootProject.name + "-" + subProject.name
+}

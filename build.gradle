@@ -4,6 +4,7 @@ allprojects {
     version = '1.2.2'
 }
 
+
 subprojects {
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
@@ -12,8 +13,7 @@ subprojects {
     targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
-        jcenter()
-        mavenLocal()
+        mavenCentral()
     }
 
     ext {
@@ -23,6 +23,10 @@ subprojects {
     java {
         withJavadocJar()
         withSourcesJar()
+    }
+
+    javadoc {
+        options.addStringOption('Xdoclint:none', '-quiet')
     }
 
     publishing {
