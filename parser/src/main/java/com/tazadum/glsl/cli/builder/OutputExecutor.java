@@ -27,7 +27,7 @@ public class OutputExecutor implements ProcessorExecutor<String> {
 
     private Set<String> blacklistedKeywords;
     private OutputConfig configuration;
-    private String header="";
+    private String header = "";
     private CompilerExecutor.Result result;
 
 

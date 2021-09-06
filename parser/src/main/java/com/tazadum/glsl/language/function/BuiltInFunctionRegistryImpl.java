@@ -1,6 +1,5 @@
 package com.tazadum.glsl.language.function;
 
-import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.Identifier;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.model.StorageQualifier;
@@ -66,7 +65,7 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
                         break;
                     }
 
-                    final PredefinedType type = (PredefinedType)parameterType;
+                    final PredefinedType type = (PredefinedType) parameterType;
                     parameters += type.components();
 
                     // verify that the types are compatible with the matrix base type
@@ -101,9 +100,9 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
                 final GLSLType type = new ArrayType(predefinedType, parameterCount);
 
                 final FunctionPrototypeNode prototypeNode = new FunctionPrototypeNode(
-                    SourcePosition.TOP,
-                    identifier.original(),
-                    new FullySpecifiedType(type)
+                        SourcePosition.TOP,
+                        identifier.original(),
+                        new FullySpecifiedType(type)
                 );
                 prototypeNode.setPrototype(new FunctionPrototype(true, type, parameterTypes));
 
@@ -130,9 +129,9 @@ public class BuiltInFunctionRegistryImpl implements BuiltInFunctionRegistry, Bui
             final GLSLType[] params = Arrays.copyOfRange(parameters, 1, parameters.length);
 
             final FunctionPrototypeNode node = new FunctionPrototypeNode(
-                SourcePosition.TOP,
-                identifier,
-                new FullySpecifiedType(returnType)
+                    SourcePosition.TOP,
+                    identifier,
+                    new FullySpecifiedType(returnType)
             );
 
             StorageQualifier[] qualifiers = null;

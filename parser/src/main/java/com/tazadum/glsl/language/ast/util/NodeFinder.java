@@ -9,7 +9,6 @@ import com.tazadum.glsl.language.ast.variable.ArrayIndexNode;
 import com.tazadum.glsl.language.ast.variable.FieldSelectionNode;
 import com.tazadum.glsl.language.ast.variable.VariableDeclarationNode;
 import com.tazadum.glsl.language.ast.variable.VariableNode;
-import com.tazadum.glsl.language.context.GLSLContext;
 
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -171,7 +170,7 @@ public class NodeFinder {
         }
         if (operation instanceof PrefixOperationNode) {
             // not all prefix operations are mutating
-            switch(((PrefixOperationNode) operation).getOperator()) {
+            switch (((PrefixOperationNode) operation).getOperator()) {
                 case DECREASE:
                 case INCREASE:
                     return true;

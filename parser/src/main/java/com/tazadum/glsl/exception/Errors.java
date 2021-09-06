@@ -110,7 +110,8 @@ public class Errors {
         MATRIX_VECTOR_DIM_DIFFERENT("Vector and matrix dimensions are wrong for this operation."),
         MATRIX_DIM_DIFFERENT("Matrix dimensions are wrong for this operation."),
 
-        TERNARY_TYPES_NOT_COMPATIBLE("Each branch in a ternary expression must have compatible types."),;
+        TERNARY_TYPES_NOT_COMPATIBLE("Each branch in a ternary expression must have compatible types."),
+        ;
 
         public static String format(Extras extras) {
             if (extras == null) {

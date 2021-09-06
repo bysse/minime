@@ -6,7 +6,6 @@ import com.tazadum.glsl.util.SourcePosition;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author erikb

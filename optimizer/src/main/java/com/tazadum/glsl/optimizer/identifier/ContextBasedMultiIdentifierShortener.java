@@ -39,10 +39,10 @@ public class ContextBasedMultiIdentifierShortener {
         this.keepUniforms = keepUniforms;
         this.output = new OutputRenderer();
         this.outputConfig = outputConfig.edit()
-            .renderNewLines(false)
-            .indentation(0)
-            .identifierMode(IdentifierOutputMode.None)
-            .build();
+                .renderNewLines(false)
+                .indentation(0)
+                .identifierMode(IdentifierOutputMode.None)
+                .build();
     }
 
     public void register(ParserContext parserContext, Node shaderNode) {
@@ -57,8 +57,8 @@ public class ContextBasedMultiIdentifierShortener {
     public void apply() {
         // concatenate all of the source to find frequently used characters
         final String content = shaders.stream()
-            .map(ShaderData::getShaderContent)
-            .collect(Collectors.joining("\n"));
+                .map(ShaderData::getShaderContent)
+                .collect(Collectors.joining("\n"));
 
         if (deterministic) {
             byte[] bytes = content.getBytes(StandardCharsets.UTF_8);

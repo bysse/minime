@@ -52,7 +52,6 @@ import static com.tazadum.glsl.language.model.StorageQualifier.OUT;
 import static com.tazadum.glsl.language.type.PredefinedType.INT;
 import static com.tazadum.glsl.language.type.PredefinedType.UINT;
 import static com.tazadum.glsl.parser.TypeCombination.anyOf;
-import static javax.print.attribute.standard.ColorSupported.NOT_SUPPORTED;
 
 public class ASTConverter extends GLSLBaseVisitor<Node> {
     private SourcePositionMapper mapper;
@@ -779,7 +778,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
 
             GLSLType glslType = new StructType(structDeclaration);
             if (arraySpecifiers != null) {
-                 glslType = arraySpecifiers.transform(glslType);
+                glslType = arraySpecifiers.transform(glslType);
             }
 
             FullySpecifiedType fullySpecifiedType = new FullySpecifiedType(glslType);

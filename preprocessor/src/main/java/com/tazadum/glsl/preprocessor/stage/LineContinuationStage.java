@@ -67,8 +67,8 @@ public class LineContinuationStage implements Stage {
             if (hasLineContinuation(part, logKeeper, startingRow)) {
                 // remap the line number
                 mapper.remap(
-                    SourcePosition.create(startingRow, line.length()),
-                    SourcePositionId.create(source.getSourceId(), currentRow, 0)
+                        SourcePosition.create(startingRow, line.length()),
+                        SourcePositionId.create(source.getSourceId(), currentRow, 0)
                 );
 
                 // clean the line and append to the rest of the continuation

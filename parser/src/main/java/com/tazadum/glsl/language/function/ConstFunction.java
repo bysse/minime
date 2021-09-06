@@ -33,7 +33,8 @@ public enum ConstFunction implements HasToken {
     CLAMP("clamp"),
     LENGTH("length"),
     DOT("dot"),
-    NORMALIZE("normalize"),;
+    NORMALIZE("normalize"),
+    ;
 
     private final String token;
 

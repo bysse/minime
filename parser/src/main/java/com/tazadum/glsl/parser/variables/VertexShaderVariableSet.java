@@ -21,25 +21,25 @@ public class VertexShaderVariableSet extends VariableSet {
 
         if (profile != GLSLProfile.COMPATIBILITY) {
             add(block("gl_PerVertex", null, OUT, 0,
-                variable(VEC4, "gl_Position"),
-                variable(FLOAT, "gl_PointSize"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance")
+                    variable(VEC4, "gl_Position"),
+                    variable(FLOAT, "gl_PointSize"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance")
             ));
         } else {
             add(block("gl_PerVertex", null, OUT, 0,
-                variable(VEC4, "gl_Position"),
-                variable(FLOAT, "gl_PointSize"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance"),
+                    variable(VEC4, "gl_Position"),
+                    variable(FLOAT, "gl_PointSize"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance"),
 
-                variable(VEC4, "gl_ClipVertex"),
-                variable(VEC4, "gl_FrontColor"),
-                variable(VEC4, "gl_BackColor"),
-                variable(VEC4, "gl_FrontSecondaryColor"),
-                variable(VEC4, "gl_BackSecondaryColor"),
-                variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord"),
-                variable(FLOAT, "gl_FogFragCoord")
+                    variable(VEC4, "gl_ClipVertex"),
+                    variable(VEC4, "gl_FrontColor"),
+                    variable(VEC4, "gl_BackColor"),
+                    variable(VEC4, "gl_FrontSecondaryColor"),
+                    variable(VEC4, "gl_BackSecondaryColor"),
+                    variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord"),
+                    variable(FLOAT, "gl_FogFragCoord")
             ));
 
             add(variable(VEC4, "gl_Color", IN));

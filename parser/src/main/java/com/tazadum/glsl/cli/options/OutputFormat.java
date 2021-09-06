@@ -8,7 +8,8 @@ import com.tazadum.glsl.preprocessor.model.HasToken;
 public enum OutputFormat implements HasToken {
     PLAIN("plain"),
     SHADERTOY("shadertoy"),
-    C_HEADER("c"),;
+    C_HEADER("c"),
+    ;
 
     private final String token;
 

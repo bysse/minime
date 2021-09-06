@@ -46,9 +46,9 @@ public class HeaderRenderStage implements Stage<Pair<Node, ParserContext>, Strin
         this.shaderId = shaderName.replaceAll("\\.", "_").replaceAll(" ", "_").replaceAll("__+", "_");
 
         this.outputConfig = outputConfig.edit()
-            .renderNewLines(true)
-            .identifierMode(IdentifierOutputMode.Replaced)
-            .build();
+                .renderNewLines(true)
+                .identifierMode(IdentifierOutputMode.Replaced)
+                .build();
     }
 
     @Override

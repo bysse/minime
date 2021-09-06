@@ -11,7 +11,8 @@ public enum RelationalOperator implements HasToken {
     EQUALS("=="),
     NOT_EQUALS("!="),
     GREATER_THAN_EQUALS(">="),
-    GREATER_THAN(">"),;
+    GREATER_THAN(">"),
+    ;
 
     private final String token;
 

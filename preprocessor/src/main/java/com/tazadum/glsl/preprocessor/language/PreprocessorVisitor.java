@@ -331,8 +331,8 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
 
         // get all the parameter names
         final List<String> parameters = ctx.parameter_declaration().IDENTIFIER().stream()
-            .map(TerminalNode::getText)
-            .collect(Collectors.toList());
+                .map(TerminalNode::getText)
+                .collect(Collectors.toList());
 
         return new MacroDeclarationNode(sourcePosition, identifier, parameters, endOfLine);
     }

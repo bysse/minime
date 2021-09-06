@@ -9,11 +9,11 @@ class OptimizerMainTest {
     @Test
     void test() {
         OptimizerMain.main(new String[]{
-            "-vv", "-format", "c",
-            "-type", "f",
-            "-o", "output.h",
-            "src/test/resources/shaders/first.glsl",
-            "src/test/resources/shaders/second.glsl"
+                "-vv", "-format", "c",
+                "-type", "f",
+                "-o", "output.h",
+                "src/test/resources/shaders/first.glsl",
+                "src/test/resources/shaders/second.glsl"
         });
     }
 }

@@ -48,7 +48,7 @@ public class FullySpecifiedType {
     @Override
     public String toString() {
         return (qualifiers == null ? "" : qualifiers + " ") +
-            type.token();
+                type.token();
     }
 
     /**

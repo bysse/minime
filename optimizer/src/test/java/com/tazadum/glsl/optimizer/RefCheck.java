@@ -84,7 +84,7 @@ public class RefCheck {
         VariableRegistry registry = parserContext.getVariableRegistry();
 
         boolean found = false;
-        for(Usage<VariableDeclarationNode> usage : registry.getAllVariables()) {
+        for (Usage<VariableDeclarationNode> usage : registry.getAllVariables()) {
             final Identifier id = usage.getTarget().getIdentifier();
             if (identifier.equals(id.original())) {
                 if (found) {
@@ -112,7 +112,7 @@ public class RefCheck {
         FunctionRegistry registry = parserContext.getFunctionRegistry();
 
         boolean found = false;
-        for(Usage<FunctionPrototypeNode> usage : registry.getUsedFunctions()) {
+        for (Usage<FunctionPrototypeNode> usage : registry.getUsedFunctions()) {
             final Identifier id = usage.getTarget().getIdentifier();
             if (identifier.equals(id.original())) {
                 if (found) {

@@ -66,7 +66,8 @@ public enum StorageQualifier implements TypeQualifier, HasToken {
     /**
      * subroutine
      */
-    SUBROUTINE("subroutine", GLSLParser.SUBROUTINE),;
+    SUBROUTINE("subroutine", GLSLParser.SUBROUTINE),
+    ;
 
     private final String token;
     private final int id;

@@ -8,7 +8,8 @@ public enum BitOperator implements HasToken {
     SHIFT_RIGHT("^^", GLSLParser.RIGHT_OP),
     AND("&", GLSLParser.AMPERSAND),
     OR("|", GLSLParser.VERTICAL_BAR),
-    XOR("^", GLSLParser.CARET),;
+    XOR("^", GLSLParser.CARET),
+    ;
 
     private final String token;
     private final int tokenId;

@@ -12,7 +12,8 @@ public enum UnaryOperator implements HasToken {
     MINUS("-", GLSLParser.DASH),
     BANG("!", GLSLParser.BANG), // boolean negation
     TILDE("~", GLSLParser.TILDE), // one’s complement operator
-    PLUS("+", GLSLParser.PLUS),;
+    PLUS("+", GLSLParser.PLUS),
+    ;
 
     private final String token;
     private final int tokenId;

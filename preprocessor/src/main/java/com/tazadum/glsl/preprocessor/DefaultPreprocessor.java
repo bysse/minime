@@ -140,11 +140,11 @@ public class DefaultPreprocessor implements Preprocessor {
 
                 // ignore macro expansion on these directives
                 if (!declaration.equals("pragma") &&
-                    !declaration.equals("error") &&
-                    !declaration.equals("extension") &&
-                    !declaration.equals("version") &&
-                    !declaration.equals("ifdef") &&
-                    !declaration.equals("define")) {
+                        !declaration.equals("error") &&
+                        !declaration.equals("extension") &&
+                        !declaration.equals("version") &&
+                        !declaration.equals("ifdef") &&
+                        !declaration.equals("define")) {
                     // apply macro expansion
                     line = applyOps(lineNumber, line, matcher.end());
                 }

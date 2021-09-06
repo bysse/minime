@@ -26,8 +26,8 @@ public class VectorField {
         inOrder = true;
 
         if (baseType.category() == TypeCategory.Scalar &&
-            selection.length() == 1 &&
-            vectorComponentIndex(selection.charAt(0)) == 0) {
+                selection.length() == 1 &&
+                vectorComponentIndex(selection.charAt(0)) == 0) {
             field[0] = 0;
         } else {
             for (int i = 0; i < field.length; i++) {

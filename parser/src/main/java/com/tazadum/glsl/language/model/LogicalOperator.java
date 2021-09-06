@@ -6,7 +6,8 @@ import com.tazadum.glsl.preprocessor.model.HasToken;
 public enum LogicalOperator implements HasToken {
     AND("&&", GLSLParser.AND_OP),
     XOR("^^", GLSLParser.XOR_OP),
-    OR("||", GLSLParser.OR_OP),;
+    OR("||", GLSLParser.OR_OP),
+    ;
 
     private final String token;
     private final int tokenId;

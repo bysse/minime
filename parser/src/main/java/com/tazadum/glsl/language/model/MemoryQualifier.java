@@ -38,7 +38,8 @@ public enum MemoryQualifier implements TypeQualifier, HasToken {
      * Memory variable that can be used to write the underlying memory, but cannot be used to read
      * the underlying memory
      */
-    WRITEONLY("writeonly", GLSLParser.WRITEONLY),;
+    WRITEONLY("writeonly", GLSLParser.WRITEONLY),
+    ;
 
     private final String token;
     private final int tokenId;

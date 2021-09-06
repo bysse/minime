@@ -60,7 +60,7 @@ public class SingleShaderOptimizerPipeline implements OptimizerPipeline {
             for (Optimizer optimizer : optimizers) {
                 final Optimizer.OptimizerResult result = optimizer.run(branchRegistry, decider, branch);
                 int changes = result.getChanges();
-                if (changes > 0 ) {
+                if (changes > 0) {
                     branch = result.getInputBranch();
                     iterationChanges += changes;
 

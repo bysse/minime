@@ -13,14 +13,14 @@ import static com.tazadum.glsl.exception.Errors.Extras.*;
  */
 public class TypeCombination {
     public static final GLSLType[] INTEGER_TYPES = new GLSLType[]{
-        PredefinedType.INT,
-        PredefinedType.UINT,
-        PredefinedType.IVEC2,
-        PredefinedType.IVEC3,
-        PredefinedType.IVEC4,
-        PredefinedType.UVEC2,
-        PredefinedType.UVEC3,
-        PredefinedType.UVEC4
+            PredefinedType.INT,
+            PredefinedType.UINT,
+            PredefinedType.IVEC2,
+            PredefinedType.IVEC3,
+            PredefinedType.IVEC4,
+            PredefinedType.UVEC2,
+            PredefinedType.UVEC3,
+            PredefinedType.UVEC4
     };
 
     public static GLSLType compatibleTypeNoException(GLSLType left, GLSLType right) {

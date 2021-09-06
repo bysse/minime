@@ -39,8 +39,8 @@ public class TernaryConditionNode extends FixedChildParentNode implements HasCon
     @Override
     public boolean isConstant() {
         return HasConstState.isConst(getCondition()) &&
-            HasConstState.isConst(getThen()) &&
-            HasConstState.isConst(getElse());
+                HasConstState.isConst(getThen()) &&
+                HasConstState.isConst(getElse());
     }
 
     @Override

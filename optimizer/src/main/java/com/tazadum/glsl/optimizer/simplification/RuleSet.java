@@ -38,13 +38,13 @@ public class RuleSet {
         List<Rule> list = new ArrayList<>();
 
         list.add(rule("a * _1 = _1 * a",
-            mMul(mNot(mNumeric()), mNumeric()),
-            gOperation(MUL, gGroup(1), gGroup(0))
+                mMul(mNot(mNumeric()), mNumeric()),
+                gOperation(MUL, gGroup(1), gGroup(0))
         ));
 
         list.add(rule("_1 + a = a + _1",
-            mAdd(mNumeric(), mNot(mNumeric())),
-            gOperation(ADD, gGroup(1), gGroup(0))
+                mAdd(mNumeric(), mNot(mNumeric())),
+                gOperation(ADD, gGroup(1), gGroup(0))
         ));
 
         // -a + b = b - a
@@ -64,9 +64,9 @@ public class RuleSet {
         list.add(rule("a - 0 = a", mSub(mAny(), mLiteral(0f)), gGroup(0)));
 
         list.add(rule("_1 - _1 = 0",
-            mSub(mNumeric(), mNumeric()),
-            cSame(0, 1, cSameNumeric()),
-            gNumeric(0)
+                mSub(mNumeric(), mNumeric()),
+                cSame(0, 1, cSameNumeric()),
+                gNumeric(0)
         ));
 
         return list;
@@ -83,28 +83,28 @@ public class RuleSet {
         */
 
         list.add(rule("pow(_1,0) = 1",
-            mFunc("pow", mAny(), mLiteral(0f)),
-            gNumeric(1)
+                mFunc("pow", mAny(), mLiteral(0f)),
+                gNumeric(1)
         ));
 
         list.add(rule("pow(_1,1) = _1",
-            mFunc("pow", mAny(), mLiteral(1f)),
-            gGroup(0)
+                mFunc("pow", mAny(), mLiteral(1f)),
+                gGroup(0)
         ));
 
         list.add(rule("pow(_1,2) = _1*_1;",
-            mFunc("pow", mNumeric(), mLiteral(2f)),
-            gOperation(MUL, gGroup(0), gClone(0))
+                mFunc("pow", mNumeric(), mLiteral(2f)),
+                gOperation(MUL, gGroup(0), gClone(0))
         ));
 
         list.add(rule("abs(_1) = _1",
-            mFunc("abs", mNumeric()),
-            gGroup(0)
+                mFunc("abs", mNumeric()),
+                gGroup(0)
         ));
 
         list.add(rule("abs(-_1) = _1",
-            mFunc("abs", mParent(PrefixOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
-            gGroup(0)
+                mFunc("abs", mParent(PrefixOperationNode.class, op -> op.getOperator() == UnaryOperator.MINUS, mNumeric())),
+                gGroup(0)
         ));
 
         list.add(rule("distance(_1,_2) = length(_1-_2)",
@@ -115,13 +115,13 @@ public class RuleSet {
         // sqrt(_1) = _2
 
         list.add(rule("sin(0) = 0",
-            mFunc("sin", mLiteral(0f)),
-            gGroup(0)
+                mFunc("sin", mLiteral(0f)),
+                gGroup(0)
         ));
 
         list.add(rule("cos(0) = 1",
-            mFunc("cos", mLiteral(0f)),
-            gNumeric(1)
+                mFunc("cos", mLiteral(0f)),
+                gNumeric(1)
         ));
 
         return list;
@@ -131,20 +131,20 @@ public class RuleSet {
         List<Rule> list = new ArrayList<>();
 
         list.add(rule("0 / a = 0",
-            mDiv(mLiteral(0), mAny()),
-            gNumeric(0)
+                mDiv(mLiteral(0), mAny()),
+                gNumeric(0)
         ));
 
         list.add(rule("_1 / _1 = 1",
-            mDiv(mNumeric(), mNumeric()),
-            cSame(0, 1, cSameNumeric()),
-            gNumeric(1)
+                mDiv(mNumeric(), mNumeric()),
+                cSame(0, 1, cSameNumeric()),
+                gNumeric(1)
         ));
 
         list.add(rule("a / a = 1",
-            mDiv(mAny(), mAny()),
-            cSame(0, 1, cSameTree()),
-            gNumeric(1)
+                mDiv(mAny(), mAny()),
+                cSame(0, 1, cSameTree()),
+                gNumeric(1)
         ));
 
         // (a+b)/a = 1 + b/a

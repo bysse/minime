@@ -70,8 +70,8 @@ public class FunctionInlineTest extends BaseOptimizerTest {
                 Arguments.of( // single line void function
                         "void main(){iv+=1;}",
                         "void f(int b){ iv+=b; } void main(){ f(1); }",
-						list(
-						        function("f", 0),
+                        list(
+                                function("f", 0),
                                 variable("b", 0),
                                 variable("iv", 1)
                         )),
@@ -344,7 +344,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
                 "      if(a<0)\n" +
                 "         a*=13;\n" +
                 "    }\n" +
-                "    return vec4(a);\n"+
+                "    return vec4(a);\n" +
                 "  }\n" +
                 "void main() {\n" +
                 "    gl_FragColor = small(vec3(1,2,3));\n" +
@@ -390,7 +390,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
                 "      if(a<0)\n" +
                 "         a*=g(7);\n" +
                 "    }\n" +
-                "    return vec3(a);\n"+
+                "    return vec3(a);\n" +
                 "  }\n" +
                 "void main() {\n" +
                 "    gl_FragColor = small(vec3(g(1),2,3));\n" +

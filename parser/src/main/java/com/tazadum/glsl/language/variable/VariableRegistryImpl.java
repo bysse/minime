@@ -16,7 +16,6 @@ import com.tazadum.glsl.language.model.ArraySpecifiers;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.language.type.StructType;
-import com.tazadum.glsl.language.type.TypeQualifierList;
 import com.tazadum.glsl.parser.Usage;
 import com.tazadum.glsl.parser.variables.VariableSet;
 import com.tazadum.glsl.util.SourcePosition;

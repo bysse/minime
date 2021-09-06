@@ -48,6 +48,7 @@ public class ReplaceUtil {
     public static <T extends ParentNode> T replace(ParserContext context, T parent, Node nodeToRemove, Node replacement, boolean dereference, boolean reference) {
         ReplacingASTVisitor visitor = new ReplacingASTVisitor(context, dereference, reference) {
             boolean found = false;
+
             protected void processParentNode(ParentNode node) {
                 if (found) {
                     return;

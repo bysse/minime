@@ -29,8 +29,8 @@ public class TypeQualifierList {
      */
     public <T extends TypeQualifier> Stream<T> get(Class<T> type) {
         return qualifiers.stream()
-            .filter(t -> type.isAssignableFrom(t.getClass()))
-            .map(type::cast);
+                .filter(t -> type.isAssignableFrom(t.getClass()))
+                .map(type::cast);
     }
 
     /**

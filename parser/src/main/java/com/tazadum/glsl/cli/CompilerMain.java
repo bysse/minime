@@ -29,7 +29,7 @@ public class CompilerMain {
         CompilerOptions compilerOption = new CompilerOptions(4, true);
 
         CommandLineBase cli = new CommandLineBase(
-                CompilerMain.class.getName(),
+                "minime-compiler",
                 "MiniMe: Parser.",
                 false,
                 preprocessorOption,

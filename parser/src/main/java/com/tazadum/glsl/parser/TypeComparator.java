@@ -5,7 +5,10 @@ import com.tazadum.glsl.exception.NoSuchFieldException;
 import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.language.ast.type.ArraySpecifier;
 import com.tazadum.glsl.language.model.ArraySpecifiers;
-import com.tazadum.glsl.language.type.*;
+import com.tazadum.glsl.language.type.ArrayType;
+import com.tazadum.glsl.language.type.GLSLType;
+import com.tazadum.glsl.language.type.PredefinedType;
+import com.tazadum.glsl.language.type.StructType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -69,15 +72,15 @@ public class TypeComparator {
             return type;
         }
 
-        if (activeSpecifier == null ) {
+        if (activeSpecifier == null) {
             if (ofCategory(Vector, leftType) && rightType instanceof ArrayType && rightSpecifiers.isEmpty()) {
                 // handle array initialization of vector declarations
-                return checkArrayInitializerSizeMatch((PredefinedType)leftType, (ArrayType)rightType);
+                return checkArrayInitializerSizeMatch((PredefinedType) leftType, (ArrayType) rightType);
             }
 
             if (ofCategory(Matrix, leftType) && rightType instanceof ArrayType && rightSpecifiers.isEmpty()) {
                 // handle array initialization of matrix declarations
-                final PredefinedType matrixType = (PredefinedType)leftType;
+                final PredefinedType matrixType = (PredefinedType) leftType;
                 final ArrayType rightArray = (ArrayType) rightType;
 
                 // check that the number of columns in the matrix matches the array size

@@ -36,10 +36,10 @@ public class OptimizerOptions implements CLIOptions {
         parser.accepts(OPTIMIZE_SMALL, "Set standard settings for small output");
 
         maxIterationSpec = parser.accepts("max-iterations", "Set the maximum number of iterations to run.")
-            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxIterations);
+                .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(maxIterations);
 
         maxSizeSpec = parser.accepts("max-size", "The maximum size difference towards the smallest branch until a branch gets pruned")
-            .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(branchMaxSize);
+                .withRequiredArg().describedAs("INT").ofType(Integer.class).defaultsTo(branchMaxSize);
     }
 
     @Override

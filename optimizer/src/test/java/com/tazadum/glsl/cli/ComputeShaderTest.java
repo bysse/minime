@@ -19,7 +19,7 @@ class ComputeShaderTest {
 
     private static Arguments[] getShaders() {
         return new Arguments[]{
-            Arguments.of("compute.glsl"),
+                Arguments.of("compute.glsl"),
         };
     }
 }

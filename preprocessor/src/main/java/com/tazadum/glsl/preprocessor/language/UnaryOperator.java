@@ -9,7 +9,8 @@ public enum UnaryOperator implements HasToken {
     PLUS("+"),
     NEGATE("-"),
     BITWISE_NOT("~"),
-    NOT("!"),;
+    NOT("!"),
+    ;
 
     private final String token;
 

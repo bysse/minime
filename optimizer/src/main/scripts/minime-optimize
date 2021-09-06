@@ -8,7 +8,7 @@ if [ -z "$MINIME_HOME" ]; then
   fi
 fi
 
-if [ ! -f "$MINIME_HOME/optimizer-bundle-@VERSION@.jar" ]; then
+if [ ! -f "$MINIME_HOME/minime-@VERSION@.jar" ]; then
   echo "ERROR: Can't find application JAR, please set MINIME_HOME"
   exit 1
 fi

@@ -33,10 +33,10 @@ public abstract class BaseTest {
     protected void testInit(boolean useBuiltInFunctions, boolean useBuiltInVariables) {
         parserContext = TestUtil.parserContext(ShaderType.FRAGMENT, GLSLProfile.COMPATIBILITY, useBuiltInFunctions, useBuiltInVariables);
         outputConfig = new OutputConfigBuilder()
-            .renderNewLines(false)
-            .indentation(0)
-            .significantDecimals(3)
-            .build();
+                .renderNewLines(false)
+                .indentation(0)
+                .significantDecimals(3)
+                .build();
 
         this.output = new OutputRenderer();
         this.decider = new OutputSizeDecider(3);

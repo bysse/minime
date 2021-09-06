@@ -34,7 +34,7 @@ public class ArrayType implements GLSLType, HasToken {
         if (hasDimension()) {
             // check that the dimensions are valid
             return ((ArrayType) otherType).hasDimension() &&
-                getDimension() == ((ArrayType) otherType).getDimension();
+                    getDimension() == ((ArrayType) otherType).getDimension();
         }
         return true;
     }

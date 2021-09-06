@@ -31,8 +31,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         this.maxIterations = maxIterations;
         this.output = new OutputRenderer();
         this.optimizers = Stream.of(types)
-            .map(OptimizerType::instantiate)
-            .collect(Collectors.toList());
+                .map(OptimizerType::instantiate)
+                .collect(Collectors.toList());
     }
 
     public BranchingOptimizerPipeline(TreePruner treePruner, OutputConfig outputConfig, EnumSet<OptimizerType> types) {
@@ -41,8 +41,8 @@ public class BranchingOptimizerPipeline implements OptimizerPipeline {
         this.maxIterations = 10;
         this.output = new OutputRenderer();
         this.optimizers = types.stream()
-            .map(OptimizerType::instantiate)
-            .collect(Collectors.toList());
+                .map(OptimizerType::instantiate)
+                .collect(Collectors.toList());
     }
 
     public Branch optimize(OptimizerContext optimizerContext, Node shaderNode, boolean showOutput, OptimizerReport report) {

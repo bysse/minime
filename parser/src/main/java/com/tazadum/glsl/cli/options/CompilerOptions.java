@@ -46,28 +46,28 @@ public class CompilerOptions implements CLIOptions {
     @Override
     public void configure(OptionParser parser) {
         typeSpec = parser.accepts("type", "Set the GLSL Shader type.")
-            .withRequiredArg().describedAs("type")
-            .defaultsTo(ShaderType.FRAGMENT.name().toLowerCase());
+                .withRequiredArg().describedAs("type")
+                .defaultsTo(ShaderType.FRAGMENT.name().toLowerCase());
 
         profileSpec = parser.accepts("profile", "Set the OpenGL profile.")
-            .withRequiredArg().describedAs("profile")
-            .defaultsTo(GLSLProfile.COMPATIBILITY.token());
+                .withRequiredArg().describedAs("profile")
+                .defaultsTo(GLSLProfile.COMPATIBILITY.token());
 
         formatSpec = parser.accepts("format", "Set the output format")
-            .withRequiredArg().describedAs("fmt")
-            .defaultsTo(OutputFormat.PLAIN.token());
+                .withRequiredArg().describedAs("fmt")
+                .defaultsTo(OutputFormat.PLAIN.token());
 
         shaderIdSpec = parser.accepts("id", "Set the shader id, used for C-header generation.")
-            .withRequiredArg().describedAs("id");
+                .withRequiredArg().describedAs("id");
 
         blacklistSpec = parser.accepts("no-render", "Black lists a keyword that will be omitted from rendering.")
-            .withRequiredArg().describedAs("keyword");
+                .withRequiredArg().describedAs("keyword");
 
         indentationSpec = parser.accepts("fidentation", "The number of spaces to use for output indentation")
-            .withRequiredArg().ofType(Integer.class).describedAs("int").defaultsTo(indentationDefault);
+                .withRequiredArg().ofType(Integer.class).describedAs("int").defaultsTo(indentationDefault);
 
         newlineSpec = parser.accepts("fnew-line", "Control if newline characters are rendered in the output")
-            .withRequiredArg().ofType(Boolean.class).describedAs("value").defaultsTo(newlineDefault);
+                .withRequiredArg().ofType(Boolean.class).describedAs("value").defaultsTo(newlineDefault);
     }
 
     @Override
@@ -84,8 +84,8 @@ public class CompilerOptions implements CLIOptions {
         shaderType = null;
         for (ShaderType type : ShaderType.values()) {
             if (typeArgInt == type.tokenId() ||
-                type.token().equals(typeArg) ||
-                type.name().toLowerCase().equals(typeArg)) {
+                    type.token().equals(typeArg) ||
+                    type.name().toLowerCase().equals(typeArg)) {
                 shaderType = type;
                 break;
             }

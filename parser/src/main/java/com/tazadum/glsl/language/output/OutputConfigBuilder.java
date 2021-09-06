@@ -86,12 +86,12 @@ public class OutputConfigBuilder {
 
     public OutputConfig build() {
         return new OutputConfig(
-            renderNewLines,
-            indentation,
-            keywordBlacklist,
-            identifierMode,
-            new NumericFormatter(maxDecimals, shaderToy),
-            originalIdentifiers
+                renderNewLines,
+                indentation,
+                keywordBlacklist,
+                identifierMode,
+                new NumericFormatter(maxDecimals, shaderToy),
+                originalIdentifiers
         );
     }
 }

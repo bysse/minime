@@ -5,10 +5,6 @@ import com.tazadum.glsl.language.ast.function.FunctionCallNode;
 import com.tazadum.glsl.language.ast.function.FunctionPrototypeNode;
 import com.tazadum.glsl.language.ast.util.CloneUtils;
 import com.tazadum.glsl.language.ast.util.NodeFinder;
-import com.tazadum.glsl.language.output.IdentifierOutputMode;
-import com.tazadum.glsl.language.output.OutputConfig;
-import com.tazadum.glsl.language.output.OutputConfigBuilder;
-import com.tazadum.glsl.language.output.OutputVisitor;
 
 public class TreeNodeComparator implements NodeComparator {
     public TreeNodeComparator() {

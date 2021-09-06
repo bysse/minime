@@ -48,51 +48,51 @@ public class DeadCodeEliminationTest extends BaseOptimizerTest {
 
     private static Arguments[] getPositiveCases() {
         return new Arguments[]{
-            Arguments.of(
-                    "void main(){}",
-                    "void main(){}",
-                    noChecks()
-            ),
-            Arguments.of(
-			        "void mainImage(out vec4 fragColor,in vec2 fragCoord){}",
-                    "void mainImage(out vec4 fragColor,in vec2 fragCoord){}",
-                    noChecks()
-			),
-            Arguments.of(
-			        "void main(){}",
-                    "void main(){int a=0;}",
-                    list(variable("a", 0))
-			),
-            Arguments.of(
-			        "void main(){}",
-                    "int a=0;void f(){a=1;}void main(){}",
-                    list(variable("a", 0), function("f", 0))
-			),
-            Arguments.of(
-			        "void main(){float b=1;blackhole=2+b;}",
-                    "void main(){float b=1;blackhole=2+b;}",
-                    list(variable("b", 1))
-			),
-            Arguments.of(
-			        "struct S{float a;} s={1};void main(){blackhole=s.a;}",
-                    "struct S{float a;} s={1}; void main(){blackhole=s.a;}",
-                    list(variable("s", 1))
-			),
-            Arguments.of(
-				    "struct S{float a;};S s={1};void main(){blackhole=s.a;}",
-                    "struct S{float a;}; S s={1}; void main(){blackhole=s.a;}",
-                    list(variable("s", 1), type("S", 1))
-			),
-            Arguments.of(
-				    "struct{float a;} s={1};void main(){blackhole=s.a;}",
-                    "struct{float a;} s={1}; void main(){blackhole=s.a;}",
-                    list(variable("s", 1))
-			),
-            Arguments.of(
-				    "void main(){}",
-                    "struct S{float a;}; void main(){S b;}",
-                    list(variable("b", 0), type("S", 0))
-			),
+                Arguments.of(
+                        "void main(){}",
+                        "void main(){}",
+                        noChecks()
+                ),
+                Arguments.of(
+                        "void mainImage(out vec4 fragColor,in vec2 fragCoord){}",
+                        "void mainImage(out vec4 fragColor,in vec2 fragCoord){}",
+                        noChecks()
+                ),
+                Arguments.of(
+                        "void main(){}",
+                        "void main(){int a=0;}",
+                        list(variable("a", 0))
+                ),
+                Arguments.of(
+                        "void main(){}",
+                        "int a=0;void f(){a=1;}void main(){}",
+                        list(variable("a", 0), function("f", 0))
+                ),
+                Arguments.of(
+                        "void main(){float b=1;blackhole=2+b;}",
+                        "void main(){float b=1;blackhole=2+b;}",
+                        list(variable("b", 1))
+                ),
+                Arguments.of(
+                        "struct S{float a;} s={1};void main(){blackhole=s.a;}",
+                        "struct S{float a;} s={1}; void main(){blackhole=s.a;}",
+                        list(variable("s", 1))
+                ),
+                Arguments.of(
+                        "struct S{float a;};S s={1};void main(){blackhole=s.a;}",
+                        "struct S{float a;}; S s={1}; void main(){blackhole=s.a;}",
+                        list(variable("s", 1), type("S", 1))
+                ),
+                Arguments.of(
+                        "struct{float a;} s={1};void main(){blackhole=s.a;}",
+                        "struct{float a;} s={1}; void main(){blackhole=s.a;}",
+                        list(variable("s", 1))
+                ),
+                Arguments.of(
+                        "void main(){}",
+                        "struct S{float a;}; void main(){S b;}",
+                        list(variable("b", 0), type("S", 0))
+                ),
         };
     }
 }

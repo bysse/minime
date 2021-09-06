@@ -12,7 +12,8 @@ public enum ShaderType implements HasToken {
     COMPUTE("c", 3),
     TESSELLATION_CONTROL("tc", 4),
     TESSELLATION_EVALUATION("te", 5),
-    SHADER_TOY("st", 11),;
+    SHADER_TOY("st", 11),
+    ;
 
     private final String token;
     private final int tokenId;

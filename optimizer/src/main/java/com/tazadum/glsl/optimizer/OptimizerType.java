@@ -32,8 +32,7 @@ public enum OptimizerType {
     /**
      * Find appropriate functions to inline.
      */
-    FunctionInline(com.tazadum.glsl.optimizer.inline.FunctionInline.class)
-    ;
+    FunctionInline(com.tazadum.glsl.optimizer.inline.FunctionInline.class);
 
     private final Class<? extends Optimizer> optimizer;
 

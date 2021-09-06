@@ -10,9 +10,6 @@ import com.tazadum.glsl.language.context.ContextAwareImpl;
 import com.tazadum.glsl.language.context.GLSLContext;
 import com.tazadum.glsl.language.function.FunctionPrototype;
 import com.tazadum.glsl.language.function.FunctionRegistry;
-import com.tazadum.glsl.language.output.OutputConfig;
-import com.tazadum.glsl.language.output.OutputConfigBuilder;
-import com.tazadum.glsl.language.output.OutputRenderer;
 import com.tazadum.glsl.language.type.*;
 import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.parser.variables.*;
@@ -139,10 +136,10 @@ public class ParserContextImpl implements ParserContext {
 
     public String id() {
         return String.format("%x|%x|%x|%x",
-            System.identityHashCode(this),
-            System.identityHashCode(contextAware),
-            System.identityHashCode(functionRegistry),
-            System.identityHashCode(variableRegistry)
+                System.identityHashCode(this),
+                System.identityHashCode(contextAware),
+                System.identityHashCode(functionRegistry),
+                System.identityHashCode(variableRegistry)
 
         );
     }

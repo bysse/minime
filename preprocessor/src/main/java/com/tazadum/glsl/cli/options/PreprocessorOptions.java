@@ -32,11 +32,11 @@ public class PreprocessorOptions implements CLIOptions {
     @Override
     public void configure(OptionParser parser) {
         versionSpec = parser.accepts("fglsl-version", "Sets the OpenGL version used in pre-processing.")
-            .withRequiredArg().describedAs("int")
-            .defaultsTo(Objects.toString(GLSLVersion.OpenGL46.getVersionCode()));
+                .withRequiredArg().describedAs("int")
+                .defaultsTo(Objects.toString(GLSLVersion.OpenGL46.getVersionCode()));
 
         macroSpec = parser.accepts("D", "Define an object-like macro in the preprocessor.")
-            .withRequiredArg().describedAs("macro");
+                .withRequiredArg().describedAs("macro");
 
         parser.accepts("E", "Output the results of the preprocessor.");
     }

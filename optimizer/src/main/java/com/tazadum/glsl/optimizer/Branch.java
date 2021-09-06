@@ -1,7 +1,6 @@
 package com.tazadum.glsl.optimizer;
 
 import com.tazadum.glsl.language.ast.Node;
-import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.output.IdentifierOutputMode;
 import com.tazadum.glsl.language.output.OutputConfig;
 import com.tazadum.glsl.language.output.OutputConfigBuilder;
@@ -38,7 +37,7 @@ public class Branch {
         if (o == null || getClass() != o.getClass()) return false;
         Branch that = (Branch) o;
         return Objects.equals(context, that.context) &&
-            Objects.equals(node, that.node);
+                Objects.equals(node, that.node);
     }
 
     @Override
@@ -85,11 +84,11 @@ public class Branch {
 
         final OutputRenderer output = new OutputRenderer();
         final OutputConfig config = new OutputConfigBuilder()
-            .identifierMode(IdentifierOutputMode.None)
-            .significantDecimals(5)
-            .indentation(0)
-            .renderNewLines(false)
-            .build();
+                .identifierMode(IdentifierOutputMode.None)
+                .significantDecimals(5)
+                .indentation(0)
+                .renderNewLines(false)
+                .build();
 
         // TODO: Must be a better way to compare node trees
 

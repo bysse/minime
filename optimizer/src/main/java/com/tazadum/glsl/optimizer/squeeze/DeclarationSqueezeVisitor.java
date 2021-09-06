@@ -224,8 +224,8 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
             for (FunctionDefinitionNode definitionNode : mutatingFunctions) {
                 // check if the functions are being used in the target range
                 Set<Node> usagesBetween = functionRegistry
-                    .resolve(definitionNode.getFunctionPrototype())
-                    .getUsagesBetween(fromId, toId);
+                        .resolve(definitionNode.getFunctionPrototype())
+                        .getUsagesBetween(fromId, toId);
 
                 if (usagesBetween.isEmpty()) {
                     // no usages, this function was sage in this case

@@ -43,12 +43,12 @@ public class OptimizerMain {
         OptimizerOptions optimizerOption = new OptimizerOptions();
 
         CommandLineBase cli = new CommandLineBase(
-            OptimizerMain.class.getName(),
-            "MiniMe: Optimizer.",
-            true,
-            preprocessorOption,
-            optimizerOption,
-            compilerOption
+                "minime-optimizer",
+                "MiniMe: Optimizer.",
+                true,
+                preprocessorOption,
+                optimizerOption,
+                compilerOption
         );
 
         if (cli.process(args) == NO_RESULT) {
@@ -93,12 +93,12 @@ public class OptimizerMain {
         }
 
         outputConfig = new OutputConfigBuilder()
-            .identifierMode(IdentifierOutputMode.Replaced)
-            .indentation(get(compilerOption.getIndentation(), small, 0))
-            .renderNewLines(get(compilerOption.isNewLines(), small, false))
-            .blacklistKeyword(blacklistedKeywords)
-            .showOriginalIdentifiers(true)
-            .build();
+                .identifierMode(IdentifierOutputMode.Replaced)
+                .indentation(get(compilerOption.getIndentation(), small, 0))
+                .renderNewLines(get(compilerOption.isNewLines(), small, false))
+                .blacklistKeyword(blacklistedKeywords)
+                .showOriginalIdentifiers(true)
+                .build();
 
         if (singleOutput) {
             if (!header && inputOutputs.size() > 1) {
@@ -114,8 +114,8 @@ public class OptimizerMain {
                 report.header(inputOutput.getInput());
 
                 StagePipeline<Path, String> pipeline = singleInput(report, inputOutput)
-                    .chain(concatStage)
-                    .build();
+                        .chain(concatStage)
+                        .build();
 
                 report.mark();
                 pipeline.process(new PathStageData(inputOutput.getInput()));
@@ -131,8 +131,8 @@ public class OptimizerMain {
                 report.header(inputOutput.getInput());
 
                 StagePipeline<Path, String> pipeline = singleInput(report, inputOutput)
-                    .chain(writerStage)
-                    .build();
+                        .chain(writerStage)
+                        .build();
 
                 report.mark();
                 pipeline.process(new PathStageData(inputOutput.getInput()));
@@ -178,13 +178,13 @@ public class OptimizerMain {
         }
 
         return StagePipeline
-            .create(preprocess)
-            .chain(startSize)
-            .chain(postPreprocess)
-            .chain(compile)
-            .chain(optimizer)
-            .chain(renderStage)
-            .chain(finalSize);
+                .create(preprocess)
+                .chain(startSize)
+                .chain(postPreprocess)
+                .chain(compile)
+                .chain(optimizer)
+                .chain(renderStage)
+                .chain(finalSize);
     }
 
     private static int get(int value, boolean control, int override) {

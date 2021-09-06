@@ -58,7 +58,8 @@ public enum GenTypes {
     GenImage2DArray(IMAGE2DARRAY, IIMAGE2DARRAY, UIMAGE2DARRAY),
     GenImageCubeArray(IMAGECUBEARRAY, IIMAGECUBEARRAY, UIMAGECUBEARRAY),
     GenImage2DMS(IMAGE2DMS, IIMAGE2DMS, UIMAGE2DMS),
-    GenImage2DMSArray(IMAGE2DMSARRAY, IIMAGE2DMSARRAY, UIMAGE2DMSARRAY),;
+    GenImage2DMSArray(IMAGE2DMSARRAY, IIMAGE2DMSARRAY, UIMAGE2DMSARRAY),
+    ;
 
     public PredefinedType[] types;
 
@@ -86,10 +87,10 @@ public enum GenTypes {
             PredefinedType gsampler2DMSArray = GenSampler2DMSArray.types[i];
 
             callback.iterate(
-                gscalar, gvec2, gvec3, gvec4,
-                gsampler1D, gsampler2D, gsampler3D, gsamplerCube,
-                gsampler2DRect, gsampler2DMS, gsamplerBuffer,
-                gsampler1DArray, gsampler2DArray, gsamplerCubeArray, gsampler2DMSArray
+                    gscalar, gvec2, gvec3, gvec4,
+                    gsampler1D, gsampler2D, gsampler3D, gsamplerCube,
+                    gsampler2DRect, gsampler2DMS, gsamplerBuffer,
+                    gsampler1DArray, gsampler2DArray, gsamplerCubeArray, gsampler2DMSArray
             );
         }
     }
@@ -105,10 +106,10 @@ public enum GenTypes {
 
     public interface TypeIterationCallback {
         void iterate(
-            PredefinedType gscalar, PredefinedType gvec2, PredefinedType gvec3, PredefinedType gvec4,
-            PredefinedType gsampler1d, PredefinedType gsampler2d, PredefinedType gsampler3d, PredefinedType gsamplerCube,
-            PredefinedType gsampler2dRect, PredefinedType gsampler2dMS, PredefinedType gsamplerBuffer,
-            PredefinedType gsampler1dArray, PredefinedType gsampler2dArray, PredefinedType gsamplerCubeArray, PredefinedType gsampler2dMSArray
+                PredefinedType gscalar, PredefinedType gvec2, PredefinedType gvec3, PredefinedType gvec4,
+                PredefinedType gsampler1d, PredefinedType gsampler2d, PredefinedType gsampler3d, PredefinedType gsamplerCube,
+                PredefinedType gsampler2dRect, PredefinedType gsampler2dMS, PredefinedType gsamplerBuffer,
+                PredefinedType gsampler1dArray, PredefinedType gsampler2dArray, PredefinedType gsamplerCubeArray, PredefinedType gsampler2dMSArray
         );
     }
 }

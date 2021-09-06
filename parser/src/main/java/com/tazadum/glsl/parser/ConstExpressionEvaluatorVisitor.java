@@ -1,7 +1,7 @@
 package com.tazadum.glsl.parser;
 
-import com.tazadum.glsl.exception.*;
 import com.tazadum.glsl.exception.NoSuchFieldException;
+import com.tazadum.glsl.exception.*;
 import com.tazadum.glsl.language.ast.DefaultASTVisitor;
 import com.tazadum.glsl.language.ast.LeafNode;
 import com.tazadum.glsl.language.ast.Node;

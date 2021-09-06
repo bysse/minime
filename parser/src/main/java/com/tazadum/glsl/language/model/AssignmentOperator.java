@@ -8,7 +8,8 @@ public enum AssignmentOperator implements HasToken {
     MUL_ASSIGN("*=", GLSLParser.MUL_ASSIGN),
     DIV_ASSIGN("/=", GLSLParser.DIV_ASSIGN),
     ADD_ASSIGN("+=", GLSLParser.ADD_ASSIGN),
-    SUB_ASSIGN("-=", GLSLParser.SUB_ASSIGN),;
+    SUB_ASSIGN("-=", GLSLParser.SUB_ASSIGN),
+    ;
 
     private final String token;
     private final int tokenId;

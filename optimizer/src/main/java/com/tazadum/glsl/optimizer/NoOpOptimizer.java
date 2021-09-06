@@ -35,6 +35,7 @@ public class NoOpOptimizer extends BranchingOptimizer {
             public Node applyOn(Node node) {
                 return node;
             }
+
             @Override
             public void reset() {
             }

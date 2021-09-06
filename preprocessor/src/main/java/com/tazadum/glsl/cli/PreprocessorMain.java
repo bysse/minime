@@ -19,10 +19,10 @@ public class PreprocessorMain {
         PreprocessorOptions options = new PreprocessorOptions();
 
         CommandLineBase cli = new CommandLineBase(
-            PreprocessorMain.class.getName(),
-            "MiniMe: Preprocessor.",
-            false,
-            options
+                "minime-preprocessor",
+                "MiniMe: Preprocessor.",
+                false,
+                options
         );
 
 
@@ -44,9 +44,9 @@ public class PreprocessorMain {
             FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
 
             StagePipeline<Path, String> pipeline = StagePipeline
-                .create(stage1)
-                .chain(writerStage)
-                .build();
+                    .create(stage1)
+                    .chain(writerStage)
+                    .build();
 
             pipeline.process(new PathStageData(inputOutput.getInput()));
 

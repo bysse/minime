@@ -33,17 +33,17 @@ public class FragmentShaderVariableSet extends VariableSet {
             add(variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_FragData"));
 
             add(block("gl_PerFragment", null, IN, 0,
-                variable(FLOAT, "gl_FogFragCoord", IN),
-                variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord", IN),
-                variable(VEC4, "gl_Color", IN),
-                variable(VEC4, "gl_SecondaryColor", IN)
+                    variable(FLOAT, "gl_FogFragCoord", IN),
+                    variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord", IN),
+                    variable(VEC4, "gl_Color", IN),
+                    variable(VEC4, "gl_SecondaryColor", IN)
             ));
         }
 
         add(block("gl_DepthRangeParameters", "gl_DepthRange", UNIFORM, 0,
-            variable(FLOAT, "near"),
-            variable(FLOAT, "far"),
-            variable(FLOAT, "diff")
+                variable(FLOAT, "near"),
+                variable(FLOAT, "far"),
+                variable(FLOAT, "diff")
         ));
         add(variable(INT, "gl_NumSamples", UNIFORM));
     }

@@ -716,7 +716,7 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         final ParentNode parentNode = node.getParentNode();
 
         if (parentNode instanceof StatementListNode) {
-            StatementListNode statementList = (StatementListNode)parentNode;
+            StatementListNode statementList = (StatementListNode) parentNode;
             final int index = statementList.indexOf(node);
             if (index < 0) {
                 logger.trace("- Inconsistencies in the AST found along function call : " + functionCall.getIdentifier().original());
@@ -730,14 +730,14 @@ public class FunctionInlineVisitor extends ReplacingASTVisitor implements Optimi
         StatementListNode listNode = new StatementListNode(parentNode.getSourcePosition());
 
         if (parentNode instanceof ContextBlockNode) {
-            final ContextBlockNode blockNode = (ContextBlockNode)parentNode;
+            final ContextBlockNode blockNode = (ContextBlockNode) parentNode;
             listNode.insertChild(0, blockNode.getStatment());
             blockNode.setStatement(listNode);
             return new InsertPoint(listNode, 0);
         }
 
         if (parentNode instanceof IterationNode) {
-            final IterationNode iterationNode = (IterationNode)parentNode;
+            final IterationNode iterationNode = (IterationNode) parentNode;
             listNode.insertChild(0, iterationNode.getStatement());
             iterationNode.setStatement(listNode);
             return new InsertPoint(listNode, 0);

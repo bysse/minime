@@ -36,3 +36,21 @@ task dist(type:Copy) {
 	}
 	into "$buildDir/dist"
 }
+
+task copyInstallTemplate(type: Copy) {
+	dependsOn processResources
+	from('src/main/build-scripts/') {
+		filter(ReplaceTokens, tokens: [
+				version: project.version
+		])
+	}
+	into "$buildDir"
+}
+jar.dependsOn copyInstallTemplate
+
+task addPayload(type: Exec) {
+	commandLine "$buildDir/add_payload.sh"
+}
+
+addPayload.dependsOn copyInstallTemplate
+dist.finalizedBy addPayload

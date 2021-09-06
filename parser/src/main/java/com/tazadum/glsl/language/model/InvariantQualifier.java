@@ -9,7 +9,8 @@ import com.tazadum.glsl.preprocessor.model.HasToken;
  * qualifier.
  */
 public enum InvariantQualifier implements TypeQualifier, HasToken {
-    INVARIANT("invariant", GLSLParser.INVARIANT),;
+    INVARIANT("invariant", GLSLParser.INVARIANT),
+    ;
 
     private final String token;
     private final int id;

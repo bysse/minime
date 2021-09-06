@@ -23,47 +23,47 @@ public class TessellationShaderVariableSet extends VariableSet {
 
         if (profile != GLSLProfile.COMPATIBILITY) {
             add(block("gl_PerVertex", "gl_in", IN, ARRAY_SIZE_OF_UNKNOWNS,
-                variable(VEC4, "gl_Position"),
-                variable(FLOAT, "gl_PointSize"),
-                variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_ClipDistance"),
-                variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_CullDistance")
+                    variable(VEC4, "gl_Position"),
+                    variable(FLOAT, "gl_PointSize"),
+                    variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_ClipDistance"),
+                    variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_CullDistance")
             ));
 
             add(block("gl_PerVertex", null, IN, ARRAY_SIZE_OF_UNKNOWNS,
-                variable(VEC4, "gl_Position"),
-                variable(FLOAT, "gl_PointSize"),
-                variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_ClipDistance"),
-                variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_CullDistance")
+                    variable(VEC4, "gl_Position"),
+                    variable(FLOAT, "gl_PointSize"),
+                    variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_ClipDistance"),
+                    variable(FLOAT, ArrayType.UNKNOWN_LENGTH, "gl_CullDistance")
             ));
         } else {
             add(block("gl_PerVertex", "gl_in", IN, ARRAY_SIZE_OF_UNKNOWNS,
-                variable(VEC4, "gl_Position"),
-                variable(FLOAT, "gl_PointSize"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance"),
+                    variable(VEC4, "gl_Position"),
+                    variable(FLOAT, "gl_PointSize"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance"),
 
-                variable(VEC4, "gl_ClipVertex"),
-                variable(VEC4, "gl_FrontColor"),
-                variable(VEC4, "gl_BackColor"),
-                variable(VEC4, "gl_FrontSecondaryColor"),
-                variable(VEC4, "gl_BackSecondaryColor"),
-                variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord"),
-                variable(FLOAT, "gl_FogFragCoord")
+                    variable(VEC4, "gl_ClipVertex"),
+                    variable(VEC4, "gl_FrontColor"),
+                    variable(VEC4, "gl_BackColor"),
+                    variable(VEC4, "gl_FrontSecondaryColor"),
+                    variable(VEC4, "gl_BackSecondaryColor"),
+                    variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord"),
+                    variable(FLOAT, "gl_FogFragCoord")
             ));
 
             add(block("gl_PerVertex", null, IN, ARRAY_SIZE_OF_UNKNOWNS,
-                variable(VEC4, "gl_Position"),
-                variable(FLOAT, "gl_PointSize"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
-                variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance"),
+                    variable(VEC4, "gl_Position"),
+                    variable(FLOAT, "gl_PointSize"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_ClipDistance"),
+                    variable(FLOAT, ARRAY_SIZE_OF_UNKNOWNS, "gl_CullDistance"),
 
-                variable(VEC4, "gl_ClipVertex"),
-                variable(VEC4, "gl_FrontColor"),
-                variable(VEC4, "gl_BackColor"),
-                variable(VEC4, "gl_FrontSecondaryColor"),
-                variable(VEC4, "gl_BackSecondaryColor"),
-                variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord"),
-                variable(FLOAT, "gl_FogFragCoord")
+                    variable(VEC4, "gl_ClipVertex"),
+                    variable(VEC4, "gl_FrontColor"),
+                    variable(VEC4, "gl_BackColor"),
+                    variable(VEC4, "gl_FrontSecondaryColor"),
+                    variable(VEC4, "gl_BackSecondaryColor"),
+                    variable(VEC4, ARRAY_SIZE_OF_UNKNOWNS, "gl_TexCoord"),
+                    variable(FLOAT, "gl_FogFragCoord")
             ));
         }
     }

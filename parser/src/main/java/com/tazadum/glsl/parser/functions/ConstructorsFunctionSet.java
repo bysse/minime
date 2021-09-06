@@ -105,9 +105,9 @@ public class ConstructorsFunctionSet implements FunctionSet {
             declarator.function(name, mat3, scalar);
             declarator.function(name, mat3, vec3, vec3, vec3);
             declarator.function(name, mat3,
-                scalar, scalar, scalar,
-                scalar, scalar, scalar,
-                scalar, scalar, scalar);
+                    scalar, scalar, scalar,
+                    scalar, scalar, scalar,
+                    scalar, scalar, scalar);
         }
 
         // mat4 construction
@@ -119,9 +119,9 @@ public class ConstructorsFunctionSet implements FunctionSet {
             declarator.function(name, mat4, scalar);
             declarator.function(name, mat4, vec4, vec4, vec4, vec4);
             declarator.function(name, mat4, scalar, scalar, scalar, scalar,
-                scalar, scalar, scalar, scalar,
-                scalar, scalar, scalar, scalar,
-                scalar, scalar, scalar, scalar);
+                    scalar, scalar, scalar, scalar,
+                    scalar, scalar, scalar, scalar,
+                    scalar, scalar, scalar, scalar);
         }
     }
 }

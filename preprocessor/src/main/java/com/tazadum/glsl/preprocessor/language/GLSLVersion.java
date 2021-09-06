@@ -19,7 +19,8 @@ public enum GLSLVersion implements HasToken {
     OpenGL43("OpenGL 4.3", 430),
     OpenGL44("OpenGL 4.4", 440),
     OpenGL45("OpenGL 4.5", 450),
-    OpenGL46("OpenGL 4.6", 460),;
+    OpenGL46("OpenGL 4.6", 460),
+    ;
 
     private final String versionName;
     private final int versionCode;

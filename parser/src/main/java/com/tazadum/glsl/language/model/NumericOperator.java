@@ -8,7 +8,8 @@ public enum NumericOperator implements HasToken {
     DIV("/", GLSLParser.SLASH),
     ADD("+", GLSLParser.PLUS),
     SUB("-", GLSLParser.DASH),
-    MOD("%", GLSLParser.PERCENT),;
+    MOD("%", GLSLParser.PERCENT),
+    ;
 
     private final String token;
     private final int tokenId;
