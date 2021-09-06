@@ -64,6 +64,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
         this.contextAware = parserContext;
     }
 
+    @SafeVarargs
     private static <T extends HasToken & TypeQualifier> T from(ParserRuleContext ctx, T... values) {
         return HasToken.fromToken(ctx, values);
     }
@@ -1132,7 +1133,7 @@ public class ASTConverter extends GLSLBaseVisitor<Node> {
             return new NumericLeafNode(position, numeric);
         }
         if (ctx.BOOLCONSTANT() != null) {
-            return new BooleanLeafNode(position, Boolean.valueOf(ctx.BOOLCONSTANT().getText()));
+            return new BooleanLeafNode(position, Boolean.parseBoolean(ctx.BOOLCONSTANT().getText()));
         }
         if (ctx.expression() != null) {
             final Node expression = ctx.expression().accept(this);

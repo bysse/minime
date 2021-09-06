@@ -26,7 +26,7 @@ public class TestData {
         // find all files to read
         final List<Path> paths = new ArrayList<>();
 
-        Files.walkFileTree(basePath, new FileVisitor<Path>() {
+        Files.walkFileTree(basePath, new FileVisitor<>() {
             @Override
             public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes basicFileAttributes) {
                 if (excludeSet.contains(path.getFileName().toString())) {
@@ -59,7 +59,7 @@ public class TestData {
 
     private static Data readFileData(Path basePath, Path path) {
         try {
-            String content = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            String content = Files.readString(path);
             String[] parts = SPLIT.split(content, 2);
 
             if (parts.length != 2) {

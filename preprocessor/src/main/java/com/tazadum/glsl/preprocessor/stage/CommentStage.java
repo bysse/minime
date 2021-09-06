@@ -115,9 +115,7 @@ public class CommentStage implements Stage {
     }
 
     private void appendWhitespace(StringBuilder builder, int whitespaces) {
-        for (int i = 0; i < whitespaces; i++) {
-            builder.append(' ');
-        }
+        builder.append(" ".repeat(Math.max(0, whitespaces)));
     }
 
     @Override

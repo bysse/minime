@@ -15,7 +15,7 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class ASTConvertionTest {
+class ASTConversionTest {
     private static Arguments[] getSnippets() {
         return new Arguments[]{
             differentOutput(

@@ -30,7 +30,7 @@ public class RuleOptimizerTest extends BaseOptimizerTest {
     }
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         testInit(2);
 
         GLSLContext global = parserContext.globalContext();

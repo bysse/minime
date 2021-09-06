@@ -11,7 +11,7 @@ public interface StageData<T> {
     SourcePositionMapper getMapper();
 
     static <T> StageData<T> from(T data, SourcePositionMapper mapper) {
-        return new StageData<T>() {
+        return new StageData<>() {
             @Override
             public T getData() {
                 return data;

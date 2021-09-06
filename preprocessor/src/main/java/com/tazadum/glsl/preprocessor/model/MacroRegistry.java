@@ -68,7 +68,7 @@ public class MacroRegistry {
      */
     public String[] getMacroNames() {
         if (macroNames == null) {
-            macroNames = map.keySet().toArray(new String[map.size()]);
+            macroNames = map.keySet().toArray(new String[0]);
         }
         return macroNames;
     }

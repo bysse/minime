@@ -92,7 +92,7 @@ public class Usage<T> {
             }
             builder.append(Objects.toString(nodes.get(i)));
         }
-        return "{" + builder.toString() + "}";
+        return "{" + builder + "}";
 
     }
 }

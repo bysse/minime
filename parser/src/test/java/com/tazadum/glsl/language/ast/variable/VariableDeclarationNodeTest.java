@@ -1,7 +1,6 @@
 package com.tazadum.glsl.language.ast.variable;
 
 import com.tazadum.glsl.language.ast.util.CloneUtils;
-import com.tazadum.glsl.language.ast.util.NodeUtil;
 import com.tazadum.glsl.language.type.FullySpecifiedType;
 import com.tazadum.glsl.language.type.PredefinedType;
 import org.junit.jupiter.api.Test;
@@ -23,7 +22,7 @@ class VariableDeclarationNodeTest {
 
         // this should not work
         assertNotEquals(a.hashCode(), b.hashCode());
-        assertFalse(a.equals(b));
+        assertNotEquals(a, b);
 
         // but this should work
         assertTrue(CloneUtils.equal(a, b));

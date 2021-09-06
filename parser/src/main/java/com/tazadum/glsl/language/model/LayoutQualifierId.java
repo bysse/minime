@@ -3,6 +3,8 @@ package com.tazadum.glsl.language.model;
 import com.tazadum.glsl.language.ast.traits.HasSourcePosition;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 /**
  * Node for holding a single TypeQualifier
  */
@@ -43,7 +45,7 @@ public class LayoutQualifierId implements HasSourcePosition {
 
         if (!position.equals(that.position)) return false;
         if (!identifier.equals(that.identifier)) return false;
-        return value != null ? value.equals(that.value) : that.value == null;
+        return Objects.equals(value, that.value);
     }
 
     @Override

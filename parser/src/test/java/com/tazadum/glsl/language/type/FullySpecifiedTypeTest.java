@@ -15,6 +15,6 @@ class FullySpecifiedTypeTest {
         FullySpecifiedType b = new FullySpecifiedType(PredefinedType.VEC3);
 
         assertEquals(a.hashCode(), b.hashCode());
-        assertTrue(a.equals(b));
+        assertEquals(a, b);
     }
 }

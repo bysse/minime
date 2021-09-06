@@ -15,7 +15,7 @@ public class FunctionPrototype {
     public FunctionPrototype(boolean builtIn, GLSLType returnType, List<GLSLType> parameterTypes) {
         this.builtIn = builtIn;
         this.returnType = returnType;
-        this.parameterTypes = parameterTypes.toArray(new GLSLType[parameterTypes.size()]);
+        this.parameterTypes = parameterTypes.toArray(new GLSLType[0]);
         this.parameterQualifiers = null;
     }
 
@@ -29,8 +29,8 @@ public class FunctionPrototype {
     public FunctionPrototype(boolean builtIn, GLSLType returnType, List<GLSLType> parameterTypes, List<StorageQualifier> parameterQualifier) {
         this.builtIn = builtIn;
         this.returnType = returnType;
-        this.parameterTypes = parameterTypes.toArray(new GLSLType[parameterTypes.size()]);
-        this.parameterQualifiers = parameterQualifier.toArray(new StorageQualifier[parameterQualifier.size()]);
+        this.parameterTypes = parameterTypes.toArray(new GLSLType[0]);
+        this.parameterQualifiers = parameterQualifier.toArray(new StorageQualifier[0]);
     }
 
     public FunctionPrototype(boolean builtIn, GLSLType returnType, GLSLType[] parameterTypes, StorageQualifier[] parameterQualifiers) {

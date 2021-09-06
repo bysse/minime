@@ -88,7 +88,7 @@ public class PreprocessorOptions implements CLIOptions {
 
     @Override
     public Path generateOutput(Path inputPath) {
-        return Paths.get(inputPath.toAbsolutePath().toString() + ".i");
+        return Paths.get(inputPath.toAbsolutePath() + ".i");
     }
 
     private void printVersionExpectations(Logger logger) {

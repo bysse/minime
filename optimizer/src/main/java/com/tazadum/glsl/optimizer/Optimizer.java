@@ -12,7 +12,7 @@ public interface Optimizer {
     OptimizerResult run(BranchRegistry branchRegistry, OptimizationDecider optimizationDecider, Branch branch);
 
     class OptimizerResult {
-        private int changes = 0;
+        private int changes;
         private Branch inputBranch;
         private List<Branch> branches = new ArrayList<>();
 

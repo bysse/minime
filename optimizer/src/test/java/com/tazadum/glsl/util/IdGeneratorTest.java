@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  */
 public class IdGeneratorTest {
     @Test
-    public void testGeneration() throws Exception {
+    public void testGeneration() {
         IdGenerator generator = new IdGenerator(new char[]{'a', 'b', 'C'});
         assertEquals("a", generator.next());
         assertEquals("b", generator.next());
@@ -26,7 +26,7 @@ public class IdGeneratorTest {
     }
 
     @Test
-    public void testRemoval() throws Exception {
+    public void testRemoval() {
         IdGenerator generator = new IdGenerator(new char[]{});
         generator.exclude('a');
         generator.exclude('Z');
@@ -42,7 +42,7 @@ public class IdGeneratorTest {
     }
 
     @Test
-    public void testGeneration_2() throws Exception {
+    public void testGeneration_2() {
         IdGenerator generator = IdGenerator.create("bbaaccc");
         assertEquals("c", generator.next());
         assertEquals("a", generator.next());

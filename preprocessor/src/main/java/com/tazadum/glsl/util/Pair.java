@@ -7,7 +7,7 @@ import java.util.Objects;
  */
 public interface Pair<U, V> {
     static <U, V> Pair<U, V> create(U u, V v) {
-        return new Pair<U, V>() {
+        return new Pair<>() {
             @Override
             public U getFirst() {
                 return u;

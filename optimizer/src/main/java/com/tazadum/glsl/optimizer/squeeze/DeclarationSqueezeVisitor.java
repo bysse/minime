@@ -240,7 +240,7 @@ public class DeclarationSqueezeVisitor extends ReplacingASTVisitor implements Op
         return false;
     }
 
-    private class ContextDeclarations {
+    private static class ContextDeclarations {
         private final GLSLContext context;
         private final Map<FullySpecifiedType, TreeSet<VariableDeclarationListNode>> typeMap;
 

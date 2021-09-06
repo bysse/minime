@@ -2,6 +2,8 @@ package com.tazadum.glsl.language.type;
 
 import com.tazadum.glsl.language.model.ArraySpecifiers;
 
+import java.util.Objects;
+
 public class FullySpecifiedType {
     private TypeQualifierList qualifiers;
     private GLSLType type;
@@ -34,7 +36,7 @@ public class FullySpecifiedType {
 
         FullySpecifiedType that = (FullySpecifiedType) o;
 
-        if (qualifiers != null ? !qualifiers.equals(that.qualifiers) : that.qualifiers != null) return false;
+        if (!Objects.equals(qualifiers, that.qualifiers)) return false;
         return type.equals(that.type);
     }
 

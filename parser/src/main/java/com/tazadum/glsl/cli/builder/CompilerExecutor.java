@@ -82,7 +82,7 @@ public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Resu
     public CompilerExecutor source(Path path) {
         validateSource();
         try {
-            source = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
+            source = Files.readString(path);
             mapper = new SourcePositionMapper();
 
             final String filename = path.toFile().getName();

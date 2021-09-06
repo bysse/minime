@@ -10,6 +10,7 @@ import com.tazadum.glsl.optimizer.simplification.TreeNodeComparator;
 import java.util.function.Function;
 
 public class Constraints {
+    @SafeVarargs
     public static Function<CaptureGroups, Boolean> and(Function<CaptureGroups, Boolean>... conditions) {
         return (groups) -> {
             for (Function<CaptureGroups, Boolean> condition : conditions) {
@@ -21,6 +22,7 @@ public class Constraints {
         };
     }
 
+    @SafeVarargs
     public static Function<CaptureGroups, Boolean> or(Function<CaptureGroups, Boolean>... conditions) {
         return (groups) -> {
             for (Function<CaptureGroups, Boolean> condition : conditions) {

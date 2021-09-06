@@ -119,7 +119,7 @@ public class PreprocessorVisitor extends PPBaseVisitor<Node> {
         final SourcePositionId sourcePosition = SourcePositionId.create(sourceId, ctx.getStart());
 
         String filePath = endOfLine.trim();
-        if (filePath.isEmpty() || !filePath.endsWith(")")) {
+        if (!filePath.endsWith(")")) {
             logKeeper.addWarning(sourcePosition, Message.Warning.INCLUDE_MALFORMATTED);
             return new NoOpDeclarationNode(sourcePosition);
         }

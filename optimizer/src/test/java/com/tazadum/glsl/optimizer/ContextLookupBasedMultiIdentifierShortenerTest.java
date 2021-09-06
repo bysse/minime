@@ -106,7 +106,7 @@ public class ContextLookupBasedMultiIdentifierShortenerTest extends BaseTest {
         do {
             System.out.println(toString(node1));
             System.out.println(toString(node2));
-            System.out.println("");
+            System.out.println();
 
         } while (identifierShortener.permutateIdentifiers());
     }
@@ -120,7 +120,7 @@ public class ContextLookupBasedMultiIdentifierShortenerTest extends BaseTest {
             identifierShortener.apply();
 
             System.out.println(toString(node1));
-            System.out.println("");
+            System.out.println();
 
         } while (identifierShortener.permutateIdentifiers());
     }
@@ -147,7 +147,7 @@ public class ContextLookupBasedMultiIdentifierShortenerTest extends BaseTest {
             identifierShortener.apply();
 
             System.out.println(toString(node1));
-            System.out.println("");
+            System.out.println();
 
         } while (identifierShortener.permutateIdentifiers());
     }

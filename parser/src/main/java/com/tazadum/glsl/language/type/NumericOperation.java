@@ -4,6 +4,7 @@ import com.tazadum.glsl.exception.TypeException;
 import com.tazadum.glsl.parser.TypeCombination;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Implementation of the basic operations using Numeric operands.
@@ -27,7 +28,7 @@ public class NumericOperation {
 
         BigDecimal abd = a.getValue();
         if (scaleA < scaleB) {
-            abd = abd.setScale(scaleB, BigDecimal.ROUND_HALF_UP);
+            abd = abd.setScale(scaleB, RoundingMode.HALF_UP);
         }
 
         PredefinedType type = negotiateType(a, b);
@@ -35,7 +36,7 @@ public class NumericOperation {
             type = PredefinedType.FLOAT;
         }
 
-        return new Numeric(abd.divide(b.getValue(), BigDecimal.ROUND_HALF_UP), type);
+        return new Numeric(abd.divide(b.getValue(), RoundingMode.HALF_UP), type);
     }
 
     public static Numeric mod(Numeric a, Numeric b) throws TypeException {

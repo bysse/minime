@@ -410,7 +410,7 @@ public class FunctionInlineTest extends BaseOptimizerTest {
 
     @Test
     @DisplayName("starstruck.glsl")
-    void testShader() throws IOException {
+    void testShader() {
         TLogConfiguration.get().useGlobalConfiguration();
         TLogConfiguration.get().getConfig().setLogLevel(Level.TRACE);
 

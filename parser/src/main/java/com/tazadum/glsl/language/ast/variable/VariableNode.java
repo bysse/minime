@@ -7,6 +7,8 @@ import com.tazadum.glsl.language.ast.traits.HasDeclarationReference;
 import com.tazadum.glsl.language.type.GLSLType;
 import com.tazadum.glsl.util.SourcePosition;
 
+import java.util.Objects;
+
 public class VariableNode extends LeafNode implements HasDeclarationReference<VariableDeclarationNode> {
     /**
      * The VariableDeclarationNode is not a child in the AST.
@@ -36,7 +38,7 @@ public class VariableNode extends LeafNode implements HasDeclarationReference<Va
 
         VariableNode that = (VariableNode) o;
 
-        return declarationNode != null ? declarationNode.equals(that.declarationNode) : that.declarationNode == null;
+        return Objects.equals(declarationNode, that.declarationNode);
     }
 
     @Override

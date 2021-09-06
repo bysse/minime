@@ -130,7 +130,7 @@ public class ConstantPropagationVisitor extends ReplacingASTVisitor implements O
     }
 
     private boolean initializerNeedWrapping(Node initializer, Node parentNode) {
-        if (parentNode != null && parentNode instanceof FunctionCallNode) {
+        if (parentNode instanceof FunctionCallNode) {
             return false;
         }
         if (initializer instanceof NumericOperationNode) {

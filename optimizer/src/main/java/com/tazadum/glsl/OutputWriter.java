@@ -11,7 +11,7 @@ import java.io.OutputStream;
 public interface OutputWriter {
     String name();
 
-    OutputStream outputStream() throws FileNotFoundException;
+    OutputStream outputStream();
 
 
     class StdOutOutputWriter implements OutputWriter {

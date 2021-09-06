@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.ast.Node;
 
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class BranchRegistry {
     private static final int PRE_ALLOC = 1000;
@@ -92,7 +93,7 @@ public class BranchRegistry {
             Location location = (Location) o;
 
             if (id != location.id) return false;
-            return tag != null ? tag.equals(location.tag) : location.tag == null;
+            return Objects.equals(tag, location.tag);
         }
 
         @Override

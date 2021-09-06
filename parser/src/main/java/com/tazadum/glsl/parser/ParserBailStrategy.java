@@ -40,7 +40,7 @@ public class ParserBailStrategy extends DefaultErrorStrategy {
                 String literalName = getName(parser, expectedTokens.get(i));
                 builder.append("'").append(literalName).append("'");
             }
-            return base + " Expected " + builder.toString();
+            return base + " Expected " + builder;
         }
         return base;
     }

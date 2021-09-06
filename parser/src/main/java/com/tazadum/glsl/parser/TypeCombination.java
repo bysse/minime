@@ -65,7 +65,6 @@ public class TypeCombination {
                         case Scalar:
                             return compatibleType(left, right);
                         case Vector:
-                            return right;
                         case Matrix:
                             return right;
                     }

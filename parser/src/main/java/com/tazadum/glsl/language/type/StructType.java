@@ -10,6 +10,7 @@ import com.tazadum.glsl.parser.TypeComparator;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import static com.tazadum.glsl.exception.Errors.Coarse.NO_SUCH_FIELD;
 
@@ -127,8 +128,8 @@ public class StructType implements GLSLType {
 
         StructType that = (StructType) o;
 
-        if (identifier != null ? !identifier.equals(that.identifier) : that.identifier != null) return false;
-        return fieldMap != null ? fieldMap.equals(that.fieldMap) : that.fieldMap == null;
+        if (!Objects.equals(identifier, that.identifier)) return false;
+        return Objects.equals(fieldMap, that.fieldMap);
     }
 
     @Override

@@ -96,6 +96,6 @@ public class FunctionCallNode extends ParentNode implements HasConstState, HasDe
             }
             builder.append(Objects.toString(getChild(i)));
         }
-        return identifier.original() + "(" + builder.toString() + ")";
+        return identifier.original() + "(" + builder + ")";
     }
 }

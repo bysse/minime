@@ -1,6 +1,7 @@
 package com.tazadum.glsl.language.type;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Locale;
 
 import static com.tazadum.glsl.language.type.PredefinedType.INT;
@@ -13,7 +14,7 @@ public class Numeric implements Comparable<Numeric> {
     private PredefinedType type;
 
     Numeric(BigDecimal value, PredefinedType type) {
-        this.value = value.setScale(MAX_PRECISION, BigDecimal.ROUND_HALF_UP);
+        this.value = value.setScale(MAX_PRECISION, RoundingMode.HALF_UP);
         this.type = type;
 
         assert type.category() == TypeCategory.Scalar : "Non scalar type passed to constructor";

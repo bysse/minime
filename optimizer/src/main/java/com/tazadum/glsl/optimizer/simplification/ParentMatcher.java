@@ -50,8 +50,8 @@ public abstract class ParentMatcher implements Matcher {
         }
 
         CaptureGroups groups = new CaptureGroups();
-        for (int i = 0; i < childMatchers.length; i++) {
-            CaptureGroups childGroups = childMatchers[i].getGroups();
+        for (Matcher childMatcher : childMatchers) {
+            CaptureGroups childGroups = childMatcher.getGroups();
             groups.merge(childGroups);
         }
         return groups;

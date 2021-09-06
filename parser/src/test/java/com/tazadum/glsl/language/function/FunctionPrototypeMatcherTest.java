@@ -14,14 +14,14 @@ public class FunctionPrototypeMatcherTest {
     private FunctionPrototype f_3;
 
     @BeforeEach
-    public void setUp() throws Exception {
+    public void setUp() {
         f_1 = new FunctionPrototype(true, VOID, VOID);
         f_2 = new FunctionPrototype(true, INT, MAT2, INT);
         f_3 = new FunctionPrototype(true, INT, MAT2, FLOAT);
     }
 
     @Test
-    public void testExact() throws Exception {
+    public void testExact() {
         assertTrue(match(f_1, new FunctionPrototypeMatcher(VOID, VOID)));
         assertFalse(match(f_2, new FunctionPrototypeMatcher(INT, VOID)));
 
@@ -32,7 +32,7 @@ public class FunctionPrototypeMatcherTest {
     }
 
     @Test
-    public void testPartial() throws Exception {
+    public void testPartial() {
         assertTrue(match(f_1, new FunctionPrototypeMatcher(ANY, VOID)));
 
         assertTrue(match(f_2, new FunctionPrototypeMatcher(INT, ANY, INT)));

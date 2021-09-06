@@ -4,6 +4,7 @@ import com.tazadum.glsl.language.type.Numeric;
 import com.tazadum.glsl.language.type.PredefinedType;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * Created by erikb on 2018-10-15.
@@ -109,7 +110,7 @@ public class NumericFormatter {
         BigDecimal original = value;
         int escape = 20;
         while (escape-- > 0) {
-            BigDecimal rescaled = value.setScale(value.scale() - 1, BigDecimal.ROUND_HALF_UP);
+            BigDecimal rescaled = value.setScale(value.scale() - 1, RoundingMode.HALF_UP);
             if (rescaled.precision() != digits && rescaled.precision() >= significantDigits) {
                 digits = rescaled.precision();
                 value = rescaled;
@@ -133,7 +134,7 @@ public class NumericFormatter {
         }
 
         int intValue = decimal.intValue();
-        String number = decimal.setScale(0, BigDecimal.ROUND_HALF_UP).toPlainString();
+        String number = decimal.setScale(0, RoundingMode.HALF_UP).toPlainString();
         if (intValue >= 1000) {
             return exponentPositive1000(number) + typeSuffix;
         }

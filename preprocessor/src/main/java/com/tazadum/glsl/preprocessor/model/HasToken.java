@@ -29,6 +29,7 @@ public interface HasToken {
      * @param <T>    Subtype to HasToken.
      * @return The matched value or null if no value matched the token.
      */
+    @SafeVarargs
     static <T extends HasToken> T fromString(String token, T... values) {
         if (token == null) {
             throw new IllegalArgumentException("The token must not be null");
@@ -52,6 +53,7 @@ public interface HasToken {
      * @param <T>     Subtype to HasToken.
      * @return The matched value or null if no value matched the token.
      */
+    @SafeVarargs
     static <T extends HasToken> T fromTokenId(int tokenId, T... values) {
         if (values == null || values.length == 0) {
             throw new IllegalArgumentException("No possible values provided for resolution");
@@ -72,6 +74,7 @@ public interface HasToken {
      * @param <T>    Subtype to HasToken.
      * @return The matched value or null if no value matched the token.
      */
+    @SafeVarargs
     static <T extends HasToken> T fromToken(ParserRuleContext ctx, T... values) {
         return fromTokenId(ctx.getStart().getType(), values);
     }
@@ -84,6 +87,7 @@ public interface HasToken {
      * @param <T>    Subtype to HasToken.
      * @return The matched value or null if no value matched the token.
      */
+    @SafeVarargs
     static <T extends HasToken> T fromContext(ParserRuleContext ctx, T... values) {
         for (T value : values) {
             if (ctx.getToken(value.tokenId(), 0) != null) {

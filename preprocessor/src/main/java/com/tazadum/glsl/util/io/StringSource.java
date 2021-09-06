@@ -27,7 +27,7 @@ public class StringSource implements Source {
     }
 
     @Override
-    public String readLine() throws IOException {
+    public String readLine() {
         return tokenizer.getLine();
     }
 

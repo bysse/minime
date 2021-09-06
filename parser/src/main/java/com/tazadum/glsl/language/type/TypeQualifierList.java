@@ -37,7 +37,7 @@ public class TypeQualifierList {
      * Returns true if a qualifier of the given type exists in the list.
      */
     public <T extends TypeQualifier> boolean contains(Class<T> type) {
-        return get(type).count() > 0;
+        return get(type).findAny().isPresent();
     }
 
     /**

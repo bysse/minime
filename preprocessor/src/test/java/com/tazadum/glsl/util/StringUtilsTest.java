@@ -1,5 +1,6 @@
 package com.tazadum.glsl.util;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static com.tazadum.glsl.util.StringUtils.*;
@@ -15,7 +16,7 @@ class StringUtilsTest {
 
     @Test
     void testRtrim() {
-        assertEquals(null, rtrim(null));
+        assertNull(rtrim(null));
         assertEquals("", rtrim(""));
         assertEquals("text", rtrim("text"));
         assertEquals("text", rtrim("text "));

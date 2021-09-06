@@ -70,7 +70,7 @@ class GenTypeIteratorTest {
             }
         }
 
-        assertThrows(NoSuchElementException.class, () -> iterator.next());
+        assertThrows(NoSuchElementException.class, iterator::next);
 
         return list;
     }
