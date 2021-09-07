@@ -4,8 +4,8 @@ plugins {
 
 dependencies {
 	api project(':minime-parser')
-	api "net.sf.jopt-simple:jopt-simple:5.0.4"
-	implementation libs.antlr.runtime
+	api libs.jopt.simple
+	api libs.antlr.runtime
 
 	testImplementation 'org.jogamp.jogl:jogl-all:2.3.2'
 	testImplementation 'org.jogamp.gluegen:gluegen-rt-main:2.3.2'
@@ -22,7 +22,7 @@ jar {
 }
 
 shadowJar {
-	configurations = [project.configurations.compileClasspath]
+	configurations = [project.configurations.runtimeClasspath]
 	archiveBaseName.set('minime')
 	archiveClassifier.set('')
 }
@@ -49,7 +49,15 @@ task copyInstallTemplate(type: Copy) {
 jar.dependsOn copyInstallTemplate
 
 task addPayload(type: Exec) {
+	dependsOn dist
 	commandLine "$buildDir/add_payload.sh"
+}
+
+task distZip(type: Zip) {
+	dependsOn dist
+	archiveFileName = "minime-${project.version}.zip"
+	destinationDirectory = project.buildDir
+	from("$buildDir/dist")
 }
 
 addPayload.dependsOn copyInstallTemplate
