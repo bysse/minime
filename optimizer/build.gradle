@@ -62,3 +62,4 @@ task distZip(type: Zip) {
 
 addPayload.dependsOn copyInstallTemplate
 dist.finalizedBy addPayload
+dist.finalizedBy distZip
