@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Created by erikb on 2018-09-28.
@@ -40,6 +41,10 @@ public class FileSource implements Source {
 
     @Override
     public Source resolve(String filePath) throws FileNotFoundException {
+        if (path.getParent() == null) {
+            return new FileSource(Paths.get(filePath));
+        }
+
         return new FileSource(path.getParent().resolve(filePath));
     }
 

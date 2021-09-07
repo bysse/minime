@@ -60,7 +60,7 @@ public class CompilerOptions implements CLIOptions {
         shaderIdSpec = parser.accepts("id", "Set the shader id, used for C-header generation.")
                 .withRequiredArg().describedAs("id");
 
-        blacklistSpec = parser.accepts("no-render", "Black lists a keyword that will be omitted from rendering.")
+        blacklistSpec = parser.accepts("no-render", "Omit a keyword from rendering.")
                 .withRequiredArg().describedAs("keyword");
 
         indentationSpec = parser.accepts("fidentation", "The number of spaces to use for output indentation")
@@ -145,7 +145,7 @@ public class CompilerOptions implements CLIOptions {
 
     @Override
     public Path generateOutput(Path inputPath) {
-        String name = inputPath.toFile().getName();
+        String name = stripExtension(inputPath.toFile().getName());
         switch (outputFormat) {
             case SHADERTOY:
             case PLAIN:
@@ -155,6 +155,16 @@ public class CompilerOptions implements CLIOptions {
             default:
                 throw new UnsupportedOperationException("Unsupported format option : " + outputFormat);
         }
+    }
+
+    private String stripExtension(String name) {
+        if (name.endsWith(".glsl")) {
+            name = name.substring(0, name.length() - 5);
+            if (name.isEmpty()) {
+                return "shader";
+            }
+        }
+        return name;
     }
 
     private void printFormatExpectations(Logger logger) {
