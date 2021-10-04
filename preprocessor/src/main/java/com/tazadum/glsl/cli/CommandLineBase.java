@@ -43,6 +43,7 @@ public class CommandLineBase {
     private final List<InputOutput> inputOutputs;
 
     private boolean singleOutput = false;
+    private boolean alreadyPrinted = false;
 
     CommandLineBase(String main, String header, boolean multipleInputs, CLIOptions... options) {
         this.header = header;
@@ -156,6 +157,10 @@ public class CommandLineBase {
     }
 
     void showHelp(boolean showHeader) {
+        if (alreadyPrinted) {
+            return;
+        }
+        alreadyPrinted = true;
         try {
             PrintStream out = System.out;
             if (showHeader) {

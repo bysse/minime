@@ -34,6 +34,7 @@ class TypeCombinationTest {
         assertEquals(VEC2, arithmeticResult(MAT2, VEC2));
         assertEquals(MAT2, arithmeticResult(MAT2, MAT2));
         assertEquals(MAT2, arithmeticResult(MAT2, MAT2));
+        assertEquals(VEC3, arithmeticResult(MAT3, VEC3));
 
         // matrix hell
         assertEquals(DMAT2, arithmeticResult(MAT3X2, DMAT2X3));

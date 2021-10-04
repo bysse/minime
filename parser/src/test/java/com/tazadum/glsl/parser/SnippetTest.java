@@ -61,6 +61,8 @@ class SnippetTest {
                 ok("layout(binding=1) buffer P { vec4 pos[]; };void main(){pos[0]=vec4(1);}"),
                 ok("layout(binding=1) buffer P { vec4 pos[]; } p;void main(){p.pos[0]=vec4(1);}"),
                 ok("uvec3 a;uint b=int(a);"),
+                ok("uniform mat4 u; void main(){ mat3 a=mat3(u); }"),
+                ok("uniform mat4 u; void main(){ vec3 a=mat3(u)*vec3(0,0,1); }"),
 
         };
     }

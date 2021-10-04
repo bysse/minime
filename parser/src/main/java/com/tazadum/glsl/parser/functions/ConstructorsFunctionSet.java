@@ -86,6 +86,8 @@ public class ConstructorsFunctionSet implements FunctionSet {
             final String name = mat2.token();
             final PredefinedType scalar = mat2.baseType();
             final PredefinedType vec2 = GenVec2Type.fromBase(scalar);
+            final PredefinedType mat3 = GenMat3Type.fromBase(scalar);
+            final PredefinedType mat4 = GenMat4Type.fromBase(scalar);
 
             declarator.function(name, mat2, scalar);
             declarator.function(name, mat2, mat2);
@@ -94,6 +96,9 @@ public class ConstructorsFunctionSet implements FunctionSet {
             declarator.function(name, mat2, vec2, scalar, scalar);
             declarator.function(name, mat2, scalar, vec2, scalar);
             declarator.function(name, mat2, scalar, scalar, vec2);
+
+            declarator.function(name, mat2, mat3);
+            declarator.function(name, mat2, mat4);
         }
 
         // mat3 construction
@@ -101,6 +106,7 @@ public class ConstructorsFunctionSet implements FunctionSet {
             final String name = mat3.token();
             final PredefinedType scalar = mat3.baseType();
             final PredefinedType vec3 = GenVec3Type.fromBase(scalar);
+            final PredefinedType mat4 = GenMat4Type.fromBase(scalar);
 
             declarator.function(name, mat3, scalar);
             declarator.function(name, mat3, vec3, vec3, vec3);
@@ -108,6 +114,8 @@ public class ConstructorsFunctionSet implements FunctionSet {
                     scalar, scalar, scalar,
                     scalar, scalar, scalar,
                     scalar, scalar, scalar);
+
+            declarator.function(name, mat3, mat4);
         }
 
         // mat4 construction
