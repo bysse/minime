@@ -1,6 +1,7 @@
 package com.tazadum.glsl.cli;
 
 import com.tazadum.glsl.cli.options.PreprocessorOptions;
+import com.tazadum.glsl.preprocessor.PreprocessorException;
 import com.tazadum.glsl.stage.*;
 import com.tazadum.glsl.util.Pair;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class PreprocessorMain {
             }
 
             // setup the output
-            FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
+            Stage<String, String> writerStage = cli.isOutputToStdout() ? new StandardOutWriterStage() : new FileWriterStage(inputOutput.getOutput());
 
             StagePipeline<Path, String> pipeline = StagePipeline
                     .create(stage1)
@@ -51,8 +52,8 @@ public class PreprocessorMain {
             pipeline.process(new PathStageData(inputOutput.getInput()));
 
             System.exit(RET_OK);
-        } catch (StageException e) {
-            logger.error(e.getMessage(), e);
+        } catch (PreprocessorException | StageException e) {
+            logger.error(e.getMessage());
             System.exit(RET_EXCEPTION);
         }
     }

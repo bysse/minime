@@ -380,8 +380,11 @@ public class DefaultPreprocessor implements Preprocessor {
     private Node parse(String sourceLine, int startOfDeclaration, SourcePositionId sourceId) {
         try {
             PPLexer lexer = new PPLexer(CharStreams.fromString(sourceLine));
+
             final PPParser parser = new PPParser(new CommonTokenStream(lexer));
 
+            parser.removeErrorListeners();
+            parser.addErrorListener(new PreprocessorErrorListener());
             parser.setErrorHandler(new PreprocessorBailStrategy());
 
             PreprocessorVisitor visitor = new PreprocessorVisitor(sourceId, state.getLogKeeper());
@@ -390,7 +393,7 @@ public class DefaultPreprocessor implements Preprocessor {
         } catch (PreprocessorException e) {
             SourcePosition local = e.getSourcePosition().getPosition();
             SourcePositionId position = SourcePositionId.create(startOfDeclaration + local.getLine(), local.getColumn());
-            throw new PreprocessorException(position, e, "Syntax error. " + e.getMessage());
+            throw new PreprocessorException(position, e, "Syntax error: " + e.getMessage());
         }
     }
 

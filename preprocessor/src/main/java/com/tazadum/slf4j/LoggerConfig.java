@@ -16,6 +16,7 @@ public class LoggerConfig {
     private int logLevel = LOG_LEVEL_INFO;
     private int errorStreamLevel = LOG_LEVEL_ERROR;
     private boolean showLoggerName = false;
+    private boolean logToFile = false;
 
     private String traceLabel = "TRACE";
     private String debugLabel = "DEBUG";
@@ -90,5 +91,13 @@ public class LoggerConfig {
 
     public void setErrorLabel(String errorLabel) {
         this.errorLabel = errorLabel;
+    }
+
+    public void setLogToFile(boolean logToFile) {
+        this.logToFile = logToFile;
+    }
+
+    public boolean getLogToFile() {
+        return logToFile;
     }
 }

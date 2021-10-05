@@ -40,6 +40,7 @@ public class CommandLineBase {
     private final LoggerConfig loggerConfig;
     private final String header;
     private final boolean multipleInputs;
+    private boolean outputToStdout;
     private final List<InputOutput> inputOutputs;
 
     private boolean singleOutput = false;
@@ -49,6 +50,7 @@ public class CommandLineBase {
         this.header = header;
         this.multipleInputs = multipleInputs;
         this.loggerConfig = TLogConfiguration.get().getConfig();
+        this.outputToStdout = false;
 
         this.loggerConfig.setTraceLabel("");
         this.loggerConfig.setDebugLabel("");
@@ -62,6 +64,7 @@ public class CommandLineBase {
         this.parser.formatHelpWith(new Formatter(120, 5));
 
         parser.accepts("o", "Name of the output file.").withRequiredArg().describedAs("FILE");
+        parser.accepts("stdout", "Output the result to stdout and write the log to minime.log");
         parser.accepts("h", "Shows this help screen.");
         parser.accepts("v", "Increase output verbosity.");
         parser.accepts("vv", "Increase output verbosity even more.");
@@ -80,6 +83,14 @@ public class CommandLineBase {
             }
             if (optionSet.has("vv")) {
                 loggerConfig.setLogLevel(Level.TRACE);
+            }
+            if (optionSet.has("stdout")) {
+                if (optionSet.has("o")) {
+                    logger.error("File output doesn't make sense together with stdout");
+                    return NO_RESULT;
+                }
+                loggerConfig.setLogToFile(true);
+                outputToStdout = true;
             }
 
             if (optionSet.has("h")) {
@@ -150,6 +161,10 @@ public class CommandLineBase {
 
     boolean isSingleOutput() {
         return singleOutput;
+    }
+
+    public boolean isOutputToStdout() {
+        return outputToStdout;
     }
 
     List<InputOutput> getInputOutputs() {

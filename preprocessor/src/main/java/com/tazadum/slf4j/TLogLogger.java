@@ -4,6 +4,7 @@ import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.io.FileNotFoundException;
 import java.io.PrintStream;
 
 import static com.tazadum.slf4j.LoggerConfig.*;
@@ -14,6 +15,7 @@ import static com.tazadum.slf4j.LoggerConfig.*;
 public class TLogLogger extends MarkerIgnoringBase {
     private final String name;
     private final LoggerConfig config;
+    private volatile PrintStream fileOutput;
 
     public TLogLogger(String name) {
         this.name = name;
@@ -242,6 +244,20 @@ public class TLogLogger extends MarkerIgnoringBase {
     private PrintStream getPrintStream(int level) {
         if (level >= config.getErrorStreamLevel()) {
             return System.err;
+        }
+        if (config.getLogToFile()) {
+            if (fileOutput == null) {
+                synchronized (this) {
+                    if (fileOutput == null) {
+                        try {
+                            fileOutput = new PrintStream("minime.log");
+                        } catch (FileNotFoundException e) {
+                            throw new RuntimeException("Failed to write to minime.log");
+                        }
+                    }
+                }
+            }
+            return fileOutput;
         }
         return System.out;
     }
