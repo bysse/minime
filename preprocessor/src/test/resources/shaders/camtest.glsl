@@ -1,7 +1,7 @@
 
 #pragma include(camera_integration.glsl)
 
-oid main(void) {
+void main(void) {
     vec2 uv = (2.*gl_FragCoord.xy-iResolution.xy)/iResolution.y;
     vec2 mouseUV = iMouse.xy / iResolution.xy;
 
