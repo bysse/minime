@@ -83,7 +83,7 @@ public class CompilerMain {
             }
 
             // setup the output
-            FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());
+            Stage<String, String> writerStage = cli.isOutputToStdout() ? new StandardOutWriterStage() : new FileWriterStage(inputOutput.getOutput());
 
             StagePipeline<Path, String> pipeline = StagePipeline
                     .create(preprocess)

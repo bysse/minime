@@ -13,6 +13,8 @@ import com.tazadum.glsl.language.variable.VariableRegistry;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
 import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.parser.functions.FunctionSets;
+import com.tazadum.glsl.preprocessor.MinimeBailStrategy;
+import com.tazadum.glsl.preprocessor.MinimeErrorListener;
 import com.tazadum.glsl.preprocessor.Preprocessor;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.stage.StageData;
@@ -29,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.function.BiConsumer;
@@ -134,7 +135,10 @@ public class CompilerExecutor implements ProcessorExecutor<CompilerExecutor.Resu
             final GLSLLexer lexer = new GLSLLexer(CharStreams.fromString(source));
             final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             final GLSLParser parser = new GLSLParser(tokenStream);
-            parser.setErrorHandler(new ParserBailStrategy());
+
+            parser.removeErrorListeners();
+            parser.addErrorListener(new MinimeErrorListener());
+            parser.setErrorHandler(new MinimeBailStrategy());
 
             logger.trace("- Converting source to AST");
             final ASTConverter astConverter = new ASTConverter(mapper, parserContext);

@@ -6,7 +6,7 @@ import org.antlr.v4.runtime.misc.IntervalSet;
 /**
  * Created by erikb on 2021-10-05.
  */
-public class PreprocessorBailStrategy extends DefaultErrorStrategy {
+public class MinimeBailStrategy extends DefaultErrorStrategy {
     private ParserRuleContext getParent(ParserRuleContext context, int depth) {
         for (int i = 0; i < depth; i++) {
             if (context.getParent() == null) {

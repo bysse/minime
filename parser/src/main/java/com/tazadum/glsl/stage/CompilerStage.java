@@ -10,6 +10,8 @@ import com.tazadum.glsl.language.type.TypeRegistryImpl;
 import com.tazadum.glsl.language.variable.VariableRegistryImpl;
 import com.tazadum.glsl.parser.*;
 import com.tazadum.glsl.parser.functions.FunctionSets;
+import com.tazadum.glsl.preprocessor.MinimeBailStrategy;
+import com.tazadum.glsl.preprocessor.MinimeErrorListener;
 import com.tazadum.glsl.preprocessor.language.GLSLProfile;
 import com.tazadum.glsl.util.Pair;
 import com.tazadum.glsl.util.SourcePositionId;
@@ -55,7 +57,10 @@ public class CompilerStage implements Stage<String, Pair<Node, ParserContext>> {
             final GLSLLexer lexer = new GLSLLexer(CharStreams.fromString(input.getData()));
             final CommonTokenStream tokenStream = new CommonTokenStream(lexer);
             final GLSLParser parser = new GLSLParser(tokenStream);
-            parser.setErrorHandler(new ParserBailStrategy());
+
+            parser.removeErrorListeners();
+            parser.addErrorListener(new MinimeErrorListener());
+            parser.setErrorHandler(new MinimeBailStrategy());
 
             logger.trace("- Converting source to AST");
             final ASTConverter astConverter = new ASTConverter(sourcePositionMapper, parserContext);

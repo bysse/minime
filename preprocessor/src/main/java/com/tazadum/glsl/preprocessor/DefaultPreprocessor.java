@@ -384,8 +384,8 @@ public class DefaultPreprocessor implements Preprocessor {
             final PPParser parser = new PPParser(new CommonTokenStream(lexer));
 
             parser.removeErrorListeners();
-            parser.addErrorListener(new PreprocessorErrorListener());
-            parser.setErrorHandler(new PreprocessorBailStrategy());
+            parser.addErrorListener(new MinimeErrorListener());
+            parser.setErrorHandler(new MinimeBailStrategy());
 
             PreprocessorVisitor visitor = new PreprocessorVisitor(sourceId, state.getLogKeeper());
             PPParser.PreprocessorContext context = parser.preprocessor();

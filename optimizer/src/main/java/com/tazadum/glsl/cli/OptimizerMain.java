@@ -61,7 +61,7 @@ public class OptimizerMain {
 
         try {
             OptimizerMain main = new OptimizerMain(preprocessorOption, compilerOption, optimizerOption);
-            main.process(cli.getInputOutputs(), cli.isSingleOutput());
+            main.process(cli.getInputOutputs(), cli.isSingleOutput(), cli.isOutputToStdout());
 
             if (!noExit) {
                 System.exit(RET_OK);
@@ -80,7 +80,7 @@ public class OptimizerMain {
         this.optimizerOption = optimizerOption;
     }
 
-    private void process(List<InputOutput> inputOutputs, boolean singleOutput) {
+    private void process(List<InputOutput> inputOutputs, boolean singleOutput, boolean outputToStdout) {
         final boolean small = optimizerOption.isOptimizeSmall();
         final boolean header = compilerOption.getOutputFormat() == OutputFormat.C_HEADER;
 
@@ -105,7 +105,7 @@ public class OptimizerMain {
                 throw new StageException("Multiple shader files will be written to the same output file! Please use '-format c'");
             }
 
-            final FileWriterStage writerStage = new FileWriterStage(inputOutputs.get(0).getOutput());
+            Stage<String, String> writerStage = outputToStdout ? new StandardOutWriterStage() : new FileWriterStage(inputOutputs.get(0).getOutput());
             final ConcatStage concatStage = new ConcatStage("\n");
 
             for (InputOutput inputOutput : inputOutputs) {
@@ -124,6 +124,10 @@ public class OptimizerMain {
 
             writerStage.process(StageData.from(concatStage.getData(), null));
         } else {
+            if (outputToStdout) {
+                throw new StageException("Multiple shader files will be written to STDOUT! Please remove '-stdout'");
+            }
+
             for (InputOutput inputOutput : inputOutputs) {
                 final OptimizerReport report = new OptimizerReport();
                 final FileWriterStage writerStage = new FileWriterStage(inputOutput.getOutput());

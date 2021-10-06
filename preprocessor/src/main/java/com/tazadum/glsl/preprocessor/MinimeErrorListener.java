@@ -9,7 +9,7 @@ import org.antlr.v4.runtime.dfa.DFA;
 
 import java.util.BitSet;
 
-public class PreprocessorErrorListener implements org.antlr.v4.runtime.ANTLRErrorListener {
+public class MinimeErrorListener implements org.antlr.v4.runtime.ANTLRErrorListener {
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
         throw new PreprocessorException(SourcePosition.create(e.getOffendingToken()), msg);
