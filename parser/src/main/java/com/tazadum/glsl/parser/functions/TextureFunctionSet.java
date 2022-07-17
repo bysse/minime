@@ -99,10 +99,10 @@ public class TextureFunctionSet implements FunctionSet {
             def.function("textureProj", gvec4, gsampler2dRect, VEC3);
             def.function("textureProj", gvec4, gsampler2dRect, VEC4);
 
-            def.function("textureLod", gvec4, gsampler1d, FLOAT);
-            def.function("textureLod", gvec4, gsampler2d, VEC2);
-            def.function("textureLod", gvec4, gsampler3d, VEC3);
-            def.function("textureLod", gvec4, gsamplerCube, VEC3);
+            def.function("textureLod", gvec4, gsampler1d, FLOAT, FLOAT);
+            def.function("textureLod", gvec4, gsampler2d, VEC2, FLOAT);
+            def.function("textureLod", gvec4, gsampler3d, VEC3, FLOAT);
+            def.function("textureLod", gvec4, gsamplerCube, VEC3, FLOAT);
             def.function("textureLod", gvec4, gsampler1dArray, VEC2, FLOAT);
             def.function("textureLod", gvec4, gsampler2dArray, VEC3, FLOAT);
             def.function("textureLod", gvec4, gsampler2dArray, VEC4, FLOAT);
