@@ -6,7 +6,7 @@ import com.tazadum.glsl.preprocessor.model.HasToken;
 
 /**
  * Shader storage blocks, variables declared within shader storage blocks and variables declared as
- * image types (the basic opaque types with “image” in their keyword), can be further qualified with
+ * image types (the basic opaque types with "image" in their keyword), can be further qualified with
  * one or more of the following memory qualifiers:
  */
 public enum MemoryQualifier implements TypeQualifier, HasToken {

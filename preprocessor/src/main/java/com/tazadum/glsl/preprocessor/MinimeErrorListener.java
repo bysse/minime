@@ -12,6 +12,9 @@ import java.util.BitSet;
 public class MinimeErrorListener implements org.antlr.v4.runtime.ANTLRErrorListener {
     @Override
     public void syntaxError(Recognizer<?, ?> recognizer, Object offendingSymbol, int line, int charPositionInLine, String msg, RecognitionException e) {
+        if (e == null) {
+            throw new PreprocessorException(SourcePosition.create(line, charPositionInLine), msg);
+        }
         throw new PreprocessorException(SourcePosition.create(e.getOffendingToken()), msg);
     }
 
