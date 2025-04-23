@@ -11,7 +11,7 @@ import org.slf4j.spi.SLF4JServiceProvider;
  * Created by erikb on 2018-10-25.
  */
 public class TLogServiceProvider implements SLF4JServiceProvider {
-    public static String REQUESTED_API_VERSION = "1.8.99";
+    public static String REQUESTED_API_VERSION = "2.0.17";
 
     private ILoggerFactory loggerFactory;
     private BasicMarkerFactory markerFactory;
@@ -33,7 +33,7 @@ public class TLogServiceProvider implements SLF4JServiceProvider {
     }
 
     @Override
-    public String getRequesteApiVersion() {
+    public String getRequestedApiVersion() {
         return REQUESTED_API_VERSION;
     }
 

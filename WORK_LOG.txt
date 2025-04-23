@@ -140,5 +140,10 @@ Date    Hours
 // TODO: add conditional formatting for scientific notation of numeric
 
 
+// TODO: Add sub expression extraction
+// TODO: Reuse variables that aren't used any longer to avoid costly declarations
+// TODO: Collect mutations of a variables into a single statement
+// TODO: Collapse conditional mutations into a ternary operation
+
 // NOTE: Field selection from different sets is allowed.
 // NOTE: Multi level array constructors must have specified size.

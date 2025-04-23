@@ -25,7 +25,7 @@ The preprocessor supports a custom pragma directive for including other files. T
 * Dead code is removed from the output shader so no need to comment out things you don't need.
 * Identifiers are renamed after optimization so you can use sane variable names.
 * Function inlining, simple functions can be inlined when it makes sense.
-* Constant propagation is performed where is saves bytes.
+* Constant p[private](optimizer/property%28org.gradle.api.file.Directory%2C%20fixed%28class%20org.gradle.api.internal.file.DefaultFilePropertyFactory%24FixedDirectory%2C%20/home/erikb/private)ropagation is performed where is saves bytes.
 * Some expressions are automatically simplified and rewritted for size. But constants are almost always better to optimize by hand. It tries to be smart, but it's probably not smarter than you.
 
 
